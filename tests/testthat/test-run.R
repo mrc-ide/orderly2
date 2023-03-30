@@ -78,3 +78,14 @@ test_that("error if declared artefacts are not produced", {
     orderly_run("explicit", root = path, envir = env),
     "Script did not produce expected artefacts: 'output.csv'")
 })
+
+
+test_that("Can run explicit case without orderly", {
+  path <- test_prepare_orderly_example("explicit")
+  env <- new.env()
+  path_src <- file.path(path, "src", "explicit")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env))
+  expect_setequal(dir(path_src),
+                  c("data.csv", "orderly.R", "mygraph.png"))
+})
