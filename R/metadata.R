@@ -11,16 +11,18 @@
 ##'
 ##' @export
 orderly_resource <- function(files) {
+  ## TODO: an error here needs to throw a condition that we can easily
+  ## handle and or defer; that's not too hard to do though - convert
+  ## the error into something with a special class, perhaps make it a
+  ## warning in normal R and then register a handler for it in the
+  ## main run.
   assert_character(files)
-
-  ## TODO: check that the files actually exist
-
-  ## TODO: we need to register the active packet, or just pull it from
-  ## outpack - either is likely ok really.
+  assert_file_exists(files)
 
   p <- get_active_packet()
-  if (!is.null(p)) {
-    browser()
+  if (!is.null(p) && length(files) > 0L) {
+    outpack::outpack_packet_file_mark(files, "immutable", packet = p)
+    p$orderly3$resources <- c(p$orderly3$resources, files)
   }
 
   invisible()
@@ -60,11 +62,12 @@ static_orderly_resource <- function(files) {
 ##' @export
 orderly_artefact <- function(description, files) {
   assert_scalar_character(description)
-  assert_character(files)
+  assert_character(files) # also check length >0 ?
 
   p <- get_active_packet()
   if (!is.null(p)) {
-    browser()
+    artefact <- list(description = description, files = files)
+    p$orderly3$artefacts <- c(p$orderly3$artefacts, list(artefact))
   }
 
   invisible()
@@ -76,13 +79,6 @@ static_orderly_artefact <- function(description, files) {
        files = static_character_vector(files))
 }
 
-
-## TODO: orderly_ignore
-## TODO: orderly_no_undeclared_artefacts
-## TODO: orderly_strict_mode - turn on all the usual file checks and
-##   old-style artefact behaviour (also enable globally)
-## TODO: orderly_displayname } - possibly as orderly describe?
-## TODO: orderly_description }
 
 static_character_vector <- function(x) {
   if (is.character(x)) {
@@ -99,4 +95,11 @@ static_eval <- function(fn, call) {
   expr <- match.call(fn, call)
   expr[[1]] <- fn
   eval(expr)
+}
+
+
+current <- new.env(parent = emptyenv())
+
+get_active_packet <- function() {
+  current[[getwd()]]
 }

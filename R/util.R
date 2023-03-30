@@ -31,3 +31,29 @@ set_names <- function(x, nms) {
   names(x) <- nms
   x
 }
+
+
+dir_ls_local <- function(path, ...) {
+  withr::with_dir(path, fs::dir_ls(path = ".", ...))
+}
+
+
+scalar <- function(x) {
+  jsonlite::unbox(x)
+}
+
+
+to_json <- function(obj, pretty = FALSE) {
+  jsonlite::toJSON(obj, pretty = pretty, auto_unbox = FALSE, na = "null",
+                   null = "null", json_verbatim = TRUE, digits = NA)
+}
+
+
+rep_along <- function(x, v) {
+  rep_len(x, length(v))
+}
+
+
+data_frame <- function(...) {
+  data.frame(..., stringsAsFactors = FALSE, check.names = FALSE)
+}

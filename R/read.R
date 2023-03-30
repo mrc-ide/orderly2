@@ -1,3 +1,5 @@
+## TODO: detect unconditional source?
+## TODO: detect unconditional library!
 orderly_read <- function(path) {
   assert_file_exists("orderly.R", workdir = path)
   orderly_read_r(file.path(path, "orderly.R"))
@@ -29,7 +31,7 @@ orderly_read_r <- function(path) {
 
   ret <- list()
   if (length(dat$resource) > 0) {
-    ret$resource <- unique(unlist(dat$resource, TRUE, FALSE))
+    ret$resources <- unique(unlist(dat$resource, TRUE, FALSE))
   }
   if (length(dat$artefact) > 0) {
     ret$artefacts <- dat$artefact
