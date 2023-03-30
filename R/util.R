@@ -57,3 +57,8 @@ rep_along <- function(x, v) {
 data_frame <- function(...) {
   data.frame(..., stringsAsFactors = FALSE, check.names = FALSE)
 }
+
+
+squote <- function(x) {
+  sprintf("'%s'", x)
+}

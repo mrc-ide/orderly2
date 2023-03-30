@@ -63,3 +63,18 @@ test_that("can run simple task with implicit inputs and outputs", {
   expect_equal(meta$custom$orderly$role, list())
   expect_equal(meta$custom$orderly$artefacts, list())
 })
+
+
+test_that("error if declared artefacts are not produced", {
+  path <- test_prepare_orderly_example("explicit")
+  env <- new.env()
+  path_src <- file.path(path, "src", "explicit", "orderly.R")
+  code <- readLines(path_src)
+  writeLines(c(
+    'orderly3::orderly_artefact("some data", "output.csv")',
+    code),
+    path_src)
+  expect_error(
+    orderly_run("explicit", root = path, envir = env),
+    "Script did not produce expected artefacts: 'output.csv'")
+})
