@@ -36,15 +36,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
   dat <- orderly_read(src)
 
-  ## we should provide nice validation here for the things that we can
-  ## reason about, we'll need to do this *again* later though, but
-  ## this way we can fail early.
   orderly_validate(dat, src)
 
   id <- outpack::outpack_id()
 
-  ## Really this needs to be a normalised path too, but the conditions
-  ## to cause an error here are pretty specific.
   stopifnot(fs::is_absolute_path(root$path))
   path <- file.path(root$path, "draft", name, id)
   fs::dir_create(path)
