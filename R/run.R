@@ -72,9 +72,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                        local = TRUE)
     p$orderly3 <- list()
     current[[path]] <- p
-    if (!is.null(parameters)) {
-      list2env(parameters, envir)
-    }
+    stopifnot(is.null(parameters)) # next PR perhaps
 
     if (length(dat$resources) > 0) { # outpack should cope with this...
       outpack::outpack_packet_file_mark(dat$resources, "immutable", packet = p)
