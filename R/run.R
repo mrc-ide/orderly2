@@ -43,6 +43,13 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   stopifnot(fs::is_absolute_path(root$path))
   path <- file.path(root$path, "draft", name, id)
   fs::dir_create(path)
+  ## Slightly peculiar formulation here; we're going to use 'path' as
+  ## the key for storing the active packet and look it up later with
+  ## getwd(); this means we definitely will match. Quite possibly path
+  ## normalisation would do the same fix. This will likely change in
+  ## future if we need to support working within subdirectories of
+  ## path too, in which case we use something from fs.
+  path <- withr::with_dir(path, getwd())
 
   ## For now, let's just copy *everything* over. Later we'll get more
   ## clever about this and avoid copying over artefacts and
