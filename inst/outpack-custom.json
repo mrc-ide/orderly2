@@ -1,0 +1,74 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "orderly/outpack custom schema",
+    "version": "0.0.1",
+
+    "type": "object",
+    "properties": {
+        "artefacts": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "paths": {
+                        "comment": "Will match the set of paths in outpack",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "packages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+        },
+        "global": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "here": {
+                        "type": "string"
+                    },
+                    "there": {
+                        "type": "string"
+                    }
+                },
+                "required": ["here", "there"]
+            }
+        },
+        "role": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "comment": "Will match the set of paths in outpack",
+                        "type": "string"
+                    },
+                    "role": {
+                        "enum": ["orderly_yml", "resource", "script", "source", "dependency", "global", "readme"]
+                    }
+                }
+            }
+        },
+        "displayname": {
+            "type": ["null", "string"]
+        },
+        "description": {
+            "type": ["null", "string"]
+        },
+        "custom": {
+        }
+    },
+    "additionalProperties": false,
+    "required": ["artefacts", "packages", "global", "role",
+                 "displayname", "description", "custom"]
+}
