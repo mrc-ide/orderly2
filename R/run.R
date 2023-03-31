@@ -68,10 +68,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     fs::file_copy(file.path(src, to_copy), path)
   }
 
+  p <- outpack::outpack_packet_start(path, name, parameters = parameters,
+                                     id = id, root = root$outpack,
+                                     local = TRUE)
   withCallingHandlers({
-    p <- outpack::outpack_packet_start(path, name, parameters = parameters,
-                                       id = id, root = root$outpack,
-                                       local = TRUE)
     p$orderly3 <- list()
     current[[path]] <- p
     stopifnot(is.null(parameters)) # next PR perhaps
