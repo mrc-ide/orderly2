@@ -14,7 +14,8 @@ test_prepare_orderly_example <- function(examples, ...) {
     config <- c(config,
                 "global_resources: global")
     fs::dir_create(file.path(tmp, "global"))
-    fs::file_copy(testthat::test_path("examples/minimal/data.csv"), file.path(tmp, "global"))
+    fs::file_copy(testthat::test_path("examples/minimal/data.csv"),
+                  file.path(tmp, "global"))
   }
 
   writeLines(config, file.path(tmp, "orderly_config.yml"))
