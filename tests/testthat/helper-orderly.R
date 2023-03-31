@@ -20,7 +20,7 @@ test_prepare_orderly_example <- function(examples, ...) {
   writeLines(config, file.path(tmp, "orderly_config.yml"))
   fs::dir_create(file.path(tmp, "src"))
   for (i in examples) {
-    fs::dir_copy(file.path("examples", i), file.path(tmp, "src"))
+    fs::dir_copy(testthat::test_path("examples", i), file.path(tmp, "src"))
   }
   tmp
 }
