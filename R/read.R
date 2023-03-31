@@ -12,7 +12,8 @@ orderly_read_r <- function(path) {
 
   check <- list(orderly_parameters = static_orderly_parameters,
                 orderly_resource = static_orderly_resource,
-                orderly_artefact = static_orderly_artefact)
+                orderly_artefact = static_orderly_artefact,
+                orderly_depends = static_orderly_depends)
   dat <- set_names(rep(list(NULL), length(check)), names(check))
 
   for (e in exprs) {
@@ -48,6 +49,9 @@ orderly_read_r <- function(path) {
   }
   if (length(dat$artefact) > 0) {
     ret$artefacts <- dat$artefact
+  }
+  if (length(dat$depends) > 0) {
+    ret$depends <- drop_null(dat$depends, empty = NULL)
   }
 
   ret
