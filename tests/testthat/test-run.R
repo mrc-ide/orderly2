@@ -135,3 +135,34 @@ test_that("can run orderly with parameters, without orderly", {
   expect_true(file.exists(path_rds))
   expect_equal(readRDS(path_rds), list(a = 10, b = 2, c = 30))
 })
+
+
+test_that("Can run simple case with dependency", {
+  path <- test_prepare_orderly_example(c("explicit", "depends"))
+  env1 <- new.env()
+  id1 <- orderly_run("explicit", root = path, envir = env1)
+  env2 <- new.env()
+  id2 <- orderly_run("depends", root = path, envir = env2)
+
+  path1 <- file.path(path, "archive", "explicit", id1)
+  path2 <- file.path(path, "archive", "depends", id2)
+
+  expect_true(file.exists(file.path(path2, "graph.png")))
+  expect_equal(
+    unname(tools::md5sum(file.path(path2, "graph.png"))),
+    unname(tools::md5sum(file.path(path1, "mygraph.png"))))
+})
+
+
+test_that("Can run dependencies case without orderly", {
+  skip("needs work")
+  path <- test_prepare_orderly_example(c("explicit", "depends"))
+  env1 <- new.env()
+  id1 <- orderly_run("explicit", root = path, envir = env1)
+
+  env2 <- new.env()
+  path_src <- file.path(path, "src", "depends")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env2))
+  expect_setequal(dir(path_src), c("orderly.R", "graph.png"))
+})
