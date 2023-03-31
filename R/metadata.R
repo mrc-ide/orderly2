@@ -29,8 +29,8 @@ orderly_resource <- function(files) {
 }
 
 
-static_orderly_resource <- function(files) {
-  list(files = static_character_vector(files))
+static_orderly_resource <- function(args) {
+  list(files = static_character_vector(args$files))
 }
 
 
@@ -74,9 +74,9 @@ orderly_artefact <- function(description, files) {
 }
 
 
-static_orderly_artefact <- function(description, files) {
-  list(description = static_character_vector(description),
-       files = static_character_vector(files))
+static_orderly_artefact <- function(args) {
+  list(description = static_character_vector(args$description),
+       files = static_character_vector(args$files))
 }
 
 
@@ -94,9 +94,11 @@ static_character_vector <- function(x) {
 
 
 static_eval <- function(fn, call) {
-  expr <- match.call(fn, call)
-  expr[[1]] <- fn
-  eval(expr)
+  if (is_call(call[[1]], "::")) {
+    call[[1]] <- call[[1]][[3]]
+  }
+  args <- as.list(match.call(match.fun(call[[1]]), call)[-1])
+  fn(args)
 }
 
 

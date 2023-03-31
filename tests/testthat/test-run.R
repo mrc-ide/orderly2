@@ -89,3 +89,13 @@ test_that("Can run explicit case without orderly", {
   expect_setequal(dir(path_src),
                   c("data.csv", "orderly.R", "mygraph.png"))
 })
+
+
+test_that("cope with computed values in static functions", {
+  path <- test_prepare_orderly_example("computed-resource")
+  env <- new.env()
+  id <- orderly_run("computed-resource", root = path)
+  expect_setequal(
+    dir(file.path(path, "archive", "computed-resource", id)),
+    c("data.csv", "mygraph.png", "orderly.R"))
+})
