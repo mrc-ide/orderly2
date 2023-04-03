@@ -31,21 +31,15 @@ orderly_read_r <- function(path) {
   ret <- list()
   if (length(dat$parameters) > 0) {
     ## TODO: once things are working, check for no duplicate parameter
-    ## names across multiple calls; leaving this assertion in for now.
-    ##
-    ## Doing this well suggests that we should be able to record the
-    ## line numbers when we pass off through the file; that's not too
-    ## hard to do really, I think we can do that with getSrcRef or
-    ## similar.
-    ##
-    ## TODO: we should check back through the expressions for
-    ## top-level assignments to parameters, but only as far down as
-    ## calls to things that use them (so realistically that's just
-    ## dependency use.
+    ## names across multiple calls; leaving this assertion in for
+    ## now. Reporting on that well suggests that we should be able to
+    ## record the line numbers when we pass off through the file;
+    ## that's not too hard to do really, I think we can do that with
+    ## getSrcref or similar.
     ##
     ## TODO: we should disallow use of the parameter function in any
-    ## deeper expression, worth searching for that and setting up that
-    ## check here
+    ## deeper expression (at least in strict mode), worth searching
+    ## for that and setting up that check here
     stopifnot(!anyDuplicated(unlist(lapply(dat$parameters, names))))
     ret$parameters <- unlist(dat$parameters, FALSE, TRUE)
   }

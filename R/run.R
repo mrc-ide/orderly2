@@ -158,7 +158,6 @@ check_parameters <- function(given, spec) {
 
   use_default <- setdiff(names(spec), names(given))
   if (length(use_default) > 0) {
-    #spec[match(use_default, names(spec))]
     given[use_default] <- spec[use_default]
   }
   given[names(spec)]
