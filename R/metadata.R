@@ -19,8 +19,8 @@ orderly_parameters <- function(...) {
     ## Here, we might prompt for the presence of parameters in the
     ## global environment and prompt for it.
     pars <- static_orderly_parameters(list(...))
-    ## check_parameters_interactive(interactive(), pars, .GlobalEnv)
-    browser()
+    env <- parent.frame()
+    check_parameters_interactive(interactive(), pars, env)
   }
 
   invisible()

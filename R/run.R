@@ -148,10 +148,21 @@ check_parameters <- function(given, spec) {
   if (length(extra) > 0L) {
     stop("Extra parameters: ", paste(squote(extra), collapse = ", "))
   }
-  if (length(spec) == 0) {
+  if (nrow(spec) == 0) {
     return(NULL)
   }
 
+  check_parameter_values(given)
+
+  use_default <- setdiff(spec$name, names(given))
+  if (length(use_default) > 0) {
+    given[use_default] <- spec$default[match(use_default, spec$name)]
+  }
+  given[spec$name]
+}
+
+
+check_parameter_values <- function(given) {
   nonscalar <- lengths(given) != 1
   if (any(nonscalar)) {
     stop(sprintf(
@@ -166,10 +177,21 @@ check_parameters <- function(given, spec) {
       "Invalid parameters: %s - must be character, numeric or logical",
       paste(squote((names(err[err]))), collapse = ", ")))
   }
+}
 
-  use_default <- setdiff(spec$name, names(given))
-  if (length(use_default) > 0) {
-    given[use_default] <- spec$default[match(use_default, spec$name)]
+
+check_parameters_interactive <- function(env, spec, interactive) {
+  if (nrow(spec) == 0) {
+    return()
   }
-  given[spec$name]
+  msg <- setdiff(spec$name[spec$required], names(env))
+  if (length(msg) > 0L) {
+    ## Here, we will prompt for these
+    stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
+  }
+
+  ## We might need a slightly better error message here that indicates
+  ## that we're running in a pecular mod so the value might just have
+  ## been overwritten
+  check_parameter_values(lapply(spec$name, function(v) env[[v]]))
 }

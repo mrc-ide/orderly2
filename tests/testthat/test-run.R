@@ -122,3 +122,13 @@ test_that("fall back on parameter defaults", {
   expect_true(file.exists(path_rds))
   expect_equal(readRDS(path_rds), list(a = 10, b = 2, c = 30))
 })
+
+
+test_that("can run orderly with parameters, without orderly", {
+  path <- test_prepare_orderly_example("parameters")
+  env <- new.env()
+  env$b <- 20
+  path_src <- file.path(path, "src", "parameters")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env))
+})
