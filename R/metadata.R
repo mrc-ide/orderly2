@@ -20,7 +20,7 @@ orderly_parameters <- function(...) {
     ## global environment and prompt for it.
     pars <- static_orderly_parameters(list(...))
     env <- parent.frame()
-    check_parameters_interactive(env, pars, interactive())
+    check_parameters_interactive(env, pars)
   }
 
   invisible()

@@ -188,7 +188,7 @@ check_parameter_values <- function(given, defaults) {
 }
 
 
-check_parameters_interactive <- function(env, spec, interactive) {
+check_parameters_interactive <- function(env, spec) {
   if (length(spec) == 0) {
     return()
   }
@@ -197,8 +197,13 @@ check_parameters_interactive <- function(env, spec, interactive) {
   
   msg <- setdiff(names(spec)[is_required], names(env))
   if (length(msg) > 0L) {
-    ## Here, we will prompt for these soon, or provide an error that
-    ## is more actionable.
+    ## This will change, but we'll need some interactive prompting
+    ## better done in another ticket. See
+    ## https://github.com/r-lib/cli/issues/228 and
+    ## https://github.com/r-lib/cli/issues/488 for context here.
+    ##
+    ## There will be other "interactive mode" functions too that we'll
+    ## try and get a unified interface on.
     stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
   }
 
