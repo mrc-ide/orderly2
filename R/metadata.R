@@ -1,3 +1,47 @@
+##' Declare orderly parameters. You should only have one call to this
+##' within your file, though this is not enforced! Typically you'd put
+##' it very close to the top, though the order does not really matter.
+##' Parameters are scalar atomic values (e.g. a string, number or
+##' boolean) and defaults must be present literally (i.e., they may
+##' not come from a variable itself). Provide `NULL` if you do not
+##' have a default, in which case this parameter will be required.
+##'
+##' @title Declare orderly parameters
+##'
+##' @param ... Any number of parameters
+##'
+##' @return Undefined
+##'
+##' @export
+orderly_parameters <- function(...) {
+  p <- get_active_packet()
+  if (is.null(p)) {
+    ## Here, we might prompt for the presence of parameters in the
+    ## global environment and prompt for it.
+    pars <- static_orderly_parameters(list(...))
+    ## check_parameters_interactive(interactive(), pars, .GlobalEnv)
+    browser()
+  }
+
+  invisible()
+}
+
+
+static_orderly_parameters <- function(args) {
+  if (length(args) == 0L) {
+    return(NULL)
+  }
+  assert_named(args, unique = TRUE, name = "Arguments to 'orderly_parameters'")
+  ok <- vlapply(args,
+                function(x) is.null(x) || (is.atomic(x) && length(x) == 1))
+  if (!all(ok)) {
+    stop("Not ok parameter")
+  }
+
+  args
+}
+
+
 ##' Declare that a file, or group of files, are an orderly
 ##' resource. By explicitly declaring files as resources orderly will
 ##' mark the files as immutable inputs and validate that your analysis

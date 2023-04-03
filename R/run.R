@@ -36,6 +36,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
   dat <- orderly_read(src)
 
+  parameters <- check_parameters(parameters, dat$parameters)
+
   orderly_validate(dat, src)
 
   id <- outpack::outpack_id()
@@ -74,7 +76,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   withCallingHandlers({
     p$orderly3 <- list()
     current[[path]] <- p
-    stopifnot(is.null(parameters)) # next PR perhaps
+
+    if (!is.null(parameters)) {
+      list2env(parameters, envir)
+    }
 
     if (length(dat$resources) > 0) { # outpack should cope with this...
       outpack::outpack_packet_file_mark(dat$resources, "immutable", packet = p)
@@ -123,4 +128,48 @@ check_produced_artefacts <- function(path, artefacts) {
     stop("Script did not produce expected artefacts: ",
          paste(squote(expected[!found]), collapse = ", "))
   }
+}
+
+
+## Same logic as orderly1; has worked well in practice. We might want
+## to relax additional parameters here later, but that requires some
+## thinking about what to do with them (do they get passed into the
+## environment etc or not? do they get validated?)
+check_parameters <- function(given, spec) {
+  if (length(given) > 0) {
+    assert_named(given, unique = TRUE)
+  }
+
+  msg <- setdiff(spec$name[spec$required], names(given))
+  if (length(msg) > 0L) {
+    stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
+  }
+  extra <- setdiff(names(given), spec$name)
+  if (length(extra) > 0L) {
+    stop("Extra parameters: ", paste(squote(extra), collapse = ", "))
+  }
+  if (length(spec) == 0) {
+    return(NULL)
+  }
+
+  nonscalar <- lengths(given) != 1
+  if (any(nonscalar)) {
+    stop(sprintf(
+      "Invalid parameters: %s - must be scalar",
+      paste(squote(names(nonscalar[nonscalar]))), collapse = ", "))
+  }
+
+  err <- !vlapply(given, function(x)
+    is.character(x) || is.numeric(x) || is.logical(x))
+  if (any(err)) {
+    stop(sprintf(
+      "Invalid parameters: %s - must be character, numeric or logical",
+      paste(squote((names(err[err]))), collapse = ", ")))
+  }
+
+  use_default <- setdiff(spec$name, names(given))
+  if (length(use_default) > 0) {
+    given[use_default] <- spec$default[match(use_default, spec$name)]
+  }
+  given[spec$name]
 }

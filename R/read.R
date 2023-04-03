@@ -10,7 +10,8 @@ orderly_read_r <- function(path) {
   inputs <- list()
   artefacts <- list()
 
-  check <- list(orderly_resource = static_orderly_resource,
+  check <- list(orderly_parameters = static_orderly_parameters,
+                orderly_resource = static_orderly_resource,
                 orderly_artefact = static_orderly_artefact)
   dat <- set_names(rep(list(NULL), length(check)), names(check))
 
@@ -28,6 +29,29 @@ orderly_read_r <- function(path) {
   names(dat) <- sub("^orderly_", "", names(dat))
 
   ret <- list()
+  if (length(dat$parameters) > 0) {
+    ## TODO: once things are working, check for no duplicate parameter
+    ## names across multiple calls; leaving this assertion in for now.
+    ##
+    ## Doing this well suggests that we should be able to record the
+    ## line numbers when we pass off through the file; that's not too
+    ## hard to do really, I think we can do that with getSrcRef or
+    ## similar.
+    ##
+    ## TODO: we should check back through the expressions for
+    ## top-level assignments to parameters, but only as far down as
+    ## calls to things that use them (so realistically that's just
+    ## dependency use.
+    ##
+    ## TODO: we should disallow use of the parameter function in any
+    ## deeper expression, worth searching for that and setting up that
+    ## check here
+    stopifnot(!anyDuplicated(unlist(lapply(dat$parameters, names))))
+    parameters <- unlist(dat$parameters, FALSE, TRUE)
+    ret$parameters <- data_frame(name = names(parameters),
+                                 default = I(unname(parameters)),
+                                 required = vlapply(parameters, is.null))
+  }
   if (length(dat$resource) > 0) {
     ret$resources <- unique(unlist(dat$resource, TRUE, FALSE))
   }
