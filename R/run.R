@@ -154,7 +154,7 @@ check_parameters <- function(given, spec) {
     return(NULL)
   }
 
-  check_parameter_values(given)
+  check_parameter_values(given, FALSE)
 
   use_default <- setdiff(names(spec), names(given))
   if (length(use_default) > 0) {
@@ -165,20 +165,25 @@ check_parameters <- function(given, spec) {
 }
 
 
-check_parameter_values <- function(given) {
+check_parameter_values <- function(given, defaults) {
+  name <- if (defaults) "parameter defaults" else "parameters"
+  if (defaults) {
+    given <- given[!vlapply(given, is.null)]
+  }
+
   nonscalar <- lengths(given) != 1
   if (any(nonscalar)) {
     stop(sprintf(
-      "Invalid parameters: %s - must be scalar",
-      paste(squote(names(nonscalar[nonscalar]))), collapse = ", "))
+      "Invalid %s: %s - must be scalar",
+      name, paste(squote(names(nonscalar[nonscalar])), collapse = ", ")))
   }
 
   err <- !vlapply(given, function(x)
     is.character(x) || is.numeric(x) || is.logical(x))
   if (any(err)) {
     stop(sprintf(
-      "Invalid parameters: %s - must be character, numeric or logical",
-      paste(squote((names(err[err]))), collapse = ", ")))
+      "Invalid %s: %s - must be character, numeric or logical",
+      name, paste(squote((names(err[err]))), collapse = ", ")))
   }
 }
 
@@ -204,5 +209,5 @@ check_parameters_interactive <- function(env, spec, interactive) {
   ## that we're running in a pecular mode so the value might just have
   ## been overwritten
   found <- lapply(names(spec), function(v) env[[v]])
-  check_parameter_values(found[!vlapply(found, is.null)])
+  check_parameter_values(found[!vlapply(found, is.null)], FALSE)
 }

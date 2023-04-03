@@ -32,11 +32,7 @@ static_orderly_parameters <- function(args) {
     return(NULL)
   }
   assert_named(args, unique = TRUE, name = "Arguments to 'orderly_parameters'")
-  ok <- vlapply(args,
-                function(x) is.null(x) || (is.atomic(x) && length(x) == 1))
-  if (!all(ok)) {
-    stop("Not ok parameter")
-  }
+  check_parameter_values(args, TRUE)
 
   args
 }
