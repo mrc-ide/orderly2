@@ -140,25 +140,28 @@ check_parameters <- function(given, spec) {
     assert_named(given, unique = TRUE)
   }
 
-  msg <- setdiff(spec$name[spec$required], names(given))
+  is_required <- vlapply(spec, is.null)
+
+  msg <- setdiff(names(spec)[is_required], names(given))
   if (length(msg) > 0L) {
     stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
   }
-  extra <- setdiff(names(given), spec$name)
+  extra <- setdiff(names(given), names(spec))
   if (length(extra) > 0L) {
     stop("Extra parameters: ", paste(squote(extra), collapse = ", "))
   }
-  if (nrow(spec) == 0) {
+  if (length(spec) == 0) {
     return(NULL)
   }
 
   check_parameter_values(given)
 
-  use_default <- setdiff(spec$name, names(given))
+  use_default <- setdiff(names(spec), names(given))
   if (length(use_default) > 0) {
-    given[use_default] <- spec$default[match(use_default, spec$name)]
+    #spec[match(use_default, names(spec))]
+    given[use_default] <- spec[use_default]
   }
-  given[spec$name]
+  given[names(spec)]
 }
 
 
@@ -181,17 +184,25 @@ check_parameter_values <- function(given) {
 
 
 check_parameters_interactive <- function(env, spec, interactive) {
-  if (nrow(spec) == 0) {
+  if (length(spec) == 0) {
     return()
   }
-  msg <- setdiff(spec$name[spec$required], names(env))
+
+  is_required <- vlapply(spec, is.null)
+  
+  msg <- setdiff(names(spec)[is_required], names(env))
   if (length(msg) > 0L) {
-    ## Here, we will prompt for these
+    ## Here, we will prompt for these soon, or provide an error that
+    ## is more actionable.
     stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
   }
 
+  ## Set any missing values into the environment:
+  list2env(spec[setdiff(names(spec), names(env))], env)
+
   ## We might need a slightly better error message here that indicates
-  ## that we're running in a pecular mod so the value might just have
+  ## that we're running in a pecular mode so the value might just have
   ## been overwritten
-  check_parameter_values(lapply(spec$name, function(v) env[[v]]))
+  found <- lapply(names(spec), function(v) env[[v]])
+  check_parameter_values(found[!vlapply(found, is.null)])
 }

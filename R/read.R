@@ -47,10 +47,7 @@ orderly_read_r <- function(path) {
     ## deeper expression, worth searching for that and setting up that
     ## check here
     stopifnot(!anyDuplicated(unlist(lapply(dat$parameters, names))))
-    parameters <- unlist(dat$parameters, FALSE, TRUE)
-    ret$parameters <- data_frame(name = names(parameters),
-                                 default = I(unname(parameters)),
-                                 required = vlapply(parameters, is.null))
+    ret$parameters <- unlist(dat$parameters, FALSE, TRUE)
   }
   if (length(dat$resource) > 0) {
     ret$resources <- unique(unlist(dat$resource, TRUE, FALSE))
