@@ -36,6 +36,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
   dat <- orderly_read(src)
 
+  parameters <- check_parameters(parameters, dat$parameters)
+
   orderly_validate(dat, src)
 
   id <- outpack::outpack_id()
@@ -74,7 +76,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   withCallingHandlers({
     p$orderly3 <- list()
     current[[path]] <- p
-    stopifnot(is.null(parameters)) # next PR perhaps
+
+    if (!is.null(parameters)) {
+      list2env(parameters, envir)
+    }
 
     if (length(dat$resources) > 0) { # outpack should cope with this...
       outpack::outpack_packet_file_mark(dat$resources, "immutable", packet = p)
@@ -123,4 +128,90 @@ check_produced_artefacts <- function(path, artefacts) {
     stop("Script did not produce expected artefacts: ",
          paste(squote(expected[!found]), collapse = ", "))
   }
+}
+
+
+## Same logic as orderly1; has worked well in practice. We might want
+## to relax additional parameters here later, but that requires some
+## thinking about what to do with them (do they get passed into the
+## environment etc or not? do they get validated?)
+check_parameters <- function(given, spec) {
+  if (length(given) > 0) {
+    assert_named(given, unique = TRUE)
+  }
+
+  is_required <- vlapply(spec, is.null)
+
+  msg <- setdiff(names(spec)[is_required], names(given))
+  if (length(msg) > 0L) {
+    stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
+  }
+  extra <- setdiff(names(given), names(spec))
+  if (length(extra) > 0L) {
+    stop("Extra parameters: ", paste(squote(extra), collapse = ", "))
+  }
+  if (length(spec) == 0) {
+    return(NULL)
+  }
+
+  check_parameter_values(given, FALSE)
+
+  use_default <- setdiff(names(spec), names(given))
+  if (length(use_default) > 0) {
+    given[use_default] <- spec[use_default]
+  }
+  given[names(spec)]
+}
+
+
+check_parameter_values <- function(given, defaults) {
+  name <- if (defaults) "parameter defaults" else "parameters"
+  if (defaults) {
+    given <- given[!vlapply(given, is.null)]
+  }
+
+  nonscalar <- lengths(given) != 1
+  if (any(nonscalar)) {
+    stop(sprintf(
+      "Invalid %s: %s - must be scalar",
+      name, paste(squote(names(nonscalar[nonscalar])), collapse = ", ")))
+  }
+
+  err <- !vlapply(given, function(x)
+    is.character(x) || is.numeric(x) || is.logical(x))
+  if (any(err)) {
+    stop(sprintf(
+      "Invalid %s: %s - must be character, numeric or logical",
+      name, paste(squote((names(err[err]))), collapse = ", ")))
+  }
+}
+
+
+check_parameters_interactive <- function(env, spec) {
+  if (length(spec) == 0) {
+    return()
+  }
+
+  is_required <- vlapply(spec, is.null)
+  
+  msg <- setdiff(names(spec)[is_required], names(env))
+  if (length(msg) > 0L) {
+    ## This will change, but we'll need some interactive prompting
+    ## better done in another ticket. See
+    ## https://github.com/r-lib/cli/issues/228 and
+    ## https://github.com/r-lib/cli/issues/488 for context here.
+    ##
+    ## There will be other "interactive mode" functions too that we'll
+    ## try and get a unified interface on.
+    stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
+  }
+
+  ## Set any missing values into the environment:
+  list2env(spec[setdiff(names(spec), names(env))], env)
+
+  ## We might need a slightly better error message here that indicates
+  ## that we're running in a pecular mode so the value might just have
+  ## been overwritten
+  found <- lapply(names(spec), function(v) env[[v]])
+  check_parameter_values(found[!vlapply(found, is.null)], FALSE)
 }

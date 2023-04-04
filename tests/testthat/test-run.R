@@ -94,8 +94,44 @@ test_that("Can run explicit case without orderly", {
 test_that("cope with computed values in static functions", {
   path <- test_prepare_orderly_example("computed-resource")
   env <- new.env()
-  id <- orderly_run("computed-resource", root = path)
+  id <- orderly_run("computed-resource", root = path, envir = env)
   expect_setequal(
     dir(file.path(path, "archive", "computed-resource", id)),
     c("data.csv", "mygraph.png", "orderly.R"))
+})
+
+
+test_that("run a packet with parameters", {
+  path <- test_prepare_orderly_example("parameters")
+  env <- new.env()
+  id <- orderly_run("parameters", parameters = list(a = 10, b = 20, c = 30),
+                    envir = env, root = path)
+  path_rds <- file.path(path, "archive", "parameters", id, "data.rds")
+  expect_true(file.exists(path_rds))
+  expect_equal(readRDS(path_rds), list(a = 10, b = 20, c = 30))
+})
+
+
+test_that("fall back on parameter defaults", {
+  path <- test_prepare_orderly_example("parameters")
+  env <- new.env()
+  id <- orderly_run("parameters", parameters = list(a = 10, c = 30),
+                    envir = env, root = path)
+
+  path_rds <- file.path(path, "archive", "parameters", id, "data.rds")
+  expect_true(file.exists(path_rds))
+  expect_equal(readRDS(path_rds), list(a = 10, b = 2, c = 30))
+})
+
+
+test_that("can run orderly with parameters, without orderly", {
+  path <- test_prepare_orderly_example("parameters")
+  env <- list2env(list(a = 10, c = 30), parent = new.env())
+  path_src <- file.path(path, "src", "parameters")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env))
+
+  path_rds <- file.path(path_src, "data.rds")
+  expect_true(file.exists(path_rds))
+  expect_equal(readRDS(path_rds), list(a = 10, b = 2, c = 30))
 })
