@@ -57,6 +57,8 @@ test_that("read dependency", {
     static_orderly_depends(list(name = "a",
                                 query = quote(latest),
                                 use = c(x = "y"))))
-  expect_null(static_orderly_depends("a", quote(latest), c(x = "y")))
-  expect_null(static_orderly_depends("a", "latest", quote(use)))
+  expect_null(
+    static_orderly_depends(list(name = "a",
+                                query = "latest",
+                                use = quote(use))))
 })
