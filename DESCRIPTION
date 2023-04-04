@@ -18,7 +18,7 @@ Imports:
     fs,
     jsonlite,
     orderly,
-    outpack,
+    outpack (>= 0.2.4),
     withr,
     yaml
 Suggests:

@@ -155,7 +155,6 @@ test_that("Can run simple case with dependency", {
 
 
 test_that("Can run dependencies case without orderly", {
-  skip("needs work")
   path <- test_prepare_orderly_example(c("explicit", "depends"))
   env1 <- new.env()
   id1 <- orderly_run("explicit", root = path, envir = env1)
