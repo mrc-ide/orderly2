@@ -173,7 +173,11 @@ orderly_depends <- function(name, query, use) {
 }
 
 
-static_orderly_depends <- function(name, query, use) {
+static_orderly_depends <- function(args) {
+  name <- args$name
+  query <- args$query
+  use <- args$use
+
   name <- static_string(name)
   use <- static_character_vector(use)
   ## TODO: allow passing expressions directly in, that will be much

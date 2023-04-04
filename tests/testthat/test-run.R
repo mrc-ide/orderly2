@@ -164,4 +164,8 @@ test_that("Can run dependencies case without orderly", {
   withr::with_dir(path_src,
                   sys.source("orderly.R", env2))
   expect_setequal(dir(path_src), c("orderly.R", "graph.png"))
+  expect_equal(
+    unname(tools::md5sum(file.path(path_src, "graph.png"))),
+    unname(tools::md5sum(file.path(path, "archive", "explicit", id1,
+                                   "mygraph.png"))))
 })
