@@ -142,15 +142,6 @@ orderly_depends <- function(name, query, use) {
   assert_scalar_character(query)
 
   assert_character(use)
-  if (length(use) == 0) {
-    stop("'use' must have length of at least 1")
-  }
-  if (is.null(names(use))) {
-    names(use) <- use
-  } else {
-    is_unnamed <- names(use) == ""
-    names(use)[is_unnamed] <- use[is_unnamed]
-  }
   assert_named(use, unique = TRUE)
 
   p <- get_active_packet()
