@@ -19,7 +19,7 @@ test_that("Skip over computed resources", {
 })
 
 
-test_that("Can read string literals from expressions", {
+test_that("Can read string vector literals from expressions", {
   expect_equal(static_character_vector(quote("x")), "x")
   expect_equal(static_character_vector(quote(c("x"))), "x")
   expect_equal(static_character_vector(quote(c("x", "y"))), c("x", "y"))
@@ -33,4 +33,32 @@ test_that("Can read string literals from expressions", {
   expect_null(static_character_vector(quote(c("x", c(a, b)))))
   expect_null(static_character_vector(quote(c("x", c("y", b)))))
   expect_null(static_character_vector(quote(c(a, c("x", "y")))))
+})
+
+
+test_that("Can read string from expressions", {
+  expect_equal(static_string(quote("x")), "x")
+  expect_equal(static_string(quote(c("x"))), "x")
+
+  expect_null(static_string(quote(a)))
+  expect_null(static_string(quote(c(a))))
+})
+
+
+test_that("read dependency", {
+  args <- list(name = "a", query = "latest", use = c(x = "y"))
+  expect_equal(static_orderly_depends(args), args)
+
+  expect_null(
+    static_orderly_depends(list(name = quote(a),
+                                query = "latest",
+                                use = c(x = "y"))))
+  expect_null(
+    static_orderly_depends(list(name = "a",
+                                query = quote(latest),
+                                use = c(x = "y"))))
+  expect_null(
+    static_orderly_depends(list(name = "a",
+                                query = "latest",
+                                use = quote(use))))
 })

@@ -120,6 +120,79 @@ static_orderly_artefact <- function(args) {
 }
 
 
+##' Declare a dependency on another packet
+##'
+##' @title Declare a dependency
+##'
+##' @param name The name of the packet to depend on
+##'
+##' @param query The query to search for; often this will simply be
+##'   the string `latest`, indicating the most recent version. You may
+##'   want a more complex query here though.
+##'
+##' @param use A named character vector of filenames to copy from the
+##'   upstream packet. The name corresponds to the destination name,
+##'   so c(here.csv = "there.csv") will take the upstream file
+##'   `there.csv` and copy it over as `here.csv`.
+##'
+##' @return Undefined
+##' @export
+orderly_depends <- function(name, query, use) {
+  assert_scalar_character(name)
+  assert_scalar_character(query)
+
+  assert_character(use)
+  assert_named(use, unique = TRUE)
+
+  p <- get_active_packet()
+  if (is.null(p)) {
+    path <- getwd()
+    root <- detect_orderly_interactive_path(path)
+    env <- parent.frame()
+    id <- outpack::outpack_query(query, env, name = name,
+                                 require_unpacked = TRUE,
+                                 root = root$outpack)
+    outpack::outpack_copy_files(id, use, path, root$outpack)
+  } else {
+    id <- outpack::outpack_query(query, p$parameters, name = name,
+                                 require_unpacked = TRUE,
+                                 root = p$root)
+    outpack::outpack_packet_use_dependency(id, use, p)
+  }
+
+  invisible()
+}
+
+
+static_orderly_depends <- function(args) {
+  name <- args$name
+  query <- args$query
+  use <- args$use
+
+  name <- static_string(name)
+  use <- static_character_vector(use)
+  ## TODO: allow passing expressions directly in, that will be much
+  ## nicer, but possibly needs some care as we do want a consistent
+  ## approach to NSE here
+  query <- static_string(query)
+  if (is.null(name) || is.null(use) || is.null(query)) {
+    return(NULL)
+  }
+  list(name = name, query = query, use = use)
+}
+
+
+static_string <- function(x) {
+  if (is.character(x)) {
+    x
+  } else if (is_call(x, "c") && length(x) == 2 && is.character(x[[2]])) {
+    x[[2]]
+  } else {
+    NULL
+  }
+}
+
+
 static_character_vector <- function(x) {
   if (is.character(x)) {
     x
@@ -131,6 +204,7 @@ static_character_vector <- function(x) {
   }
   x
 }
+
 
 
 static_eval <- function(fn, call) {
