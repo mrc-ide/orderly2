@@ -34,3 +34,43 @@ test_path <- function(...) {
     testthat::test_path(...)
   }
 }
+
+
+## Expects dependencies to be a list of name and id (or search query)
+## e.g.
+## list(a = "latest", b = "latest(parameter:x == 2)") # nolint
+## By convention will expect report artefact to be "data.rds" and will
+## map this to "input<i>.rds" in the orderly.R where i is the number of
+## dependencies
+create_random_report <- function(root, name = "data", dependencies = NULL) {
+  report_dir <- fs::dir_create(file.path(root, "src", name))
+  withr::defer_parent(unlink(report_dir, recursive = TRUE))
+
+  if (!is.null(dependencies)) {
+    assert_named(dependencies)
+    variables <- c()
+    script <- unlist(lapply(seq_along(dependencies), function(i) {
+      name <- names(dependencies)[[i]]
+      query <- dependencies[[i]]
+      file_input <- paste0("input", i, ".rds")
+      variable <- paste0("x", i)
+      variables <- c(variables, variable)
+      c(sprintf(
+        "orderly3::orderly_depends(\"%s\", \"%s\", c(%s = \"data.rds\"))",
+        name, query, file_input),
+        sprintf("%s <- readRDS(\"%s\")", variable, file_input))
+    }))
+    script <- c(
+      script,
+      sprintf("x <- %s + runif(10)", paste(variables, collapse = " + ")))
+  } else {
+    script <- "x <- runif(10)"
+  }
+
+  script <- c(script,
+              "orderly3::orderly_artefact(\"Final data\", \"data.rds\")",
+              "saveRDS(x, \"data.rds\")")
+
+  writeLines(script, file.path(report_dir, "orderly.R"))
+  invisible(report_dir)
+}

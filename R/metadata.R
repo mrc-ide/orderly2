@@ -156,6 +156,7 @@ orderly_depends <- function(name, query, use) {
   } else {
     id <- outpack::outpack_query(query, p$parameters, name = name,
                                  require_unpacked = TRUE,
+                                 error_no_packets = TRUE,
                                  root = p$root)
     outpack::outpack_packet_use_dependency(id, use, p)
   }
