@@ -180,8 +180,9 @@ check_parameter_values <- function(given, defaults) {
       name, paste(squote(names(nonscalar[nonscalar])), collapse = ", ")))
   }
 
-  err <- !vlapply(given, function(x)
-    is.character(x) || is.numeric(x) || is.logical(x))
+  err <- !vlapply(given, function(x) {
+    is.character(x) || is.numeric(x) || is.logical(x)
+  })
   if (any(err)) {
     stop(sprintf(
       "Invalid %s: %s - must be character, numeric or logical",
@@ -196,7 +197,7 @@ check_parameters_interactive <- function(env, spec) {
   }
 
   is_required <- vlapply(spec, is.null)
-  
+
   msg <- setdiff(names(spec)[is_required], names(env))
   if (length(msg) > 0L) {
     ## This will change, but we'll need some interactive prompting

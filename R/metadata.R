@@ -243,17 +243,21 @@ copy_global <- function(path_root, path_dest, config, files) {
   assert_file_exists(
     there, check_case = TRUE, workdir = global_path,
     name = sprintf("Global resources in '%s'", global_path))
-
-  ## TODO: let's get this supported in this PR, really; it's not too
-  ## bad to get right.
-  if (any(is_directory(file.path(global_path, there)))) {
-    stop("global resources cannot yet be directories (FIXME)")
-  }
-
   src <- file.path(global_path, there)
+  dst <- file.path(path_dest, here)
 
+  is_dir <- is_directory(file.path(global_path, there))
   fs::dir_create(file.path(path_dest, dirname(here)))
-  fs::file_copy(src, file.path(path_dest, here))
+  if (any(is_dir)) {
+    fs::dir_copy(src[is_dir], dst[is_dir])
+    ## Update the names that will be used in the metadata:
+    files <- lapply(src[is_dir], dir)
+    here <- replace_ragged(here, is_dir, Map(file.path, here[is_dir], files))
+    there <- replace_ragged(there, is_dir, Map(file.path, there[is_dir], files))
+  }
+  if (any(!is_dir)) {
+    fs::file_copy(src[!is_dir], dst[!is_dir])
+  }
 
   data_frame(here = here, there = there)
 }

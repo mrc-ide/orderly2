@@ -229,3 +229,40 @@ test_that("can't use global resources if not enabled", {
     withr::with_dir(path_src, sys.source("orderly.R", env)),
     err$message, fixed = TRUE)
 })
+
+
+test_that("global resources can be directories", {
+  path <- test_prepare_orderly_example("global-dir")
+  write.csv(mtcars, file.path(path, "global/data/mtcars.csv"),
+            row.names = FALSE)
+  write.csv(iris, file.path(path, "global/data/iris.csv"),
+            row.names = FALSE)
+
+  env <- new.env()
+  id <- orderly_run("global-dir", root = path, envir = env)
+
+  expect_setequal(
+    dir(file.path(path, "archive", "global-dir", id)),
+    c("global_data", "output.rds", "orderly.R"))
+  expect_setequal(
+    dir(file.path(path, "archive", "global-dir", id, "global_data")),
+    c("iris.csv", "mtcars.csv"))
+  root <- orderly_root(path, FALSE)
+  meta <- root$outpack$metadata(id, full = TRUE)
+  expect_length(meta$custom$orderly$global, 2)
+  expect_mapequal(
+    meta$custom$orderly$global[[1]],
+                  list(here = "global_data/iris.csv", there = "data/iris.csv"))
+  expect_mapequal(
+    meta$custom$orderly$global[[2]],
+    list(here = "global_data/mtcars.csv", there = "data/mtcars.csv"))
+  expect_equal(
+    meta$custom$orderly$role,
+    list(list(path = "global_data/iris.csv", role = "global"),
+         list(path = "global_data/mtcars.csv", role = "global")))
+  d <- readRDS(file.path(path, "archive", "global-dir", id, "output.rds"))
+  expect_equal(
+    d,
+    list(iris = read.csv(file.path(path, "global/data/iris.csv")),
+         mtcars = read.csv(file.path(path, "global/data/mtcars.csv"))))
+})
