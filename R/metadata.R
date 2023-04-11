@@ -205,11 +205,11 @@ orderly_global_resource <- function(...) {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)
     config <- orderly_root(root$path, FALSE)$config
-    dat <- copy_global(root$path, path, config, files)
+    copy_global(root$path, path, config, files)
   } else {
-    dat <- copy_global(p$root$path, p$path, p$orderly3$config, files)
-    outpack::outpack_packet_file_mark(dat$here, "immutable", packet = p)
-    p$orderly3$global_resources <- rbind(p$orderly3$global_resources, dat)
+    files <- copy_global(p$root$path, p$path, p$orderly3$config, files)
+    outpack::outpack_packet_file_mark(files$here, "immutable", packet = p)
+    p$orderly3$global_resources <- rbind(p$orderly3$global_resources, files)
   }
   invisible()
 }

@@ -215,3 +215,17 @@ test_that("can validate global resource arguments", {
     validate_global_resource(list(a = "A", b = "B")),
     c(a = "A", b = "B"))
 })
+
+
+test_that("can't use global resources if not enabled", {
+  path <- test_prepare_orderly_example("global")
+  file.create(file.path(path, "orderly_config.yml")) # truncates file
+  env <- new.env()
+  path_src <- file.path(path, "src", "global")
+  err <- expect_error(
+    orderly_run("global", root = path, envir = env),
+    "'global_resources' is not supported; please edit orderly_config.yml")
+  expect_error(
+    withr::with_dir(path_src, sys.source("orderly.R", env)),
+    err$message, fixed = TRUE)
+})
