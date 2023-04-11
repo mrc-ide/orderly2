@@ -68,3 +68,10 @@ drop_null <- function(x, empty) {
   i <- vlapply(x, is.null)
   if (all(i)) empty else x[!i]
 }
+
+
+replace_ragged <- function(x, i, values) {
+  ret <- as.list(x)
+  ret[i] <- values
+  unlist(ret, FALSE, FALSE)
+}
