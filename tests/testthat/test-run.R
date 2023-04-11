@@ -199,3 +199,19 @@ test_that("can run manually with global resources", {
     dir(path_src),
     c("global_data.csv", "mygraph.png", "orderly.R"))
 })
+
+
+test_that("can validate global resource arguments", {
+  expect_error(
+    validate_global_resource(list()),
+    "orderly_global_resource requires at least one argument")
+  expect_error(
+    validate_global_resource(list(input = c("a", "b"))),
+    "Invalid global resource 'input': entries must be strings")
+  expect_error(
+    validate_global_resource(list(a = 1, b = TRUE, c = "str")),
+    "Invalid global resource 'a', 'b': entries must be strings")
+  expect_equal(
+    validate_global_resource(list(a = "A", b = "B")),
+    c(a = "A", b = "B"))
+})

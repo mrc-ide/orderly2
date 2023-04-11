@@ -182,22 +182,25 @@ static_orderly_depends <- function(args) {
 }
 
 
+##' Copy global resources into a packet directory. You can use this to
+##' share common resources (data or code) between multiple packets.
+##' Additional metadata will be added to keep track of where the files
+##' came from.  Using this function requires that the orderly
+##' repository has global resources enabled, with a
+##' `global_resources:` section in the `orderly_config.yml`; an error
+##' will be raised if this is not configured.
+##'
+##' @title Copy global resources into a packet directory
+##'
+##' @param ... Named arguments corresponding to global resources to
+##'   copy. The name will be the destination filename, while the value
+##'   is the filename within the global resource directory.
+##'
+##' @return Undefined
+##' @export
 orderly_global_resource <- function(...) {
-  args <- list(...)
-  if (length(args) == 0) {
-    stop("At least one argument expected")
-  }
+  files <- validate_global_resource(list(...))
   p <- get_active_packet()
-
-  ## What do we need here; everything is a scalar character; we'll get
-  ## some strategies here for building this up soon.
-  assert_named(args, unique = TRUE)
-  is_invalid <- !vlapply(args, function(x) is.character(x) && length(x) == 1)
-  if (any(is_invalid)) {
-    stop("Invalid global resource, FIXME")
-  }
-  files <- list_to_character(args)
-
   if (is.null(p)) {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)
@@ -209,6 +212,20 @@ orderly_global_resource <- function(...) {
     p$orderly3$global_resources <- rbind(p$orderly3$global_resources, dat)
   }
   invisible()
+}
+
+
+validate_global_resource <- function(args) {
+  if (length(args) == 0) {
+    stop("orderly_global_resource requires at least one argument")
+  }
+  assert_named(args, unique = TRUE)
+  is_invalid <- !vlapply(args, function(x) is.character(x) && length(x) == 1)
+  if (any(is_invalid)) {
+    stop(sprintf("Invalid global resource %s: entries must be strings",
+                 paste(squote(names(args)[is_invalid]), collapse = ", ")))
+  }
+  list_to_character(args)
 }
 
 
