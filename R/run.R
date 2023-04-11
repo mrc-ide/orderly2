@@ -74,7 +74,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                      id = id, root = root$outpack,
                                      local = TRUE)
   withCallingHandlers({
-    p$orderly3 <- list()
+    p$orderly3 <- list(config = root$config)
     current[[path]] <- p
 
     if (!is.null(parameters)) {
@@ -102,8 +102,11 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
 
 custom_metadata <- function(dat) {
+  global <- dat$global_resources %||% list()
   role <- data_frame(
-    path = dat$resources, role = rep_along("resource", dat$resources))
+    path = c(dat$resources, global$here),
+    role = c(rep_along("resource", dat$resources),
+             rep_along("global", global$here)))
   artefacts <- lapply(dat$artefacts, function(x) {
     list(description = scalar(x$description),
          paths = x$files)
@@ -113,7 +116,7 @@ custom_metadata <- function(dat) {
        displayname = NULL,
        description = NULL,
        custom =  NULL,
-       global = list(),
+       global = global,
        packages = character(0))
 }
 

@@ -169,3 +169,33 @@ test_that("Can run dependencies case without orderly", {
     unname(tools::md5sum(file.path(path, "archive", "explicit", id1,
                                    "mygraph.png"))))
 })
+
+
+test_that("can run with global resources", {
+  path <- test_prepare_orderly_example("global")
+  env <- new.env()
+  id <- orderly_run("global", root = path, envir = env)
+  expect_setequal(
+    dir(file.path(path, "archive", "global", id)),
+    c("global_data.csv", "mygraph.png", "orderly.R"))
+  root <- orderly_root(path, FALSE)
+  meta <- root$outpack$metadata(id, full = TRUE)
+  expect_length(meta$custom$orderly$global, 1)
+  expect_mapequal(meta$custom$orderly$global[[1]],
+                  list(here = "global_data.csv", there = "data.csv"))
+  expect_equal(
+    meta$custom$orderly$role,
+    list(list(path = "global_data.csv", role = "global")))
+})
+
+
+test_that("can run manually with global resources", {
+  path <- test_prepare_orderly_example("global")
+  env <- new.env()
+  path_src <- file.path(path, "src", "global")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env))
+  expect_setequal(
+    dir(path_src),
+    c("global_data.csv", "mygraph.png", "orderly.R"))
+})

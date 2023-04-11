@@ -14,7 +14,7 @@ test_prepare_orderly_example <- function(examples, ...) {
     config <- c(config,
                 "global_resources: global")
     fs::dir_create(file.path(tmp, "global"))
-    fs::file_copy(test_path("examples/minimal/data.csv"),
+    fs::file_copy(test_path("examples/explicit/data.csv"),
                   file.path(tmp, "global"))
   }
 

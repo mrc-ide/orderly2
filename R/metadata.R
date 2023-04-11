@@ -182,6 +182,71 @@ static_orderly_depends <- function(args) {
 }
 
 
+orderly_global_resource <- function(...) {
+  args <- list(...)
+  if (length(args) == 0) {
+    stop("At least one argument expected")
+  }
+  p <- get_active_packet()
+
+  ## What do we need here; everything is a scalar character; we'll get
+  ## some strategies here for building this up soon.
+  assert_named(args, unique = TRUE)
+  is_invalid <- !vlapply(args, function(x) is.character(x) && length(x) == 1)
+  if (any(is_invalid)) {
+    stop("Invalid global resource, FIXME")
+  }
+  files <- list_to_character(args)
+
+  if (is.null(p)) {
+    path <- getwd()
+    root <- detect_orderly_interactive_path(path)
+    config <- orderly_root(root$path, FALSE)$config
+    dat <- copy_global(root$path, path, config, files)
+  } else {
+    dat <- copy_global(p$root$path, p$path, p$orderly3$config, files)
+    outpack::outpack_packet_file_mark(dat$here, "immutable", packet = p)
+    p$orderly3$global_resources <- rbind(p$orderly3$global_resources, dat)
+  }
+  invisible()
+}
+
+
+copy_global <- function(path_root, path_dest, config, files) {
+  if (is.null(config$global_resources)) {
+    stop(paste("'global_resources' is not supported;",
+               "please edit orderly_config.yml to enable"),
+         call. = FALSE)
+  }
+
+  here <- names(files)
+  there <- unname(files)
+
+  global_path <- file.path(path_root, config$global_resources)
+  assert_file_exists(
+    there, check_case = TRUE, workdir = global_path,
+    name = sprintf("Global resources in '%s'", global_path))
+
+  ## TODO: let's get this supported in this PR, really; it's not too
+  ## bad to get right.
+  if (any(is_directory(file.path(global_path, there)))) {
+    stop("global resources cannot yet be directories (FIXME)")
+  }
+
+  src <- file.path(global_path, there)
+
+  fs::dir_create(file.path(path_dest, dirname(here)))
+  fs::file_copy(src, file.path(path_dest, here))
+
+  data_frame(here = here, there = there)
+}
+
+
+static_orderly_global_resource <- function(args) {
+  list(files = static_character_vector(args))
+}
+
+
 static_string <- function(x) {
   if (is.character(x)) {
     x
