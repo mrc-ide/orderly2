@@ -38,6 +38,13 @@ static_orderly_parameters <- function(args) {
 }
 
 
+current_orderly_parameters <- function(src, env) {
+  dat <- orderly_read(src)
+  pars <- static_orderly_parameters(dat$parameters)
+  check_parameters_interactive(env, pars)
+}
+
+
 ##' Declare that a file, or group of files, are an orderly
 ##' resource. By explicitly declaring files as resources orderly will
 ##' mark the files as immutable inputs and validate that your analysis
@@ -149,7 +156,8 @@ orderly_depends <- function(name, query, use) {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)
     env <- parent.frame()
-    id <- outpack::outpack_query(query, env, name = name,
+    parameters <- current_orderly_parameters(path, env)
+    id <- outpack::outpack_query(query, parameters, name = name,
                                  require_unpacked = TRUE,
                                  root = root$outpack)
     outpack::outpack_copy_files(id, use, path, root$outpack)
