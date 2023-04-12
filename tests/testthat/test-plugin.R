@@ -8,6 +8,8 @@ test_that("Can run simple example with plugin", {
   set.seed(1)
   cmp <- rnorm(10)
 
+  expect_identical(env$dat, cmp)
+
   root <- orderly_root(path, locate = FALSE)
   meta <- root$outpack$metadata(id, full = TRUE)
 
@@ -35,6 +37,7 @@ test_that("can run interactive example with plugin", {
   set.seed(1)
   cmp <- rnorm(10)
 
+  expect_identical(env$dat, cmp)
   expect_setequal(dir(path_src), c("data.rds", "orderly.R"))
   expect_equal(readRDS(file.path(path_src, "data.rds")), cmp)
 })
@@ -81,4 +84,23 @@ test_that("don't load package if plugin already loaded", {
   mockery::expect_called(mock_load_namespace, 0)
   expect_s3_class(plugin, "orderly_plugin")
   expect_identical(plugin, .plugins$example.random)
+})
+
+
+test_that("error if packet uses non-configured plugin", {
+  path <- test_prepare_orderly_example("plugin")
+  file.create(file.path(path, "orderly_config.yml"))
+
+  env <- new.env()
+  expect_error(
+    orderly_run("plugin", root = path, envir = env),
+    "Plugin 'example.random' not enabled in 'orderly_config.yml'",
+    fixed = TRUE)
+})
+
+
+test_that("error if environment not found", {
+  expect_error(
+    orderly_plugin_environment("unknown.package"),
+    "Could not determine plugin calling environment safely - please report")
 })
