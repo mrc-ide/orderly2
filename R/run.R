@@ -87,8 +87,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     outpack::outpack_packet_run("orderly.R", envir, packet = p)
     check_produced_artefacts(path, p$orderly3$artefacts)
     custom_metadata_json <- to_json(custom_metadata(p$orderly3))
+
+    schema <- custom_metadata_schema(root$config)
     outpack::outpack_packet_add_custom("orderly", custom_metadata_json,
-                                       custom_metadata_schema(), packet = p)
+                                       schema, packet = p)
     outpack::outpack_packet_end(p)
     unlink(path, recursive = TRUE)
   }, error = function(e) {
