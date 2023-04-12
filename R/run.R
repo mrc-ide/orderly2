@@ -74,7 +74,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                      id = id, root = root$outpack,
                                      local = TRUE)
   withCallingHandlers({
-    p$orderly3 <- list()
+    p$orderly3 <- list(config = root$config)
     current[[path]] <- p
 
     if (!is.null(parameters)) {
@@ -102,8 +102,11 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
 
 custom_metadata <- function(dat) {
+  global <- dat$global_resources %||% list()
   role <- data_frame(
-    path = dat$resources, role = rep_along("resource", dat$resources))
+    path = c(dat$resources, global$here),
+    role = c(rep_along("resource", dat$resources),
+             rep_along("global", global$here)))
   artefacts <- lapply(dat$artefacts, function(x) {
     list(description = scalar(x$description),
          paths = x$files)
@@ -113,7 +116,7 @@ custom_metadata <- function(dat) {
        displayname = NULL,
        description = NULL,
        custom =  NULL,
-       global = list(),
+       global = global,
        packages = character(0))
 }
 
@@ -177,8 +180,9 @@ check_parameter_values <- function(given, defaults) {
       name, paste(squote(names(nonscalar[nonscalar])), collapse = ", ")))
   }
 
-  err <- !vlapply(given, function(x)
-    is.character(x) || is.numeric(x) || is.logical(x))
+  err <- !vlapply(given, function(x) {
+    is.character(x) || is.numeric(x) || is.logical(x)
+  })
   if (any(err)) {
     stop(sprintf(
       "Invalid %s: %s - must be character, numeric or logical",
@@ -193,7 +197,7 @@ check_parameters_interactive <- function(env, spec) {
   }
 
   is_required <- vlapply(spec, is.null)
-  
+
   msg <- setdiff(names(spec)[is_required], names(env))
   if (length(msg) > 0L) {
     ## This will change, but we'll need some interactive prompting

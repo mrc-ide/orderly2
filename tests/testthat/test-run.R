@@ -171,6 +171,103 @@ test_that("Can run dependencies case without orderly", {
 })
 
 
+test_that("can run with global resources", {
+  path <- test_prepare_orderly_example("global")
+  env <- new.env()
+  id <- orderly_run("global", root = path, envir = env)
+  expect_setequal(
+    dir(file.path(path, "archive", "global", id)),
+    c("global_data.csv", "mygraph.png", "orderly.R"))
+  root <- orderly_root(path, FALSE)
+  meta <- root$outpack$metadata(id, full = TRUE)
+  expect_length(meta$custom$orderly$global, 1)
+  expect_mapequal(meta$custom$orderly$global[[1]],
+                  list(here = "global_data.csv", there = "data.csv"))
+  expect_equal(
+    meta$custom$orderly$role,
+    list(list(path = "global_data.csv", role = "global")))
+})
+
+
+test_that("can run manually with global resources", {
+  path <- test_prepare_orderly_example("global")
+  env <- new.env()
+  path_src <- file.path(path, "src", "global")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env))
+  expect_setequal(
+    dir(path_src),
+    c("global_data.csv", "mygraph.png", "orderly.R"))
+})
+
+
+test_that("can validate global resource arguments", {
+  expect_error(
+    validate_global_resource(list()),
+    "orderly_global_resource requires at least one argument")
+  expect_error(
+    validate_global_resource(list(input = c("a", "b"))),
+    "Invalid global resource 'input': entries must be strings")
+  expect_error(
+    validate_global_resource(list(a = 1, b = TRUE, c = "str")),
+    "Invalid global resource 'a', 'b': entries must be strings")
+  expect_equal(
+    validate_global_resource(list(a = "A", b = "B")),
+    c(a = "A", b = "B"))
+})
+
+
+test_that("can't use global resources if not enabled", {
+  path <- test_prepare_orderly_example("global")
+  file.create(file.path(path, "orderly_config.yml")) # truncates file
+  env <- new.env()
+  path_src <- file.path(path, "src", "global")
+  err <- expect_error(
+    orderly_run("global", root = path, envir = env),
+    "'global_resources' is not supported; please edit orderly_config.yml")
+  expect_error(
+    withr::with_dir(path_src, sys.source("orderly.R", env)),
+    err$message, fixed = TRUE)
+})
+
+
+test_that("global resources can be directories", {
+  path <- test_prepare_orderly_example("global-dir")
+  write.csv(mtcars, file.path(path, "global/data/mtcars.csv"),
+            row.names = FALSE)
+  write.csv(iris, file.path(path, "global/data/iris.csv"),
+            row.names = FALSE)
+
+  env <- new.env()
+  id <- orderly_run("global-dir", root = path, envir = env)
+
+  expect_setequal(
+    dir(file.path(path, "archive", "global-dir", id)),
+    c("global_data", "output.rds", "orderly.R"))
+  expect_setequal(
+    dir(file.path(path, "archive", "global-dir", id, "global_data")),
+    c("iris.csv", "mtcars.csv"))
+  root <- orderly_root(path, FALSE)
+  meta <- root$outpack$metadata(id, full = TRUE)
+  expect_length(meta$custom$orderly$global, 2)
+  expect_mapequal(
+    meta$custom$orderly$global[[1]],
+    list(here = "global_data/iris.csv", there = "data/iris.csv"))
+  expect_mapequal(
+    meta$custom$orderly$global[[2]],
+    list(here = "global_data/mtcars.csv", there = "data/mtcars.csv"))
+  expect_equal(
+    meta$custom$orderly$role,
+    list(list(path = "global_data/iris.csv", role = "global"),
+         list(path = "global_data/mtcars.csv", role = "global")))
+  d <- readRDS(file.path(path, "archive", "global-dir", id, "output.rds"))
+  expect_equal(
+    d,
+    list(iris = read.csv(file.path(path, "global/data/iris.csv")),
+         mtcars = read.csv(file.path(path, "global/data/mtcars.csv"))))
+})
+
+
 test_that("can use subqueries in orderly_depends", {
   path <- test_prepare_orderly_example(c("explicit", "depends", "depends2"))
 

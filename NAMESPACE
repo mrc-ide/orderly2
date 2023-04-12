@@ -2,6 +2,7 @@
 
 export(orderly_artefact)
 export(orderly_depends)
+export(orderly_global_resource)
 export(orderly_parameters)
 export(orderly_resource)
 export(orderly_run)

@@ -220,6 +220,92 @@ static_orderly_depends <- function(args) {
 }
 
 
+##' Copy global resources into a packet directory. You can use this to
+##' share common resources (data or code) between multiple packets.
+##' Additional metadata will be added to keep track of where the files
+##' came from.  Using this function requires that the orderly
+##' repository has global resources enabled, with a
+##' `global_resources:` section in the `orderly_config.yml`; an error
+##' will be raised if this is not configured.
+##'
+##' @title Copy global resources into a packet directory
+##'
+##' @param ... Named arguments corresponding to global resources to
+##'   copy. The name will be the destination filename, while the value
+##'   is the filename within the global resource directory.
+##'
+##' @return Undefined
+##' @export
+orderly_global_resource <- function(...) {
+  files <- validate_global_resource(list(...))
+  p <- get_active_packet()
+  if (is.null(p)) {
+    path <- getwd()
+    root <- detect_orderly_interactive_path(path)
+    config <- orderly_root(root$path, FALSE)$config
+    copy_global(root$path, path, config, files)
+  } else {
+    files <- copy_global(p$root$path, p$path, p$orderly3$config, files)
+    outpack::outpack_packet_file_mark(files$here, "immutable", packet = p)
+    p$orderly3$global_resources <- rbind(p$orderly3$global_resources, files)
+  }
+  invisible()
+}
+
+
+validate_global_resource <- function(args) {
+  if (length(args) == 0) {
+    stop("orderly_global_resource requires at least one argument")
+  }
+  assert_named(args, unique = TRUE)
+  is_invalid <- !vlapply(args, function(x) is.character(x) && length(x) == 1)
+  if (any(is_invalid)) {
+    stop(sprintf("Invalid global resource %s: entries must be strings",
+                 paste(squote(names(args)[is_invalid]), collapse = ", ")))
+  }
+  list_to_character(args)
+}
+
+
+copy_global <- function(path_root, path_dest, config, files) {
+  if (is.null(config$global_resources)) {
+    stop(paste("'global_resources' is not supported;",
+               "please edit orderly_config.yml to enable"),
+         call. = FALSE)
+  }
+
+  here <- names(files)
+  there <- unname(files)
+
+  global_path <- file.path(path_root, config$global_resources)
+  assert_file_exists(
+    there, check_case = TRUE, workdir = global_path,
+    name = sprintf("Global resources in '%s'", global_path))
+  src <- file.path(global_path, there)
+  dst <- file.path(path_dest, here)
+
+  is_dir <- is_directory(file.path(global_path, there))
+  fs::dir_create(file.path(path_dest, dirname(here)))
+  if (any(is_dir)) {
+    fs::dir_copy(src[is_dir], dst[is_dir])
+    ## Update the names that will be used in the metadata:
+    files <- lapply(src[is_dir], dir)
+    here <- replace_ragged(here, is_dir, Map(file.path, here[is_dir], files))
+    there <- replace_ragged(there, is_dir, Map(file.path, there[is_dir], files))
+  }
+  if (any(!is_dir)) {
+    fs::file_copy(src[!is_dir], dst[!is_dir])
+  }
+
+  data_frame(here = here, there = there)
+}
+
+
+static_orderly_global_resource <- function(args) {
+  list(files = static_character_vector(args))
+}
+
+
 static_string <- function(x) {
   if (is.character(x)) {
     x
