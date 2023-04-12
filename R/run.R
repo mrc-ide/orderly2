@@ -93,6 +93,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                        schema, packet = p)
     outpack::outpack_packet_end(p)
     unlink(path, recursive = TRUE)
+    current[[path]] <- NULL
   }, error = function(e) {
     ## Eventually fail nicely here with mrc-3379
     outpack::outpack_packet_cancel(p)
