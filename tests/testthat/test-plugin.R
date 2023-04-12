@@ -77,6 +77,7 @@ test_that("error if load fails to register plugin", {
 
 
 test_that("don't load package if plugin already loaded", {
+  skip_if_not_installed("mockery")
   register_example_plugin()
   mock_load_namespace <- mockery::mock()
   mockery::stub(load_orderly_plugin, "loadNamespace", mock_load_namespace)
