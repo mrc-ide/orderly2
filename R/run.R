@@ -74,7 +74,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                      id = id, root = root$outpack,
                                      local = TRUE)
   withCallingHandlers({
-    p$orderly3 <- list(config = root$config)
+    p$orderly3 <- list(config = root$config, envir = envir, src = src)
     current[[path]] <- p
 
     if (!is.null(parameters)) {
@@ -113,13 +113,24 @@ custom_metadata <- function(dat) {
     list(description = scalar(x$description),
          paths = x$files)
   })
+
+  if (is.null(dat$plugins)) {
+    plugins <- NULL
+  } else {
+    plugins <- list()
+    for (nm in names(dat$plugins)) {
+      plugins[[nm]] <- dat$config$plugins[[nm]]$serialise(dat$plugins[[nm]])
+    }
+  }
+
   list(artefacts = artefacts,
        role = role,
        displayname = NULL,
        description = NULL,
-       custom =  NULL,
+       custom = NULL,
        global = global,
-       packages = character(0))
+       packages = character(0),
+       plugins = plugins)
 }
 
 

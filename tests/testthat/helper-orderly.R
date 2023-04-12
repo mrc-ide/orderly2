@@ -23,6 +23,17 @@ test_prepare_orderly_example <- function(examples, ...) {
     }
   }
 
+  if ("plugin" %in% examples) {
+    testthat::skip_if_not_installed("pkgload")
+    pkgload::load_all(test_path("plugins/example.random"),
+                      quiet = TRUE, export_all = FALSE)
+    config <- c(config,
+                "plugins:",
+                "  example.random:",
+                "    distribution:",
+                "      normal")
+  }
+
   writeLines(config, file.path(tmp, "orderly_config.yml"))
   fs::dir_create(file.path(tmp, "src"))
   for (i in examples) {
