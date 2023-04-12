@@ -23,8 +23,11 @@ Imports:
     yaml
 Suggests:
     jsonvalidate,
+    knitr,
     mockery,
     pkgload,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes: mrc-ide/outpack
+VignetteBuilder: knitr

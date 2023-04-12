@@ -1,0 +1,17 @@
+Package: example.db
+Title: Example Database Access from 'orderly3'
+Version: 0.0.1
+Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
+                    email = "rich.fitzjohn@gmail.com"),
+             person("Robert", "Ashton", role = "aut"),
+             person("Alex", "Hill", role = "aut"),
+             person("Imperial College of Science, Technology and Medicine",
+                    role = "cph"))
+Description: Shows how to create a simple package that provides an
+    'orderly3' plugin.  This plugin is really a stripped down version of
+    the plugin available at <https://github.com/mrc-ide/orderly3.db>
+License: CC0
+Imports:
+    DBI,
+    RSQLite,
+    orderly3
