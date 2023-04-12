@@ -24,9 +24,7 @@ test_prepare_orderly_example <- function(examples, ...) {
   }
 
   if ("plugin" %in% examples) {
-    testthat::skip_if_not_installed("pkgload")
-    pkgload::load_all(test_path("plugins/example.random"),
-                      quiet = TRUE, export_all = FALSE)
+    register_example_plugin()
     config <- c(config,
                 "plugins:",
                 "  example.random:",
@@ -49,4 +47,16 @@ test_path <- function(...) {
   } else {
     testthat::test_path(...)
   }
+}
+
+
+clear_plugins <- function() {
+  rm(list = ls(envir = .plugins), envir = .plugins)
+}
+
+
+register_example_plugin <- function() {
+  testthat::skip_if_not_installed("pkgload")
+  pkgload::load_all(test_path("plugins/example.random"),
+                    quiet = TRUE, export_all = FALSE)
 }
