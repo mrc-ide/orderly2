@@ -20,7 +20,17 @@
 ##'   data, to be passed in as the second argument to `read`.
 ##'
 ##' @param serialise A function to serialise any metadata added by the
-##'   plugin's functions to the outpack metadata.
+##'   plugin's functions to the outpack metadata. It will be passed a
+##'   list of all entries pushed in via
+##'   [`orderly3::orderly_plugin_add_metadata()`]; this is a named
+##'   list with names corresponding to the `field` argument to
+##'   `orderly_plugin_add_metadata` and each list element being an
+##'   unnamed list with values corresponding to `data`.
+##'
+##' @param cleanup Optionally, a function to clean up any state that
+##'   your plugin uses. You can call `orderly_plugin_context` from
+##'   within this function and access anything you need from that. If
+##'   not given, then no cleanup is done.
 ##'
 ##' @param schema Optionally a path to a schema for the metadata
 ##'   created by this plugin. See `vignette("plugins")` for details.
@@ -29,9 +39,10 @@
 ##'   registering a plugin.
 ##'
 ##' @export
-orderly_plugin_register <- function(name, config, serialise, schema = NULL) {
+orderly_plugin_register <- function(name, config, serialise, cleanup = NULL,
+                                    schema = NULL) {
   assert_scalar_character(name)
-  .plugins[[name]] <- orderly_plugin(config, serialise, schema)
+  .plugins[[name]] <- orderly_plugin(config, serialise, cleanup, schema)
 }
 
 
@@ -52,9 +63,13 @@ load_orderly_plugin <- function(name) {
 .plugins <- new.env(parent = emptyenv())
 
 
-orderly_plugin <- function(config, serialise, schema) {
+orderly_plugin <- function(config, serialise, cleanup, schema) {
   assert_is(config, "function")
   assert_is(serialise, "function")
+  if (is.null(cleanup)) {
+    cleanup <- plugin_no_cleanup
+  }
+  assert_is(cleanup, "function")
   if (!is.null(schema)) {
     assert_file_exists(schema, name = "Schema file")
     schema <- paste(readLines(schema), collapse = "\n")
@@ -62,6 +77,7 @@ orderly_plugin <- function(config, serialise, schema) {
   }
   ret <- list(config = config,
               serialise = serialise,
+              cleanup = cleanup,
               schema = schema)
   class(ret) <- "orderly_plugin"
   ret
@@ -211,4 +227,15 @@ check_plugin_enabled <- function(name, config) {
   if (is.null(config$plugins[[name]])) {
     stop(sprintf("Plugin '%s' not enabled in 'orderly_config.yml'", name))
   }
+}
+
+
+plugin_run_cleanup <- function(path, plugins) {
+  for (p in plugins) {
+    withr::with_dir(path, p$cleanup())
+  }
+}
+
+
+plugin_no_cleanup <- function() {
 }

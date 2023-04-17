@@ -105,3 +105,22 @@ test_that("error if environment not found", {
     orderly_plugin_environment("unknown.package"),
     "Could not determine plugin calling environment safely - please report")
 })
+
+
+test_that("run cleanup on exit", {
+  skip_if_not_installed("mockery")
+  clear_plugins()
+  on.exit(clear_plugins())
+
+  path <- test_prepare_orderly_example("plugin")
+  mock_cleanup <- mockery::mock()
+  .plugins$example.random$cleanup <- mock_cleanup
+
+  env <- new.env()
+  set.seed(1)
+  id <- orderly_run("plugin", root = path, envir = env)
+
+  mockery::expect_called(mock_cleanup, 1)
+  expect_equal(
+    mockery::mock_args(.plugins$example.random$cleanup)[[1]], list())
+})

@@ -91,6 +91,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     schema <- custom_metadata_schema(root$config)
     outpack::outpack_packet_add_custom("orderly", custom_metadata_json,
                                        schema, packet = p)
+    plugin_run_cleanup(path, p$orderly3$config$plugins)
     outpack::outpack_packet_end(p)
     unlink(path, recursive = TRUE)
     current[[path]] <- NULL

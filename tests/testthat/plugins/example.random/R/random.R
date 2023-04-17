@@ -7,7 +7,7 @@ numbers <- function(as, n) {
   invisible()
 }
 
-read <- function(data, filename) {
+config <- function(data, filename) {
   orderly3:::assert_named(
     data, name = paste0(filename, ":example.random"))
   orderly3:::assert_scalar_character(
@@ -29,5 +29,8 @@ serialise <- function(data) {
 .onLoad <- function(...) {
   schema <- system.file("schema.json", package = "example.random",
                         mustWork = TRUE)
-  orderly3::orderly_plugin_register("example.random", read, serialise, schema)
+  orderly3::orderly_plugin_register("example.random",
+                                    config = config,
+                                    serialise = serialise,
+                                    schema = schema)
 }
