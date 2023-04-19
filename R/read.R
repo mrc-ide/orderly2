@@ -14,7 +14,7 @@ orderly_read_r <- function(path) {
                 orderly_resource = static_orderly_resource,
                 orderly_global_resource = static_orderly_global_resource,
                 orderly_artefact = static_orderly_artefact,
-                orderly_depends = static_orderly_depends)
+                orderly_dependency = static_orderly_dependency)
   dat <- set_names(rep(list(NULL), length(check)), names(check))
 
   for (e in exprs) {
