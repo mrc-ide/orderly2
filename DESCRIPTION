@@ -23,6 +23,8 @@ Imports:
     yaml
 Suggests:
     jsonvalidate,
+    mockery,
+    pkgload,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes: mrc-ide/outpack

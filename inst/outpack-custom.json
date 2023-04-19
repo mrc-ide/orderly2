@@ -66,6 +66,8 @@
             "type": ["null", "string"]
         },
         "custom": {
+        },
+        "plugins": {
         }
     },
     "additionalProperties": false,

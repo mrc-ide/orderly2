@@ -1,0 +1,12 @@
+Package: example.random
+Title: Example Random Numbers
+Version: 0.0.1
+Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
+                    email = "rich.fitzjohn@gmail.com"),
+             person("Robert", "Ashton", role = "aut"),
+             person("Alex", "Hill", role = "aut"),
+             person("Imperial College of Science, Technology and Medicine",
+                    role = "cph"))
+Description: Example random numbers.
+License: CC0
+Imports: orderly3
