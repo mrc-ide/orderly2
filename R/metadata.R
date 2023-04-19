@@ -16,8 +16,6 @@
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
-    ## Here, we might prompt for the presence of parameters in the
-    ## global environment and prompt for it.
     pars <- static_orderly_parameters(list(...))
     env <- parent.frame()
     check_parameters_interactive(env, pars)
@@ -137,7 +135,7 @@ static_orderly_artefact <- function(args) {
 ##'
 ##' @return Undefined
 ##' @export
-orderly_depends <- function(name, query, use) {
+orderly_dependency <- function(name, query, use) {
   assert_scalar_character(name)
   assert_scalar_character(query)
 
@@ -164,7 +162,7 @@ orderly_depends <- function(name, query, use) {
 }
 
 
-static_orderly_depends <- function(args) {
+static_orderly_dependency <- function(args) {
   name <- args$name
   query <- args$query
   use <- args$use
