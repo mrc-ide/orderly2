@@ -16,8 +16,6 @@
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
-    ## Here, we might prompt for the presence of parameters in the
-    ## global environment and prompt for it.
     pars <- static_orderly_parameters(list(...))
     env <- parent.frame()
     check_parameters_interactive(env, pars)
