@@ -134,26 +134,10 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
 ##' @export
 orderly_plugin_context <- function(name) {
   assert_scalar_character(name)
-  p <- get_active_packet()
-  is_active <- !is.null(p)
-  if (is_active) {
-    path <- p$path
-    orderly_config <- p$orderly3$config
-    env <- p$orderly3$envir
-    src <- p$orderly3$src
-    parameters <- p$parameters
-  } else {
-    path <- getwd()
-    root <- detect_orderly_interactive_path(path)
-    orderly_config <- orderly_root(root$path, FALSE)$config
-    env <- orderly_plugin_environment(name)
-    src <- path
-    parameters <- current_orderly_parameters(src, env)
-  }
-  check_plugin_enabled(name, orderly_config)
-  config <- orderly_config$plugins[[name]]$config
-  list(is_active = is_active, path = path, config = config, env = env,
-       src = src, parameters = parameters)
+  ctx <- orderly_context()
+  check_plugin_enabled(name, ctx$config)
+  ctx$config <- ctx$config$plugins[[name]]$config
+  ctx
 }
 
 
