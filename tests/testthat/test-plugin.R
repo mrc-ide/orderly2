@@ -102,8 +102,8 @@ test_that("error if packet uses non-configured plugin", {
 
 test_that("error if environment not found", {
   expect_error(
-    orderly_plugin_environment("unknown.package"),
-    "Could not determine plugin calling environment safely - please report")
+    orderly_environment("unknown.package"),
+    "Could not determine calling environment safely - please report")
 })
 
 

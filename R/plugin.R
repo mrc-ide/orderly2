@@ -136,7 +136,15 @@ orderly_plugin_context <- function(name) {
   assert_scalar_character(name)
   ctx <- orderly_context()
   check_plugin_enabled(name, ctx$config)
+  ## Narrower view on configuration - can only see the config for the
+  ## plugin itself:
   ctx$config <- ctx$config$plugins[[name]]$config
+  ## No direct access to the full packet
+  ctx$packet <- NULL
+  ## Correct environment in the interactive case:
+  if (!ctx$is_active) {
+    ctx$env <- orderly_environment(name)
+  }
   ctx
 }
 
@@ -171,39 +179,6 @@ orderly_plugin_add_metadata <- function(name, field, data) {
     p$orderly3$plugins[[name]][[field]] <-
       c(p$orderly3$plugins[[name]][[field]], list(data))
   }
-}
-
-
-## This is a real trick, and is only used in the case where the report
-## is being run interactively, and in that case the correct thing is
-## *almost certainly* the global environment, as the user has to do
-## some tricks to stop that being the case; for example running
-##
-##   source("orderly.R", local = TRUE)
-##
-## We want to find the environment that corresponds to the top level
-## environment for orderly; that will be the one that called the
-## plugin function. So we'll have a stack of frames (corresponding to
-## the environments on the call stack) with *parents* that look like
-## this, outermost first:
-##
-## - (anything else)
-## - (calling environment) <-- this is what we're looking for
-## - (plugin)
-## - (orderly3; orderly_plugin_context)
-## - (orderly3; from orderly_plugin_environment)
-##
-## so we loop down the stack looking for the first call to a function
-## in the plugin package, then take the frame *above* that.
-orderly_plugin_environment <- function(name) {
-  frames <- sys.frames()
-  for (i in seq_along(frames)[-1]) {
-    if (environmentName(parent.env(frames[[i]])) == name) {
-      return(frames[[i - 1]])
-    }
-  }
-  ## This error should never surface if the plugin is configured correctly
-  stop("Could not determine plugin calling environment safely - please report")
 }
 
 
