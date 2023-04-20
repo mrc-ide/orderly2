@@ -1,8 +1,8 @@
-orderly3::orderly_depends("depends", "latest",
-                          c(depends_graph.png = "graph.png"),
-                          as = "depends")
-orderly3::orderly_depends("explicit", "usedby({depends})",
-                          c(explicit_graph.png = "mygraph.png"))
+orderly3::orderly_dependency("depends", "latest",
+                             c(depends_graph.png = "graph.png"),
+                             as = "depends")
+orderly3::orderly_dependency("explicit", "usedby({depends})",
+                             c(explicit_graph.png = "mygraph.png"))
 orderly3::orderly_artefact("All plots zip", "all_plots.zip")
 
 z <- tempfile()

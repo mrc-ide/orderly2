@@ -82,7 +82,7 @@ create_random_report <- function(root, name = "data", dependencies = NULL) {
       variable <- paste0("x", i)
       variables <- c(variables, variable)
       c(sprintf(
-        "orderly3::orderly_depends(\"%s\", \"%s\", c(%s = \"data.rds\"))",
+        "orderly3::orderly_dependency(\"%s\", '%s', c(%s = \"data.rds\"))",
         name, query, file_input),
         sprintf("%s <- readRDS(\"%s\")", variable, file_input))
     }))

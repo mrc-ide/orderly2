@@ -317,24 +317,22 @@ test_that("can use subqueries in interactive run", {
   path_src <- file.path(path, "src", "depends2")
   withr::with_dir(path_src, sys.source("orderly.R", env_depends2))
 
-  path_depends2 <- file.path(path, "archive", "depends2", id_depends2)
-  expect_true(file.exists(path_depends2))
-  expect_true(file.exists(file.path(path_depends2, "depends_graph.png")))
-  expect_true(file.exists(file.path(path_depends2, "explicit_graph.png")))
-  expect_true(file.exists(file.path(path_depends2, "all_plots.zip")))
+  expect_true(file.exists(file.path(path_src, "depends_graph.png")))
+  expect_true(file.exists(file.path(path_src, "explicit_graph.png")))
+  expect_true(file.exists(file.path(path_src, "all_plots.zip")))
   expect_setequal(
-    zip::zip_list(file.path(path_depends2, "all_plots.zip"))$filename,
+    zip::zip_list(file.path(path_src, "all_plots.zip"))$filename,
     c("depends_graph.png", "explicit_graph.png"))
 
   ## "explicit" dependency was pulled in from first id i.e. the version of
   ## "explicit" used by "depends"
   path_explicit1 <- file.path(path, "archive", "explicit", id_explicit1)
   expect_equal(
-    unname(tools::md5sum(file.path(path_depends2, "explicit_graph.png"))),
+    unname(tools::md5sum(file.path(path_src, "explicit_graph.png"))),
     unname(tools::md5sum(file.path(path_explicit1, "mygraph.png"))))
   path_explicit2 <- file.path(path, "archive", "explicit", id_explicit2)
   expect_true(
-    unname(tools::md5sum(file.path(path_depends2, "explicit_graph.png"))) !=
+    unname(tools::md5sum(file.path(path_src, "explicit_graph.png"))) !=
       unname(tools::md5sum(file.path(path_explicit2, "mygraph.png"))))
 })
 
@@ -385,7 +383,7 @@ test_that("Can query for dependencies", {
 })
 
 
-test_that("useful error returned when dependency query not satisfied", {
+test_that("useful error returned when dependency query returns no results", {
   path <- test_prepare_orderly_example(NULL)
   create_random_report(path, "a")
   create_random_report(path, "b", list(a = "latest"))
@@ -402,4 +400,19 @@ test_that("useful error returned when dependency query not satisfied", {
   env_c1 <- new.env()
   expect_error(orderly_run("c", root = path, envir = env_c1),
                "Found no packets")
+})
+
+
+test_that("useful error returned when dependency query returns multiple", {
+  path <- test_prepare_orderly_example(NULL)
+  create_random_report(path, "a")
+  create_random_report(path, "b", list(a = 'name == "a"'))
+
+  env_a1 <- new.env()
+  id_a1 <- orderly_run("a", root = path, envir = env_a1)
+  env_a2 <- new.env()
+  id_a2 <- orderly_run("a", root = path, envir = env_a2)
+  env_b1 <- new.env()
+  expect_error(orderly_run("b", root = path, envir = env_b1),
+               "Found more than 1 packet for dependency, dependency must return a single packet.")
 })
