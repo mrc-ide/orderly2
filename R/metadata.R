@@ -135,58 +135,65 @@ static_orderly_artefact <- function(args) {
 ##'   so c(here.csv = "there.csv") will take the upstream file
 ##'   `there.csv` and copy it over as `here.csv`.
 ##'
-##' @param label (Optional) A label to refer to the results of running
-##'   this query. The label can be used in subsequent calls to
+##' @param as (Optional) A name to refer to the results of running
+##'   this query. The name can be used in subsequent calls to
 ##'   `orderly_depends` as a subquery.
 ##'
 ##' @return Undefined
 ##' @export
-orderly_depends <- function(name, query, use, label = NULL) {
+orderly_depends <- function(name, query, use, as = NULL) {
   assert_scalar_character(name)
   assert_scalar_character(query)
-  if (!is.null(label)) {
-    assert_scalar_character(label)
-    existing_labels <- ls(query_results)
-    if (label %in% existing_labels) {
-      stop(paste0("Trying to save query result with label '", label,
-                 "' but a result with that name already exists."))
-    }
+  if (!is.null(as)) {
+    assert_scalar_character(as)
   }
 
   assert_character(use)
   assert_named(use, unique = TRUE)
 
   p <- get_active_packet()
+  env <- NULL
   if (is.null(p)) {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)
     env <- parent.frame()
-    id <- run_outpack_query(query, env, name = name,
+    subquery_env <- mget("subqueries", envir = env,
+                         ifnotfound = list(NULL))$subqueries
+    if (is.null(subquery_env)) {
+      subquery_env <- new.env(parent = emptyenv())
+      env$subquery_env <- subquery_env
+    }
+    parameters_env <- mget(ls(env)[ls(env) != "subqueries"], env)
+    id <- run_outpack_query(query, parameters_env, subquery_env, name = name,
                             root = root$outpack)
     outpack::outpack_copy_files(id, use, path, root$outpack)
   } else {
-    id <- run_outpack_query(query, p$parameters, name = name,
-                            root = p$root)
+    env <- p$orderly3$envir
+    id <- run_outpack_query(query, p$parameters, env,
+                            name = name, root = p$root)
     outpack::outpack_packet_use_dependency(id, use, p)
   }
 
+  if (!is.null(as)) {
+    if (as %in% ls(env)) {
+      stop(paste0("Trying to save query result as '", as,
+                  "' but a variable with that name already exists."))
+    }
 
-  if (!is.null(label)) {
-    id_equal_terms <- lapply(id, function(x) bquote(id == .(x)))
-    subquery <- id_equal_terms[[1]]
-    for (term in id_equal_terms[-1]) {
+    id_terms <- lapply(id, function(x) bquote(id == .(x)))
+    subquery <- id_terms[[1]]
+    for (term in id_terms[-1]) {
       subquery <- call("||", subquery, term)
     }
-    query_results[[label]] <- subquery
+    env[[as]] <- subquery
   }
 
   invisible()
 }
 
-query_results <- new.env(parent = emptyenv())
 
-run_outpack_query <- function(query, parameters, name, root) {
-  subquery <- as.list(query_results)
+run_outpack_query <- function(query, parameters, env, name, root) {
+  subquery <- as.list(env)
   if (length(subquery) == 0) {
     subquery <- NULL
   }

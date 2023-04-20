@@ -74,7 +74,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                      id = id, root = root$outpack,
                                      local = TRUE)
   withCallingHandlers({
-    p$orderly3 <- list(config = root$config)
+    p$orderly3 <- list(config = root$config, envir = envir)
     current[[path]] <- p
 
     if (!is.null(parameters)) {
@@ -214,7 +214,7 @@ check_parameters_interactive <- function(env, spec) {
   list2env(spec[setdiff(names(spec), names(env))], env)
 
   ## We might need a slightly better error message here that indicates
-  ## that we're running in a pecular mode so the value might just have
+  ## that we're running in a peculiar mode so the value might just have
   ## been overwritten
   found <- lapply(names(spec), function(v) env[[v]])
   check_parameter_values(found[!vlapply(found, is.null)], FALSE)
