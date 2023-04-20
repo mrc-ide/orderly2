@@ -16,8 +16,6 @@
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
-    ## Here, we might prompt for the presence of parameters in the
-    ## global environment and prompt for it.
     pars <- static_orderly_parameters(list(...))
     env <- parent.frame()
     check_parameters_interactive(env, pars)
@@ -35,6 +33,13 @@ static_orderly_parameters <- function(args) {
   check_parameter_values(args, TRUE)
 
   args
+}
+
+
+current_orderly_parameters <- function(src, env) {
+  dat <- orderly_read(src)
+  pars <- static_orderly_parameters(dat$parameters)
+  check_parameters_interactive(env, pars)
 }
 
 
@@ -141,7 +146,7 @@ static_orderly_artefact <- function(args) {
 ##'
 ##' @return Undefined
 ##' @export
-orderly_depends <- function(name, query, use, as = NULL) {
+orderly_dependency <- function(name, query, use, as = NULL) {
   assert_scalar_character(name)
   assert_scalar_character(query)
   if (!is.null(as)) {
@@ -151,27 +156,13 @@ orderly_depends <- function(name, query, use, as = NULL) {
   assert_character(use)
   assert_named(use, unique = TRUE)
 
-  p <- get_active_packet()
-  env <- NULL
-  if (is.null(p)) {
-    path <- getwd()
-    root <- detect_orderly_interactive_path(path)
-    env <- parent.frame()
-    subquery_env <- mget("subqueries", envir = env,
-                         ifnotfound = list(NULL))$subqueries
-    if (is.null(subquery_env)) {
-      subquery_env <- new.env(parent = emptyenv())
-      env$subquery_env <- subquery_env
-    }
-    parameters_env <- mget(ls(env)[ls(env) != "subqueries"], env)
-    id <- run_outpack_query(query, parameters_env, subquery_env, name = name,
-                            root = root$outpack)
-    outpack::outpack_copy_files(id, use, path, root$outpack)
+  ctx <- orderly_context()
+  id <- outpack::outpack_query(query, ctx$parameters, name = name,
+                               require_unpacked = TRUE, root = ctx$root)
+  if (ctx$is_active) {
+    outpack::outpack_packet_use_dependency(id, use, ctx$packet)
   } else {
-    env <- p$orderly3$envir
-    id <- run_outpack_query(query, p$parameters, env,
-                            name = name, root = p$root)
-    outpack::outpack_packet_use_dependency(id, use, p)
+    outpack::outpack_copy_files(id, use, ctx$path, ctx$root)
   }
 
   if (!is.null(as)) {
@@ -209,7 +200,7 @@ run_outpack_query <- function(query, parameters, env, name, root) {
 }
 
 
-static_orderly_depends <- function(args) {
+static_orderly_dependency <- function(args) {
   name <- args$name
   query <- args$query
   use <- args$use
@@ -245,17 +236,16 @@ static_orderly_depends <- function(args) {
 ##' @export
 orderly_global_resource <- function(...) {
   files <- validate_global_resource(list(...))
-  p <- get_active_packet()
-  if (is.null(p)) {
-    path <- getwd()
-    root <- detect_orderly_interactive_path(path)
-    config <- orderly_root(root$path, FALSE)$config
-    copy_global(root$path, path, config, files)
-  } else {
-    files <- copy_global(p$root$path, p$path, p$orderly3$config, files)
-    outpack::outpack_packet_file_mark(files$here, "immutable", packet = p)
-    p$orderly3$global_resources <- rbind(p$orderly3$global_resources, files)
+  ctx <- orderly_context()
+
+  files <- copy_global(ctx$root, ctx$path, ctx$config, files)
+  if (ctx$is_active) {
+    outpack::outpack_packet_file_mark(files$here, "immutable",
+                                      packet = ctx$packet)
+    ctx$packet$orderly3$global_resources <-
+      rbind(ctx$packet$orderly3$global_resources, files)
   }
+
   invisible()
 }
 

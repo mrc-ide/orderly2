@@ -74,7 +74,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                      id = id, root = root$outpack,
                                      local = TRUE)
   withCallingHandlers({
-    p$orderly3 <- list(config = root$config, envir = envir)
+    p$orderly3 <- list(config = root$config, envir = envir, src = src)
     current[[path]] <- p
 
     if (!is.null(parameters)) {
@@ -87,10 +87,14 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     outpack::outpack_packet_run("orderly.R", envir, packet = p)
     check_produced_artefacts(path, p$orderly3$artefacts)
     custom_metadata_json <- to_json(custom_metadata(p$orderly3))
+
+    schema <- custom_metadata_schema(root$config)
     outpack::outpack_packet_add_custom("orderly", custom_metadata_json,
-                                       custom_metadata_schema(), packet = p)
+                                       schema, packet = p)
+    plugin_run_cleanup(path, p$orderly3$config$plugins)
     outpack::outpack_packet_end(p)
     unlink(path, recursive = TRUE)
+    current[[path]] <- NULL
   }, error = function(e) {
     ## Eventually fail nicely here with mrc-3379
     outpack::outpack_packet_cancel(p)
@@ -111,13 +115,24 @@ custom_metadata <- function(dat) {
     list(description = scalar(x$description),
          paths = x$files)
   })
+
+  if (is.null(dat$plugins)) {
+    plugins <- NULL
+  } else {
+    plugins <- list()
+    for (nm in names(dat$plugins)) {
+      plugins[[nm]] <- dat$config$plugins[[nm]]$serialise(dat$plugins[[nm]])
+    }
+  }
+
   list(artefacts = artefacts,
        role = role,
        displayname = NULL,
        description = NULL,
-       custom =  NULL,
+       custom = NULL,
        global = global,
-       packages = character(0))
+       packages = character(0),
+       plugins = plugins)
 }
 
 

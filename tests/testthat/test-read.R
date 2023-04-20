@@ -47,18 +47,18 @@ test_that("Can read string from expressions", {
 
 test_that("read dependency", {
   args <- list(name = "a", query = "latest", use = c(x = "y"))
-  expect_equal(static_orderly_depends(args), args)
+  expect_equal(static_orderly_dependency(args), args)
 
   expect_null(
-    static_orderly_depends(list(name = quote(a),
-                                query = "latest",
-                                use = c(x = "y"))))
+    static_orderly_dependency(list(name = quote(a),
+                                   query = "latest",
+                                   use = c(x = "y"))))
   expect_null(
-    static_orderly_depends(list(name = "a",
-                                query = quote(latest),
-                                use = c(x = "y"))))
+    static_orderly_dependency(list(name = "a",
+                                   query = quote(latest),
+                                   use = c(x = "y"))))
   expect_null(
-    static_orderly_depends(list(name = "a",
-                                query = "latest",
-                                use = quote(use))))
+    static_orderly_dependency(list(name = "a",
+                                   query = "latest",
+                                   use = quote(use))))
 })
