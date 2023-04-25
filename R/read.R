@@ -51,8 +51,8 @@ orderly_read_r <- function(path) {
   if (length(dat$artefact) > 0) {
     ret$artefacts <- dat$artefact
   }
-  if (length(dat$depends) > 0) {
-    ret$depends <- drop_null(dat$depends, empty = NULL)
+  if (length(dat$dependency) > 0) {
+    ret$dependency <- drop_null(dat$dependency, empty = NULL)
   }
 
   ret
