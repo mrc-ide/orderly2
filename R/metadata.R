@@ -43,6 +43,56 @@ current_orderly_parameters <- function(src, env) {
 }
 
 
+##' Describe the current packet
+##'
+##' @title Describe the current packet
+##'
+##' @param display A friendly name for the report; this will be
+##'   displayed in some locations of the web interface, packit. If
+##'   given, it must be a scalar character.
+##'
+##' @param long A longer description of the report. If given,
+##'   it must be a scalar character.
+##'
+##' @param custom Any additional metadata. If given, it must be a named
+##'   list, with all elements being scalar atomics (character, number,
+##'   logical).
+##'
+##' @return Undefined
+##' @export
+orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
+  if (!is.null(display)) {
+    assert_scalar_character(display)
+  }
+  if (!is.null(long)) {
+    assert_scalar_character(long)
+  }
+  if (!is.null(custom)) {
+    assert_named(custom)
+    assert_is(custom, "list")
+    for (i in names(custom)) {
+      assert_scalar_atomic(custom[[i]], sprintf("custom$%s", i))
+    }
+  }
+
+  p <- get_active_packet()
+  if (!is.null(p)) {
+    p$orderly3$description <-
+      list(display = display, long = long, custom = custom)
+  }
+  invisible()
+}
+
+
+static_orderly_description <- function(args) {
+  list(displayname = static_string(args$displayname),
+       description = static_string(args$description),
+       ## It's possible we could do better here, but it's not trivial
+       ## and not high value:
+       custom = NULL)
+}
+
+
 ##' Declare that a file, or group of files, are an orderly
 ##' resource. By explicitly declaring files as resources orderly will
 ##' mark the files as immutable inputs and validate that your analysis

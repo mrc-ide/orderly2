@@ -125,13 +125,23 @@ custom_metadata <- function(dat) {
     }
   }
 
+  if (is.null(dat$description$custom)) {
+    custom <- NULL
+  } else {
+    custom <- lapply(dat$description$custom, scalar)
+  }
+  description <- list(display = scalar(dat$description$display),
+                      long = scalar(dat$description$long),
+                      custom = custom)
+
+  ## We can actually get this from reading the file, I think
+  packages <- character(0)
+
   list(artefacts = artefacts,
        role = role,
-       displayname = NULL,
-       description = NULL,
-       custom = NULL,
+       description = description,
        global = global,
-       packages = character(0),
+       packages = packages,
        plugins = plugins)
 }
 
