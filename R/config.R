@@ -17,13 +17,12 @@ orderly_config_yml_read <- function(path) {
     assert_named(raw)
   }
 
-  ## This has a structure that makes using plugins later easier
   check <- list(
+    plugins = orderly_config_validate_plugins,
     global_resources = orderly_config_validate_global_resources)
 
   required <- character()
-  optional <- c(setdiff(names(check), required))
-
+  optional <- setdiff(names(check), required)
   check_fields(raw, filename, required, optional)
 
   dat <- list()
@@ -41,4 +40,20 @@ orderly_config_validate_global_resources <- function(global_resources,
     assert_is_directory(global_resources, name = "Global resource directory")
     global_resources
   }
+}
+
+
+orderly_config_validate_plugins <- function(plugins, filename) {
+  if (is.null(plugins)) {
+    return(NULL)
+  }
+  assert_named(plugins, unique = TRUE, name = sprintf("%s:plugins", filename))
+
+  ret <- list()
+  for (nm in names(plugins)) {
+    dat <- load_orderly_plugin(nm)
+    dat$config <- dat$config(plugins[[nm]], filename)
+    ret[[nm]] <- dat
+  }
+  ret
 }
