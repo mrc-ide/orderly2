@@ -9,13 +9,11 @@ orderly_config_yml_read <- function(path) {
                      name = "Orderly configuration")
   raw <- yaml_read(filename)
 
-  ## This simplifies the validation
-  owd <- setwd(path)
-  on.exit(setwd(owd))
-
   if (!is.null(raw)) {
     assert_named(raw)
   }
+
+  raw <- resolve_env(raw, orderly_envir_read(path), "orderly_config.yml")
 
   check <- list(
     plugins = orderly_config_validate_plugins,
@@ -25,6 +23,9 @@ orderly_config_yml_read <- function(path) {
   optional <- setdiff(names(check), required)
   check_fields(raw, filename, required, optional)
 
+  ## This simplifies the validation
+  owd <- setwd(path)
+  on.exit(setwd(owd))
   dat <- list()
   for (x in names(check)) {
     dat[[x]] <- check[[x]](raw[[x]], filename)
@@ -56,4 +57,27 @@ orderly_config_validate_plugins <- function(plugins, filename) {
     ret[[nm]] <- dat
   }
   ret
+}
+
+
+orderly_envir_read <- function(path) {
+  filename <- file.path(path, "orderly_envir.yml")
+  if (!file.exists(filename)) {
+    return(NULL)
+  }
+
+  dat <- yaml_read(filename)
+  if (length(dat) == 0) {
+    return(NULL)
+  }
+
+  assert_named(dat, TRUE, basename(filename))
+  n <- lengths(dat)
+  nok <- n != 1L
+  if (any(nok)) {
+    stop(sprintf("Expected all elements of %s to be scalar (check %s)",
+                 basename(filename),
+                 paste(squote(names(dat)[nok]), collapse = ", ")))
+  }
+  vcapply(dat[n == 1], as.character)
 }
