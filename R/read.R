@@ -12,6 +12,7 @@ orderly_read_r <- function(path) {
 
   check <- list(orderly_parameters = static_orderly_parameters,
                 orderly_resource = static_orderly_resource,
+                orderly_description = static_orderly_description,
                 orderly_global_resource = static_orderly_global_resource,
                 orderly_artefact = static_orderly_artefact,
                 orderly_dependency = static_orderly_dependency)
@@ -53,6 +54,10 @@ orderly_read_r <- function(path) {
   }
   if (length(dat$dependency) > 0) {
     ret$dependency <- drop_null(dat$dependency, empty = NULL)
+  }
+
+  if (length(dat$description) > 1) {
+    stop("Only one call to 'orderly3::orderly_description' is allowed")
   }
 
   ret

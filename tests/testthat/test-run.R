@@ -266,3 +266,31 @@ test_that("global resources can be directories", {
     list(iris = read.csv(file.path(path, "global/data/iris.csv")),
          mtcars = read.csv(file.path(path, "global/data/mtcars.csv"))))
 })
+
+
+test_that("can add description metadata", {
+  path <- test_prepare_orderly_example("description")
+  env <- new.env()
+  id <- orderly_run("description", root = path, envir = env)
+
+  root <- orderly_root(path, FALSE)
+  meta <- root$outpack$metadata(id, full = TRUE)
+  expect_equal(
+    meta$custom$orderly$description,
+    list(display = "Packet with description",
+         long = "A longer description. Perhaps multiple sentences",
+         custom = list(author = "Alice", requester = "Bob")))
+})
+
+
+test_that("can't use description twice in one packet", {
+  path <- test_prepare_orderly_example("description")
+  env <- new.env()
+  path_orderly <- file.path(path, "src", "description", "orderly.R")
+  code <- readLines(path_orderly)
+  writeLines(c(code, "orderly3::orderly_description()"), path_orderly)
+  expect_error(
+    orderly_run("description", root = path, envir = env),
+    "Only one call to 'orderly3::orderly_description' is allowed",
+    fixed = TRUE)
+})

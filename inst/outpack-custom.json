@@ -59,18 +59,25 @@
                 }
             }
         },
-        "displayname": {
-            "type": ["null", "string"]
-        },
         "description": {
-            "type": ["null", "string"]
-        },
-        "custom": {
+            "type": "object",
+            "properties": {
+                "display": {
+                    "type": ["null", "string"]
+                },
+                "long": {
+                    "type": ["null", "string"]
+                },
+                "custom": {
+                    "type": ["null", "object"]
+                }
+            },
+            "required": ["display", "long", "custom"],
+            "additionalProperties": false
         },
         "plugins": {
         }
     },
     "additionalProperties": false,
-    "required": ["artefacts", "packages", "global", "role",
-                 "displayname", "description", "custom"]
+    "required": ["artefacts", "packages", "global", "role", "description"]
 }

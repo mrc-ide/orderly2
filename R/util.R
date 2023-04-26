@@ -75,3 +75,12 @@ replace_ragged <- function(x, i, values) {
   ret[i] <- values
   unlist(ret, FALSE, FALSE)
 }
+
+
+assert_scalar_atomic <- function(x, name = deparse(substitute(x))) {
+  assert_scalar(x, name)
+  if (!is.atomic(x)) {
+    stop(sprintf("'%s' must be atomic (string, numeric, logical)", name))
+  }
+  invisible(x)
+}

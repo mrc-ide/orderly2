@@ -19,3 +19,12 @@ test_that("drop_null can filter list", {
   expect_equal(drop_null(list("x", "y")), list("x", "y"))
   expect_equal(drop_null(list("x", NULL, "y")), list("x", "y"))
 })
+
+
+test_that("assert_scalar_atomic rejects non-atomic entries", {
+  value <- list(1)
+  expect_error(assert_scalar_atomic(value),
+               "'value' must be atomic (string, numeric, logical)",
+               fixed = TRUE)
+  expect_silent(assert_scalar_atomic(1))
+})
