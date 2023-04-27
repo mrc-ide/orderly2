@@ -27,7 +27,7 @@ orderly_context <- function() {
 ## *almost certainly* the global environment, as the user has to do
 ## some tricks to stop that being the case; for example running
 ##
-##   source("orderly.R", local = TRUE)
+## > source("orderly.R", local = TRUE)
 ##
 ## We want to find the environment that corresponds to the top level
 ## environment for orderly; that will be the one that called the
