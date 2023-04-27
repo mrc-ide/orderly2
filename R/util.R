@@ -13,12 +13,9 @@ is_call <- function(x, name) {
 }
 
 
-is_orderly_call <- function(x, name) {
-  is_call(x, name) || (
-    is.recursive(x) &&
-    is_call(x[[1]], "::") &&
-    as.character(x[[1]][[2]]) == "orderly3" &&
-    as.character(x[[1]][[3]]) == name)
+is_orderly_ns_call <- function(x) {
+  is.recursive(x) && is_call(x[[1]], "::") &&
+    as.character(x[[1]][[2]]) == "orderly3"
 }
 
 
