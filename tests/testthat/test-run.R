@@ -294,3 +294,84 @@ test_that("can't use description twice in one packet", {
     "Only one call to 'orderly3::orderly_description' is allowed",
     fixed = TRUE)
 })
+
+
+test_that("can't use description twice by being sneaky", {
+  path <- test_prepare_orderly_example("description")
+  env <- new.env()
+  path_orderly <- file.path(path, "src", "description", "orderly.R")
+  code <- readLines(path_orderly)
+  writeLines(c(code, "for (i in 1:2) orderly3::orderly_description()"),
+             path_orderly)
+  expect_error(
+    orderly_run("description", root = path, envir = env),
+    "Only one call to 'orderly3::orderly_description' is allowed",
+    fixed = TRUE)
+})
+
+
+test_that("with strict mode, only declared files are copied, running fails", {
+  path <- test_prepare_orderly_example("implicit")
+  path_src <- file.path(path, "src", "implicit", "orderly.R")
+  code <- readLines(path_src)
+  writeLines(c("orderly3::orderly_strict_mode()", code), path_src)
+  err <- suppressWarnings(tryCatch(read.csv("data.csv"), error = identity))
+  expect_error(
+    suppressWarnings(orderly_run("implicit", root = path)),
+    err$message,
+    fixed = TRUE)
+})
+
+
+test_that("with strict mode, indicate unknown files as potential artefacts", {
+  path <- test_prepare_orderly_example("implicit")
+  path_src <- file.path(path, "src", "implicit", "orderly.R")
+  code <- readLines(path_src)
+  writeLines(c("orderly3::orderly_strict_mode()",
+               'orderly3::orderly_resource("data.csv")',
+               code),
+             path_src)
+  expect_message(
+    id <- orderly_run("implicit", root = path),
+    "orderly produced unexpected files:\n  - mygraph.png",
+    fixed = TRUE)
+  expect_setequal(
+    dir(file.path(path, "archive", "implicit", id)),
+    c("orderly.R", "mygraph.png", "data.csv"))
+})
+
+
+test_that("without strict mode, detect modified files", {
+  path <- test_prepare_orderly_example("implicit")
+  file.create(file.path(path, "src", "implicit", "mygraph.png"))
+  expect_message(
+    id <- orderly_run("implicit", root = path),
+    "inputs modified; these are probably artefacts:\n  - mygraph.png",
+    fixed = TRUE)
+  expect_setequal(
+    dir(file.path(path, "archive", "implicit", id)),
+    c("orderly.R", "mygraph.png", "data.csv"))
+})
+
+
+test_that("disallow multiple calls to strict mode", {
+  path <- test_prepare_orderly_example("implicit")
+  path_src <- file.path(path, "src", "implicit", "orderly.R")
+  code <- readLines(path_src)
+  writeLines(c("if (TRUE) {",
+               "  orderly3::orderly_strict_mode()",
+               "}",
+               code),
+             path_src)
+  expect_error(
+    orderly_run("implicit", root = path),
+    "orderly function 'orderly_strict_mode' can only be used at the top level")
+
+  writeLines(c("orderly3::orderly_strict_mode()",
+               "orderly3::orderly_strict_mode()",
+               code),
+             path_src)
+  expect_error(
+    orderly_run("implicit", root = path),
+    "Only one call to 'orderly3::orderly_strict_mode' is allowed")
+})
