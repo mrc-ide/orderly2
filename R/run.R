@@ -55,27 +55,29 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
   strict <- dat$strict$enabled
   if (strict) {
-    to_copy <- c("orderly.R", dat$resources)
-  } else if (length(dat$resources) == 0) {
-    to_copy <- dir_ls_local(src, all = TRUE, type = "file")
+    inputs_info <- NULL
+    fs::file_copy(file.path(src, "orderly.R"), path)
   } else {
-    ## This will require some care in the case where we declare
-    ## directory artefacts, not totally sure what we'll want to do
-    ## there, but it probably means that we need to write a dir walker
-    ## - let's ignore that detail for now and come up with some
-    ## adverserial cases later.
-    exclude <- unlist(lapply(dat$artefacts, "[[", "files"), TRUE, FALSE)
-    all_files <- dir_ls_local(src, all = TRUE)
-    to_copy <- union(dat$resources, setdiff(all_files, exclude))
+    to_copy <- dir_ls_local(src, all = TRUE, type = "file", recurse = TRUE)
+    ## Here we just seek to exclude any artefacts that are not
+    ## explicitly listed as resources, if they already exist.
+    artefact_files <- unlist(lapply(dat$artefacts, "[[", "files"), TRUE, FALSE)
+    if (any(file.exists(artefact_files))) {
+      resources <- expand_dirs(dat$resources, src)
+      to_copy <- setdiff(to_copy, setdiff(artefact_files, resources))
+    }
+    fs::dir_create(unique(file.path(path, dirname(to_copy))))
+    fs::file_copy(file.path(src, to_copy),
+                  file.path(path, to_copy),
+                  overwrite = TRUE)
+    inputs_info <- withr::with_dir(path, fs::file_info(to_copy))
   }
-
-  fs::file_copy(file.path(src, to_copy), path)
-  inputs_info <- withr::with_dir(path, fs::file_info(to_copy))
 
   p <- outpack::outpack_packet_start(path, name, parameters = parameters,
                                      id = id, root = root$outpack,
                                      local = TRUE)
   withCallingHandlers({
+    outpack::outpack_packet_file_mark("orderly.R", "immutable", packet = p)
     p$orderly3 <- list(config = root$config, envir = envir, src = src)
     current[[path]] <- p
 
@@ -83,8 +85,6 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
       list2env(parameters, envir)
     }
 
-    outpack::outpack_packet_file_mark(c("orderly.R", dat$resources),
-                                      "immutable", packet = p)
     outpack::outpack_packet_run("orderly.R", envir, packet = p)
     plugin_run_cleanup(path, p$orderly3$config$plugins)
 

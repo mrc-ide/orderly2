@@ -4,7 +4,7 @@
 
 
 is_directory <- function(x) {
-  file.info(x, extra_cols = FALSE)$isdir
+  fs::is_dir(x)
 }
 
 
@@ -80,4 +80,31 @@ assert_scalar_atomic <- function(x, name = deparse(substitute(x))) {
     stop(sprintf("'%s' must be atomic (string, numeric, logical)", name))
   }
   invisible(x)
+}
+
+
+vcapply <- function(X, FUN, ...) { # nolint
+  vapply(X, FUN, character(1), ...)
+}
+
+
+## TODO: also replace copy_global with this
+expand_dirs <- function(paths, workdir) {
+  withr::local_dir(workdir)
+  i <- is_directory(paths)
+  if (any(i)) {
+    contents <- lapply(paths[i], function(p) {
+      as.character(fs::dir_ls(p, all = TRUE, type = "file", recurse = TRUE))
+    })
+    paths <- replace_ragged(paths, i, contents)
+  }
+  paths
+}
+
+
+copy_files <- function(src, dst, files, overwrite = FALSE) {
+  fs::dir_create(unique(file.path(dst, dirname(files))))
+  fs::file_copy(file.path(src, files),
+                file.path(dst, files),
+                overwrite = overwrite)
 }

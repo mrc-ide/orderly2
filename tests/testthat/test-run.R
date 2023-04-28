@@ -375,3 +375,147 @@ test_that("disallow multiple calls to strict mode", {
     orderly_run("implicit", root = path),
     "Only one call to 'orderly3::orderly_strict_mode' is allowed")
 })
+
+
+test_that("can fetch information about the context", {
+  path <- test_prepare_orderly_example(c("explicit", "depends"))
+  env1 <- new.env()
+  id1 <- orderly_run("explicit", root = path, envir = env1)
+
+  path_src <- file.path(path, "src", "depends", "orderly.R")
+  code <- readLines(path_src)
+  writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
+             path_src)
+
+  env2 <- new.env()
+  id2 <- orderly_run("depends", root = path, envir = env2)
+
+  path2 <- file.path(path, "archive", "depends", id2)
+  d <- readRDS(file.path(path2, "info.rds"))
+
+  root_real <- as.character(fs::path_real(path))
+  depends <- data_frame(index = 1, name = "explicit", query = "latest",
+                        id = id1, there = "mygraph.png", here = "graph.png")
+  expect_equal(d, list(name = "depends", id = id2, root = root_real,
+                       depends = depends))
+})
+
+
+test_that("can fetch information interactively", {
+  path <- test_prepare_orderly_example(c("explicit", "depends"))
+  env1 <- new.env()
+  id1 <- orderly_run("explicit", root = path, envir = env1)
+
+  path_src <- file.path(path, "src", "depends", "orderly.R")
+  code <- readLines(path_src)
+  writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
+             path_src)
+
+  env2 <- new.env()
+  path_src <- file.path(path, "src", "depends")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env2))
+
+  path2 <- file.path(path, "src", "depends")
+  d <- readRDS(file.path(path2, "info.rds"))
+
+  root_real <- as.character(fs::path_real(path))
+  depends <- data_frame(index = integer(), name = character(),
+                        query = character(), id = character(),
+                        there = character(), here = character())
+  expect_equal(d, list(name = "depends", id = NA_character_, root = root_real,
+                       depends = depends))
+})
+
+
+test_that("can copy resource from directory, implicitly", {
+  path <- test_prepare_orderly_example("resource-in-directory")
+  env <- new.env()
+  id <- orderly_run("resource-in-directory", root = path, envir = env)
+
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  ## TODO: should we assign these a role?
+  expect_length(meta$custom$orderly$role, 0)
+  expect_setequal(meta$files$path,
+                  c("data.rds", "data/a.csv", "data/b.csv", "orderly.R"))
+  expect_true(file.exists(
+    file.path(path, "archive", "resource-in-directory", id, "data.rds")))
+})
+
+
+test_that("fail to copy resource from directory, implicitly, strictly", {
+  path <- test_prepare_orderly_example("resource-in-directory")
+  env <- new.env()
+  path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
+  prepend_lines(path_src, 'orderly3::orderly_strict_mode()')
+  err <- suppressWarnings(tryCatch(read.csv("data/a.csv"), error = identity))
+  expect_error(suppressWarnings(
+    orderly_run("resource-in-directory", root = path, envir = env)),
+    err$message,
+    fixed = TRUE)
+})
+
+
+test_that("can copy resource from directory, included by file", {
+  path <- test_prepare_orderly_example("resource-in-directory")
+  env <- new.env()
+  path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
+  prepend_lines(path_src,
+                c('orderly3::orderly_resource("data/a.csv")',
+                  'orderly3::orderly_resource("data/b.csv")'))
+  id <- orderly_run("resource-in-directory", root = path, envir = env)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  expect_equal(
+    meta$custom$orderly$role,
+    list(list(path = "data/a.csv", role = "resource"),
+         list(path = "data/b.csv", role = "resource")))
+  expect_true(file.exists(
+    file.path(path, "archive", "resource-in-directory", id, "data.rds")))
+})
+
+
+test_that("can copy resource from directory, included by file, strict mode", {
+  path <- test_prepare_orderly_example("resource-in-directory")
+  env <- new.env()
+  path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
+  prepend_lines(path_src,
+                c('orderly3::orderly_strict_mode()',
+                  'orderly3::orderly_resource("data/a.csv")',
+                  'orderly3::orderly_resource("data/b.csv")'))
+  id <- orderly_run("resource-in-directory", root = path, envir = env)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  expect_equal(
+    meta$custom$orderly$role,
+    list(list(path = "data/a.csv", role = "resource"),
+         list(path = "data/b.csv", role = "resource")))
+  expect_true(file.exists(
+    file.path(path, "archive", "resource-in-directory", id, "data.rds")))
+})
+
+
+test_that("can copy resource from directory, included by directory", {
+  path <- test_prepare_orderly_example("resource-in-directory")
+  env <- new.env()
+  path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
+  prepend_lines(path_src, 'orderly3::orderly_resource("data")')
+  id <- orderly_run("resource-in-directory", root = path, envir = env)
+})
+
+
+test_that("can copy resource from directory, included by directory, strictly", {
+  path <- test_prepare_orderly_example("resource-in-directory")
+  env <- new.env()
+  path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
+  prepend_lines(path_src,
+                c('orderly3::orderly_strict_mode()',
+                  'orderly3::orderly_resource("data")'))
+  id <- orderly_run("resource-in-directory", root = path, envir = env)
+
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  expect_equal(
+    meta$custom$orderly$role,
+    list(list(path = "data/a.csv", role = "resource"),
+         list(path = "data/b.csv", role = "resource")))
+  expect_true(file.exists(
+    file.path(path, "archive", "resource-in-directory", id, "data.rds")))
+})

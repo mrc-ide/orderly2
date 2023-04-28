@@ -151,12 +151,21 @@ orderly_resource <- function(files) {
   ## warning in normal R and then register a handler for it in the
   ## main run.
   assert_character(files)
-  assert_file_exists(files)
 
   p <- get_active_packet()
-  if (!is.null(p) && length(files) > 0L) {
-    outpack::outpack_packet_file_mark(files, "immutable", packet = p)
-    p$orderly3$resources <- c(p$orderly3$resources, files)
+  if (is.null(p)) {
+    assert_file_exists(files)
+  } else {
+    src <- p$orderly3$src
+    if (p$orderly3$strict_mode$enabled) {
+      assert_file_exists(files, workdir = src)
+      files_expanded <- expand_dirs(files, src)
+      copy_files(src, p$path, files_expanded)
+      outpack::outpack_packet_file_mark(files_expanded, "immutable", packet = p)
+      p$orderly3$resources <- c(p$orderly3$resources, files_expanded)
+    } else {
+      browser()
+    }
   }
 
   invisible()

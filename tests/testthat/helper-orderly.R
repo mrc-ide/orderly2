@@ -60,3 +60,15 @@ register_example_plugin <- function() {
   pkgload::load_all(test_path("plugins/example.random"),
                     quiet = TRUE, export_all = FALSE)
 }
+
+
+prepend_lines <- function(path, lines) {
+  txt <- readLines(path)
+  writeLines(c(lines, txt), path)
+}
+
+
+append_lines <- function(path, lines) {
+  txt <- readLines(path)
+  writeLines(c(txt, lines), path)
+}
