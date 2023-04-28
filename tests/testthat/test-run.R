@@ -563,9 +563,10 @@ test_that("can fetch information about the context", {
   path2 <- file.path(path, "archive", "depends", id2)
   d <- readRDS(file.path(path2, "info.rds"))
 
+  root_real <- as.character(fs::path_real(path))
   depends <- data_frame(index = 1, name = "explicit", query = "latest",
                         id = id1, there = "mygraph.png", here = "graph.png")
-  expect_equal(d, list(name = "depends", id = id2, root = path,
+  expect_equal(d, list(name = "depends", id = id2, root = root_real,
                        depends = depends))
 })
 
@@ -588,9 +589,10 @@ test_that("can fetch information interactively", {
   path2 <- file.path(path, "src", "depends")
   d <- readRDS(file.path(path2, "info.rds"))
 
+  root_real <- as.character(fs::path_real(path))
   depends <- data_frame(index = integer(), name = character(),
                         query = character(), id = character(),
                         there = character(), here = character())
-  expect_equal(d, list(name = "depends", id = NA_character_, root = path,
+  expect_equal(d, list(name = "depends", id = NA_character_, root = root_real,
                        depends = depends))
 })
