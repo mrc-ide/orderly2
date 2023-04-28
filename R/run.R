@@ -90,7 +90,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
     check_produced_artefacts(path, p$orderly3$artefacts)
     if (strict) {
-      artefact_files <- unlist(lapply(p$orderly$artefacts, "[[", "files"),
+      artefact_files <- unlist(lapply(p$orderly3$artefacts, "[[", "files"),
                                TRUE, FALSE)
       known <- c(unlist(lapply(p$files, names), FALSE, FALSE), artefact_files)
       check_files_strict(path, known)
