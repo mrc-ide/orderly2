@@ -501,6 +501,14 @@ test_that("can copy resource from directory, included by directory", {
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src, 'orderly3::orderly_resource("data")')
   id <- orderly_run("resource-in-directory", root = path, envir = env)
+
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  expect_equal(
+    meta$custom$orderly$role,
+    list(list(path = "data/a.csv", role = "resource"),
+         list(path = "data/b.csv", role = "resource")))
+  expect_true(file.exists(
+    file.path(path, "archive", "resource-in-directory", id, "data.rds")))
 })
 
 

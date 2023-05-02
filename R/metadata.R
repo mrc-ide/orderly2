@@ -25,7 +25,7 @@ orderly_strict_mode <- function() {
   p <- get_active_packet()
   if (!is.null(p)) {
     prevent_multiple_calls(p, "strict_mode")
-    p$orderly3$strict_mode <- static_orderly_strict_mode(list())
+    p$orderly3$strict <- static_orderly_strict_mode(list())
   }
   invisible()
 }
@@ -157,15 +157,15 @@ orderly_resource <- function(files) {
     assert_file_exists(files)
   } else {
     src <- p$orderly3$src
-    if (p$orderly3$strict_mode$enabled) {
-      assert_file_exists(files, workdir = src)
-      files_expanded <- expand_dirs(files, src)
+    assert_file_exists(files, workdir = src)
+    files_expanded <- expand_dirs(files, src)
+    if (p$orderly3$strict$enabled) {
       copy_files(src, p$path, files_expanded)
-      outpack::outpack_packet_file_mark(files_expanded, "immutable", packet = p)
-      p$orderly3$resources <- c(p$orderly3$resources, files_expanded)
     } else {
-      browser()
+      assert_file_exists(files, workdir = p$path)
     }
+    outpack::outpack_packet_file_mark(files_expanded, "immutable", packet = p)
+    p$orderly3$resources <- c(p$orderly3$resources, files_expanded)
   }
 
   invisible()

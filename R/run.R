@@ -53,8 +53,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   ## path too, in which case we use something from fs.
   path <- withr::with_dir(path, getwd())
 
-  strict <- dat$strict$enabled
-  if (strict) {
+  if (dat$strict$enabled) {
     inputs_info <- NULL
     fs::file_copy(file.path(src, "orderly.R"), path)
   } else {
@@ -62,7 +61,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     ## Here we just seek to exclude any artefacts that are not
     ## explicitly listed as resources, if they already exist.
     artefact_files <- unlist(lapply(dat$artefacts, "[[", "files"), TRUE, FALSE)
-    if (any(file.exists(artefact_files))) {
+    if (length(artefact_files) > 0 && any(file.exists(artefact_files))) {
+      ## TODO: this requires care if we have artefacts that are
+      ## directories, I think
       resources <- expand_dirs(dat$resources, src)
       to_copy <- setdiff(to_copy, setdiff(artefact_files, resources))
     }
@@ -71,6 +72,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                   file.path(path, to_copy),
                   overwrite = TRUE)
     inputs_info <- withr::with_dir(path, fs::file_info(to_copy))
+
+    ## One option here would be to hash inputs to use as a way of
+    ## detecting change too?
   }
 
   p <- outpack::outpack_packet_start(path, name, parameters = parameters,
@@ -78,7 +82,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                      local = TRUE)
   withCallingHandlers({
     outpack::outpack_packet_file_mark("orderly.R", "immutable", packet = p)
-    p$orderly3 <- list(config = root$config, envir = envir, src = src)
+    p$orderly3 <- list(config = root$config, envir = envir, src = src,
+                       strict = dat$strict)
     current[[path]] <- p
 
     if (!is.null(parameters)) {
@@ -89,7 +94,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     plugin_run_cleanup(path, p$orderly3$config$plugins)
 
     check_produced_artefacts(path, p$orderly3$artefacts)
-    if (strict) {
+    if (dat$strict$enabled) {
       artefact_files <- unlist(lapply(p$orderly3$artefacts, "[[", "files"),
                                TRUE, FALSE)
       known <- c(unlist(lapply(p$files, names), FALSE, FALSE), artefact_files)
