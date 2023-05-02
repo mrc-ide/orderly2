@@ -502,3 +502,45 @@ test_that("don't copy artefacts over when not needed", {
   expect_setequal(info$path, c(resources[-3], "d.csv"))
   expect_setequal(dir(dst3), c(resources[-3], "d.csv"))
 })
+
+
+test_that("can pull resources programmatically", {
+  path <- test_prepare_orderly_example("programmatic-resource")
+  id1 <- orderly3::orderly_run("programmatic-resource", list(use = "a"),
+                              root = path)
+  id2 <- orderly3::orderly_run("programmatic-resource", list(use = "b"),
+                               root = path)
+  meta1 <- orderly_root(path, FALSE)$outpack$metadata(id1, full = TRUE)
+  meta2 <- orderly_root(path, FALSE)$outpack$metadata(id2, full = TRUE)
+
+  expect_equal(meta1$custom$orderly$role,
+               list(list(path = "a.csv", role = "resource")))
+  expect_equal(meta2$custom$orderly$role,
+               list(list(path = "b.csv", role = "resource")))
+  expect_setequal(meta1$files$path,
+                  c("a.csv", "b.csv", "data.rds", "orderly.R"))
+  expect_setequal(meta2$files$path,
+                  c("a.csv", "b.csv", "data.rds", "orderly.R"))
+})
+
+
+test_that("can pull resources programmatically, strictly", {
+  path <- test_prepare_orderly_example("programmatic-resource")
+  path_src <- file.path(path, "src", "programmatic-resource", "orderly.R")
+  prepend_lines(path_src, "orderly3::orderly_strict_mode()")
+  id1 <- orderly3::orderly_run("programmatic-resource", list(use = "a"),
+                              root = path)
+  id2 <- orderly3::orderly_run("programmatic-resource", list(use = "b"),
+                               root = path)
+  meta1 <- orderly_root(path, FALSE)$outpack$metadata(id1, full = TRUE)
+  meta2 <- orderly_root(path, FALSE)$outpack$metadata(id2, full = TRUE)
+
+  expect_equal(meta1$custom$orderly$role,
+               list(list(path = "a.csv", role = "resource")))
+  expect_equal(meta2$custom$orderly$role,
+               list(list(path = "b.csv", role = "resource")))
+  expect_setequal(meta1$files$path,
+                  c("a.csv", "data.rds", "orderly.R"))
+  expect_setequal(meta2$files$path,
+                  c("b.csv", "data.rds", "orderly.R"))
+})
