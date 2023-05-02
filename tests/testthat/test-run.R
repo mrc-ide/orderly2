@@ -396,7 +396,7 @@ test_that("fail to copy resource from directory, implicitly, strictly", {
   path <- test_prepare_orderly_example("resource-in-directory")
   env <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
-  prepend_lines(path_src, 'orderly3::orderly_strict_mode()')
+  prepend_lines(path_src, "orderly3::orderly_strict_mode()")
   err <- suppressWarnings(tryCatch(read.csv("data/a.csv"), error = identity))
   expect_error(suppressWarnings(
     orderly_run("resource-in-directory", root = path, envir = env)),
@@ -428,7 +428,7 @@ test_that("can copy resource from directory, included by file, strict mode", {
   env <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src,
-                c('orderly3::orderly_strict_mode()',
+                c("orderly3::orderly_strict_mode()",
                   'orderly3::orderly_resource("data/a.csv")',
                   'orderly3::orderly_resource("data/b.csv")'))
   id <- orderly_run("resource-in-directory", root = path, envir = env)
@@ -464,7 +464,7 @@ test_that("can copy resource from directory, included by directory, strictly", {
   env <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src,
-                c('orderly3::orderly_strict_mode()',
+                c("orderly3::orderly_strict_mode()",
                   'orderly3::orderly_resource("data")'))
   id <- orderly_run("resource-in-directory", root = path, envir = env)
 
@@ -494,7 +494,7 @@ test_that("don't copy artefacts over when not needed", {
   info <- copy_resources_implicit(src, dst2, resources[-3], artefacts)
   expect_setequal(info$path, c(resources[-3], "d.csv"))
   expect_setequal(dir(dst2), c(resources[-3], "d.csv"))
- 
+
   dst3 <- withr::local_tempdir()
   info <- copy_resources_implicit(src, dst3, character(), artefacts)
   expect_setequal(info$path, c(resources[-3], "d.csv"))
