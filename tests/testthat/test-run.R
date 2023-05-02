@@ -529,3 +529,27 @@ test_that("can copy resource from directory, included by directory, strictly", {
   expect_true(file.exists(
     file.path(path, "archive", "resource-in-directory", id, "data.rds")))
 })
+
+
+test_that("don't copy artefacts over when not needed", {
+  artefacts <- list(list(files = "a.rds"), list(files = c("b.rds", "c.rds")))
+  resources <- c("a.csv", "b.csv", "c.rds")
+  src <- withr::local_tempdir()
+  file.create(file.path(src, resources))
+  file.create(file.path(src, "d.csv"))
+
+  dst1 <- withr::local_tempdir()
+  info <- copy_resources_implicit(src, dst1, resources, artefacts)
+  expect_setequal(info$path, c(resources, "d.csv"))
+  expect_setequal(dir(dst1), c(resources, "d.csv"))
+
+  dst2 <- withr::local_tempdir()
+  info <- copy_resources_implicit(src, dst2, resources[-3], artefacts)
+  expect_setequal(info$path, c(resources[-3], "d.csv"))
+  expect_setequal(dir(dst2), c(resources[-3], "d.csv"))
+ 
+  dst3 <- withr::local_tempdir()
+  info <- copy_resources_implicit(src, dst3, character(), artefacts)
+  expect_setequal(info$path, c(resources[-3], "d.csv"))
+  expect_setequal(dir(dst3), c(resources[-3], "d.csv"))
+})

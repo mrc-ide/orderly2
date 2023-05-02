@@ -57,24 +57,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     inputs_info <- NULL
     fs::file_copy(file.path(src, "orderly.R"), path)
   } else {
-    to_copy <- dir_ls_local(src, all = TRUE, type = "file", recurse = TRUE)
-    ## Here we just seek to exclude any artefacts that are not
-    ## explicitly listed as resources, if they already exist.
-    artefact_files <- unlist(lapply(dat$artefacts, "[[", "files"), TRUE, FALSE)
-    if (length(artefact_files) > 0 && any(file.exists(artefact_files))) {
-      ## TODO: this requires care if we have artefacts that are
-      ## directories, I think
-      resources <- expand_dirs(dat$resources, src)
-      to_copy <- setdiff(to_copy, setdiff(artefact_files, resources))
-    }
-    fs::dir_create(unique(file.path(path, dirname(to_copy))))
-    fs::file_copy(file.path(src, to_copy),
-                  file.path(path, to_copy),
-                  overwrite = TRUE)
-    inputs_info <- withr::with_dir(path, fs::file_info(to_copy))
-
-    ## One option here would be to hash inputs to use as a way of
-    ## detecting change too?
+    inputs_info <-
+      copy_resources_implicit(src, path, dat$resources, dat$artefacts)
   }
 
   p <- outpack::outpack_packet_start(path, name, parameters = parameters,
@@ -95,10 +79,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
     check_produced_artefacts(path, p$orderly3$artefacts)
     if (dat$strict$enabled) {
-      artefact_files <- unlist(lapply(p$orderly3$artefacts, "[[", "files"),
-                               TRUE, FALSE)
-      known <- c(unlist(lapply(p$files, names), FALSE, FALSE), artefact_files)
-      check_files_strict(path, known)
+      check_files_strict(path, p$files, p$orderly3$artefacts)
     } else {
       check_files_relaxed(path, inputs_info)
     }
@@ -262,9 +243,11 @@ check_parameters_interactive <- function(env, spec) {
 }
 
 
-check_files_strict <- function(path, known) {
+check_files_strict <- function(path, known, artefacts) {
+  all_known <- c(unlist(lapply(known, names), FALSE, FALSE),
+                 unlist(lapply(artefacts, "[[", "files"), TRUE, FALSE))
   all_files_end <- dir_ls_local(path, all = TRUE, type = "file")
-  unknown <- setdiff(all_files_end, known)
+  unknown <- setdiff(all_files_end, all_known)
   if (length(unknown) > 0) {
     ## TODO: better once we have logging merged, I think
     ##
@@ -290,4 +273,26 @@ check_files_relaxed <- function(path, inputs_info) {
       "Consider using orderly3::orderly_artefact() to describe them",
       sep = "\n"))
   }
+}
+
+
+copy_resources_implicit <- function(src, dst, resources, artefacts) {
+  to_copy <- dir_ls_local(src, all = TRUE, type = "file", recurse = TRUE)
+  ## Here we just seek to exclude any artefacts that are not
+  ## explicitly listed as resources, if they already exist.
+  artefact_files <- unlist(lapply(artefacts, "[[", "files"), TRUE, FALSE)
+  if (length(artefact_files) > 0) {
+    i <- file_exists(artefact_files, workdir = src)
+    if (any(i)) {
+      exclude <- setdiff(
+        expand_dirs(artefact_files[i], workdir = src),
+        expand_dirs(resources, workdir = src))
+      to_copy <- setdiff(to_copy, exclude)
+    }
+  }
+  fs::dir_create(unique(file.path(dst, dirname(to_copy))))
+  fs::file_copy(file.path(src, to_copy),
+                file.path(dst, to_copy),
+                overwrite = TRUE)
+  withr::with_dir(dst, fs::file_info(to_copy))
 }
