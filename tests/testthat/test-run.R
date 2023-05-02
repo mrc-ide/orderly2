@@ -379,57 +379,6 @@ test_that("disallow multiple calls to strict mode", {
 })
 
 
-test_that("can fetch information about the context", {
-  path <- test_prepare_orderly_example(c("explicit", "depends"))
-  env1 <- new.env()
-  id1 <- orderly_run("explicit", root = path, envir = env1)
-
-  path_src <- file.path(path, "src", "depends", "orderly.R")
-  code <- readLines(path_src)
-  writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
-             path_src)
-
-  env2 <- new.env()
-  id2 <- orderly_run("depends", root = path, envir = env2)
-
-  path2 <- file.path(path, "archive", "depends", id2)
-  d <- readRDS(file.path(path2, "info.rds"))
-
-  root_real <- as.character(fs::path_real(path))
-  depends <- data_frame(index = 1, name = "explicit", query = "latest",
-                        id = id1, there = "mygraph.png", here = "graph.png")
-  expect_equal(d, list(name = "depends", id = id2, root = root_real,
-                       depends = depends))
-})
-
-
-test_that("can fetch information interactively", {
-  path <- test_prepare_orderly_example(c("explicit", "depends"))
-  env1 <- new.env()
-  id1 <- orderly_run("explicit", root = path, envir = env1)
-
-  path_src <- file.path(path, "src", "depends", "orderly.R")
-  code <- readLines(path_src)
-  writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
-             path_src)
-
-  env2 <- new.env()
-  path_src <- file.path(path, "src", "depends")
-  withr::with_dir(path_src,
-                  sys.source("orderly.R", env2))
-
-  path2 <- file.path(path, "src", "depends")
-  d <- readRDS(file.path(path2, "info.rds"))
-
-  root_real <- as.character(fs::path_real(path))
-  depends <- data_frame(index = integer(), name = character(),
-                        query = character(), id = character(),
-                        there = character(), here = character())
-  expect_equal(d, list(name = "depends", id = NA_character_, root = root_real,
-                       depends = depends))
-})
-
-
 test_that("can copy resource from directory, implicitly", {
   path <- test_prepare_orderly_example("resource-in-directory")
   env <- new.env()
