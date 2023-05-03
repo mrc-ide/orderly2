@@ -339,7 +339,6 @@ test_that("with strict mode, indicate unknown files as potential artefacts", {
   expect_setequal(
     dir(file.path(path, "archive", "implicit", id)),
     c("orderly.R", "mygraph.png", "data.csv", "log.json"))
-    c("orderly.R", "mygraph.png", "data.csv"))
 })
 
 
@@ -548,15 +547,19 @@ test_that("can pull resources programmatically, strictly", {
 
 
 test_that("can fetch information about the context", {
-  path <- test_prepare_orderly_example(c("explicit", "depends"))
+  path <- test_prepare_orderly_example(c("data", "depends"))
+
   env1 <- new.env()
-  id1 <- orderly_run("explicit", root = path, envir = env1)
+  id1 <- orderly_run("data", root = path, envir = env1)
 
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
              path_src)
 
+  ## While there's an error here, our current strategy for sinking
+  ## output totally eats the error reporting, and we need a better way
+  ## of getting that back out...
   env2 <- new.env()
   id2 <- orderly_run("depends", root = path, envir = env2)
 
@@ -564,17 +567,17 @@ test_that("can fetch information about the context", {
   d <- readRDS(file.path(path2, "info.rds"))
 
   root_real <- as.character(fs::path_real(path))
-  depends <- data_frame(index = 1, name = "explicit", query = "latest",
-                        id = id1, there = "mygraph.png", here = "graph.png")
+  depends <- data_frame(index = 1, name = "data", query = "latest",
+                        id = id1, there = "data.rds", here = "input.rds")
   expect_equal(d, list(name = "depends", id = id2, root = root_real,
                        depends = depends))
 })
 
 
 test_that("can fetch information interactively", {
-  path <- test_prepare_orderly_example(c("explicit", "depends"))
+  path <- test_prepare_orderly_example(c("data", "depends"))
   env1 <- new.env()
-  id1 <- orderly_run("explicit", root = path, envir = env1)
+  id1 <- orderly_run("data", root = path, envir = env1)
 
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
