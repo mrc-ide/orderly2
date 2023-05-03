@@ -338,7 +338,7 @@ test_that("with strict mode, indicate unknown files as potential artefacts", {
     fixed = TRUE)
   expect_setequal(
     dir(file.path(path, "archive", "implicit", id)),
-    c("orderly.R", "mygraph.png", "data.csv"))
+    c("orderly.R", "mygraph.png", "data.csv", "log.json"))
 })
 
 
@@ -351,7 +351,7 @@ test_that("without strict mode, detect modified files", {
     fixed = TRUE)
   expect_setequal(
     dir(file.path(path, "archive", "implicit", id)),
-    c("orderly.R", "mygraph.png", "data.csv"))
+    c("orderly.R", "mygraph.png", "data.csv", "log.json"))
 })
 
 
@@ -386,8 +386,9 @@ test_that("can copy resource from directory, implicitly", {
   meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
   ## TODO: should we assign these a role?
   expect_length(meta$custom$orderly$role, 0)
-  expect_setequal(meta$files$path,
-                  c("data.rds", "data/a.csv", "data/b.csv", "orderly.R"))
+  expect_setequal(
+    meta$files$path,
+    c("data.rds", "data/a.csv", "data/b.csv", "orderly.R", "log.json"))
   expect_true(file.exists(
     file.path(path, "archive", "resource-in-directory", id, "data.rds")))
 })
@@ -517,9 +518,9 @@ test_that("can pull resources programmatically", {
   expect_equal(meta2$custom$orderly$role,
                list(list(path = "b.csv", role = "resource")))
   expect_setequal(meta1$files$path,
-                  c("a.csv", "b.csv", "data.rds", "orderly.R"))
+                  c("a.csv", "b.csv", "data.rds", "orderly.R", "log.json"))
   expect_setequal(meta2$files$path,
-                  c("a.csv", "b.csv", "data.rds", "orderly.R"))
+                  c("a.csv", "b.csv", "data.rds", "orderly.R", "log.json"))
 })
 
 
@@ -539,7 +540,7 @@ test_that("can pull resources programmatically, strictly", {
   expect_equal(meta2$custom$orderly$role,
                list(list(path = "b.csv", role = "resource")))
   expect_setequal(meta1$files$path,
-                  c("a.csv", "data.rds", "orderly.R"))
+                  c("a.csv", "data.rds", "orderly.R", "log.json"))
   expect_setequal(meta2$files$path,
-                  c("b.csv", "data.rds", "orderly.R"))
+                  c("b.csv", "data.rds", "orderly.R", "log.json"))
 })
