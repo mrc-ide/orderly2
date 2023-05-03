@@ -12,6 +12,7 @@ ordered_map_to_list <- orderly:::ordered_map_to_list
 orderly_log <- orderly:::orderly_log
 list_to_character <- orderly:::list_to_character
 rbind_df <- orderly:::rbind_df
+sys_getenv <- orderly:::sys_getenv
 
 assert_scalar <- orderly:::assert_scalar
 assert_character <- orderly:::assert_character

@@ -84,3 +84,36 @@ assert_scalar_atomic <- function(x, name = deparse(substitute(x))) {
   }
   invisible(x)
 }
+
+
+resolve_env <- function(x, env, used_in, error = TRUE) {
+  if (!is.null(env)) {
+    withr::local_envvar(env)
+  }
+
+  make_name <- function(x, parent) {
+    if (is.null(names(x))) {
+      sprintf("%s[[%d]]", parent, seq_along(x))
+    } else {
+      sprintf("%s$%s", parent, names(x))
+    }
+  }
+
+  re <- "^\\$([0-9A-Z_]+)$"
+  resolve <- function(x, name) {
+    if (is.recursive(x)) {
+      x[] <- Map(resolve, x, make_name(x, name))
+    } else if (is.character(x) && length(x) == 1 && grepl(re, x)) {
+      sys_getenv(sub(re, "\\1", x), name, error, default = NA_character_)
+    } else {
+      x
+    }
+  }
+
+  Map(resolve, x, make_name(x, used_in))
+}
+
+
+vcapply <- function(X, FUN, ...) { # nolint
+  vapply(X, FUN, character(1), ...)
+}
