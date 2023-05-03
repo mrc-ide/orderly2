@@ -6,7 +6,7 @@ options(outpack.schema_validate =
 test_prepare_orderly_example <- function(examples, ...) {
   tmp <- tempfile()
   withr::defer_parent(unlink(tmp, recursive = TRUE))
-  orderly_init(tmp)
+  orderly_init(tmp, logging_console = FALSE)
 
   config <- character()
 

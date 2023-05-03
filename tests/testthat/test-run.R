@@ -9,7 +9,8 @@ test_that("can run simple task with explicit inputs and outputs", {
   ## All outputs as expected
   path_res <- file.path(path, "archive", "explicit", id)
   expect_true(is_directory(path_res))
-  expect_setequal(dir(path_res), c("orderly.R", "mygraph.png", "data.csv"))
+  expect_setequal(dir(path_res),
+                  c("orderly.R", "mygraph.png", "data.csv", "log.json"))
 
   ## Nothing left in drafts
   expect_true(is_directory(file.path(path, "draft", "explicit")))
@@ -45,7 +46,8 @@ test_that("can run simple task with implicit inputs and outputs", {
   ## All outputs as expected
   path_res <- file.path(path, "archive", "implicit", id)
   expect_true(is_directory(path_res))
-  expect_setequal(dir(path_res), c("orderly.R", "mygraph.png", "data.csv"))
+  expect_setequal(dir(path_res),
+                  c("orderly.R", "mygraph.png", "data.csv", "log.json"))
 
   ## Nothing left in drafts
   expect_true(is_directory(file.path(path, "draft", "implicit")))
@@ -97,7 +99,7 @@ test_that("cope with computed values in static functions", {
   id <- orderly_run("computed-resource", root = path, envir = env)
   expect_setequal(
     dir(file.path(path, "archive", "computed-resource", id)),
-    c("data.csv", "mygraph.png", "orderly.R"))
+    c("data.csv", "mygraph.png", "orderly.R", "log.json"))
 })
 
 
@@ -177,7 +179,7 @@ test_that("can run with global resources", {
   id <- orderly_run("global", root = path, envir = env)
   expect_setequal(
     dir(file.path(path, "archive", "global", id)),
-    c("global_data.csv", "mygraph.png", "orderly.R"))
+    c("global_data.csv", "mygraph.png", "orderly.R", "log.json"))
   root <- orderly_root(path, FALSE)
   meta <- root$outpack$metadata(id, full = TRUE)
   expect_length(meta$custom$orderly$global, 1)
@@ -243,7 +245,7 @@ test_that("global resources can be directories", {
 
   expect_setequal(
     dir(file.path(path, "archive", "global-dir", id)),
-    c("global_data", "output.rds", "orderly.R"))
+    c("global_data", "output.rds", "orderly.R", "log.json"))
   expect_setequal(
     dir(file.path(path, "archive", "global-dir", id, "global_data")),
     c("iris.csv", "mtcars.csv"))

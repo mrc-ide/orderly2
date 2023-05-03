@@ -12,7 +12,7 @@ test_that("Configuration must exist", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
   fs::dir_create(tmp)
-  outpack::outpack_init(tmp)
+  outpack::outpack_init(tmp, logging_console = FALSE)
   expect_error(orderly_config(tmp),
                "Orderly configuration does not exist: 'orderly_config.yml'")
   expect_error(orderly_root(tmp, FALSE),
@@ -25,7 +25,7 @@ test_that("Initialisation requires empty directory", {
   fs::dir_create(tmp)
   on.exit(unlink(tmp, recursive = TRUE))
   file.create(file.path(tmp, "file"))
-  expect_error(orderly_init(tmp),
+  expect_error(orderly_init(tmp, logging_console = FALSE),
                "'path', if it already exists, must be an empty directory")
 })
 
@@ -33,7 +33,7 @@ test_that("Initialisation requires empty directory", {
 test_that("Can initialise a new orderly root", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
-  root <- orderly_init(tmp)
+  root <- orderly_init(tmp, logging_console = FALSE)
   expect_true(file.exists(tmp))
   expect_s3_class(root, "orderly_root")
   expect_s3_class(root$outpack, "outpack_root")
@@ -44,7 +44,7 @@ test_that("Can initialise a new orderly root", {
 test_that("Can validate global resources", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
-  root <- orderly_init(tmp)
+  root <- orderly_init(tmp, logging_console = FALSE)
   writeLines("global_resources: global", file.path(tmp, "orderly_config.yml"))
   expect_error(orderly_config(tmp),
                "Global resource directory does not exist: 'global'")
