@@ -4,7 +4,7 @@
 
 
 is_directory <- function(x) {
-  file.info(x, extra_cols = FALSE)$isdir
+  fs::is_dir(x)
 }
 
 
@@ -13,12 +13,9 @@ is_call <- function(x, name) {
 }
 
 
-is_orderly_call <- function(x, name) {
-  is_call(x, name) || (
-    is.recursive(x) &&
-    is_call(x[[1]], "::") &&
-    as.character(x[[1]][[2]]) == "orderly3" &&
-    as.character(x[[1]][[3]]) == name)
+is_orderly_ns_call <- function(x) {
+  is.recursive(x) && is_call(x[[1]], "::") &&
+    as.character(x[[1]][[2]]) == "orderly3"
 }
 
 
@@ -116,4 +113,26 @@ resolve_env <- function(x, env, used_in, error = TRUE) {
 
 vcapply <- function(X, FUN, ...) { # nolint
   vapply(X, FUN, character(1), ...)
+}
+
+
+## TODO: also replace copy_global with this
+expand_dirs <- function(paths, workdir) {
+  withr::local_dir(workdir)
+  i <- is_directory(paths)
+  if (any(i)) {
+    contents <- lapply(paths[i], function(p) {
+      as.character(fs::dir_ls(p, all = TRUE, type = "file", recurse = TRUE))
+    })
+    paths <- replace_ragged(paths, i, contents)
+  }
+  paths
+}
+
+
+copy_files <- function(src, dst, files, overwrite = FALSE) {
+  fs::dir_create(unique(file.path(dst, dirname(files))))
+  fs::file_copy(file.path(src, files),
+                file.path(dst, files),
+                overwrite = overwrite)
 }

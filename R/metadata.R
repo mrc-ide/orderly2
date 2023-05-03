@@ -1,3 +1,41 @@
+##' Put orderly3 into "strict mode", which is closer to the defaults
+##' in orderly 1.0.0; in this mode only explicitly included files (via
+##' [orderly3::orderly_resource] and
+##' [orderly3::orderly_global_resource]) are copied when running a
+##' packet, and we warn about any unexpected files at the end of the
+##' run.  Using strict mode allows orderly3 to be more agressive in
+##' how it deletes files within the source directory, more accurate in
+##' what it reports to you, and faster to start packets after
+##' developing them interactively.
+##'
+##' In future, we may extend strict mode to allow requiring that no
+##' computation occurs within orderly functions (i.e., that the
+##' requirements to run a packet are fully known before actually
+##' running it).  Most likely this will *not* be the default behaviour
+##' and `orderly_strict_mode` will gain an argument.
+##'
+##' We will allow server processes to either override this value
+##' (enabling it even when it is not explicitly given) and/or require
+##' it.
+##'
+##' @title Enable orderly strict mode
+##' @export
+##' @return Undefined
+orderly_strict_mode <- function() {
+  p <- get_active_packet()
+  if (!is.null(p)) {
+    prevent_multiple_calls(p, "strict_mode")
+    p$orderly3$strict <- static_orderly_strict_mode(list())
+  }
+  invisible()
+}
+
+
+static_orderly_strict_mode <- function(args) {
+  list(enabled = TRUE)
+}
+
+
 ##' Declare orderly parameters. You should only have one call to this
 ##' within your file, though this is not enforced! Typically you'd put
 ##' it very close to the top, though the order does not really matter.
@@ -77,6 +115,7 @@ orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
 
   p <- get_active_packet()
   if (!is.null(p)) {
+    prevent_multiple_calls(p, "description")
     p$orderly3$description <-
       list(display = display, long = long, custom = custom)
   }
@@ -112,12 +151,21 @@ orderly_resource <- function(files) {
   ## warning in normal R and then register a handler for it in the
   ## main run.
   assert_character(files)
-  assert_file_exists(files)
 
   p <- get_active_packet()
-  if (!is.null(p) && length(files) > 0L) {
-    outpack::outpack_packet_file_mark(files, "immutable", packet = p)
-    p$orderly3$resources <- c(p$orderly3$resources, files)
+  if (is.null(p)) {
+    assert_file_exists(files)
+  } else {
+    src <- p$orderly3$src
+    assert_file_exists(files, workdir = src)
+    files_expanded <- expand_dirs(files, src)
+    if (p$orderly3$strict$enabled) {
+      copy_files(src, p$path, files_expanded)
+    } else {
+      assert_file_exists(files, workdir = p$path)
+    }
+    outpack::outpack_packet_file_mark(files_expanded, "immutable", packet = p)
+    p$orderly3$resources <- c(p$orderly3$resources, files_expanded)
   }
 
   invisible()
@@ -204,6 +252,8 @@ orderly_dependency <- function(name, query, use) {
                                require_unpacked = TRUE, root = ctx$root)
   if (ctx$is_active) {
     outpack::outpack_packet_use_dependency(id, use, ctx$packet)
+    ## See mrc-4203; we'll do this in outpack soon
+    outpack::outpack_packet_file_mark(names(use), "immutable", ctx$packet)
   } else {
     outpack::outpack_copy_files(id, use, ctx$path, ctx$root)
   }
@@ -353,4 +403,11 @@ current <- new.env(parent = emptyenv())
 
 get_active_packet <- function() {
   current[[getwd()]]
+}
+
+
+prevent_multiple_calls <- function(packet, name) {
+  if (!is.null(packet$orderly3[[name]])) {
+    stop(sprintf("Only one call to 'orderly3::orderly_%s' is allowed", name))
+  }
 }

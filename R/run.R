@@ -53,45 +53,42 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   ## path too, in which case we use something from fs.
   path <- withr::with_dir(path, getwd())
 
-  ## For now, let's just copy *everything* over. Later we'll get more
-  ## clever about this and avoid copying over artefacts and
-  ## dependencies.
-  all_files <- dir_ls_local(src, all = TRUE)
-  if (length(dat) == 0) {
-    fs::file_copy(file.path(src, all_files), path)
+  if (dat$strict$enabled) {
+    inputs_info <- NULL
+    fs::file_copy(file.path(src, "orderly.R"), path)
   } else {
-    ## This will require some care in the case where we declare
-    ## directory artefacts, not totally sure what we'll want to do
-    ## there, but it probably means that we need to write a dir walker
-    ## - let's ignore that detail for now and come up with some
-    ## adverserial cases later.
-    exclude <- unlist(lapply(dat$artefacts, "[[", "files"), TRUE, FALSE)
-    to_copy <- union(dat$resources, setdiff(all_files, exclude))
-    fs::file_copy(file.path(src, to_copy), path)
+    inputs_info <-
+      copy_resources_implicit(src, path, dat$resources, dat$artefacts)
   }
 
   p <- outpack::outpack_packet_start(path, name, parameters = parameters,
                                      id = id, root = root$outpack,
                                      local = TRUE)
   withCallingHandlers({
-    p$orderly3 <- list(config = root$config, envir = envir, src = src)
+    outpack::outpack_packet_file_mark("orderly.R", "immutable", packet = p)
+    p$orderly3 <- list(config = root$config, envir = envir, src = src,
+                       strict = dat$strict)
     current[[path]] <- p
 
     if (!is.null(parameters)) {
       list2env(parameters, envir)
     }
 
-    if (length(dat$resources) > 0) { # outpack should cope with this...
-      outpack::outpack_packet_file_mark(dat$resources, "immutable", packet = p)
-    }
     outpack::outpack_packet_run("orderly.R", envir, packet = p)
-    check_produced_artefacts(path, p$orderly3$artefacts)
-    custom_metadata_json <- to_json(custom_metadata(p$orderly3))
+    plugin_run_cleanup(path, p$orderly3$config$plugins)
 
+    check_produced_artefacts(path, p$orderly3$artefacts)
+    if (dat$strict$enabled) {
+      check_files_strict(path, p$files, p$orderly3$artefacts)
+    } else {
+      check_files_relaxed(path, inputs_info)
+    }
+
+    custom_metadata_json <- to_json(custom_metadata(p$orderly3))
     schema <- custom_metadata_schema(root$config)
     outpack::outpack_packet_add_custom("orderly", custom_metadata_json,
                                        schema, packet = p)
-    plugin_run_cleanup(path, p$orderly3$config$plugins)
+
     outpack::outpack_packet_end(p)
     unlink(path, recursive = TRUE)
     current[[path]] <- NULL
@@ -243,4 +240,59 @@ check_parameters_interactive <- function(env, spec) {
   ## been overwritten
   found <- lapply(names(spec), function(v) env[[v]])
   check_parameter_values(found[!vlapply(found, is.null)], FALSE)
+}
+
+
+check_files_strict <- function(path, known, artefacts) {
+  all_known <- c(unlist(lapply(known, names), FALSE, FALSE),
+                 unlist(lapply(artefacts, "[[", "files"), TRUE, FALSE))
+  all_files_end <- dir_ls_local(path, all = TRUE, type = "file")
+  unknown <- setdiff(all_files_end, all_known)
+  if (length(unknown) > 0) {
+    ## TODO: better once we have logging merged, I think
+    ##
+    ## TODO: provide workaround to ignore too (either to exclude
+    ## or ignore); see VIMC-7093
+    message(paste(
+      "orderly produced unexpected files:",
+      sprintf("  - %s", unknown),
+      "Consider using orderly3::orderly_artefact() to describe them",
+      sep = "\n"))
+  }
+}
+
+
+check_files_relaxed <- function(path, inputs_info) {
+  inputs_info_end <- withr::with_dir(path, fs::file_info(inputs_info$path))
+  i <- inputs_info_end$size != inputs_info$size |
+    inputs_info_end$modification_time != inputs_info$modification_time
+  if (any(i)) {
+    message(paste(
+      "inputs modified; these are probably artefacts:",
+      sprintf("  - %s", inputs_info$path[i]),
+      "Consider using orderly3::orderly_artefact() to describe them",
+      sep = "\n"))
+  }
+}
+
+
+copy_resources_implicit <- function(src, dst, resources, artefacts) {
+  to_copy <- dir_ls_local(src, all = TRUE, type = "file", recurse = TRUE)
+  ## Here we just seek to exclude any artefacts that are not
+  ## explicitly listed as resources, if they already exist.
+  artefact_files <- unlist(lapply(artefacts, "[[", "files"), TRUE, FALSE)
+  if (length(artefact_files) > 0) {
+    i <- file_exists(artefact_files, workdir = src)
+    if (any(i)) {
+      exclude <- setdiff(
+        expand_dirs(artefact_files[i], workdir = src),
+        expand_dirs(resources, workdir = src))
+      to_copy <- setdiff(to_copy, exclude)
+    }
+  }
+  fs::dir_create(unique(file.path(dst, dirname(to_copy))))
+  fs::file_copy(file.path(src, to_copy),
+                file.path(dst, to_copy),
+                overwrite = TRUE)
+  withr::with_dir(dst, fs::file_info(to_copy))
 }
