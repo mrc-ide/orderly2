@@ -108,3 +108,8 @@ copy_files <- function(src, dst, files, overwrite = FALSE) {
                 file.path(dst, files),
                 overwrite = overwrite)
 }
+
+
+system_file <- function(...) {
+  system.file(..., mustWork = TRUE)
+}

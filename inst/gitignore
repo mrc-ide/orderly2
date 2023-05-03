@@ -1,0 +1,19 @@
+# You must ignore the .outpack directory from orderly (and you really
+# should do this for any outpack project).
+.outpack/
+
+# orderly will create many files in drafts and ARCHIVE; these are also
+# not suitable for version control. If you rename 
+ARCHIVE/
+drafts/
+
+# You may store secrets etc in these files and they're special to your
+# machine; they should not be committed:
+.Rprofile
+.Renviron
+orderly_envir.yml
+
+# Other R-specific files that accumulate that you don't generally want:
+.Rhistory
+.Rdata
+.Rproj.user

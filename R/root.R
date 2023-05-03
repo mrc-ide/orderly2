@@ -33,17 +33,3 @@ orderly_root <- function(root, locate) {
   class(ret) <- "orderly_root"
   ret
 }
-
-
-orderly_init <- function(path) {
-  if (file.exists(path)) {
-    if (!is_directory(path) || length(dir(path)) > 0) {
-      stop("'path', if it already exists, must be an empty directory")
-    }
-  } else {
-    fs::dir_create(path)
-  }
-  outpack::outpack_init(path)
-  file.create(file.path(path, "orderly_config.yml"))
-  orderly_root(path, locate = FALSE)
-}

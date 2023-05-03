@@ -1,0 +1,13 @@
+# The "global_resources" option allows sharing of files between
+# different reports; set this to specify a path to copy files
+# from. See ?orderly3::orderly_global_resource for more details
+#
+# global_resources: global
+
+# Most other configurable functionality will be provided by plugins,
+# of which we have written:
+#
+# * orderly3.db: https://mrc-ide.github.io/orderly3.db
+# * orderly3.vaultr: https://mrc-ide.github.io/orderly3.vaultr
+#
+# See the documentation there for details on configuration and use.
