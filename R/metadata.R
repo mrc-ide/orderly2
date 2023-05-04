@@ -164,7 +164,7 @@ orderly_resource <- function(files) {
     } else {
       assert_file_exists(files, workdir = p$path)
     }
-    outpack::outpack_packet_file_mark(files_expanded, "immutable", packet = p)
+    outpack::outpack_packet_file_mark(p, files_expanded, "immutable")
     p$orderly3$resources <- c(p$orderly3$resources, files_expanded)
   }
 
@@ -251,9 +251,9 @@ orderly_dependency <- function(name, query, use) {
   id <- outpack::outpack_query(query, ctx$parameters, name = name,
                                require_unpacked = TRUE, root = ctx$root)
   if (ctx$is_active) {
-    outpack::outpack_packet_use_dependency(id, use, ctx$packet)
+    outpack::outpack_packet_use_dependency(ctx$packet, id, use)
     ## See mrc-4203; we'll do this in outpack soon
-    outpack::outpack_packet_file_mark(names(use), "immutable", ctx$packet)
+    outpack::outpack_packet_file_mark(ctx$packet, names(use), "immutable")
   } else {
     outpack::outpack_copy_files(id, use, ctx$path, ctx$root)
   }
@@ -302,8 +302,7 @@ orderly_global_resource <- function(...) {
 
   files <- copy_global(ctx$root, ctx$path, ctx$config, files)
   if (ctx$is_active) {
-    outpack::outpack_packet_file_mark(files$here, "immutable",
-                                      packet = ctx$packet)
+    outpack::outpack_packet_file_mark(ctx$packet, files$here, "immutable")
     ctx$packet$orderly3$global_resources <-
       rbind(ctx$packet$orderly3$global_resources, files)
   }
