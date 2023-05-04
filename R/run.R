@@ -14,6 +14,18 @@
 ##'   report script; by default we use the global environment, which
 ##'   may not always be what is wanted.
 ##'
+##' @param logging_console Optional logical, passed through to
+##'   [outpack::outpack_packet_start] to control printing logs to the
+##'   console, overriding any default configuration set at the root.
+##'
+##' @param logging_threshold Optional logging threshold, passed through to
+##'   [outpack::outpack_packet_start] to control the amount of detail
+##'   in logs printed during running, overriding any default
+##'   configuration set at the root. If given, must be one of `info`,
+##'   `debug` or `trace` (in increasing order of
+##'   verbosity). Practically this has no effect at present as we've
+##'   not added any fine-grained logging.
+##'
 ##' @param root The path to an orderly root directory, or `NULL`
 ##'   (the default) to search for one from the current working
 ##'   directory if `locate` is `TRUE`.
@@ -27,6 +39,7 @@
 ##'
 ##' @export
 orderly_run <- function(name, parameters = NULL, envir = NULL,
+                        logging_console = NULL, logging_threshold = NULL,
                         root = NULL, locate = TRUE) {
   root <- orderly_root(root, locate)
   src <- file.path(root$path, "src", name)
@@ -62,8 +75,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   }
 
   p <- outpack::outpack_packet_start(path, name, parameters = parameters,
-                                     id = id, root = root$outpack,
-                                     local = TRUE)
+                                     id = id, logging_console = logging_console,
+                                     logging_threshold = logging_threshold,
+                                     root = root$outpack, local = TRUE)
   withCallingHandlers({
     outpack::outpack_packet_file_mark("orderly.R", "immutable", packet = p)
     p$orderly3 <- list(config = root$config, envir = envir, src = src,
