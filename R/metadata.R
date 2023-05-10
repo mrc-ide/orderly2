@@ -254,6 +254,9 @@ orderly_dependency <- function(name, query, use) {
     outpack::outpack_packet_use_dependency(ctx$packet, id, use)
     ## See mrc-4203; we'll do this in outpack soon
     outpack::outpack_packet_file_mark(ctx$packet, names(use), "immutable")
+    ctx$packet$orderly3$dependency <- c(
+      ctx$packet$orderly3$dependency,
+      list(list(name = name, query = query, id = id, use = use)))
   } else {
     outpack::outpack_copy_files(id, use, ctx$path, ctx$root)
   }

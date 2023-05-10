@@ -54,6 +54,7 @@
                         "type": "string"
                     },
                     "role": {
+                        "comment": "refactor this; we don't need most!",
                         "enum": ["orderly_yml", "resource", "script", "source", "dependency", "global", "readme"]
                     }
                 }

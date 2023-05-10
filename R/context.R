@@ -8,6 +8,8 @@ orderly_context <- function() {
     env <- p$orderly3$envir
     src <- p$orderly3$src
     parameters <- p$parameters
+    name <- p$name
+    id <- p$id
   } else {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)$path
@@ -15,9 +17,11 @@ orderly_context <- function() {
     env <- orderly_environment("orderly3")
     src <- path
     parameters <- current_orderly_parameters(src, env)
+    name <- basename(path)
+    id <- NA_character_
   }
   list(is_active = is_active, path = path, config = config, env = env,
-       root = root, src = src, parameters = parameters,
+       root = root, src = src, name = name, id = id, parameters = parameters,
        packet = p)
 }
 
@@ -56,4 +60,51 @@ orderly_environment <- function(name) {
   }
   ## This error should never surface if the plugin is configured correctly
   stop("Could not determine calling environment safely - please report")
+}
+
+
+##' Fetch information about the actively running report.  This allows
+##' you to reflect information about your report back as part of the
+##' report, for example embedding the current report id, or
+##' information about computed dependencies. This information is in a
+##' slightly different format to orderly version 1.x and does not
+##' (currently) include information about dependencies when run
+##' outside of [orderly3::orderly_run], but this was never reliable
+##' previously.
+##'
+##' @title Information about currently running report
+##'
+##' @return A list with elements
+##'
+##' * `name`: The name of the current report
+##' * `id`: The id of the current report, `NA` if running interactively
+##' * `root`: The orderly root path
+##' * `depends`: A data frame with information about the dependencies
+##'   (not available interactively)
+##'     - `index`: an integer sequence along calls to
+##'       [`orderly3::orderly_dependency`]
+##'     - `name`: the name of the dependency
+##'     - `query`: the query used to find the dependency
+##'     - `id`: the computed id of the included packet
+##'     - `filename`: the file used from the packet
+##'     - `as`: the filename used locally
+##' @export
+orderly_run_info <- function() {
+  ctx <- orderly_context()
+
+  id <- ctx$packet$id %||% NA_character_
+  name <- ctx$name
+  root <- ctx$root
+
+  deps <- ctx$packet$orderly3$dependency
+  n <- vapply(deps, function(x) length(x$use), numeric(1))
+  depends <- data_frame(
+    index = rep(seq_along(deps), n),
+    name = rep(vcapply(deps, "[[", "name"), n),
+    query = rep(vcapply(deps, "[[", "query"), n),
+    id = rep(vcapply(deps, "[[", "id"), n),
+    there = unlist(lapply(deps, function(x) unname(x$use))) %||% character(),
+    here = unlist(lapply(deps, function(x) names(x$use))) %||% character())
+
+  list(name = name, id = id, root = root, depends = depends)
 }

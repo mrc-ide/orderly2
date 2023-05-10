@@ -12,5 +12,6 @@ detect_orderly_interactive_path <- function(path = getwd()) {
   if (!is_plausible) {
     stop(sprintf("Failed to detect orderly path at '%s'", path))
   }
-  orderly_root(file.path(path, "../.."), FALSE)
+  root_path <- as.character(fs::path_norm(file.path(path, "../..")))
+  orderly_root(root_path, FALSE)
 }
