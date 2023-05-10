@@ -14,6 +14,18 @@
 ##'   report script; by default we use the global environment, which
 ##'   may not always be what is wanted.
 ##'
+##' @param logging_console Optional logical, passed through to
+##'   [outpack::outpack_packet_start] to control printing logs to the
+##'   console, overriding any default configuration set at the root.
+##'
+##' @param logging_threshold Optional logging threshold, passed through to
+##'   [outpack::outpack_packet_start] to control the amount of detail
+##'   in logs printed during running, overriding any default
+##'   configuration set at the root. If given, must be one of `info`,
+##'   `debug` or `trace` (in increasing order of
+##'   verbosity). Practically this has no effect at present as we've
+##'   not added any fine-grained logging.
+##'
 ##' @param root The path to an orderly root directory, or `NULL`
 ##'   (the default) to search for one from the current working
 ##'   directory if `locate` is `TRUE`.
@@ -27,6 +39,7 @@
 ##'
 ##' @export
 orderly_run <- function(name, parameters = NULL, envir = NULL,
+                        logging_console = NULL, logging_threshold = NULL,
                         root = NULL, locate = TRUE) {
   root <- orderly_root(root, locate)
   src <- file.path(root$path, "src", name)
@@ -62,10 +75,11 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   }
 
   p <- outpack::outpack_packet_start(path, name, parameters = parameters,
-                                     id = id, root = root$outpack,
-                                     local = TRUE)
+                                     id = id, logging_console = logging_console,
+                                     logging_threshold = logging_threshold,
+                                     root = root$outpack)
   withCallingHandlers({
-    outpack::outpack_packet_file_mark("orderly.R", "immutable", packet = p)
+    outpack::outpack_packet_file_mark(p, "orderly.R", "immutable")
     p$orderly3 <- list(config = root$config, envir = envir, src = src,
                        strict = dat$strict)
     current[[path]] <- p
@@ -74,7 +88,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
       list2env(parameters, envir)
     }
 
-    outpack::outpack_packet_run("orderly.R", envir, packet = p)
+    outpack::outpack_packet_run(p, "orderly.R", envir)
     plugin_run_cleanup(path, p$orderly3$config$plugins)
 
     check_produced_artefacts(path, p$orderly3$artefacts)
@@ -86,8 +100,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
     custom_metadata_json <- to_json(custom_metadata(p$orderly3))
     schema <- custom_metadata_schema(root$config)
-    outpack::outpack_packet_add_custom("orderly", custom_metadata_json,
-                                       schema, packet = p)
+    outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json,
+                                       schema)
 
     outpack::outpack_packet_end(p)
     unlink(path, recursive = TRUE)
