@@ -598,7 +598,9 @@ test_that("can fetch information interactively", {
                         there = character(), here = character())
   expect_equal(d, list(name = "depends", id = NA_character_, root = root_real,
                        depends = depends))
-=======
+})
+
+
 test_that("can enable logging at the packet level", {
   path <- test_prepare_orderly_example("data")
   res <- testthat::evaluate_promise(
@@ -607,5 +609,4 @@ test_that("can enable logging at the packet level", {
                "[ name       ]  data\n",
                fixed = TRUE, all = FALSE)
   expect_match(res$output, "orderly3::orderly_artefact")
->>>>>>> origin/main
 })
