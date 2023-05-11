@@ -18,7 +18,7 @@ Imports:
     fs,
     jsonlite,
     orderly,
-    outpack (>= 0.3.1),
+    outpack (>= 0.3.2),
     withr,
     yaml
 Suggests:
@@ -27,4 +27,4 @@ Suggests:
     pkgload,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Remotes: mrc-ide/outpack
+Remotes: mrc-ide/outpack@mrc-3134
