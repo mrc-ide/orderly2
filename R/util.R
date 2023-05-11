@@ -136,3 +136,8 @@ copy_files <- function(src, dst, files, overwrite = FALSE) {
                 file.path(dst, files),
                 overwrite = overwrite)
 }
+
+
+ignore_errors <- function(expr) {
+  tryCatch(expr, function(e) NULL)
+}

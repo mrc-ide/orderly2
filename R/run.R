@@ -81,37 +81,19 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   withCallingHandlers({
     outpack::outpack_packet_file_mark(p, "orderly.R", "immutable")
     p$orderly3 <- list(config = root$config, envir = envir, src = src,
-                       strict = dat$strict)
+                       strict = dat$strict, inputs_info = inputs_info)
     current[[path]] <- p
+    on.exit(current[[path]] <- NULL, add = TRUE, after = TRUE)
 
     if (!is.null(parameters)) {
       list2env(parameters, envir)
     }
 
-    outpack::outpack_packet_run(p, "orderly.R", envir)
-    plugin_run_cleanup(path, p$orderly3$config$plugins)
-
-    check_produced_artefacts(path, p$orderly3$artefacts)
-    if (dat$strict$enabled) {
-      check_files_strict(path, p$files, p$orderly3$artefacts)
-    } else {
-      check_files_relaxed(path, inputs_info)
-    }
-
-    custom_metadata_json <- to_json(custom_metadata(p$orderly3))
-    schema <- custom_metadata_schema(root$config)
-    outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json,
-                                       schema)
-
-    outpack::outpack_packet_end(p)
-    unlink(path, recursive = TRUE)
-    current[[path]] <- NULL
+    result <- outpack::outpack_packet_run(p, "orderly.R", envir)
+    orderly_packet_cleanup(p)
   }, error = function(e) {
-    ## Eventually fail nicely here with mrc-3379
-    outpack::outpack_packet_cancel(p)
-    current[[path]] <- NULL
+    outpack::outpack_packet_end(p, insert = FALSE)
   })
-
   id
 }
 
@@ -309,4 +291,32 @@ copy_resources_implicit <- function(src, dst, resources, artefacts) {
                 file.path(dst, to_copy),
                 overwrite = TRUE)
   withr::with_dir(dst, fs::file_info(to_copy))
+}
+
+
+## All the cleanup bits for the happy exit (where we do the validation etc)
+orderly_packet_cleanup_success <- function(p) {
+  path <- p$path
+
+  plugin_run_cleanup(path, p$orderly3$config$plugins)
+  check_produced_artefacts(path, p$orderly3$artefacts)
+  if (p$orderly3$strict$enabled) {
+    check_files_strict(path, p$files, p$orderly3$artefacts)
+  } else {
+    check_files_relaxed(path, p$orderly3$inputs_info)
+  }
+  custom_metadata_json <- to_json(custom_metadata(p$orderly3))
+  schema <- custom_metadata_schema(p$orderly3$config)
+  outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json, schema)
+
+  outpack::outpack_packet_end(p)
+  unlink(path, recursive = TRUE)
+}
+
+
+orderly_packet_cleanup_failure <- function(p) {
+  ignore_errors(plugin_run_cleanup(path, p$orderly3$config$plugins))
+  custom_metadata_json <- to_json(custom_metadata(p$orderly3))
+  outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json)
+  outpack::outpack_packet_end(p, insert = FALSE)
 }

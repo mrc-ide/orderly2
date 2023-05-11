@@ -610,3 +610,25 @@ test_that("can enable logging at the packet level", {
                fixed = TRUE, all = FALSE)
   expect_match(res$output, "orderly3::orderly_artefact")
 })
+
+
+
+test_that("cope with failed run", {
+  path <- test_prepare_orderly_example("implicit")
+  prepend_lines(file.path(path, "src", "implicit", "orderly.R"),
+                'd <- read.csv("something.csv")')
+  err <- expect_error(
+    orderly_run("implicit", root = path),
+    "cannot open the connection",
+    class = "outpack_packet_run_error")
+  expect_length(dir(file.path(path, "archive", "implicit")), 0)
+  id <- dir(file.path(path, "draft", "implicit"))
+  expect_length(id, 1)
+  expect_setequal(
+    dir(file.path(path, "draft", "implicit", id)),
+    c("data.csv", "log.json", "orderly.R", "outpack.json"))
+
+  d <- outpack::outpack_metadata_read(
+    file.path(path, "draft", "implicit", id, "outpack.json"))
+  expect_equal(d$id, id)
+})
