@@ -228,7 +228,7 @@ test_that("can't use global resources if not enabled", {
     "'global_resources' is not supported; please edit orderly_config.yml")
   expect_error(
     withr::with_dir(path_src, sys.source("orderly.R", env)),
-    err$message, fixed = TRUE)
+    "'global_resources' is not supported; please edit orderly_config.yml")
 })
 
 
