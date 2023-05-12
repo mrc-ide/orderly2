@@ -90,9 +90,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     }
 
     result <- outpack::outpack_packet_run(p, "orderly.R", envir)
-    orderly_packet_cleanup(p)
+    orderly_packet_cleanup_success(p)
   }, error = function(e) {
-    outpack::outpack_packet_end(p, insert = FALSE)
+    orderly_packet_cleanup_failure(p)
   })
   id
 }

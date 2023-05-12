@@ -139,5 +139,5 @@ copy_files <- function(src, dst, files, overwrite = FALSE) {
 
 
 ignore_errors <- function(expr) {
-  tryCatch(expr, function(e) NULL)
+  tryCatch(expr, error = function(e) NULL)
 }
