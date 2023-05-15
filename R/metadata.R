@@ -248,8 +248,8 @@ orderly_dependency <- function(name, query, use) {
   assert_named(use, unique = TRUE)
 
   ctx <- orderly_context()
-  id <- outpack::outpack_query(query, ctx$parameters, name = name,
-                               require_unpacked = TRUE, root = ctx$root)
+  id <- outpack::outpack_search(query, ctx$parameters, name = name,
+                                require_unpacked = TRUE, root = ctx$root)
   if (ctx$is_active) {
     outpack::outpack_packet_use_dependency(ctx$packet, id, use)
     ## See mrc-4203; we'll do this in outpack soon
