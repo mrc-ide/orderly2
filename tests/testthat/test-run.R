@@ -228,7 +228,7 @@ test_that("can't use global resources if not enabled", {
     "'global_resources' is not supported; please edit orderly_config.yml")
   expect_error(
     withr::with_dir(path_src, sys.source("orderly.R", env)),
-    err$message, fixed = TRUE)
+    "'global_resources' is not supported; please edit orderly_config.yml")
 })
 
 
@@ -609,4 +609,26 @@ test_that("can enable logging at the packet level", {
                "[ name       ]  data\n",
                fixed = TRUE, all = FALSE)
   expect_match(res$output, "orderly3::orderly_artefact")
+})
+
+
+
+test_that("cope with failed run", {
+  path <- test_prepare_orderly_example("implicit")
+  prepend_lines(file.path(path, "src", "implicit", "orderly.R"),
+                'd <- read.csv("something.csv")')
+  err <- expect_error(
+    orderly_run("implicit", root = path),
+    "cannot open the connection",
+    class = "outpack_packet_run_error")
+  expect_length(dir(file.path(path, "archive", "implicit")), 0)
+  id <- dir(file.path(path, "draft", "implicit"))
+  expect_length(id, 1)
+  expect_setequal(
+    dir(file.path(path, "draft", "implicit", id)),
+    c("data.csv", "log.json", "orderly.R", "outpack.json"))
+
+  d <- outpack::outpack_metadata_read(
+    file.path(path, "draft", "implicit", id, "outpack.json"))
+  expect_equal(d$id, id)
 })
