@@ -27,4 +27,4 @@ Suggests:
     pkgload,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Remotes: mrc-ide/outpack@mrc-3134
+Remotes: mrc-ide/outpack
