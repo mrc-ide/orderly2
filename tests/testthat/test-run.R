@@ -156,6 +156,23 @@ test_that("Can run simple case with dependency", {
     unname(tools::md5sum(file.path(path1, "data.rds"))))
 })
 
+test_that("Can run case with dependency where both reports are parameterised", {
+  path <- test_prepare_orderly_example(c("parameters", "depends-params"))
+  env1 <- new.env()
+  id1 <- orderly_run("parameters", root = path, envir = env1,
+                     parameters = list(a = 10, b = 20, c = 30))
+  env2 <- new.env()
+  id2 <- orderly_run("depends-params", root = path, envir = env2,
+                     parameters = list(a = 1))
+
+  path1 <- file.path(path, "archive", "parameters", id1)
+  path2 <- file.path(path, "archive", "depends-params", id2)
+
+  expect_true(file.exists(file.path(path2, "input.rds")))
+  expect_equal(
+    unname(tools::md5sum(file.path(path2, "input.rds"))),
+    unname(tools::md5sum(file.path(path1, "data.rds"))))
+})
 
 test_that("Can run dependencies case without orderly", {
   path <- test_prepare_orderly_example(c("parameters", "depends"))
