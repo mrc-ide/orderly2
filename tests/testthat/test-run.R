@@ -75,7 +75,7 @@ test_that("error if declared artefacts are not produced", {
   writeLines(c(
     'orderly3::orderly_artefact("some data", "output.csv")',
     code),
-    path_src)
+             path_src)
   expect_error(
     orderly_run("explicit", root = path, envir = env),
     "Script did not produce expected artefacts: 'output.csv'")
@@ -140,13 +140,14 @@ test_that("can run orderly with parameters, without orderly", {
 
 
 test_that("Can run simple case with dependency", {
-  path <- test_prepare_orderly_example(c("data", "depends"))
+  path <- test_prepare_orderly_example(c("parameters", "depends"))
   env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
+  id1 <- orderly_run("parameters", root = path, envir = env1,
+                     parameters = list(a = 10, b = 20, c = 30))
   env2 <- new.env()
   id2 <- orderly_run("depends", root = path, envir = env2)
 
-  path1 <- file.path(path, "archive", "data", id1)
+  path1 <- file.path(path, "archive", "parameters", id1)
   path2 <- file.path(path, "archive", "depends", id2)
 
   expect_true(file.exists(file.path(path2, "input.rds")))
@@ -253,7 +254,7 @@ test_that("global resources can be directories", {
   expect_length(meta$custom$orderly$global, 2)
   expect_mapequal(
     meta$custom$orderly$global[[1]],
-                  list(here = "global_data/iris.csv", there = "data/iris.csv"))
+    list(here = "global_data/iris.csv", there = "data/iris.csv"))
   expect_mapequal(
     meta$custom$orderly$global[[2]],
     list(here = "global_data/mtcars.csv", there = "data/mtcars.csv"))
@@ -402,8 +403,8 @@ test_that("fail to copy resource from directory, implicitly, strictly", {
   err <- suppressWarnings(tryCatch(read.csv("data/a.csv"), error = identity))
   expect_error(suppressWarnings(
     orderly_run("resource-in-directory", root = path, envir = env)),
-    err$message,
-    fixed = TRUE)
+               err$message,
+               fixed = TRUE)
 })
 
 
@@ -507,7 +508,7 @@ test_that("don't copy artefacts over when not needed", {
 test_that("can pull resources programmatically", {
   path <- test_prepare_orderly_example("programmatic-resource")
   id1 <- orderly3::orderly_run("programmatic-resource", list(use = "a"),
-                              root = path)
+                               root = path)
   id2 <- orderly3::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
   meta1 <- orderly_root(path, FALSE)$outpack$metadata(id1, full = TRUE)
@@ -529,7 +530,7 @@ test_that("can pull resources programmatically, strictly", {
   path_src <- file.path(path, "src", "programmatic-resource", "orderly.R")
   prepend_lines(path_src, "orderly3::orderly_strict_mode()")
   id1 <- orderly3::orderly_run("programmatic-resource", list(use = "a"),
-                              root = path)
+                               root = path)
   id2 <- orderly3::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
   meta1 <- orderly_root(path, FALSE)$outpack$metadata(id1, full = TRUE)
@@ -610,7 +611,6 @@ test_that("can enable logging at the packet level", {
                fixed = TRUE, all = FALSE)
   expect_match(res$output, "orderly3::orderly_artefact")
 })
-
 
 
 test_that("cope with failed run", {
