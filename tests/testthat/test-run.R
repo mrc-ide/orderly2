@@ -158,10 +158,10 @@ test_that("Can run simple case with dependency", {
 
 
 test_that("Can run dependencies case without orderly", {
-  path <- test_prepare_orderly_example(c("data", "depends"))
+  path <- test_prepare_orderly_example(c("parameters", "depends"))
   env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
-
+  id1 <- orderly_run("parameters", root = path, envir = env1,
+                     parameters = list(a = 10, b = 20, c = 30))
   env2 <- new.env()
   path_src <- file.path(path, "src", "depends")
   withr::with_dir(path_src,
@@ -169,7 +169,7 @@ test_that("Can run dependencies case without orderly", {
   expect_setequal(dir(path_src), c("orderly.R", "input.rds", "graph.png"))
   expect_equal(
     unname(tools::md5sum(file.path(path_src, "input.rds"))),
-    unname(tools::md5sum(file.path(path, "archive", "data", id1, "data.rds"))))
+    unname(tools::md5sum(file.path(path, "archive", "parameters", id1, "data.rds"))))
 })
 
 
@@ -548,11 +548,11 @@ test_that("can pull resources programmatically, strictly", {
 
 
 test_that("can fetch information about the context", {
-  path <- test_prepare_orderly_example(c("data", "depends"))
+  path <- test_prepare_orderly_example(c("parameters", "depends"))
 
   env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
-
+  id1 <- orderly_run("parameters", root = path, envir = env1,
+                     parameters = list(a = 10, b = 20, c = 30))
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
@@ -576,10 +576,10 @@ test_that("can fetch information about the context", {
 
 
 test_that("can fetch information interactively", {
-  path <- test_prepare_orderly_example(c("data", "depends"))
+  path <- test_prepare_orderly_example(c("parameters", "depends"))
   env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
-
+  id1 <- orderly_run("parameters", root = path, envir = env1,
+                     parameters = list(a = 10, b = 20, c = 30))
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
