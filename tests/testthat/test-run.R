@@ -162,8 +162,14 @@ test_that("Can run case with dependency where both reports are parameterised", {
   id1 <- orderly_run("parameters", root = path, envir = env1,
                      parameters = list(a = 10, b = 20, c = 30))
   env2 <- new.env()
-  id2 <- orderly_run("depends-params", root = path, envir = env2,
-                     parameters = list(a = 1))
+  ## id2 <- orderly_run("depends-params", root = path, envir = env2,
+  ##                    parameters = list(a = 1))
+
+  path_src <- file.path(path, "src", "depends-params")
+  env2$a <- 1
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env2))
+
 
   path1 <- file.path(path, "archive", "parameters", id1)
   path2 <- file.path(path, "archive", "depends-params", id2)

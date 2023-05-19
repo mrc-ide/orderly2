@@ -77,7 +77,8 @@ static_orderly_parameters <- function(args) {
 current_orderly_parameters <- function(src, env) {
   dat <- orderly_read(src)
   pars <- static_orderly_parameters(dat$parameters)
-  check_parameters_interactive(env, pars)
+  values <- check_parameters_interactive(env, pars)
+  values
 }
 
 
@@ -248,7 +249,8 @@ orderly_dependency <- function(name, query, use) {
   assert_named(use, unique = TRUE)
 
   ctx <- orderly_context()
-  id <- outpack::outpack_search(query, ctx$parameters, name = name,
+  ## This moves very soon into outpack too.
+  id <- outpack::outpack_search(query, parameters = ctx$parameters, name = name,
                                 require_unpacked = TRUE, root = ctx$root)
   if (ctx$is_active) {
     outpack::outpack_packet_use_dependency(ctx$packet, id, use)
