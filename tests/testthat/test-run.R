@@ -75,7 +75,7 @@ test_that("error if declared artefacts are not produced", {
   writeLines(c(
     'orderly3::orderly_artefact("some data", "output.csv")',
     code),
-             path_src)
+    path_src)
   expect_error(
     orderly_run("explicit", root = path, envir = env),
     "Script did not produce expected artefacts: 'output.csv'")
@@ -140,14 +140,13 @@ test_that("can run orderly with parameters, without orderly", {
 
 
 test_that("Can run simple case with dependency", {
-  path <- test_prepare_orderly_example(c("parameters", "depends"))
+  path <- test_prepare_orderly_example(c("data", "depends"))
   env1 <- new.env()
-  id1 <- orderly_run("parameters", root = path, envir = env1,
-                     parameters = list(a = 10, b = 20, c = 30))
+  id1 <- orderly_run("data", root = path, envir = env1)
   env2 <- new.env()
   id2 <- orderly_run("depends", root = path, envir = env2)
 
-  path1 <- file.path(path, "archive", "parameters", id1)
+  path1 <- file.path(path, "archive", "data", id1)
   path2 <- file.path(path, "archive", "depends", id2)
 
   expect_true(file.exists(file.path(path2, "input.rds")))
@@ -155,6 +154,21 @@ test_that("Can run simple case with dependency", {
     unname(tools::md5sum(file.path(path2, "input.rds"))),
     unname(tools::md5sum(file.path(path1, "data.rds"))))
 })
+
+test_that("Can run dependencies case without orderly", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  env1 <- new.env()
+  id1 <- orderly_run("data", root = path, envir = env1)
+  env2 <- new.env()
+  path_src <- file.path(path, "src", "depends")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env2))
+  expect_setequal(dir(path_src), c("orderly.R", "input.rds", "graph.png"))
+  expect_equal(
+    unname(tools::md5sum(file.path(path_src, "input.rds"))),
+    unname(tools::md5sum(file.path(path, "archive", "data", id1, "data.rds"))))
+})
+
 
 test_that("Can run case with dependency where both reports are parameterised", {
   path <- test_prepare_orderly_example(c("parameters", "depends-params"))
@@ -178,21 +192,6 @@ test_that("Can run case with dependency where both reports are parameterised", {
   expect_equal(
     unname(tools::md5sum(file.path(path2, "input.rds"))),
     unname(tools::md5sum(file.path(path1, "data.rds"))))
-})
-
-test_that("Can run dependencies case without orderly", {
-  path <- test_prepare_orderly_example(c("parameters", "depends"))
-  env1 <- new.env()
-  id1 <- orderly_run("parameters", root = path, envir = env1,
-                     parameters = list(a = 10, b = 20, c = 30))
-  env2 <- new.env()
-  path_src <- file.path(path, "src", "depends")
-  withr::with_dir(path_src,
-                  sys.source("orderly.R", env2))
-  expect_setequal(dir(path_src), c("orderly.R", "input.rds", "graph.png"))
-  expect_equal(
-    unname(tools::md5sum(file.path(path_src, "input.rds"))),
-    unname(tools::md5sum(file.path(path, "archive", "parameters", id1, "data.rds"))))
 })
 
 
@@ -426,8 +425,8 @@ test_that("fail to copy resource from directory, implicitly, strictly", {
   err <- suppressWarnings(tryCatch(read.csv("data/a.csv"), error = identity))
   expect_error(suppressWarnings(
     orderly_run("resource-in-directory", root = path, envir = env)),
-               err$message,
-               fixed = TRUE)
+    err$message,
+    fixed = TRUE)
 })
 
 
@@ -571,11 +570,10 @@ test_that("can pull resources programmatically, strictly", {
 
 
 test_that("can fetch information about the context", {
-  path <- test_prepare_orderly_example(c("parameters", "depends"))
+  path <- test_prepare_orderly_example(c("data", "depends"))
 
   env1 <- new.env()
-  id1 <- orderly_run("parameters", root = path, envir = env1,
-                     parameters = list(a = 10, b = 20, c = 30))
+  id1 <- orderly_run("data", root = path, envir = env1)
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
@@ -599,10 +597,9 @@ test_that("can fetch information about the context", {
 
 
 test_that("can fetch information interactively", {
-  path <- test_prepare_orderly_example(c("parameters", "depends"))
+  path <- test_prepare_orderly_example(c("data", "depends"))
   env1 <- new.env()
-  id1 <- orderly_run("parameters", root = path, envir = env1,
-                     parameters = list(a = 10, b = 20, c = 30))
+  id1 <- orderly_run("data", root = path, envir = env1)
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
