@@ -234,8 +234,9 @@ check_parameters_interactive <- function(env, spec) {
   ## We might need a slightly better error message here that indicates
   ## that we're running in a pecular mode so the value might just have
   ## been overwritten
-  found <- lapply(names(spec), function(v) env[[v]])
+  found <- set_names(lapply(names(spec), function(v) env[[v]]), names(spec))
   check_parameter_values(found[!vlapply(found, is.null)], FALSE)
+  invisible(found)
 }
 
 

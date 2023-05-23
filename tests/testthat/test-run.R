@@ -155,12 +155,10 @@ test_that("Can run simple case with dependency", {
     unname(tools::md5sum(file.path(path1, "data.rds"))))
 })
 
-
 test_that("Can run dependencies case without orderly", {
   path <- test_prepare_orderly_example(c("data", "depends"))
   env1 <- new.env()
   id1 <- orderly_run("data", root = path, envir = env1)
-
   env2 <- new.env()
   path_src <- file.path(path, "src", "depends")
   withr::with_dir(path_src,
@@ -169,6 +167,25 @@ test_that("Can run dependencies case without orderly", {
   expect_equal(
     unname(tools::md5sum(file.path(path_src, "input.rds"))),
     unname(tools::md5sum(file.path(path, "archive", "data", id1, "data.rds"))))
+})
+
+
+test_that("Can run case with dependency where both reports are parameterised", {
+  path <- test_prepare_orderly_example(c("parameters", "depends-params"))
+  env1 <- new.env()
+  id1 <- orderly_run("parameters", root = path, envir = env1,
+                     parameters = list(a = 10, b = 20, c = 30))
+  env2 <- new.env()
+  id2 <- orderly_run("depends-params", root = path, envir = env2,
+                     parameters = list(a = 1))
+
+  path1 <- file.path(path, "archive", "parameters", id1)
+  path2 <- file.path(path, "archive", "depends-params", id2)
+
+  expect_true(file.exists(file.path(path2, "input.rds")))
+  expect_equal(
+    unname(tools::md5sum(file.path(path2, "input.rds"))),
+    unname(tools::md5sum(file.path(path1, "data.rds"))))
 })
 
 
@@ -253,7 +270,7 @@ test_that("global resources can be directories", {
   expect_length(meta$custom$orderly$global, 2)
   expect_mapequal(
     meta$custom$orderly$global[[1]],
-                  list(here = "global_data/iris.csv", there = "data/iris.csv"))
+    list(here = "global_data/iris.csv", there = "data/iris.csv"))
   expect_mapequal(
     meta$custom$orderly$global[[2]],
     list(here = "global_data/mtcars.csv", there = "data/mtcars.csv"))
@@ -507,7 +524,7 @@ test_that("don't copy artefacts over when not needed", {
 test_that("can pull resources programmatically", {
   path <- test_prepare_orderly_example("programmatic-resource")
   id1 <- orderly3::orderly_run("programmatic-resource", list(use = "a"),
-                              root = path)
+                               root = path)
   id2 <- orderly3::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
   meta1 <- orderly_root(path, FALSE)$outpack$metadata(id1, full = TRUE)
@@ -529,7 +546,7 @@ test_that("can pull resources programmatically, strictly", {
   path_src <- file.path(path, "src", "programmatic-resource", "orderly.R")
   prepend_lines(path_src, "orderly3::orderly_strict_mode()")
   id1 <- orderly3::orderly_run("programmatic-resource", list(use = "a"),
-                              root = path)
+                               root = path)
   id2 <- orderly3::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
   meta1 <- orderly_root(path, FALSE)$outpack$metadata(id1, full = TRUE)
@@ -551,7 +568,6 @@ test_that("can fetch information about the context", {
 
   env1 <- new.env()
   id1 <- orderly_run("data", root = path, envir = env1)
-
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
@@ -578,7 +594,6 @@ test_that("can fetch information interactively", {
   path <- test_prepare_orderly_example(c("data", "depends"))
   env1 <- new.env()
   id1 <- orderly_run("data", root = path, envir = env1)
-
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
@@ -610,7 +625,6 @@ test_that("can enable logging at the packet level", {
                fixed = TRUE, all = FALSE)
   expect_match(res$output, "orderly3::orderly_artefact")
 })
-
 
 
 test_that("cope with failed run", {
