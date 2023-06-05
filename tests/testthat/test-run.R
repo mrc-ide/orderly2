@@ -586,7 +586,7 @@ test_that("can fetch information about the context", {
   depends <- data_frame(index = 1, name = "data",
                         query = 'latest(name == "data")',
                         id = id1, there = "data.rds", here = "input.rds")
-  expect_equal(d, list(name = "data", id = id2, root = root_real,
+  expect_equal(d, list(name = "depends", id = id2, root = root_real,
                        depends = depends))
 })
 
@@ -612,7 +612,7 @@ test_that("can fetch information interactively", {
   depends <- data_frame(index = integer(), name = character(),
                         query = character(), id = character(),
                         there = character(), here = character())
-  expect_equal(d, list(name = "data", id = NA_character_, root = root_real,
+  expect_equal(d, list(name = "depends", id = NA_character_, root = root_real,
                        depends = depends))
 })
 

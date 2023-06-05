@@ -24,6 +24,11 @@ vlapply <- function(X, FUN, ...) { # nolint
 }
 
 
+vnapply <- function(X, FUN, ...) { # nolint
+  vapply(X, FUN, numeric(1), ...)
+}
+
+
 set_names <- function(x, nms) {
   names(x) <- nms
   x

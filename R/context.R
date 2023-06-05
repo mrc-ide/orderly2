@@ -94,16 +94,17 @@ orderly_run_info <- function() {
 
   id <- ctx$packet$id %||% NA_character_
   name <- ctx$name
+
   root <- orderly_root(ctx$root, FALSE)
 
   deps <- ctx$packet$depends
-  n <- vapply(deps, function(x) nrow(x$files), numeric(1))
-  name <- vcapply(deps, function(x) root$outpack$metadata(x$packet)$name)
+  deps_n <- vnapply(deps, function(x) nrow(x$files))
+  deps_name <- vcapply(deps, function(x) root$outpack$metadata(x$packet)$name)
   depends <- data_frame(
-    index = rep(seq_along(deps), n),
-    name = rep(name, n),
-    query = rep(vcapply(deps, "[[", "query"), n),
-    id = rep(vcapply(deps, "[[", "packet"), n),
+    index = rep(seq_along(deps), deps_n),
+    name = rep(deps_name, deps_n),
+    query = rep(vcapply(deps, "[[", "query"), deps_n),
+    id = rep(vcapply(deps, "[[", "packet"), deps_n),
     there = unlist(lapply(deps, function(x) x$files$there)) %||% character(),
     here = unlist(lapply(deps, function(x) x$files$here)) %||% character())
 
