@@ -257,6 +257,13 @@ orderly_dependency <- function(name, query, use) {
     id <- outpack::outpack_search(query, parameters = ctx$parameters,
                                   require_unpacked = TRUE, root = ctx$root)
     outpack::outpack_copy_files(id, use, ctx$path, ctx$root)
+    ## Save a copy of what we did here so that orderly_run_info()
+    ## works as expected interactively. The missing bit there is that
+    ## we need to have a function in outpack to tidy up that query.
+    ctx$packet$orderly3$dependency <- c(
+      ctx$packet$orderly3$dependency,
+      list(list(name = name, query = format(query, complete = TRUE), id = id,
+                there = unname(use), here = nameS(use)))
   }
 
   invisible()

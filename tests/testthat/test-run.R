@@ -612,7 +612,7 @@ test_that("can fetch information interactively", {
   depends <- data_frame(index = integer(), name = character(),
                         query = character(), id = character(),
                         there = character(), here = character())
-  expect_equal(d, list(name = "depends", id = NA_character_, root = root_real,
+  expect_equal(d, list(name = "data", id = NA_character_, root = root_real,
                        depends = depends))
 })
 
