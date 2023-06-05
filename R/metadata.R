@@ -249,12 +249,13 @@ orderly_dependency <- function(name, query, use) {
   assert_named(use, unique = TRUE)
 
   ctx <- orderly_context()
+  subquery <- NULL
+  query <- outpack::outpack_query(query, name = name, subquery = subquery)
   if (ctx$is_active) {
     outpack::outpack_packet_use_dependency(ctx$packet, query, use)
   } else {
     id <- outpack::outpack_search(query, parameters = ctx$parameters,
-                                  name = name, require_unpacked = TRUE,
-                                  root = ctx$root)
+                                  require_unpacked = TRUE, root = ctx$root)
     outpack::outpack_copy_files(id, use, ctx$path, ctx$root)
   }
 

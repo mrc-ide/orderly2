@@ -583,9 +583,10 @@ test_that("can fetch information about the context", {
   d <- readRDS(file.path(path2, "info.rds"))
 
   root_real <- as.character(fs::path_real(path))
-  depends <- data_frame(index = 1, name = "data", query = "latest",
+  depends <- data_frame(index = 1, name = "data",
+                        query = 'latest(name == "data")',
                         id = id1, there = "data.rds", here = "input.rds")
-  expect_equal(d, list(name = "depends", id = id2, root = root_real,
+  expect_equal(d, list(name = "data", id = id2, root = root_real,
                        depends = depends))
 })
 
