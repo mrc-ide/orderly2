@@ -226,6 +226,13 @@ static_orderly_artefact <- function(args) {
 
 ##' Declare a dependency on another packet
 ##'
+##' See [orderly3::orderly_run] for some details about how search
+##' options are used to select which locations packets are found from,
+##' and if any data is fetched over the network. If you are running
+##' interactively, this will obviously not work, so you should use
+##' [orderly3::orderly_interactive_set_search_options()] to set the
+##' options that this function will respond to.
+##'
 ##' @title Declare a dependency
 ##'
 ##' @param name The name of the packet to depend on
@@ -252,11 +259,23 @@ orderly_dependency <- function(name, query, use) {
   subquery <- NULL
   query <- outpack::outpack_query(query, name = name, subquery = subquery)
   if (ctx$is_active) {
-    outpack::outpack_packet_use_dependency(ctx$packet, query, use)
+    outpack::outpack_packet_use_dependency(ctx$packet, query, use,
+                                           ctx$search_options)
   } else {
     id <- outpack::outpack_search(query, parameters = ctx$parameters,
-                                  require_unpacked = TRUE, root = ctx$root)
-    outpack::outpack_copy_files(id, use, ctx$path, ctx$root)
+                                  require_unpacked = TRUE,
+                                  options = ctx$search_options,
+                                  root = ctx$root)
+    ## TODO: slightly nicer if outpack exposes the coersion for us
+    ## which then fills this in; we'd do that here.
+    ##
+    ## TODO: can save effort here if files have already been
+    ## downloaded once and are still correct.
+    ##
+    ## TODO: this *will* fail if called twice, that's fixable
+    ## elsewhere, along with the above!
+    allow_remote <- isTRUE(ctx$options$allow_remote)
+    outpack::outpack_copy_files(id, use, ctx$path, allow_remote, ctx$root)
   }
 
   invisible()

@@ -15,3 +15,25 @@ detect_orderly_interactive_path <- function(path = getwd()) {
   root_path <- as.character(fs::path_norm(file.path(path, "../..")))
   orderly_root(root_path, FALSE)
 }
+
+
+.search_options <- new.env(parent = emptyenv())
+
+##' Set search options for interactive use of orderly; see
+##' [orderly3::orderly_dependency] and [orderly3::orderly_run] for
+##' details. This may be either an [outpack::outpack_search_options]
+##' object, or a list that will be coerced into one at the point of
+##' use (or `NULL`)
+##'
+##' @title Set search options for interactive use
+##'
+##' @inheritParams orderly_run
+##'
+##' @return Nothing, called for its side effects
+##' @export
+orderly_interactive_set_search_options <- function(options = NULL,
+                                                   root = NULL,
+                                                   locate = TRUE) {
+  orderly_root(root, locate)
+  .search_options[[detect_orderly_interactive_path(root)]] <- options
+}

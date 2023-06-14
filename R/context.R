@@ -10,6 +10,7 @@ orderly_context <- function() {
     parameters <- p$parameters
     name <- p$name
     id <- p$id
+    search_options <- p$orderly3$search_options
   } else {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)$path
@@ -19,10 +20,11 @@ orderly_context <- function() {
     parameters <- current_orderly_parameters(src, env)
     name <- basename(path)
     id <- NA_character_
+    search_options <- .search_options[[root]]
   }
   list(is_active = is_active, path = path, config = config, env = env,
        root = root, src = src, name = name, id = id, parameters = parameters,
-       packet = p)
+       search_options = search_options, packet = p)
 }
 
 
