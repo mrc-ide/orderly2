@@ -24,3 +24,11 @@ Undefined
 \description{
 Declare a dependency on another packet
 }
+\details{
+See \link{orderly_run} for some details about how search
+options are used to select which locations packets are found from,
+and if any data is fetched over the network. If you are running
+interactively, this will obviously not work, so you should use
+\code{\link[=orderly_interactive_set_search_options]{orderly_interactive_set_search_options()}} to set the
+options that this function will respond to.
+}

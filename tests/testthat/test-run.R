@@ -687,12 +687,16 @@ test_that("Can select location when querying dependencies for a report", {
 
 
 test_that("can select location when querying dependencies interactively", {
+  withr::defer(reset_interactive())
+
+  env1 <- new.env()
+
   path <- character()
   ids <- character()
   for (nm in c("us", "prod", "dev")) {
     path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
     if (nm != "us") {
-      ids[[nm]] <- orderly_run("data", root = path[[nm]])
+      ids[[nm]] <- orderly_run("data", envir = env1, root = path[[nm]])
       outpack::outpack_location_add(nm, "path", list(path = path[[nm]]),
                                     root = path[["us"]])
       outpack::outpack_location_pull_metadata(nm, root = path[["us"]])
@@ -702,9 +706,19 @@ test_that("can select location when querying dependencies interactively", {
     }
   }
   ## Run extra local copy - this is the most recent.
-  ids[["us"]] <- orderly_run("data", root = path[["us"]])
+  ids[["us"]] <- orderly_run("data", envir = env1, root = path[["us"]])
 
-  withr::with_dir(
-    path[["us"]],
-    orderly_interactive_set_search_options(list(location = "prod")))
+  orderly_interactive_set_search_options(list(location = "prod"))
+  expect_equal(.interactive$search_options, list(location = "prod"))
+
+  env2 <- new.env()
+  path_src <- file.path(path[["us"]], "src", "depends")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env2))
+
+  ## Correct file was pulled in:
+  expect_equal(
+    readRDS(file.path(path_src, "input.rds")),
+    readRDS(file.path(path[["prod"]], "archive", "data", ids[["prod"]],
+                      "data.rds")))
 })

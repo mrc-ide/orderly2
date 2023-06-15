@@ -263,7 +263,6 @@ orderly_dependency <- function(name, query, use) {
                                            ctx$search_options)
   } else {
     id <- outpack::outpack_search(query, parameters = ctx$parameters,
-                                  require_unpacked = TRUE,
                                   options = ctx$search_options,
                                   root = ctx$root)
     ## TODO: slightly nicer if outpack exposes the coersion for us

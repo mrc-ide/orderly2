@@ -20,7 +20,7 @@ orderly_context <- function() {
     parameters <- current_orderly_parameters(src, env)
     name <- basename(path)
     id <- NA_character_
-    search_options <- .search_options[[root]]
+    search_options <- .interactive$search_options
   }
   list(is_active = is_active, path = path, config = config, env = env,
        root = root, src = src, name = name, id = id, parameters = parameters,

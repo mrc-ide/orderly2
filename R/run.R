@@ -7,7 +7,7 @@
 ##' If your packet depends on other packets, you will want to control
 ##'   the locations that are used to find appropriate packets. The
 ##'   control for this is passed through this function and *not* as an
-##'   argument to [orderly::orderly_dependency] because this is a
+##'   argument to [orderly3::orderly_dependency] because this is a
 ##'   property of the way that a packet is created and not of a packet
 ##'   itself; importantly different users may have different names for
 ##'   their locations so it makes little sense to encode the location
@@ -33,7 +33,7 @@
 ##'
 ##' This has no effect when running interactively, in which case you
 ##'   can specify the search options (root specific) with
-##'   [orderly3::orderly_interactive_set_location]
+##'   [orderly3::orderly_interactive_set_search_options]
 ##'
 ##' @section Equivalence to the old `use_draft` option:
 ##'
@@ -86,7 +86,7 @@
 ##'   not added any fine-grained logging.
 ##'
 ##' @param search_options Optional control over locations, when used with
-##'   [orderly::orderly_dependency]; see Details.
+##'   [orderly3::orderly_dependency]; see Details.
 ##'
 ##' @param root The path to an orderly root directory, or `NULL`
 ##'   (the default) to search for one from the current working
@@ -379,7 +379,7 @@ orderly_packet_cleanup_success <- function(p) {
 
 
 orderly_packet_cleanup_failure <- function(p) {
-  ignore_errors(plugin_run_cleanup(path, p$orderly3$config$plugins))
+  ignore_errors(plugin_run_cleanup(p$path, p$orderly3$config$plugins))
   custom_metadata_json <- to_json(custom_metadata(p$orderly3))
   outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json)
   outpack::outpack_packet_end(p, insert = FALSE)
