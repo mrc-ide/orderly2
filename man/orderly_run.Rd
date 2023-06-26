@@ -10,6 +10,7 @@ orderly_run(
   envir = NULL,
   logging_console = NULL,
   logging_threshold = NULL,
+  search_options = NULL,
   root = NULL,
   locate = TRUE
 )
@@ -37,6 +38,9 @@ configuration set at the root. If given, must be one of \code{info},
 verbosity). Practically this has no effect at present as we've
 not added any fine-grained logging.}
 
+\item{search_options}{Optional control over locations, when used with
+\link{orderly_dependency}; see Details.}
+
 \item{root}{The path to an orderly root directory, or \code{NULL}
 (the default) to search for one from the current working
 directory if \code{locate} is \code{TRUE}.}
@@ -54,3 +58,66 @@ Run a report.  This will create a new directory in
 \verb{drafts/<reportname>}, copy your declared resources there, run
 your script and check that all expected artefacts were created.
 }
+\section{Locations used in dependency resolution}{
+
+
+If your packet depends on other packets, you will want to control
+the locations that are used to find appropriate packets. The
+control for this is passed through this function and \emph{not} as an
+argument to \link{orderly_dependency} because this is a
+property of the way that a packet is created and not of a packet
+itself; importantly different users may have different names for
+their locations so it makes little sense to encode the location
+name into the source code. Alternatively, you want to use
+different locations in different contexts (initial development
+where you want to include local copies packets as possible
+dependencies vs resolving dependencies only as they would be
+resolved on one of your locations!
+
+Similarly, you might want to include packets that are known by
+other locations but are not currently downloaded onto this
+machine - pulling these packets in could take anything from
+seconds to hours depending on their size and the speed of your
+network connection (but \emph{not} pulling in the packets could mean
+that your packet fails to run).
+
+To allow for control over this you can pass in an argument
+\code{search_options}, which is a \link[outpack:outpack_search_options]{outpack::outpack_search_options}
+object, and allows control over the names of the locations to
+use, whether metadata should be refreshed before we pull
+anything and if packets that are not currently downloaded should
+be considered candidates.
+
+This has no effect when running interactively, in which case you
+can specify the search options (root specific) with
+\link{orderly_interactive_set_search_options}
+}
+
+\section{Equivalence to the old \code{use_draft} option}{
+
+
+The above location handling generalises orderly (v1)'s old
+\code{use_draft} option, in terms of the \code{location} argument to
+outpack::outpack_search_options`:
+\itemize{
+\item \code{use_draft = TRUE} is \code{location = "local"}
+\item \code{use_draft = FALSE} is \code{location = c(...)} where you should provide
+all locations \emph{except} local
+(\code{setdiff(outpack::outpack_location_list(), "local")})
+\item \code{use_draft = "newer"} is \code{location = NULL}
+}
+
+(this last option was the one most people preferred so is the new
+default behaviour). In addition, you could resolve dependencies
+as they currently exist on production right now with the options:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{location = "production", pull_metadata = TRUE, require_unpacked = FALSE
+}\if{html}{\out{</div>}}
+
+which updates your current metadata from production, then runs
+queries against only packets known on that remote, then depends
+on them even if you don't (yet) have them locally.  This
+functionality was never available in orderly version 1, though
+we had intended to support it.
+}
+

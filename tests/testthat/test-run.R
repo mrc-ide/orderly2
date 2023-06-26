@@ -583,7 +583,8 @@ test_that("can fetch information about the context", {
   d <- readRDS(file.path(path2, "info.rds"))
 
   root_real <- as.character(fs::path_real(path))
-  depends <- data_frame(index = 1, name = "data", query = "latest",
+  depends <- data_frame(index = 1, name = "data",
+                        query = 'latest(name == "data")',
                         id = id1, there = "data.rds", here = "input.rds")
   expect_equal(d, list(name = "depends", id = id2, root = root_real,
                        depends = depends))
@@ -645,4 +646,79 @@ test_that("cope with failed run", {
   d <- outpack::outpack_metadata_read(
     file.path(path, "draft", "implicit", id, "outpack.json"))
   expect_equal(d$id, id)
+})
+
+
+test_that("Can select location when querying dependencies for a report", {
+  path <- character()
+  ids <- character()
+  for (nm in c("us", "prod", "dev")) {
+    path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
+    if (nm != "us") {
+      ids[[nm]] <- orderly_run("data", root = path[[nm]])
+      outpack::outpack_location_add(nm, "path", list(path = path[[nm]]),
+                                    root = path[["us"]])
+      outpack::outpack_location_pull_metadata(nm, root = path[["us"]])
+      for (i in ids[[nm]]) {
+        outpack::outpack_location_pull_packet(i, root = path[["us"]])
+      }
+    }
+  }
+  ## Run extra local copy - this is the most recent.
+  ids[["us"]] <- orderly_run("data", root = path[["us"]])
+
+  ## Without locations we prefer the local one:
+  root <- outpack::outpack_root_open(path[["us"]], FALSE)
+  id1 <- orderly_run("depends", root = path[["us"]])
+  expect_equal(root$metadata(id1)$depends$packet, ids[["us"]])
+
+  ## Filter to only allow prod:
+  id2 <- orderly_run("depends",
+                     search_options = list(location = "prod"),
+                     root = path[["us"]])
+  expect_equal(root$metadata(id2)$depends$packet, ids[["prod"]])
+
+  ## Allow any location:
+  id3 <- orderly_run("depends",
+                     search_options = list(location = c("prod", "dev")),
+                     root = path[["us"]])
+  expect_equal(root$metadata(id3)$depends$packet, ids[["dev"]])
+})
+
+
+test_that("can select location when querying dependencies interactively", {
+  withr::defer(reset_interactive())
+
+  env1 <- new.env()
+
+  path <- character()
+  ids <- character()
+  for (nm in c("us", "prod", "dev")) {
+    path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
+    if (nm != "us") {
+      ids[[nm]] <- orderly_run("data", envir = env1, root = path[[nm]])
+      outpack::outpack_location_add(nm, "path", list(path = path[[nm]]),
+                                    root = path[["us"]])
+      outpack::outpack_location_pull_metadata(nm, root = path[["us"]])
+      for (i in ids[[nm]]) {
+        outpack::outpack_location_pull_packet(i, root = path[["us"]])
+      }
+    }
+  }
+  ## Run extra local copy - this is the most recent.
+  ids[["us"]] <- orderly_run("data", envir = env1, root = path[["us"]])
+
+  orderly_interactive_set_search_options(list(location = "prod"))
+  expect_equal(.interactive$search_options, list(location = "prod"))
+
+  env2 <- new.env()
+  path_src <- file.path(path[["us"]], "src", "depends")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env2))
+
+  ## Correct file was pulled in:
+  expect_equal(
+    readRDS(file.path(path_src, "input.rds")),
+    readRDS(file.path(path[["prod"]], "archive", "data", ids[["prod"]],
+                      "data.rds")))
 })

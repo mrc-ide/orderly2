@@ -10,6 +10,7 @@ orderly_context <- function() {
     parameters <- p$parameters
     name <- p$name
     id <- p$id
+    search_options <- p$orderly3$search_options
   } else {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)$path
@@ -19,10 +20,11 @@ orderly_context <- function() {
     parameters <- current_orderly_parameters(src, env)
     name <- basename(path)
     id <- NA_character_
+    search_options <- .interactive$search_options
   }
   list(is_active = is_active, path = path, config = config, env = env,
        root = root, src = src, name = name, id = id, parameters = parameters,
-       packet = p)
+       search_options = search_options, packet = p)
 }
 
 
@@ -94,17 +96,19 @@ orderly_run_info <- function() {
 
   id <- ctx$packet$id %||% NA_character_
   name <- ctx$name
-  root <- ctx$root
 
-  deps <- ctx$packet$orderly3$dependency
-  n <- vapply(deps, function(x) length(x$use), numeric(1))
+  root <- orderly_root(ctx$root, FALSE)
+
+  deps <- ctx$packet$depends
+  deps_n <- vnapply(deps, function(x) nrow(x$files))
+  deps_name <- vcapply(deps, function(x) root$outpack$metadata(x$packet)$name)
   depends <- data_frame(
-    index = rep(seq_along(deps), n),
-    name = rep(vcapply(deps, "[[", "name"), n),
-    query = rep(vcapply(deps, "[[", "query"), n),
-    id = rep(vcapply(deps, "[[", "id"), n),
-    there = unlist(lapply(deps, function(x) unname(x$use))) %||% character(),
-    here = unlist(lapply(deps, function(x) names(x$use))) %||% character())
+    index = rep(seq_along(deps), deps_n),
+    name = rep(deps_name, deps_n),
+    query = rep(vcapply(deps, "[[", "query"), deps_n),
+    id = rep(vcapply(deps, "[[", "packet"), deps_n),
+    there = unlist(lapply(deps, function(x) x$files$there)) %||% character(),
+    here = unlist(lapply(deps, function(x) x$files$here)) %||% character())
 
-  list(name = name, id = id, root = root, depends = depends)
+  list(name = name, id = id, root = root$path, depends = depends)
 }

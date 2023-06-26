@@ -72,3 +72,13 @@ append_lines <- function(path, lines) {
   txt <- readLines(path)
   writeLines(c(txt, lines), path)
 }
+
+
+reset_interactive <- function() {
+  clear_env(.interactive)
+}
+
+
+clear_env <- function(env) {
+  rm(list = ls(env), envir = env)
+}

@@ -2,6 +2,65 @@
 ##' `drafts/<reportname>`, copy your declared resources there, run
 ##' your script and check that all expected artefacts were created.
 ##'
+##' @section Locations used in dependency resolution:
+##'
+##' If your packet depends on other packets, you will want to control
+##'   the locations that are used to find appropriate packets. The
+##'   control for this is passed through this function and *not* as an
+##'   argument to [orderly3::orderly_dependency] because this is a
+##'   property of the way that a packet is created and not of a packet
+##'   itself; importantly different users may have different names for
+##'   their locations so it makes little sense to encode the location
+##'   name into the source code. Alternatively, you want to use
+##'   different locations in different contexts (initial development
+##'   where you want to include local copies packets as possible
+##'   dependencies vs resolving dependencies only as they would be
+##'   resolved on one of your locations!
+##'
+##' Similarly, you might want to include packets that are known by
+##'   other locations but are not currently downloaded onto this
+##'   machine - pulling these packets in could take anything from
+##'   seconds to hours depending on their size and the speed of your
+##'   network connection (but *not* pulling in the packets could mean
+##'   that your packet fails to run).
+##'
+##' To allow for control over this you can pass in an argument
+##'   `search_options`, which is a [outpack::outpack_search_options]
+##'   object, and allows control over the names of the locations to
+##'   use, whether metadata should be refreshed before we pull
+##'   anything and if packets that are not currently downloaded should
+##'   be considered candidates.
+##'
+##' This has no effect when running interactively, in which case you
+##'   can specify the search options (root specific) with
+##'   [orderly3::orderly_interactive_set_search_options]
+##'
+##' @section Equivalence to the old `use_draft` option:
+##'
+##' The above location handling generalises orderly (v1)'s old
+##'   `use_draft` option, in terms of the `location` argument to
+##'   outpack::outpack_search_options`:
+##'
+##' * `use_draft = TRUE` is `location = "local"`
+##' * `use_draft = FALSE` is `location = c(...)` where you should provide
+##'   all locations *except* local
+##'   (`setdiff(outpack::outpack_location_list(), "local")`)
+##' * `use_draft = "newer"` is `location = NULL`
+##'
+##' (this last option was the one most people preferred so is the new
+##'   default behaviour). In addition, you could resolve dependencies
+##'   as they currently exist on production right now with the options:
+##'
+##' ```
+##' location = "production", pull_metadata = TRUE, require_unpacked = FALSE
+##' ```
+##'
+##' which updates your current metadata from production, then runs
+##'   queries against only packets known on that remote, then depends
+##'   on them even if you don't (yet) have them locally.  This
+##'   functionality was never available in orderly version 1, though
+##'   we had intended to support it.
+##'
 ##' @title Run a report
 ##'
 ##' @param name Name of the report to run
@@ -26,6 +85,9 @@
 ##'   verbosity). Practically this has no effect at present as we've
 ##'   not added any fine-grained logging.
 ##'
+##' @param search_options Optional control over locations, when used with
+##'   [orderly3::orderly_dependency]; see Details.
+##'
 ##' @param root The path to an orderly root directory, or `NULL`
 ##'   (the default) to search for one from the current working
 ##'   directory if `locate` is `TRUE`.
@@ -40,7 +102,7 @@
 ##' @export
 orderly_run <- function(name, parameters = NULL, envir = NULL,
                         logging_console = NULL, logging_threshold = NULL,
-                        root = NULL, locate = TRUE) {
+                        search_options = NULL, root = NULL, locate = TRUE) {
   root <- orderly_root(root, locate)
   src <- file.path(root$path, "src", name)
 
@@ -81,7 +143,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   withCallingHandlers({
     outpack::outpack_packet_file_mark(p, "orderly.R", "immutable")
     p$orderly3 <- list(config = root$config, envir = envir, src = src,
-                       strict = dat$strict, inputs_info = inputs_info)
+                       strict = dat$strict, inputs_info = inputs_info,
+                       search_options = search_options)
     current[[path]] <- p
     on.exit(current[[path]] <- NULL, add = TRUE, after = TRUE)
 
@@ -316,7 +379,7 @@ orderly_packet_cleanup_success <- function(p) {
 
 
 orderly_packet_cleanup_failure <- function(p) {
-  ignore_errors(plugin_run_cleanup(path, p$orderly3$config$plugins))
+  ignore_errors(plugin_run_cleanup(p$path, p$orderly3$config$plugins))
   custom_metadata_json <- to_json(custom_metadata(p$orderly3))
   outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json)
   outpack::outpack_packet_end(p, insert = FALSE)
