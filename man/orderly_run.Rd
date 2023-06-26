@@ -114,7 +114,7 @@ as they currently exist on production right now with the options:
 \if{html}{\out{<div class="sourceCode">}}\preformatted{location = "production", pull_metadata = TRUE, require_unpacked = FALSE
 }\if{html}{\out{</div>}}
 
-which updaes your current metadata from production, then runs
+which updates your current metadata from production, then runs
 queries against only packets known on that remote, then depends
 on them even if you don't (yet) have them locally.  This
 functionality was never available in orderly version 1, though
