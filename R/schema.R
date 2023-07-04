@@ -2,13 +2,13 @@ cache <- new.env(parent = emptyenv())
 
 custom_metadata_schema <- function(config) {
   if (is.null(cache$custom_metadata_schema)) {
-    path <- system.file("outpack-custom.json", package = "orderly3",
+    path <- system.file("outpack-custom.json", package = "orderly2",
                         mustWork = TRUE)
     cache$custom_metadata_schema <- paste(readLines(path), collapse = "\n")
   }
   schema <- cache$custom_metadata_schema
 
-  ## This is pretty ugly, but we rewrite the orderly3 schema to inject
+  ## This is pretty ugly, but we rewrite the orderly2 schema to inject
   ## the new bits from plugins. This would be much easier to do if we
   ## could easily manipulate the json directly, but that will require
   ## at least a V8 dependency (which is not terrible as we'll need

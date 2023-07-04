@@ -7,7 +7,7 @@
 ##' If your packet depends on other packets, you will want to control
 ##'   the locations that are used to find appropriate packets. The
 ##'   control for this is passed through this function and *not* as an
-##'   argument to [orderly3::orderly_dependency] because this is a
+##'   argument to [orderly2::orderly_dependency] because this is a
 ##'   property of the way that a packet is created and not of a packet
 ##'   itself; importantly different users may have different names for
 ##'   their locations so it makes little sense to encode the location
@@ -33,7 +33,7 @@
 ##'
 ##' This has no effect when running interactively, in which case you
 ##'   can specify the search options (root specific) with
-##'   [orderly3::orderly_interactive_set_search_options]
+##'   [orderly2::orderly_interactive_set_search_options]
 ##'
 ##' @section Equivalence to the old `use_draft` option:
 ##'
@@ -86,7 +86,7 @@
 ##'   not added any fine-grained logging.
 ##'
 ##' @param search_options Optional control over locations, when used with
-##'   [orderly3::orderly_dependency]; see Details.
+##'   [orderly2::orderly_dependency]; see Details.
 ##'
 ##' @param root The path to an orderly root directory, or `NULL`
 ##'   (the default) to search for one from the current working
@@ -142,7 +142,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                      root = root$outpack)
   withCallingHandlers({
     outpack::outpack_packet_file_mark(p, "orderly.R", "immutable")
-    p$orderly3 <- list(config = root$config, envir = envir, src = src,
+    p$orderly2 <- list(config = root$config, envir = envir, src = src,
                        strict = dat$strict, inputs_info = inputs_info,
                        search_options = search_options)
     current[[path]] <- p
@@ -316,7 +316,7 @@ check_files_strict <- function(path, known, artefacts) {
     message(paste(
       "orderly produced unexpected files:",
       sprintf("  - %s", unknown),
-      "Consider using orderly3::orderly_artefact() to describe them",
+      "Consider using orderly2::orderly_artefact() to describe them",
       sep = "\n"))
   }
 }
@@ -330,7 +330,7 @@ check_files_relaxed <- function(path, inputs_info) {
     message(paste(
       "inputs modified; these are probably artefacts:",
       sprintf("  - %s", inputs_info$path[i]),
-      "Consider using orderly3::orderly_artefact() to describe them",
+      "Consider using orderly2::orderly_artefact() to describe them",
       sep = "\n"))
   }
 }
@@ -362,15 +362,15 @@ copy_resources_implicit <- function(src, dst, resources, artefacts) {
 orderly_packet_cleanup_success <- function(p) {
   path <- p$path
 
-  plugin_run_cleanup(path, p$orderly3$config$plugins)
-  check_produced_artefacts(path, p$orderly3$artefacts)
-  if (p$orderly3$strict$enabled) {
-    check_files_strict(path, p$files, p$orderly3$artefacts)
+  plugin_run_cleanup(path, p$orderly2$config$plugins)
+  check_produced_artefacts(path, p$orderly2$artefacts)
+  if (p$orderly2$strict$enabled) {
+    check_files_strict(path, p$files, p$orderly2$artefacts)
   } else {
-    check_files_relaxed(path, p$orderly3$inputs_info)
+    check_files_relaxed(path, p$orderly2$inputs_info)
   }
-  custom_metadata_json <- to_json(custom_metadata(p$orderly3))
-  schema <- custom_metadata_schema(p$orderly3$config)
+  custom_metadata_json <- to_json(custom_metadata(p$orderly2))
+  schema <- custom_metadata_schema(p$orderly2$config)
   outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json, schema)
 
   outpack::outpack_packet_end(p)
@@ -379,8 +379,8 @@ orderly_packet_cleanup_success <- function(p) {
 
 
 orderly_packet_cleanup_failure <- function(p) {
-  ignore_errors(plugin_run_cleanup(p$path, p$orderly3$config$plugins))
-  custom_metadata_json <- to_json(custom_metadata(p$orderly3))
+  ignore_errors(plugin_run_cleanup(p$path, p$orderly2$config$plugins))
+  custom_metadata_json <- to_json(custom_metadata(p$orderly2))
   outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json)
   outpack::outpack_packet_end(p, insert = FALSE)
 }

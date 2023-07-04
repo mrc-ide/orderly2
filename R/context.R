@@ -4,18 +4,18 @@ orderly_context <- function() {
   if (is_active) {
     path <- p$path
     root <- p$root$path
-    config <- p$orderly3$config
-    env <- p$orderly3$envir
-    src <- p$orderly3$src
+    config <- p$orderly2$config
+    env <- p$orderly2$envir
+    src <- p$orderly2$src
     parameters <- p$parameters
     name <- p$name
     id <- p$id
-    search_options <- p$orderly3$search_options
+    search_options <- p$orderly2$search_options
   } else {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)$path
     config <- orderly_root(root, FALSE)$config
-    env <- orderly_environment("orderly3")
+    env <- orderly_environment("orderly2")
     src <- path
     parameters <- current_orderly_parameters(src, env)
     name <- basename(path)
@@ -44,15 +44,15 @@ orderly_context <- function() {
 ## - (anything else)
 ## - (calling environment) <-- this is what we're looking for
 ## - (plugin)
-## - (orderly3; orderly_plugin_context)
-## - (orderly3; from orderly_context)
-## - (orderly3; from orderly_environment)
+## - (orderly2; orderly_plugin_context)
+## - (orderly2; from orderly_context)
+## - (orderly2; from orderly_environment)
 ##
 ## so we loop down the stack looking for the first call to a function
 ## in the plugin package, then take the frame *above* that.
 ##
 ## When we want this for a non-plugin case (i.e., the caller is in
-## orderly3) then we just need to pass name = "orderly3" here
+## orderly2) then we just need to pass name = "orderly2" here
 orderly_environment <- function(name) {
   frames <- sys.frames()
   for (i in seq_along(frames)[-1]) {
@@ -71,7 +71,7 @@ orderly_environment <- function(name) {
 ##' information about computed dependencies. This information is in a
 ##' slightly different format to orderly version 1.x and does not
 ##' (currently) include information about dependencies when run
-##' outside of [orderly3::orderly_run], but this was never reliable
+##' outside of [orderly2::orderly_run], but this was never reliable
 ##' previously.
 ##'
 ##' @title Information about currently running report
@@ -84,7 +84,7 @@ orderly_environment <- function(name) {
 ##' * `depends`: A data frame with information about the dependencies
 ##'   (not available interactively)
 ##'     - `index`: an integer sequence along calls to
-##'       [`orderly3::orderly_dependency`]
+##'       [`orderly2::orderly_dependency`]
 ##'     - `name`: the name of the dependency
 ##'     - `query`: the query used to find the dependency
 ##'     - `id`: the computed id of the included packet

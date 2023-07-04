@@ -73,7 +73,7 @@ test_that("error if declared artefacts are not produced", {
   path_src <- file.path(path, "src", "explicit", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(
-    'orderly3::orderly_artefact("some data", "output.csv")',
+    'orderly2::orderly_artefact("some data", "output.csv")',
     code),
     path_src)
   expect_error(
@@ -306,10 +306,10 @@ test_that("can't use description twice in one packet", {
   env <- new.env()
   path_orderly <- file.path(path, "src", "description", "orderly.R")
   code <- readLines(path_orderly)
-  writeLines(c(code, "orderly3::orderly_description()"), path_orderly)
+  writeLines(c(code, "orderly2::orderly_description()"), path_orderly)
   expect_error(
     orderly_run("description", root = path, envir = env),
-    "Only one call to 'orderly3::orderly_description' is allowed",
+    "Only one call to 'orderly2::orderly_description' is allowed",
     fixed = TRUE)
 })
 
@@ -319,11 +319,11 @@ test_that("can't use description twice by being sneaky", {
   env <- new.env()
   path_orderly <- file.path(path, "src", "description", "orderly.R")
   code <- readLines(path_orderly)
-  writeLines(c(code, "for (i in 1:2) orderly3::orderly_description()"),
+  writeLines(c(code, "for (i in 1:2) orderly2::orderly_description()"),
              path_orderly)
   expect_error(
     orderly_run("description", root = path, envir = env),
-    "Only one call to 'orderly3::orderly_description' is allowed",
+    "Only one call to 'orderly2::orderly_description' is allowed",
     fixed = TRUE)
 })
 
@@ -332,7 +332,7 @@ test_that("with strict mode, only declared files are copied, running fails", {
   path <- test_prepare_orderly_example("implicit")
   path_src <- file.path(path, "src", "implicit", "orderly.R")
   code <- readLines(path_src)
-  writeLines(c("orderly3::orderly_strict_mode()", code), path_src)
+  writeLines(c("orderly2::orderly_strict_mode()", code), path_src)
   err <- suppressWarnings(tryCatch(read.csv("data.csv"), error = identity))
   expect_error(
     suppressWarnings(orderly_run("implicit", root = path)),
@@ -345,8 +345,8 @@ test_that("with strict mode, indicate unknown files as potential artefacts", {
   path <- test_prepare_orderly_example("implicit")
   path_src <- file.path(path, "src", "implicit", "orderly.R")
   code <- readLines(path_src)
-  writeLines(c("orderly3::orderly_strict_mode()",
-               'orderly3::orderly_resource("data.csv")',
+  writeLines(c("orderly2::orderly_strict_mode()",
+               'orderly2::orderly_resource("data.csv")',
                code),
              path_src)
   expect_message(
@@ -377,7 +377,7 @@ test_that("disallow multiple calls to strict mode", {
   path_src <- file.path(path, "src", "implicit", "orderly.R")
   code <- readLines(path_src)
   writeLines(c("if (TRUE) {",
-               "  orderly3::orderly_strict_mode()",
+               "  orderly2::orderly_strict_mode()",
                "}",
                code),
              path_src)
@@ -385,13 +385,13 @@ test_that("disallow multiple calls to strict mode", {
     orderly_run("implicit", root = path),
     "orderly function 'orderly_strict_mode' can only be used at the top level")
 
-  writeLines(c("orderly3::orderly_strict_mode()",
-               "orderly3::orderly_strict_mode()",
+  writeLines(c("orderly2::orderly_strict_mode()",
+               "orderly2::orderly_strict_mode()",
                code),
              path_src)
   expect_error(
     orderly_run("implicit", root = path),
-    "Only one call to 'orderly3::orderly_strict_mode' is allowed")
+    "Only one call to 'orderly2::orderly_strict_mode' is allowed")
 })
 
 
@@ -415,7 +415,7 @@ test_that("fail to copy resource from directory, implicitly, strictly", {
   path <- test_prepare_orderly_example("resource-in-directory")
   env <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
-  prepend_lines(path_src, "orderly3::orderly_strict_mode()")
+  prepend_lines(path_src, "orderly2::orderly_strict_mode()")
   err <- suppressWarnings(tryCatch(read.csv("data/a.csv"), error = identity))
   expect_error(suppressWarnings(
     orderly_run("resource-in-directory", root = path, envir = env)),
@@ -429,8 +429,8 @@ test_that("can copy resource from directory, included by file", {
   env <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src,
-                c('orderly3::orderly_resource("data/a.csv")',
-                  'orderly3::orderly_resource("data/b.csv")'))
+                c('orderly2::orderly_resource("data/a.csv")',
+                  'orderly2::orderly_resource("data/b.csv")'))
   id <- orderly_run("resource-in-directory", root = path, envir = env)
   meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
   expect_equal(
@@ -447,9 +447,9 @@ test_that("can copy resource from directory, included by file, strict mode", {
   env <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src,
-                c("orderly3::orderly_strict_mode()",
-                  'orderly3::orderly_resource("data/a.csv")',
-                  'orderly3::orderly_resource("data/b.csv")'))
+                c("orderly2::orderly_strict_mode()",
+                  'orderly2::orderly_resource("data/a.csv")',
+                  'orderly2::orderly_resource("data/b.csv")'))
   id <- orderly_run("resource-in-directory", root = path, envir = env)
   meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
   expect_equal(
@@ -465,7 +465,7 @@ test_that("can copy resource from directory, included by directory", {
   path <- test_prepare_orderly_example("resource-in-directory")
   env <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
-  prepend_lines(path_src, 'orderly3::orderly_resource("data")')
+  prepend_lines(path_src, 'orderly2::orderly_resource("data")')
   id <- orderly_run("resource-in-directory", root = path, envir = env)
 
   meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
@@ -483,8 +483,8 @@ test_that("can copy resource from directory, included by directory, strictly", {
   env <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src,
-                c("orderly3::orderly_strict_mode()",
-                  'orderly3::orderly_resource("data")'))
+                c("orderly2::orderly_strict_mode()",
+                  'orderly2::orderly_resource("data")'))
   id <- orderly_run("resource-in-directory", root = path, envir = env)
 
   meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
@@ -523,9 +523,9 @@ test_that("don't copy artefacts over when not needed", {
 
 test_that("can pull resources programmatically", {
   path <- test_prepare_orderly_example("programmatic-resource")
-  id1 <- orderly3::orderly_run("programmatic-resource", list(use = "a"),
+  id1 <- orderly2::orderly_run("programmatic-resource", list(use = "a"),
                                root = path)
-  id2 <- orderly3::orderly_run("programmatic-resource", list(use = "b"),
+  id2 <- orderly2::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
   meta1 <- orderly_root(path, FALSE)$outpack$metadata(id1, full = TRUE)
   meta2 <- orderly_root(path, FALSE)$outpack$metadata(id2, full = TRUE)
@@ -544,10 +544,10 @@ test_that("can pull resources programmatically", {
 test_that("can pull resources programmatically, strictly", {
   path <- test_prepare_orderly_example("programmatic-resource")
   path_src <- file.path(path, "src", "programmatic-resource", "orderly.R")
-  prepend_lines(path_src, "orderly3::orderly_strict_mode()")
-  id1 <- orderly3::orderly_run("programmatic-resource", list(use = "a"),
+  prepend_lines(path_src, "orderly2::orderly_strict_mode()")
+  id1 <- orderly2::orderly_run("programmatic-resource", list(use = "a"),
                                root = path)
-  id2 <- orderly3::orderly_run("programmatic-resource", list(use = "b"),
+  id2 <- orderly2::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
   meta1 <- orderly_root(path, FALSE)$outpack$metadata(id1, full = TRUE)
   meta2 <- orderly_root(path, FALSE)$outpack$metadata(id2, full = TRUE)
@@ -570,7 +570,7 @@ test_that("can fetch information about the context", {
   id1 <- orderly_run("data", root = path, envir = env1)
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
-  writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
+  writeLines(c(code, 'saveRDS(orderly2::orderly_run_info(), "info.rds")'),
              path_src)
 
   ## While there's an error here, our current strategy for sinking
@@ -597,7 +597,7 @@ test_that("can fetch information interactively", {
   id1 <- orderly_run("data", root = path, envir = env1)
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
-  writeLines(c(code, 'saveRDS(orderly3::orderly_run_info(), "info.rds")'),
+  writeLines(c(code, 'saveRDS(orderly2::orderly_run_info(), "info.rds")'),
              path_src)
 
   env2 <- new.env()
@@ -624,7 +624,7 @@ test_that("can enable logging at the packet level", {
   expect_match(res$messages,
                "[ name       ]  data\n",
                fixed = TRUE, all = FALSE)
-  expect_match(res$output, "orderly3::orderly_artefact")
+  expect_match(res$output, "orderly2::orderly_artefact")
 })
 
 

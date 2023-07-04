@@ -15,7 +15,7 @@ is_call <- function(x, name) {
 
 is_orderly_ns_call <- function(x) {
   is.recursive(x) && is_call(x[[1]], "::") &&
-    as.character(x[[1]][[2]]) == "orderly3"
+    as.character(x[[1]][[2]]) == "orderly2"
 }
 
 
@@ -149,5 +149,5 @@ ignore_errors <- function(expr) {
 
 
 current_orderly_version <- function() {
-  utils::packageVersion("orderly3")
+  utils::packageVersion("orderly2")
 }

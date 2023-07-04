@@ -20,19 +20,19 @@ detect_orderly_interactive_path <- function(path = getwd()) {
 .interactive <- new.env(parent = emptyenv())
 
 ##' Set search options for interactive use of orderly; see
-##' [orderly3::orderly_dependency] and [orderly3::orderly_run] for
+##' [orderly2::orderly_dependency] and [orderly2::orderly_run] for
 ##' details. This may be either an [outpack::outpack_search_options]
 ##' object, or a list that will be coerced into one at the point of
 ##' use (or `NULL`). This applies only for the current session, but
 ##' applies to all interactive uses of orderly functions that might
 ##' have recieved a copy of `search_options` via
-##' [orderly3::orderly_run]
+##' [orderly2::orderly_run]
 ##'
 ##' @title Set search options for interactive use
 ##'
 ##' @param options Optional control over locations, when used
-##'   with [orderly3::orderly_dependency]; see of Details section of
-##'   [orderly3::orderly_run].
+##'   with [orderly2::orderly_dependency]; see of Details section of
+##'   [orderly2::orderly_run].
 ##'
 ##' @inheritParams orderly_run
 ##'

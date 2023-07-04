@@ -47,7 +47,7 @@ orderly_read_r <- function(path) {
 
   for (nm in single) {
     if (length(dat[[nm]]) > 1) {
-      stop(sprintf("Only one call to 'orderly3::%s' is allowed", nm))
+      stop(sprintf("Only one call to 'orderly2::%s' is allowed", nm))
     }
   }
 
