@@ -44,3 +44,19 @@ test_that("can interpolate values into an orderly configuration", {
   writeLines("PATH_GLOBAL: global", file.path(path, "orderly_envir.yml"))
   expect_equal(orderly_root(path, FALSE)$config$global_resources, "global")
 })
+
+
+test_that("can validate minimum required version", {
+  expect_error(
+    orderly_config_validate_minimum_orderly_version("1.4.5", "orderly.yml"),
+    "Migrate from version 1, see docs that we need to write still...",
+    fixed = TRUE)
+  expect_error(
+    orderly_config_validate_minimum_orderly_version("99.0.0", "orderly.yml"),
+    sprintf("orderly version '99.0.0' is required, but only '%s' installed",
+            current_orderly_version()),
+    fixed = TRUE)
+  expect_equal(
+    orderly_config_validate_minimum_orderly_version("1.99.0", "orderly.yml"),
+    numeric_version("1.99.0"))
+})

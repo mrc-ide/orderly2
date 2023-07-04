@@ -16,10 +16,11 @@ orderly_config_yml_read <- function(path) {
   raw <- resolve_env(raw, orderly_envir_read(path), "orderly_config.yml")
 
   check <- list(
+    minimum_orderly_version = orderly_config_validate_minimum_orderly_version,
     plugins = orderly_config_validate_plugins,
     global_resources = orderly_config_validate_global_resources)
 
-  required <- character()
+  required <- "minimum_orderly_version"
   optional <- setdiff(names(check), required)
   check_fields(raw, filename, required, optional)
 
@@ -32,6 +33,21 @@ orderly_config_yml_read <- function(path) {
   }
 
   dat
+}
+
+
+orderly_config_validate_minimum_orderly_version <- function(value, filename) {
+  assert_scalar_character(value)
+  version <- numeric_version(value)
+  if (version < numeric_version("1.99.0")) {
+    stop("Migrate from version 1, see docs that we need to write still...")
+  }
+  if (version > current_orderly_version()) {
+    stop(sprintf(
+      "orderly version '%s' is required, but only '%s' installed",
+      version, current_orderly_version()))
+  }
+  version
 }
 
 

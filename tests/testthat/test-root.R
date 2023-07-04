@@ -37,7 +37,8 @@ test_that("Can initialise a new orderly root", {
   expect_true(file.exists(tmp))
   expect_s3_class(root, "orderly_root")
   expect_s3_class(root$outpack, "outpack_root")
-  expect_equal(root$config, list())
+  expect_equal(root$config,
+               list(minimum_orderly_version = numeric_version("1.99.0")))
 })
 
 
