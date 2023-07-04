@@ -31,7 +31,8 @@ test_that("can interpolate values into an orderly configuration", {
   path <- test_prepare_orderly_example("global")
   expect_equal(orderly_root(path, FALSE)$config$global_resources, "global")
 
-  writeLines("global_resources: $PATH_GLOBAL",
+  writeLines(c(empty_config_contents(),
+               "global_resources: $PATH_GLOBAL"),
              file.path(path, "orderly_config.yml"))
   expect_error(
     orderly_root(path, FALSE),
