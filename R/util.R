@@ -227,3 +227,80 @@ sys_getenv <- function(x, used_in, error = TRUE, default = NULL) {
   }
   v
 }
+
+
+is_linux <- function() {
+  tolower(Sys.info()[["sysname"]]) == "linux"
+}
+
+
+file_split_base <- function(filename) {
+  path <- strsplit(filename, "[/\\\\]")[[1L]]
+  if (!nzchar(path[[1]])) {
+    base <- "/"
+    path <- path[-1L]
+    absolute <- TRUE
+  } else if (grepl("^[A-Za-z]:", path[[1]])) {
+    base <- paste0(path[[1L]], "/")
+    path <- path[-1L]
+    absolute <- TRUE
+  } else {
+    base <- "."
+    absolute <- FALSE
+  }
+
+  list(path = path[nzchar(path)], base = base, absolute = absolute)
+}
+
+
+file_has_canonical_case <- function(filename) {
+  dat <- file_split_base(filename)
+  base <- dat$base
+  absolute <- dat$absolute
+
+  for (p in dat$path) {
+    if (p %in% dir(base, all.files = TRUE)) {
+      base <- paste(base, p, sep = if (absolute) "" else "/")
+      absolute <- FALSE
+    } else {
+      return(FALSE)
+    }
+  }
+  TRUE
+}
+
+
+## This one here behaves differently on unix because we could have
+## files called Foo and foo next to each other (but not on
+## windows/mac)
+file_canonical_case <- function(filename) {
+  dat <- file_split_base(filename)
+  base <- dat$base
+  path <- dat$path
+  absolute <- dat$absolute
+
+  for (p in dat$path) {
+    pos <- dir(base, all.files = TRUE)
+    i <- match(tolower(p), tolower(pos))
+    if (!is.na(i)) {
+      p <- pos[[i]]
+    } else if (grepl("~", p, fixed = TRUE)) {
+      ## Windows truncated path, ignore case
+    } else {
+      return(NA_character_)
+    }
+
+    base <- paste(base, p, sep = if (absolute) "" else "/")
+    absolute <- FALSE
+  }
+
+  if (grepl("^\\./", base) && !grepl("^\\./", filename)) {
+    base <- sub("^\\./", "", base)
+  }
+  base
+}
+
+
+read_lines <- function(...) {
+  paste(readLines(...), collapse = "\n")
+}
