@@ -17,7 +17,6 @@ BugReports: https://github.com/mrc-ide/orderly2/issues
 Imports:
     fs,
     jsonlite,
-    orderly,
     outpack (>= 0.3.6),
     withr,
     yaml
@@ -27,4 +26,5 @@ Suggests:
     pkgload,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Remotes: mrc-ide/outpack
+Remotes:
+  mrc-ide/outpack
