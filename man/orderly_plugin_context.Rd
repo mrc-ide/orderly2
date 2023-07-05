@@ -41,7 +41,7 @@ the state of a packet.  You will then typically call
 \code{\link[=orderly_plugin_add_metadata]{orderly_plugin_add_metadata()}} afterwards.
 }
 \details{
-When a plugin function is called, orderly3 will be running in one
+When a plugin function is called, orderly2 will be running in one
 of two modes; (1) from within \code{\link[=orderly_run]{orderly_run()}}, in
 which case we're part way through creating a packet in a brand new
 directory, and possibly using a special environment for

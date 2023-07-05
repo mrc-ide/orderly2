@@ -1,9 +1,9 @@
-##' Put orderly3 into "strict mode", which is closer to the defaults
+##' Put orderly2 into "strict mode", which is closer to the defaults
 ##' in orderly 1.0.0; in this mode only explicitly included files (via
-##' [orderly3::orderly_resource] and
-##' [orderly3::orderly_global_resource]) are copied when running a
+##' [orderly2::orderly_resource] and
+##' [orderly2::orderly_global_resource]) are copied when running a
 ##' packet, and we warn about any unexpected files at the end of the
-##' run.  Using strict mode allows orderly3 to be more agressive in
+##' run.  Using strict mode allows orderly2 to be more agressive in
 ##' how it deletes files within the source directory, more accurate in
 ##' what it reports to you, and faster to start packets after
 ##' developing them interactively.
@@ -25,7 +25,7 @@ orderly_strict_mode <- function() {
   p <- get_active_packet()
   if (!is.null(p)) {
     prevent_multiple_calls(p, "strict_mode")
-    p$orderly3$strict <- static_orderly_strict_mode(list())
+    p$orderly2$strict <- static_orderly_strict_mode(list())
   }
   invisible()
 }
@@ -117,7 +117,7 @@ orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
   p <- get_active_packet()
   if (!is.null(p)) {
     prevent_multiple_calls(p, "description")
-    p$orderly3$description <-
+    p$orderly2$description <-
       list(display = display, long = long, custom = custom)
   }
   invisible()
@@ -157,16 +157,16 @@ orderly_resource <- function(files) {
   if (is.null(p)) {
     assert_file_exists(files)
   } else {
-    src <- p$orderly3$src
+    src <- p$orderly2$src
     assert_file_exists(files, workdir = src)
     files_expanded <- expand_dirs(files, src)
-    if (p$orderly3$strict$enabled) {
+    if (p$orderly2$strict$enabled) {
       copy_files(src, p$path, files_expanded)
     } else {
       assert_file_exists(files, workdir = p$path)
     }
     outpack::outpack_packet_file_mark(p, files_expanded, "immutable")
-    p$orderly3$resources <- c(p$orderly3$resources, files_expanded)
+    p$orderly2$resources <- c(p$orderly2$resources, files_expanded)
   }
 
   invisible()
@@ -211,7 +211,7 @@ orderly_artefact <- function(description, files) {
   p <- get_active_packet()
   if (!is.null(p)) {
     artefact <- list(description = description, files = files)
-    p$orderly3$artefacts <- c(p$orderly3$artefacts, list(artefact))
+    p$orderly2$artefacts <- c(p$orderly2$artefacts, list(artefact))
   }
 
   invisible()
@@ -226,11 +226,11 @@ static_orderly_artefact <- function(args) {
 
 ##' Declare a dependency on another packet
 ##'
-##' See [orderly3::orderly_run] for some details about how search
+##' See [orderly2::orderly_run] for some details about how search
 ##' options are used to select which locations packets are found from,
 ##' and if any data is fetched over the network. If you are running
 ##' interactively, this will obviously not work, so you should use
-##' [orderly3::orderly_interactive_set_search_options()] to set the
+##' [orderly2::orderly_interactive_set_search_options()] to set the
 ##' options that this function will respond to.
 ##'
 ##' @title Declare a dependency
@@ -322,8 +322,8 @@ orderly_global_resource <- function(...) {
   files <- copy_global(ctx$root, ctx$path, ctx$config, files)
   if (ctx$is_active) {
     outpack::outpack_packet_file_mark(ctx$packet, files$here, "immutable")
-    ctx$packet$orderly3$global_resources <-
-      rbind(ctx$packet$orderly3$global_resources, files)
+    ctx$packet$orderly2$global_resources <-
+      rbind(ctx$packet$orderly2$global_resources, files)
   }
 
   invisible()
@@ -425,7 +425,7 @@ get_active_packet <- function() {
 
 
 prevent_multiple_calls <- function(packet, name) {
-  if (!is.null(packet$orderly3[[name]])) {
-    stop(sprintf("Only one call to 'orderly3::orderly_%s' is allowed", name))
+  if (!is.null(packet$orderly2[[name]])) {
+    stop(sprintf("Only one call to 'orderly2::orderly_%s' is allowed", name))
   }
 }

@@ -9,4 +9,4 @@ Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     role = "cph"))
 Description: Example random numbers.
 License: CC0
-Imports: orderly3
+Imports: orderly2

@@ -22,7 +22,7 @@
 ##' @param serialise A function to serialise any metadata added by the
 ##'   plugin's functions to the outpack metadata. It will be passed a
 ##'   list of all entries pushed in via
-##'   [`orderly3::orderly_plugin_add_metadata()`]; this is a named
+##'   [`orderly2::orderly_plugin_add_metadata()`]; this is a named
 ##'   list with names corresponding to the `field` argument to
 ##'   `orderly_plugin_add_metadata` and each list element being an
 ##'   unnamed list with values corresponding to `data`.
@@ -87,10 +87,10 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
 ##' here is that within free functions that your plugin makes
 ##' available, you will call this function to get information about
 ##' the state of a packet.  You will then typically call
-##' [`orderly3::orderly_plugin_add_metadata()`] afterwards.
+##' [`orderly2::orderly_plugin_add_metadata()`] afterwards.
 ##'
-##' When a plugin function is called, orderly3 will be running in one
-##' of two modes; (1) from within [`orderly3::orderly_run()`], in
+##' When a plugin function is called, orderly2 will be running in one
+##' of two modes; (1) from within [`orderly2::orderly_run()`], in
 ##' which case we're part way through creating a packet in a brand new
 ##' directory, and possibly using a special environment for
 ##' evaluation, or (2) interactively, with a user developing their
@@ -105,7 +105,7 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
 ##' @return A list with elements:
 ##'
 ##' * `is_active`: a logical, indicating if we're running under
-##'   [`orderly3::orderly_run()`]; you may need to change behaviour
+##'   [`orderly2::orderly_run()`]; you may need to change behaviour
 ##'   depending on this value.
 ##'
 ##' * `path`: the path of the running packet. This is almost always the
@@ -114,7 +114,7 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
 ##'
 ##' * `config`: the configuration for this plugin, after processing
 ##'   with the plugin's `read` function (see
-##'   [`orderly3::orderly_plugin_register`])
+##'   [`orderly2::orderly_plugin_register`])
 ##'
 ##' * `env`: the environment that the packet is running in. Often this
 ##'   will be the global environment, but do not assume this! You may
@@ -129,8 +129,8 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
 ##' * `parameters`: the parameters as passed through to the run the
 ##'   report.
 ##'
-##' @seealso [orderly3::orderly_plugin_register],
-##' [orderly3::orderly_plugin_add_metadata]
+##' @seealso [orderly2::orderly_plugin_register],
+##' [orderly2::orderly_plugin_add_metadata]
 ##' @export
 orderly_plugin_context <- function(name) {
   assert_scalar_character(name)
@@ -156,8 +156,8 @@ orderly_plugin_context <- function(name) {
 ##' @title Add metadata from plugin
 ##'
 ##' @param name The name of the plugin; must be the same as used in
-##'   [orderly3::orderly_plugin_register] and
-##'   [orderly3::orderly_plugin_context]
+##'   [orderly2::orderly_plugin_register] and
+##'   [orderly2::orderly_plugin_context]
 ##'
 ##' @param field The name of a field to add the data to. This is
 ##'   required even if your plugin only produces one sort of data, in
@@ -175,9 +175,9 @@ orderly_plugin_add_metadata <- function(name, field, data) {
   assert_scalar_character(field)
   p <- get_active_packet()
   if (!is.null(p)) {
-    check_plugin_enabled(name, p$orderly3$config)
-    p$orderly3$plugins[[name]][[field]] <-
-      c(p$orderly3$plugins[[name]][[field]], list(data))
+    check_plugin_enabled(name, p$orderly2$config)
+    p$orderly2$plugins[[name]][[field]] <-
+      c(p$orderly2$plugins[[name]][[field]], list(data))
   }
 }
 

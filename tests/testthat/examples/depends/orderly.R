@@ -1,5 +1,5 @@
-orderly3::orderly_dependency("data", "latest", c(input.rds = "data.rds"))
-orderly3::orderly_artefact("Final plot", "graph.png")
+orderly2::orderly_dependency("data", "latest", c(input.rds = "data.rds"))
+orderly2::orderly_artefact("Final plot", "graph.png")
 d <- readRDS("input.rds")
 png("graph.png")
 plot(y ~ x, d)
