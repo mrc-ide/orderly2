@@ -90,7 +90,7 @@ test_that("don't load package if plugin already loaded", {
 
 test_that("error if packet uses non-configured plugin", {
   path <- test_prepare_orderly_example("plugin")
-  file.create(file.path(path, "orderly_config.yml"))
+  writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
 
   env <- new.env()
   expect_error(

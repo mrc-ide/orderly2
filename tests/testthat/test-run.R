@@ -237,7 +237,7 @@ test_that("can validate global resource arguments", {
 
 test_that("can't use global resources if not enabled", {
   path <- test_prepare_orderly_example("global")
-  file.create(file.path(path, "orderly_config.yml")) # truncates file
+  writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
   env <- new.env()
   path_src <- file.path(path, "src", "global")
   err <- expect_error(

@@ -7,8 +7,7 @@ test_prepare_orderly_example <- function(examples, ...) {
   tmp <- tempfile()
   withr::defer_parent(unlink(tmp, recursive = TRUE))
   orderly_init(tmp, logging_console = FALSE)
-
-  config <- character()
+  config <- readLines(file.path(tmp, "orderly_config.yml"))
 
   if (any(c("global", "global-dir") %in% examples)) {
     config <- c(config,

@@ -44,6 +44,11 @@ orderly_init <- function(path, ...) {
     fs::dir_create(path)
   }
   outpack::outpack_init(path, ...)
-  file.create(file.path(path, "orderly_config.yml"))
+  writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
   orderly_root(path, locate = FALSE)
+}
+
+
+empty_config_contents <- function() {
+  'minimum_orderly_version: "1.99.0"'
 }

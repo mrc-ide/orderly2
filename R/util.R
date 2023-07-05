@@ -146,3 +146,8 @@ copy_files <- function(src, dst, files, overwrite = FALSE) {
 ignore_errors <- function(expr) {
   tryCatch(expr, error = function(e) NULL)
 }
+
+
+current_orderly_version <- function() {
+  utils::packageVersion("orderly3")
+}
