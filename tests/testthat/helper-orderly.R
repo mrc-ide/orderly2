@@ -81,3 +81,13 @@ reset_interactive <- function() {
 clear_env <- function(env) {
   rm(list = ls(env), envir = env)
 }
+
+
+skip_on_solaris <- function() {
+  testthat::skip_on_os("solaris")
+}
+
+
+is_windows <- function() {
+  tolower(Sys.info()[["sysname"]]) == "windows"
+}

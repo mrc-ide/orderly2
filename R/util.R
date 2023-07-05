@@ -79,15 +79,6 @@ replace_ragged <- function(x, i, values) {
 }
 
 
-assert_scalar_atomic <- function(x, name = deparse(substitute(x))) {
-  assert_scalar(x, name)
-  if (!is.atomic(x)) {
-    stop(sprintf("'%s' must be atomic (string, numeric, logical)", name))
-  }
-  invisible(x)
-}
-
-
 resolve_env <- function(x, env, used_in, error = TRUE) {
   if (!is.null(env)) {
     withr::local_envvar(env)
@@ -150,4 +141,164 @@ ignore_errors <- function(expr) {
 
 current_orderly_version <- function() {
   utils::packageVersion("orderly2")
+}
+
+
+yaml_read <- function(filename) {
+  catch_yaml <- function(e) {
+    stop(sprintf("while reading '%s'\n%s", filename, e$message),
+         call. = FALSE)
+  }
+  tryCatch(yaml_load(read_lines(filename, warn = FALSE)),
+           error = catch_yaml)
+}
+
+
+yaml_load <- function(string) {
+  ## More restrictive true/false handling.  Only accept if it maps to
+  ## full (true|yes) / (false|no):
+  handlers <- list(
+    "bool#yes" = function(x) if (tolower(x) %in% c("true", "yes")) TRUE else x,
+    "bool#no" = function(x) if (tolower(x) %in% c("false", "no")) FALSE else x)
+  yaml::yaml.load(string, handlers = handlers)
+}
+
+
+file_exists <- function(..., check_case = FALSE, workdir = NULL,
+                        force_case_check = FALSE) {
+  files <- c(...)
+  if (!is.null(workdir)) {
+    assert_scalar_character(workdir)
+    owd <- setwd(workdir) # nolint
+    on.exit(setwd(owd)) # nolint
+  }
+  exists <- file.exists(files)
+
+  if (check_case) {
+    incorrect_case <- logical(length(files))
+    if (!is_linux() || force_case_check) {
+      incorrect_case[exists] <-
+        !vlapply(files[exists], file_has_canonical_case)
+      if (any(incorrect_case)) {
+        correct <- vcapply(files[incorrect_case], file_canonical_case)
+        names(correct) <- files[incorrect_case]
+        attr(exists, "incorrect_case") <- incorrect_case
+        attr(exists, "correct_case") <- correct
+        exists[incorrect_case] <- FALSE
+      }
+    }
+  }
+
+  exists
+}
+
+
+check_fields <- function(x, name, required, optional) {
+  msg <- setdiff(required, names(x))
+  if (length(msg) > 0L) {
+    stop(sprintf("Fields missing from %s: %s",
+                 name, paste(msg, collapse = ", ")))
+  }
+  extra <- setdiff(names(x), c(required, optional))
+  if (length(extra) > 0L) {
+    stop(sprintf("Unknown fields in %s: %s",
+                 name, paste(extra, collapse = ", ")))
+  }
+}
+
+
+list_to_character <- function(x, named = TRUE) {
+  vcapply(x, identity, USE.NAMES = named)
+}
+
+
+sys_getenv <- function(x, used_in, error = TRUE, default = NULL) {
+  v <- Sys.getenv(x, NA_character_)
+  if (is.na(v) || !nzchar(v)) {
+    if (error) {
+      reason <- if (!nzchar(v)) "empty" else "not set"
+      stop(sprintf("Environment variable '%s' is %s\n\t(used in %s)",
+                   x, reason, used_in), call. = FALSE)
+    } else {
+      v <- default
+    }
+  }
+  v
+}
+
+
+is_linux <- function() {
+  tolower(Sys.info()[["sysname"]]) == "linux"
+}
+
+
+file_split_base <- function(filename) {
+  path <- strsplit(filename, "[/\\\\]")[[1L]]
+  if (!nzchar(path[[1]])) {
+    base <- "/"
+    path <- path[-1L]
+    absolute <- TRUE
+  } else if (grepl("^[A-Za-z]:", path[[1]])) {
+    base <- paste0(path[[1L]], "/")
+    path <- path[-1L]
+    absolute <- TRUE
+  } else {
+    base <- "."
+    absolute <- FALSE
+  }
+
+  list(path = path[nzchar(path)], base = base, absolute = absolute)
+}
+
+
+file_has_canonical_case <- function(filename) {
+  dat <- file_split_base(filename)
+  base <- dat$base
+  absolute <- dat$absolute
+
+  for (p in dat$path) {
+    if (p %in% dir(base, all.files = TRUE)) {
+      base <- paste(base, p, sep = if (absolute) "" else "/")
+      absolute <- FALSE
+    } else {
+      return(FALSE)
+    }
+  }
+  TRUE
+}
+
+
+## This one here behaves differently on unix because we could have
+## files called Foo and foo next to each other (but not on
+## windows/mac)
+file_canonical_case <- function(filename) {
+  dat <- file_split_base(filename)
+  base <- dat$base
+  path <- dat$path
+  absolute <- dat$absolute
+
+  for (p in dat$path) {
+    pos <- dir(base, all.files = TRUE)
+    i <- match(tolower(p), tolower(pos))
+    if (!is.na(i)) {
+      p <- pos[[i]]
+    } else if (grepl("~", p, fixed = TRUE)) {
+      ## Windows truncated path, ignore case
+    } else {
+      return(NA_character_)
+    }
+
+    base <- paste(base, p, sep = if (absolute) "" else "/")
+    absolute <- FALSE
+  }
+
+  if (grepl("^\\./", base) && !grepl("^\\./", filename)) {
+    base <- sub("^\\./", "", base)
+  }
+  base
+}
+
+
+read_lines <- function(...) {
+  paste(readLines(...), collapse = "\n")
 }
