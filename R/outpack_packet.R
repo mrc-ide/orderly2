@@ -448,8 +448,8 @@ outpack_packet_file_mark <- function(packet, files, status) {
   ## 1:1 mapping of file to status
   if (status == "immutable") {
     hash_algorithm <- packet$root$config$core$hash_algorithm
-    value <- with_dir(packet$path,
-                      hash_files(files, hash_algorithm, named = TRUE))
+    value <- withr::with_dir(packet$path,
+                             hash_files(files, hash_algorithm, named = TRUE))
 
     if (any(files %in% packet$files$ignored)) {
       stop(sprintf("Cannot mark ignored files as immutable: %s",
@@ -479,8 +479,8 @@ outpack_packet_file_mark <- function(packet, files, status) {
 ##' @rdname outpack_packet_file
 outpack_packet_file_list <- function(packet) {
   packet <- check_current_packet(packet)
-  files <- with_dir(packet$path,
-                    dir(all.files = TRUE, recursive = TRUE, no.. = TRUE))
+  files <- withr::with_dir(packet$path,
+                           dir(all.files = TRUE, recursive = TRUE, no.. = TRUE))
   status <- rep("unknown", length(files))
   status[files %in% names(packet$files$immutable)] <- "immutable"
   status[files %in% packet$files$ignored] <- "ignored"

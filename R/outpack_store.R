@@ -65,7 +65,7 @@ file_store <- R6::R6Class(
     },
 
     list = function() {
-      files <- with_dir(
+      files <- withr::with_dir(
         self$path,
         as.character(fs::dir_ls(recurse = 2, type = "file")))
       sub("/", "", sub("/", ":", files))
