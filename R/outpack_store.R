@@ -5,6 +5,7 @@
 ## the content is stored as is (not in git's 'blob <content>|tree
 ## <content>' format), and we include an additional layer with the
 ## hash used.
+##' @importFrom R6 R6Class
 file_store <- R6::R6Class(
   "file_store",
   cloneable = FALSE,
