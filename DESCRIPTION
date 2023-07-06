@@ -1,6 +1,6 @@
 Package: orderly2
 Title: Orderly Next Generation
-Version: 1.99.0
+Version: 1.99.1
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),
@@ -15,16 +15,18 @@ RoxygenNote: 7.2.3
 URL: https://github.com/mrc-ide/orderly2
 BugReports: https://github.com/mrc-ide/orderly2/issues
 Imports:
+    R6,
     fs,
+    gert,
     jsonlite,
-    outpack (>= 0.3.6),
+    openssl,
     withr,
     yaml
 Suggests:
-    jsonvalidate,
+    httr,
+    jsonvalidate (>= 1.4.0),
     mockery,
-    pkgload,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes:
-  mrc-ide/outpack
+  ropensci/jsonvalidate
