@@ -64,31 +64,17 @@ assert_is <- function(x, what, name = deparse(substitute(x))) {
   }
 }
 
-assert_file_exists <- function(x, check_case = TRUE, workdir = NULL,
-                               name = "File") {
-  err <- !file_exists(x, check_case = check_case, workdir = workdir)
+assert_file_exists <- function(x, workdir = NULL, name = "File") {
+  err <- !file_exists(x, workdir = workdir)
   if (any(err)) {
-    i <- attr(err, "incorrect_case")
-    if (!is.null(i)) {
-      msg_case <- x[i]
-      msg_totally <- x[err & !i]
-      if (length(msg_case) > 0L) {
-        correct_case <- attr(err, "correct_case")
-        msg_case <- sprintf("'%s' (should be '%s')",
-                            names(correct_case), correct_case)
-      }
-      msg <- c(msg_case, squote(msg_totally))
-    } else {
-      msg <- squote(x[err])
-    }
+    msg <- squote(x[err])
     stop(sprintf("%s does not exist: %s", name, paste(msg, collapse = ", ")),
          call. = FALSE)
   }
 }
 
-assert_is_directory <- function(x, check_case = TRUE, workdir = NULL,
-                                name = "Directory") {
-  assert_file_exists(x, check_case, workdir, name)
+assert_is_directory <- function(x, workdir = NULL, name = "Directory") {
+  assert_file_exists(x, workdir, name)
   path <- if (is.null(workdir)) x else file.path(workdir, x)
   if (!is_directory(path)) {
     stop(sprintf("Path exists but is not a directory: %s",

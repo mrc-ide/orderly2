@@ -356,7 +356,7 @@ copy_global <- function(path_root, path_dest, config, files) {
 
   global_path <- file.path(path_root, config$global_resources)
   assert_file_exists(
-    there, check_case = TRUE, workdir = global_path,
+    there, workdir = global_path,
     name = sprintf("Global resources in '%s'", global_path))
   src <- file.path(global_path, there)
   dst <- file.path(path_dest, here)
