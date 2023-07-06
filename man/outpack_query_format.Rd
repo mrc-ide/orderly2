@@ -23,10 +23,10 @@ Format outpack query for displaying to users. It will typically be
 easier to use the \link{format} method of \code{outpack_query} objects.
 }
 \examples{
-outpack::outpack_query_format(quote(name == "example"))
-outpack::outpack_query_format(
+orderly2::outpack_query_format(quote(name == "example"))
+orderly2::outpack_query_format(
   quote(usedby({A})),
   subquery = list(A = quote(latest(name == "a"))))
 
-format(outpack::outpack_query("latest", name = "a"))
+format(orderly2::outpack_query("latest", name = "a"))
 }

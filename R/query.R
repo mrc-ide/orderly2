@@ -16,7 +16,7 @@
 ##'   referenced by name from the `expr`.
 ##'
 ##' @return An `outpack_query` object, which should not be modified,
-##'   but which can be passed to [outpack::outpack_search()]
+##'   but which can be passed to [orderly2::outpack_search()]
 ##'
 ##' @export
 outpack_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {

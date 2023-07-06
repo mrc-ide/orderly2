@@ -24,7 +24,7 @@
 ## * database - lower priority, as only VIMC and everything else must work first
 ## * minimum_orderly_version - the required version
 orderly_root <- function(root, locate) {
-  root <- outpack::outpack_root_open(root, locate)
+  root <- outpack_root_open(root, locate)
   ## NOTE: it's can't be changed yet, but core.path_archive cannot be
   ## "draft" for this to work well.
   path <- root$path
@@ -43,7 +43,7 @@ orderly_init <- function(path, ...) {
   } else {
     fs::dir_create(path)
   }
-  outpack::outpack_init(path, ...)
+  outpack_init(path, ...)
   writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
   orderly_root(path, locate = FALSE)
 }

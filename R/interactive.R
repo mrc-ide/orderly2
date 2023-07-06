@@ -21,7 +21,7 @@ detect_orderly_interactive_path <- function(path = getwd()) {
 
 ##' Set search options for interactive use of orderly; see
 ##' [orderly2::orderly_dependency] and [orderly2::orderly_run] for
-##' details. This may be either an [outpack::outpack_search_options]
+##' details. This may be either an [orderly2::outpack_search_options]
 ##' object, or a list that will be coerced into one at the point of
 ##' use (or `NULL`). This applies only for the current session, but
 ##' applies to all interactive uses of orderly functions that might

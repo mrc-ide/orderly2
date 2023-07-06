@@ -18,7 +18,7 @@ A character vector of location names. The special name
 List known locations.
 }
 \seealso{
-\link[outpack:outpack_location_pull_metadata]{outpack::outpack_location_pull_metadata}, which can
+\link{outpack_location_pull_metadata}, which can
 update your outpack index with metadata from any of the
 locations listed here.
 }

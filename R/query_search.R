@@ -13,10 +13,10 @@
 ##' @param parameters Optionally, a named list of parameters to substitute
 ##'   into the query (using the `this:` prefix)
 ##'
-##' @param options Optionally, a [outpack::outpack_search_options]
+##' @param options Optionally, a [orderly2::outpack_search_options]
 ##'   object for controlling how the search is performed, and which
 ##'   packets should be considered in scope. If not provided, default
-##'   options are used (i.e., `outpack::outpack_search_options()`)
+##'   options are used (i.e., `orderly2::outpack_search_options()`)
 ##'
 ##' @param root The outpack root. Will be searched for from the
 ##'   current directory if not given.
@@ -37,8 +37,8 @@ outpack_search <- function(..., parameters = NULL, options = NULL,
 
 
 ##' Options for controlling how packet searches are carried out, for
-##' example via [outpack::outpack_search] and
-##' [outpack::outpack_packet_use_dependency]. The details here are
+##' example via [orderly2::outpack_search] and
+##' [orderly2::outpack_packet_use_dependency]. The details here are
 ##' never included in the metadata alongside the query (that is,
 ##' they're not part of the query even though they affect it).
 ##'
@@ -53,13 +53,13 @@ outpack_search <- function(..., parameters = NULL, options = NULL,
 ##'   packets to be found that are not currently unpacked (i.e., are
 ##'   known only to a location that we have metadata from). If this is
 ##'   `TRUE`, then inconjunction with
-##'   [outpack::outpack_packet_use_dependency] you might pull a large
+##'   [orderly2::outpack_packet_use_dependency] you might pull a large
 ##'   quantity of data.
 ##'
 ##' @param pull_metadata Logical, indicating if we should pull
 ##'   metadata immediately before the search. If `location` is
 ##'   given, then we will pass this through to
-##'   [outpack::outpack_location_pull_metadata] to filter locations to
+##'   [orderly2::outpack_location_pull_metadata] to filter locations to
 ##'   update.  If pulling many packets in sequence, you *will* want to
 ##'   update this option to `FALSE` after the first pull.
 ##'

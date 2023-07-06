@@ -17,7 +17,7 @@
 ##'
 ##' @param require_complete_tree Logical, indicating if we require a
 ##'   complete tree of packets.  This currently affects
-##'   [outpack::outpack_location_pull_packet], by requiring that it
+##'   [orderly2::outpack_location_pull_packet], by requiring that it
 ##'   always operates in recursive mode.  This is `FALSE` by default,
 ##'   but set to `TRUE` if you want your archive to behave well as a
 ##'   location; if `TRUE` you will always have all the packets that
@@ -60,7 +60,7 @@ outpack_init <- function(root, path_archive = "archive",
   config_write(config, root)
 
   ret <- outpack_root$new(root)
-  outpack_log_info(ret, "init", root, "outpack::outpack_init")
+  outpack_log_info(ret, "init", root, "orderly2::outpack_init")
 
   invisible(ret)
 }
@@ -172,7 +172,7 @@ outpack_root <- R6::R6Class(
 ##' Open an existing outpack root. This returns a "root" object, which
 ##' can be passed through to various outpack functions. The root
 ##' object is the same as that returned by
-##' [outpack::outpack_init] and will be documented once the
+##' [orderly2::outpack_init] and will be documented once the
 ##' interface stabilises.
 ##'
 ##' @title Open outpack root

@@ -38,7 +38,7 @@ outpack_packet_add_custom(packet, application, data, schema = NULL)
 names must be unique, and the values must all be non-NA scalar
 atomics (logical, integer, numeric, character)}
 
-\item{id}{Optionally, an outpack id via \link[outpack:outpack_id]{outpack::outpack_id}. If
+\item{id}{Optionally, an outpack id via \link{outpack_id}. If
 not given a new id will be generated.}
 
 \item{logging_console}{Optional logical, indicating if we should
@@ -74,7 +74,7 @@ times within a single packet run (or zero times!) as needed.}
 
 \item{envir}{Environment in which to run the script}
 
-\item{query}{An \link[outpack:outpack_query]{outpack::outpack_query} object, or something
+\item{query}{An \link{outpack_query} object, or something
 (e.g., a string) that can be trivially converted into one.}
 
 \item{files}{A named character vector of files; the name
@@ -82,7 +82,7 @@ corresponds to the name within the current packet, while the
 value corresponds to the name within the upstream packet}
 
 \item{search_options}{Optional search options for restricting the
-search (see \link[outpack:outpack_search]{outpack::outpack_search} for details)}
+search (see \link{outpack_search} for details)}
 
 \item{application}{The name of the application (used to organise
 the data and query it later, see Details)}
@@ -156,7 +156,7 @@ packets with the given query and if anything might be moved over
 the network (or from one outpack archive to another). By default
 everything is resolved locally only; that is we can only depend
 on packets that are unpacked within our current archive.  If you
-pass a \code{search_options} argument that contains \code{allow_remote = TRUE} (see \link[outpack:outpack_search_options]{outpack::outpack_search_options} then packets
+pass a \code{search_options} argument that contains \code{allow_remote = TRUE} (see \link{outpack_search_options} then packets
 that are known anywhere are candidates for using as dependencies
 and \emph{if needed} we will pull the resolved files from a remote
 location. Note that even if the packet is not locally present

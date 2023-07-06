@@ -7,7 +7,7 @@
 outpack_copy_files(id, files, dest, allow_remote = FALSE, root = NULL)
 }
 \arguments{
-\item{id}{Optionally, an outpack id via \link[outpack:outpack_id]{outpack::outpack_id}. If
+\item{id}{Optionally, an outpack id via \link{outpack_id}. If
 not given a new id will be generated.}
 
 \item{files}{A named character vector of files; the name
@@ -33,7 +33,7 @@ of copying files from a packet into the directory \code{dest}
 }
 \description{
 Copy files from a packet to anywhere. Similar to
-\link[outpack:outpack_packet]{outpack::outpack_packet_use_dependency} except that this is not
+\link{outpack_packet_use_dependency} except that this is not
 used in an active packet context. You can use this function to
 pull files from an outpack root to a directory outside of the
 control of outpack, for example.
@@ -46,7 +46,7 @@ failure):
 it's not unpacked but also not known to be present in some other
 remote) then this will fail because it's impossible to resolve
 the files. Consider refreshing the metadata with
-\link[outpack:outpack_location_pull_metadata]{outpack::outpack_location_pull_metadata} to refresh this.
+\link{outpack_location_pull_metadata} to refresh this.
 \item if the \code{id} is not unpacked \emph{and} no local copy of the files
 referred to can be found, we error by default (but see the next
 option). However, sometimes the file you refer to might also be
@@ -56,7 +56,7 @@ some other packet version you have locally.
 \item if the \code{id} is not unpacked, there is no local copy of the file
 and if \code{allow_remote} is \code{TRUE} we will try and request the file
 from whatever remote would be selected by
-\link[outpack:outpack_location_pull_packet]{outpack::outpack_location_pull_packet} for this packet.
+\link{outpack_location_pull_packet} for this packet.
 }
 
 Note that empty directories might be created on failure.

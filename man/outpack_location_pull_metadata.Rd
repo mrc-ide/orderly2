@@ -8,7 +8,7 @@ outpack_location_pull_metadata(location = NULL, root = NULL)
 }
 \arguments{
 \item{location}{The name of a location to pull from (see
-\link[outpack:outpack_location_list]{outpack::outpack_location_list} for possible values).  If not
+\link{outpack_location_list} for possible values).  If not
 given, pulls from all locations.  The "local" and "orphan"
 locations are always up to date and pulling metadata from them
 does nothing.}

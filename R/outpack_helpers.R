@@ -1,5 +1,5 @@
 ##' Copy files from a packet to anywhere. Similar to
-##' [outpack::outpack_packet_use_dependency] except that this is not
+##' [orderly2::outpack_packet_use_dependency] except that this is not
 ##' used in an active packet context. You can use this function to
 ##' pull files from an outpack root to a directory outside of the
 ##' control of outpack, for example.
@@ -11,7 +11,7 @@
 ##'   it's not unpacked but also not known to be present in some other
 ##'   remote) then this will fail because it's impossible to resolve
 ##'   the files. Consider refreshing the metadata with
-##'   [outpack::outpack_location_pull_metadata] to refresh this.
+##'   [orderly2::outpack_location_pull_metadata] to refresh this.
 ##' * if the `id` is not unpacked *and* no local copy of the files
 ##'   referred to can be found, we error by default (but see the next
 ##'   option). However, sometimes the file you refer to might also be
@@ -21,7 +21,7 @@
 ##' * if the `id` is not unpacked, there is no local copy of the file
 ##'   and if `allow_remote` is `TRUE` we will try and request the file
 ##'   from whatever remote would be selected by
-##'   [outpack::outpack_location_pull_packet] for this packet.
+##'   [orderly2::outpack_location_pull_packet] for this packet.
 ##'
 ##' Note that empty directories might be created on failure.
 ##'

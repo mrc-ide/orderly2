@@ -12,12 +12,12 @@
 #' @export
 #'
 #' @examples
-#' outpack::outpack_query_format(quote(name == "example"))
-#' outpack::outpack_query_format(
+#' orderly2::outpack_query_format(quote(name == "example"))
+#' orderly2::outpack_query_format(
 #'   quote(usedby({A})),
 #'   subquery = list(A = quote(latest(name == "a"))))
 #'
-#' format(outpack::outpack_query("latest", name = "a"))
+#' format(orderly2::outpack_query("latest", name = "a"))
 outpack_query_format <- function(query, subquery = NULL) {
   if (!is_deparseable_query(query)) {
     stop("Cannot format query, it must be a language object or be length 1.")

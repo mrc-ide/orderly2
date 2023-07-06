@@ -3,7 +3,7 @@
 ##' reference to a root which contains it. It may be useful in the
 ##' context of reading a metadata file written out as part of a failed
 ##' run (see the `insert = FALSE` argument to
-##' [outpack::outpack_packet_end()])
+##' [orderly2::outpack_packet_end()])
 ##'
 ##' @title Read outpack metadata json file
 ##'

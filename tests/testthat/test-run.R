@@ -643,7 +643,7 @@ test_that("cope with failed run", {
     dir(file.path(path, "draft", "implicit", id)),
     c("data.csv", "log.json", "orderly.R", "outpack.json"))
 
-  d <- outpack::outpack_metadata_read(
+  d <- outpack_metadata_read(
     file.path(path, "draft", "implicit", id, "outpack.json"))
   expect_equal(d$id, id)
 })
@@ -656,11 +656,11 @@ test_that("Can select location when querying dependencies for a report", {
     path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
     if (nm != "us") {
       ids[[nm]] <- orderly_run("data", root = path[[nm]])
-      outpack::outpack_location_add(nm, "path", list(path = path[[nm]]),
-                                    root = path[["us"]])
-      outpack::outpack_location_pull_metadata(nm, root = path[["us"]])
+      outpack_location_add(nm, "path", list(path = path[[nm]]),
+                           root = path[["us"]])
+      outpack_location_pull_metadata(nm, root = path[["us"]])
       for (i in ids[[nm]]) {
-        outpack::outpack_location_pull_packet(i, root = path[["us"]])
+        outpack_location_pull_packet(i, root = path[["us"]])
       }
     }
   }
@@ -668,7 +668,7 @@ test_that("Can select location when querying dependencies for a report", {
   ids[["us"]] <- orderly_run("data", root = path[["us"]])
 
   ## Without locations we prefer the local one:
-  root <- outpack::outpack_root_open(path[["us"]], FALSE)
+  root <- outpack_root_open(path[["us"]], FALSE)
   id1 <- orderly_run("depends", root = path[["us"]])
   expect_equal(root$metadata(id1)$depends$packet, ids[["us"]])
 
@@ -697,11 +697,11 @@ test_that("can select location when querying dependencies interactively", {
     path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
     if (nm != "us") {
       ids[[nm]] <- orderly_run("data", envir = env1, root = path[[nm]])
-      outpack::outpack_location_add(nm, "path", list(path = path[[nm]]),
-                                    root = path[["us"]])
-      outpack::outpack_location_pull_metadata(nm, root = path[["us"]])
+      outpack_location_add(nm, "path", list(path = path[[nm]]),
+                           root = path[["us"]])
+      outpack_location_pull_metadata(nm, root = path[["us"]])
       for (i in ids[[nm]]) {
-        outpack::outpack_location_pull_packet(i, root = path[["us"]])
+        outpack_location_pull_packet(i, root = path[["us"]])
       }
     }
   }

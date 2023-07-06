@@ -93,7 +93,7 @@ log_console <- function(topic, detail, caller, log_level) {
   ## Filter out some log types; these will never want echoing to the
   ## console via this function and I imagine that this list will
   ## grow...
-  if (caller == "outpack::outpack_packet_run" && topic == "output") {
+  if (caller == "orderly2::outpack_packet_run" && topic == "output") {
     return()
   }
   if (length(detail) > 1) {

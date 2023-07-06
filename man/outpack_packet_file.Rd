@@ -11,7 +11,7 @@ outpack_packet_file_list(packet)
 }
 \arguments{
 \item{packet}{Optionally, an explicitly-passed packet; see
-\code{\link[outpack:outpack_packet]{outpack::outpack_packet_start()}} for details.}
+\code{\link[=outpack_packet_start]{outpack_packet_start()}} for details.}
 
 \item{files}{A character vector of relative paths}
 
@@ -30,6 +30,6 @@ Depending on function
 Mark file within an in-progress packet. This will store the hash
 of the file within the internal outpack structures and force an
 error if the file is changed or deleted later.  The function
-\code{\link[outpack:outpack_packet_file]{outpack::outpack_packet_file_list()}} will report on which files
+\code{\link[=outpack_packet_file_list]{outpack_packet_file_list()}} will report on which files
 are marked (or unmarked) within the directory.
 }

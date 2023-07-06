@@ -20,7 +20,7 @@ will vary depending on the type used, see Details.}
 
 \item{priority}{The priority of the location. This is used when
 deciding where to pull packets from
-(\link[outpack:outpack_location_pull_packet]{outpack::outpack_location_pull_packet}), and will be used in
+(\link{outpack_location_pull_packet}), and will be used in
 the query interface. A priority of 0 corresponds to the same
 priority as local packets, while larger numbers have higher
 priority and negative numbers have lower priority.  Ties will be

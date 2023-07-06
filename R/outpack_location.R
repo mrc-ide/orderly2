@@ -48,7 +48,7 @@
 ##'
 ##' @param priority The priority of the location. This is used when
 ##'   deciding where to pull packets from
-##'   ([outpack::outpack_location_pull_packet]), and will be used in
+##'   ([orderly2::outpack_location_pull_packet]), and will be used in
 ##'   the query interface. A priority of 0 corresponds to the same
 ##'   priority as local packets, while larger numbers have higher
 ##'   priority and negative numbers have lower priority.  Ties will be
@@ -187,7 +187,7 @@ outpack_location_remove <- function(name, root = NULL) {
 ##' @return A character vector of location names. The special name
 ##'   `local` will always be present.
 ##'
-##' @seealso [outpack::outpack_location_pull_metadata], which can
+##' @seealso [orderly2::outpack_location_pull_metadata], which can
 ##'   update your outpack index with metadata from any of the
 ##'   locations listed here.
 ##'
@@ -210,7 +210,7 @@ outpack_location_priority <- function(root = NULL) {
 ##' @title Pull metadata from a location
 ##'
 ##' @param location The name of a location to pull from (see
-##'   [outpack::outpack_location_list] for possible values).  If not
+##'   [orderly2::outpack_location_list] for possible values).  If not
 ##'   given, pulls from all locations.  The "local" and "orphan"
 ##'   locations are always up to date and pulling metadata from them
 ##'   does nothing.
@@ -233,7 +233,7 @@ outpack_location_pull_metadata <- function(location = NULL, root = NULL) {
 
 ##' Pull a packet (all files) from a location into this archive. This
 ##' will make files available for use as dependencies (e.g., with
-##' [outpack::outpack_packet_use_dependency])
+##' [orderly2::outpack_packet_use_dependency])
 ##'
 ##' The behaviour of this function will vary depending on whether or
 ##' not the destination outpack repository (i.e., `root`) uses a file
@@ -339,7 +339,7 @@ outpack_location_pull_packet <- function(id, location = NULL, recursive = NULL,
 ##' @param packet_id One or more packets to push to the server
 ##'
 ##' @param location The name of a location to push to (see
-##' [outpack::outpack_location_list] for possible values).
+##' [orderly2::outpack_location_list] for possible values).
 ##'
 ##' @inheritParams outpack_location_list
 ##'

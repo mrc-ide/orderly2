@@ -10,7 +10,7 @@ outpack_location_push(packet_id, location, root = NULL)
 \item{packet_id}{One or more packets to push to the server}
 
 \item{location}{The name of a location to push to (see
-\link[outpack:outpack_location_list]{outpack::outpack_location_list} for possible values).}
+\link{outpack_location_list} for possible values).}
 
 \item{root}{The outpack root. Will be searched for from the
 current directory if not given.}

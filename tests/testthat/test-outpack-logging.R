@@ -79,7 +79,7 @@ test_that("can log basic packet running", {
     c("name", "id", "start", "script", "result", "output", "end", "elapsed"))
   expect_equal(
     dat$caller,
-    paste0("outpack::outpack_packet_",
+    paste0("orderly2::outpack_packet_",
            rep(c("start", "run", "end"), c(3, 3, 2))))
   expect_equal(dat$log_level, rep("info", 8))
   expect_s3_class(dat$time, "POSIXct")

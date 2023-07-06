@@ -13,7 +13,7 @@
 ##'   names must be unique, and the values must all be non-NA scalar
 ##'   atomics (logical, integer, numeric, character)
 ##'
-##' @param id Optionally, an outpack id via [outpack::outpack_id]. If
+##' @param id Optionally, an outpack id via [orderly2::outpack_id]. If
 ##'   not given a new id will be generated.
 ##'
 ##' @param logging_console Optional logical, indicating if we should
@@ -53,7 +53,7 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
 
   logger <- outpack_packet_logger(path, root, logging_console,
                                   logging_threshold)
-  caller <- "outpack::outpack_packet_start"
+  caller <- "orderly2::outpack_packet_start"
 
   time <- list(start = Sys.time())
 
@@ -89,7 +89,7 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
 outpack_packet_cancel <- function(packet) {
   packet <- check_current_packet(packet)
   outpack_log_info(packet, "cancel", packet$id,
-                   "outpack::outpack_packet_cancel")
+                   "orderly2::outpack_packet_cancel")
   outpack_packet_finish(packet)
 }
 
@@ -112,7 +112,7 @@ outpack_packet_end <- function(packet, insert = TRUE) {
   packet <- check_current_packet(packet)
   packet$time$end <- Sys.time()
   hash_algorithm <- packet$root$config$core$hash_algorithm
-  caller <- "outpack::outpack_packet_end"
+  caller <- "orderly2::outpack_packet_end"
   outpack_log_info(packet, "end", format(packet$time$end), caller)
   elapsed_str <- format(packet$time$end - packet$time$start)
   outpack_log_info(packet, "elapsed", elapsed_str, caller)
@@ -192,7 +192,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
   packet <- check_current_packet(packet)
   assert_relative_path(script, no_dots = TRUE)
   assert_file_exists(script, workdir = packet$path, name = "Script")
-  caller <- "outpack::outpack_packet_run"
+  caller <- "orderly2::outpack_packet_run"
 
   outpack_log_info(packet, "script", script, caller)
 
@@ -235,7 +235,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   everything is resolved locally only; that is we can only depend
 ##'   on packets that are unpacked within our current archive.  If you
 ##'   pass a `search_options` argument that contains `allow_remote =
-##'   TRUE` (see [outpack::outpack_search_options] then packets
+##'   TRUE` (see [orderly2::outpack_search_options] then packets
 ##'   that are known anywhere are candidates for using as dependencies
 ##'   and *if needed* we will pull the resolved files from a remote
 ##'   location. Note that even if the packet is not locally present
@@ -247,7 +247,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   before pulling, and the `location` argument controls which
 ##'   locations are pulled from.
 ##'
-##' @param query An [outpack::outpack_query] object, or something
+##' @param query An [orderly2::outpack_query] object, or something
 ##'   (e.g., a string) that can be trivially converted into one.
 ##'
 ##' @param files A named character vector of files; the name
@@ -255,7 +255,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   value corresponds to the name within the upstream packet
 ##'
 ##' @param search_options Optional search options for restricting the
-##'   search (see [outpack::outpack_search] for details)
+##'   search (see [orderly2::outpack_search] for details)
 outpack_packet_use_dependency <- function(packet, query, files,
                                           search_options = NULL) {
   packet <- check_current_packet(packet)
@@ -286,8 +286,8 @@ outpack_packet_use_dependency <- function(packet, query, files,
     packet$root$config$core$require_complete_tree &&
     !(id %in% packet$root$index()$unpacked)
   if (needs_pull) {
-    outpack::outpack_location_pull_packet(id, search_options$location,
-                                          root = packet$root)
+    outpack_location_pull_packet(id, search_options$location,
+                                 root = packet$root)
   }
 
   outpack_copy_files(id, files, packet$path,
@@ -415,7 +415,7 @@ outpack_packet_add_custom <- function(packet, application, data,
 ##' Mark file within an in-progress packet. This will store the hash
 ##' of the file within the internal outpack structures and force an
 ##' error if the file is changed or deleted later.  The function
-##' [outpack::outpack_packet_file_list()] will report on which files
+##' [orderly2::outpack_packet_file_list()] will report on which files
 ##' are marked (or unmarked) within the directory.
 ##'
 ##' @title Mark files during packet run
@@ -426,7 +426,7 @@ outpack_packet_add_custom <- function(packet, application, data,
 ##'   or "ignored"
 ##'
 ##' @param packet Optionally, an explicitly-passed packet; see
-##'   [outpack::outpack_packet_start()] for details.
+##'   [orderly2::outpack_packet_start()] for details.
 ##'
 ##' @return Depending on function
 ##'

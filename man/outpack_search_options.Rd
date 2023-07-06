@@ -20,13 +20,13 @@ it's possible we'll change the name).}
 packets to be found that are not currently unpacked (i.e., are
 known only to a location that we have metadata from). If this is
 \code{TRUE}, then inconjunction with
-\link[outpack:outpack_packet]{outpack::outpack_packet_use_dependency} you might pull a large
+\link{outpack_packet_use_dependency} you might pull a large
 quantity of data.}
 
 \item{pull_metadata}{Logical, indicating if we should pull
 metadata immediately before the search. If \code{location} is
 given, then we will pass this through to
-\link[outpack:outpack_location_pull_metadata]{outpack::outpack_location_pull_metadata} to filter locations to
+\link{outpack_location_pull_metadata} to filter locations to
 update.  If pulling many packets in sequence, you \emph{will} want to
 update this option to \code{FALSE} after the first pull.}
 }
@@ -36,8 +36,8 @@ not be modified after creation (but see note about \code{pull_metadata})
 }
 \description{
 Options for controlling how packet searches are carried out, for
-example via \link[outpack:outpack_search]{outpack::outpack_search} and
-\link[outpack:outpack_packet]{outpack::outpack_packet_use_dependency}. The details here are
+example via \link{outpack_search} and
+\link{outpack_packet_use_dependency}. The details here are
 never included in the metadata alongside the query (that is,
 they're not part of the query even though they affect it).
 }

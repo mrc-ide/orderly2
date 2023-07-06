@@ -13,10 +13,10 @@ just a query expression}
 \item{parameters}{Optionally, a named list of parameters to substitute
 into the query (using the \verb{this:} prefix)}
 
-\item{options}{Optionally, a \link[outpack:outpack_search_options]{outpack::outpack_search_options}
+\item{options}{Optionally, a \link{outpack_search_options}
 object for controlling how the search is performed, and which
 packets should be considered in scope. If not provided, default
-options are used (i.e., \code{outpack::outpack_search_options()})}
+options are used (i.e., \code{orderly2::outpack_search_options()})}
 
 \item{root}{The outpack root. Will be searched for from the
 current directory if not given.}

@@ -24,6 +24,6 @@ for now.
 Open an existing outpack root. This returns a "root" object, which
 can be passed through to various outpack functions. The root
 object is the same as that returned by
-\link[outpack:outpack_init]{outpack::outpack_init} and will be documented once the
+\link{outpack_init} and will be documented once the
 interface stabilises.
 }
