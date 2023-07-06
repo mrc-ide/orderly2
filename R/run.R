@@ -369,7 +369,7 @@ orderly_packet_cleanup_success <- function(p) {
   } else {
     check_files_relaxed(path, p$orderly2$inputs_info)
   }
-  custom_metadata_json <- to_json(custom_metadata(p$orderly2))
+  custom_metadata_json <- to_json(custom_metadata(p$orderly2), NULL)
   schema <- custom_metadata_schema(p$orderly2$config)
   outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json, schema)
 
