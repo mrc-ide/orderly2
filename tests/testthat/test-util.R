@@ -277,3 +277,12 @@ test_that("check fields", {
     check_fields(list(a = 1, b = 2, c = 3, d = 4), "x", "a", "b"),
     "Unknown fields in x: c, d")
 })
+
+
+test_that("Descend failure", {
+  path <- temp_file()
+  dir.create(path)
+  expect_null(find_file_descend(".orderly_foobar", tempdir(), path))
+  expect_null(find_file_descend(".orderly_foobar", "/", path))
+  expect_null(find_file_descend(".orderly_foobar", "/", "/"))
+})
