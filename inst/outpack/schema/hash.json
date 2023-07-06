@@ -1,0 +1,7 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "outpack hash",
+    "description": "A hash, including the algorithm name (e.g., md5, sha256)",
+    "type": "string",
+    "pattern": "^(md5|sha1|sha256|sha384|sha512):([0-9a-f]{16,})$"
+}

@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+
+    "type": "array",
+    "elements": {
+        "type": "object",
+        "properties": {
+            "log_level": {
+                "type": "string",
+                "enum": ["info", "debug", "trace"]
+            },
+            "topic": {
+                "type": "string",
+                "maxLength": 10
+            },
+            "detail": {
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "array",
+                        "elements": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            },
+            "caller": {
+                "type": "string"
+            },
+            "time": {
+                "type": "number"
+            }
+        },
+        "required": ["log_level", "topic", "detail", "caller", "time"],
+        "additionalProperties": false
+    }
+}
