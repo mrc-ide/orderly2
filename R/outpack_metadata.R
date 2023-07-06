@@ -43,7 +43,7 @@ outpack_metadata_create <- function(path, name, id, time, files,
     files <- dir(path, recursive = TRUE, all.files = TRUE, no.. = TRUE)
   } else {
     assert_relative_path(files, no_dots = TRUE)
-    assert_file_exists(files, path)
+    assert_file_exists(files, workdir = path)
   }
 
   if (length(file_ignore) > 0) {

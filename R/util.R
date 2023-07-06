@@ -376,7 +376,7 @@ empty_time <- function() {
 
 
 to_json <- function(x, schema = NULL, auto_unbox = FALSE, ...) {
-  json <- jsonlite::toJSON(x, pretty = FALSE, auto_unbox = auto_unbox,
+  json <- jsonlite::toJSON(x, auto_unbox = auto_unbox,
                            json_verbatim = TRUE, na = "null", null = "null",
                            ...)
   if (should_validate_schema(schema)) {

@@ -87,12 +87,12 @@ assert_file_exists <- function(x, check_case = TRUE, workdir = NULL,
 }
 
 assert_is_directory <- function(x, check_case = TRUE, workdir = NULL,
-                                name = "File") {
+                                name = "Directory") {
   assert_file_exists(x, check_case, workdir, name)
   path <- if (is.null(workdir)) x else file.path(workdir, x)
   if (!is_directory(path)) {
-    stop(sprintf("%s exists but is not a directory: %s",
-                 name, paste(x, collapse = ", ")),
+    stop(sprintf("Path exists but is not a directory: %s",
+                 paste(x, collapse = ", ")),
          call. = FALSE)
   }
 }

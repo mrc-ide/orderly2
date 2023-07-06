@@ -191,7 +191,7 @@ outpack_packet_end <- function(packet, insert = TRUE) {
 outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
   packet <- check_current_packet(packet)
   assert_relative_path(script, no_dots = TRUE)
-  assert_file_exists(script, packet$path, "Script")
+  assert_file_exists(script, workdir = packet$path, name = "Script")
   caller <- "outpack::outpack_packet_run"
 
   outpack_log_info(packet, "script", script, caller)
@@ -442,7 +442,7 @@ outpack_packet_file_mark <- function(packet, files, status) {
   packet <- check_current_packet(packet)
 
   assert_relative_path(files, no_dots = TRUE)
-  assert_file_exists(files, packet$path)
+  assert_file_exists(files, workdir = packet$path)
 
   ## TODO: these are exclusive categories because we later return a
   ## 1:1 mapping of file to status
