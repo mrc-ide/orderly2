@@ -21,13 +21,21 @@ test_that("Configuration must exist", {
 })
 
 
+test_that("Initialisation can't be done into a file", {
+  tmp <- withr::local_tempfile()
+  file.create(tmp)
+  expect_error(orderly_init(tmp, logging_console = FALSE),
+               "'path' exists but is not a directory")
+})
+
+
 test_that("Initialisation requires empty directory", {
   tmp <- tempfile()
   fs::dir_create(tmp)
   on.exit(unlink(tmp, recursive = TRUE))
   file.create(file.path(tmp, "file"))
   expect_error(orderly_init(tmp, logging_console = FALSE),
-               "'path', if it already exists, must be an empty directory")
+               "'path' exists but is not empty, or an outpack archive")
 })
 
 
@@ -39,6 +47,24 @@ test_that("Can initialise a new orderly root", {
   expect_s3_class(root, "orderly_root")
   expect_s3_class(root$outpack, "outpack_root")
   expect_equal(root$config,
+               list(minimum_orderly_version = numeric_version("1.99.0")))
+})
+
+
+test_that("initialisation leaves things unchanged", {
+  path <- test_prepare_orderly_example("plugin")
+  cmp <- orderly_root(path, FALSE)$config
+  root <- orderly_init(path)
+  expect_equal(root$config, cmp)
+})
+
+
+test_that("can turn an outpack root into an orderly one", {
+  tmp <- withr::local_tempdir()
+  root1 <- outpack_init(tmp, logging_console = FALSE)
+  root2 <- orderly_init(tmp)
+  expect_s3_class(root2, "orderly_root")
+  expect_equal(root2$config,
                list(minimum_orderly_version = numeric_version("1.99.0")))
 })
 
