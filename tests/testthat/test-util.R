@@ -165,3 +165,15 @@ test_that("can get near matches", {
     near_match("apple", x, 2, 3),
     c("apples", "applez", "appell"))
 })
+
+
+test_that("validate namespaced symbol strings", {
+  expect_equal(check_symbol_from_str("a::b", "x"),
+               list(namespace = "a", symbol = "b"))
+  expect_error(check_symbol_from_str("b", "x"),
+               "Expected fully qualified name for 'x'")
+  expect_error(check_symbol_from_str("a:::b", "x"),
+               "Expected fully qualified name for 'x'")
+  expect_error(check_symbol_from_str("a::b::c", "x"),
+               "Expected fully qualified name for 'x'")
+})

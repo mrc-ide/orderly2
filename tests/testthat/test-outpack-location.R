@@ -735,3 +735,59 @@ test_that("validate arguments to path locations", {
     "Fields missing from args: 'url'")
   expect_equal(outpack_location_list(root = root), "local")
 })
+
+
+test_that("can load a custom location driver", {
+  skip_if_not_installed("mockery")
+  mock_driver <- mockery::mock("value")
+  mock_gev <- mockery::mock(mock_driver)
+  mockery::stub(outpack_location_custom, "getExportedValue", mock_gev)
+  args <- list(driver = "foo::bar", a = 1, b = "other")
+  expect_equal(outpack_location_custom(args), "value")
+
+  mockery::expect_called(mock_gev, 1)
+  expect_equal(mockery::mock_args(mock_gev)[[1]], list("foo", "bar"))
+
+  mockery::expect_called(mock_driver, 1)
+  expect_equal(mockery::mock_args(mock_driver)[[1]], list(a = 1, b = "other"))
+})
+
+
+test_that("can load a custom location driver using an R6 generator", {
+  skip_if_not_installed("mockery")
+  mock_driver <- structure(
+    list(new = mockery::mock("value")),
+    class = "R6ClassGenerator")
+  mock_gev <- mockery::mock(mock_driver)
+  mockery::stub(outpack_location_custom, "getExportedValue", mock_gev)
+  args <- list(driver = "foo::bar", a = 1, b = "other")
+  expect_equal(outpack_location_custom(args), "value")
+
+  mockery::expect_called(mock_gev, 1)
+  expect_equal(mockery::mock_args(mock_gev)[[1]], list("foo", "bar"))
+
+  mockery::expect_called(mock_driver$new, 1)
+  expect_equal(mockery::mock_args(mock_driver$new)[[1]],
+               list(a = 1, b = "other"))
+})
+
+
+test_that("can add a custom outpack location", {
+  skip_if_not_installed("mockery")
+  root <- create_temporary_root()
+  args <- list(driver = "foo::bar", a = 1, b = 2)
+  outpack_location_add("a", "custom", args = args, root = root)
+
+  loc <- as.list(root$config$location[2, ])
+  expect_equal(loc$name, "a")
+  expect_equal(loc$type, "custom")
+  expect_equal(loc$args[[1]], list(driver = "foo::bar", a = 1, b = 2))
+
+  mock_outpack_location_custom <- mockery::mock("value")
+  mockery::stub(location_driver, "outpack_location_custom",
+                mock_outpack_location_custom)
+  expect_equal(location_driver(loc$id, root), "value")
+  mockery::expect_called(mock_outpack_location_custom, 1)
+  expect_equal(mockery::mock_args(mock_outpack_location_custom)[[1]],
+               list(list(driver = "foo::bar", a = 1, b = 2)))
+})
