@@ -25,7 +25,7 @@
 ##'   that your packet fails to run).
 ##'
 ##' To allow for control over this you can pass in an argument
-##'   `search_options`, which is a [outpack::outpack_search_options]
+##'   `search_options`, which is a [orderly2::outpack_search_options]
 ##'   object, and allows control over the names of the locations to
 ##'   use, whether metadata should be refreshed before we pull
 ##'   anything and if packets that are not currently downloaded should
@@ -39,12 +39,12 @@
 ##'
 ##' The above location handling generalises orderly (v1)'s old
 ##'   `use_draft` option, in terms of the `location` argument to
-##'   outpack::outpack_search_options`:
+##'   orderly2::outpack_search_options`:
 ##'
 ##' * `use_draft = TRUE` is `location = "local"`
 ##' * `use_draft = FALSE` is `location = c(...)` where you should provide
 ##'   all locations *except* local
-##'   (`setdiff(outpack::outpack_location_list(), "local")`)
+##'   (`setdiff(orderly2::outpack_location_list(), "local")`)
 ##' * `use_draft = "newer"` is `location = NULL`
 ##'
 ##' (this last option was the one most people preferred so is the new
@@ -74,11 +74,11 @@
 ##'   may not always be what is wanted.
 ##'
 ##' @param logging_console Optional logical, passed through to
-##'   [outpack::outpack_packet_start] to control printing logs to the
+##'   [orderly2::outpack_packet_start] to control printing logs to the
 ##'   console, overriding any default configuration set at the root.
 ##'
 ##' @param logging_threshold Optional logging threshold, passed through to
-##'   [outpack::outpack_packet_start] to control the amount of detail
+##'   [orderly2::outpack_packet_start] to control the amount of detail
 ##'   in logs printed during running, overriding any default
 ##'   configuration set at the root. If given, must be one of `info`,
 ##'   `debug` or `trace` (in increasing order of
@@ -115,7 +115,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
   orderly_validate(dat, src)
 
-  id <- outpack::outpack_id()
+  id <- outpack_id()
 
   stopifnot(fs::is_absolute_path(root$path))
   path <- file.path(root$path, "draft", name, id)
@@ -136,12 +136,12 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
       copy_resources_implicit(src, path, dat$resources, dat$artefacts)
   }
 
-  p <- outpack::outpack_packet_start(path, name, parameters = parameters,
+  p <- outpack_packet_start(path, name, parameters = parameters,
                                      id = id, logging_console = logging_console,
                                      logging_threshold = logging_threshold,
                                      root = root$outpack)
   withCallingHandlers({
-    outpack::outpack_packet_file_mark(p, "orderly.R", "immutable")
+    outpack_packet_file_mark(p, "orderly.R", "immutable")
     p$orderly2 <- list(config = root$config, envir = envir, src = src,
                        strict = dat$strict, inputs_info = inputs_info,
                        search_options = search_options)
@@ -152,7 +152,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
       list2env(parameters, envir)
     }
 
-    result <- outpack::outpack_packet_run(p, "orderly.R", envir)
+    result <- outpack_packet_run(p, "orderly.R", envir)
     orderly_packet_cleanup_success(p)
   }, error = function(e) {
     orderly_packet_cleanup_failure(p)
@@ -369,11 +369,11 @@ orderly_packet_cleanup_success <- function(p) {
   } else {
     check_files_relaxed(path, p$orderly2$inputs_info)
   }
-  custom_metadata_json <- to_json(custom_metadata(p$orderly2))
+  custom_metadata_json <- to_json(custom_metadata(p$orderly2), NULL)
   schema <- custom_metadata_schema(p$orderly2$config)
-  outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json, schema)
+  outpack_packet_add_custom(p, "orderly", custom_metadata_json, schema)
 
-  outpack::outpack_packet_end(p)
+  outpack_packet_end(p)
   unlink(path, recursive = TRUE)
 }
 
@@ -381,6 +381,6 @@ orderly_packet_cleanup_success <- function(p) {
 orderly_packet_cleanup_failure <- function(p) {
   ignore_errors(plugin_run_cleanup(p$path, p$orderly2$config$plugins))
   custom_metadata_json <- to_json(custom_metadata(p$orderly2))
-  outpack::outpack_packet_add_custom(p, "orderly", custom_metadata_json)
-  outpack::outpack_packet_end(p, insert = FALSE)
+  outpack_packet_add_custom(p, "orderly", custom_metadata_json)
+  outpack_packet_end(p, insert = FALSE)
 }

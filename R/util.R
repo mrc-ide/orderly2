@@ -35,6 +35,12 @@ set_names <- function(x, nms) {
 }
 
 
+set_class <- function(x, cls) {
+  class(x) <- cls
+  x
+}
+
+
 dir_ls_local <- function(path, ...) {
   withr::with_dir(path, fs::dir_ls(path = ".", ...))
 }
@@ -45,19 +51,15 @@ scalar <- function(x) {
 }
 
 
-to_json <- function(obj, pretty = FALSE) {
-  jsonlite::toJSON(obj, pretty = pretty, auto_unbox = FALSE, na = "null",
-                   null = "null", json_verbatim = TRUE, digits = NA)
-}
-
-
 rep_along <- function(x, v) {
   rep_len(x, length(v))
 }
 
 
 data_frame <- function(...) {
-  data.frame(..., stringsAsFactors = FALSE, check.names = FALSE)
+  ret <- data.frame(..., stringsAsFactors = FALSE, check.names = FALSE)
+  rownames(ret) <- NULL
+  ret
 }
 
 
@@ -164,32 +166,19 @@ yaml_load <- function(string) {
 }
 
 
-file_exists <- function(..., check_case = FALSE, workdir = NULL,
-                        force_case_check = FALSE) {
+## TODO: to add in real-casing, consider:
+##
+## > withr::with_dir(workdir, fs::path_rel(fs::path_real(files), "."))
+##
+## but do this later (mrc-4375)
+file_exists <- function(..., workdir = NULL) {
   files <- c(...)
   if (!is.null(workdir)) {
     assert_scalar_character(workdir)
     owd <- setwd(workdir) # nolint
     on.exit(setwd(owd)) # nolint
   }
-  exists <- file.exists(files)
-
-  if (check_case) {
-    incorrect_case <- logical(length(files))
-    if (!is_linux() || force_case_check) {
-      incorrect_case[exists] <-
-        !vlapply(files[exists], file_has_canonical_case)
-      if (any(incorrect_case)) {
-        correct <- vcapply(files[incorrect_case], file_canonical_case)
-        names(correct) <- files[incorrect_case]
-        attr(exists, "incorrect_case") <- incorrect_case
-        attr(exists, "correct_case") <- correct
-        exists[incorrect_case] <- FALSE
-      }
-    }
-  }
-
-  exists
+  fs::file_exists(files)
 }
 
 
@@ -227,78 +216,116 @@ sys_getenv <- function(x, used_in, error = TRUE, default = NULL) {
 }
 
 
-is_linux <- function() {
-  tolower(Sys.info()[["sysname"]]) == "linux"
-}
-
-
-file_split_base <- function(filename) {
-  path <- strsplit(filename, "[/\\\\]")[[1L]]
-  if (!nzchar(path[[1]])) {
-    base <- "/"
-    path <- path[-1L]
-    absolute <- TRUE
-  } else if (grepl("^[A-Za-z]:", path[[1]])) {
-    base <- paste0(path[[1L]], "/")
-    path <- path[-1L]
-    absolute <- TRUE
-  } else {
-    base <- "."
-    absolute <- FALSE
-  }
-
-  list(path = path[nzchar(path)], base = base, absolute = absolute)
-}
-
-
-file_has_canonical_case <- function(filename) {
-  dat <- file_split_base(filename)
-  base <- dat$base
-  absolute <- dat$absolute
-
-  for (p in dat$path) {
-    if (p %in% dir(base, all.files = TRUE)) {
-      base <- paste(base, p, sep = if (absolute) "" else "/")
-      absolute <- FALSE
-    } else {
-      return(FALSE)
-    }
-  }
-  TRUE
-}
-
-
-## This one here behaves differently on unix because we could have
-## files called Foo and foo next to each other (but not on
-## windows/mac)
-file_canonical_case <- function(filename) {
-  dat <- file_split_base(filename)
-  base <- dat$base
-  path <- dat$path
-  absolute <- dat$absolute
-
-  for (p in dat$path) {
-    pos <- dir(base, all.files = TRUE)
-    i <- match(tolower(p), tolower(pos))
-    if (!is.na(i)) {
-      p <- pos[[i]]
-    } else if (grepl("~", p, fixed = TRUE)) {
-      ## Windows truncated path, ignore case
-    } else {
-      return(NA_character_)
-    }
-
-    base <- paste(base, p, sep = if (absolute) "" else "/")
-    absolute <- FALSE
-  }
-
-  if (grepl("^\\./", base) && !grepl("^\\./", filename)) {
-    base <- sub("^\\./", "", base)
-  }
-  base
-}
-
-
 read_lines <- function(...) {
   paste(readLines(...), collapse = "\n")
+}
+
+
+system_file <- function(...) {
+  system.file(..., mustWork = TRUE)
+}
+
+
+## Designed for use reading json files as a single string and dropping
+## and trailing whitespace
+read_string <- function(path) {
+  trimws(paste(readLines(path), collapse = "\n"))
+}
+
+
+outpack_file <- function(path) {
+  system_file(file.path("outpack", path), package = "orderly2")
+}
+
+
+## We could rewrite this non-recurively, this just comes from orderly
+find_file_descend <- function(target, start = ".", limit = "/") {
+  root <- normalizePath(limit, mustWork = TRUE)
+  start <- normalizePath(start, mustWork = TRUE)
+
+  f <- function(path) {
+    if (file.exists(file.path(path, target))) {
+      return(path)
+    }
+    if (normalizePath(path, mustWork = TRUE) == root) {
+      return(NULL)
+    }
+    parent <- normalizePath(file.path(path, ".."))
+    if (parent == path) {
+      return(NULL)
+    }
+    Recall(parent)
+  }
+  ret <- f(start)
+  if (!(is.null(ret))) {
+    ret <- normalizePath(ret, mustWork = TRUE)
+  }
+  ret
+}
+
+
+val_to_bytes <- function(x, nbytes) {
+  n <- round((x %% 1) * 256 ^ nbytes)
+  paste(packBits(intToBits(n))[nbytes:1], collapse = "")
+}
+
+
+iso_time_str <- function(time = Sys.time()) {
+  strftime(time, "%Y%m%d-%H%M%S", tz = "UTC")
+}
+
+
+time_to_num <- function(time = Sys.time()) {
+  as.numeric(time)
+}
+
+
+num_to_time <- function(num) {
+  as.POSIXct(num, origin = "1970-01-01", tz = "UTC")
+}
+
+
+empty_time <- function() {
+  num_to_time(numeric(0))
+}
+
+
+to_json <- function(x, schema = NULL, auto_unbox = FALSE, ...) {
+  json <- jsonlite::toJSON(x, auto_unbox = auto_unbox,
+                           json_verbatim = TRUE, na = "null", null = "null",
+                           ...)
+  if (should_validate_schema(schema)) {
+    outpack_schema(schema)$validate(json, error = TRUE)
+  }
+  json
+}
+
+
+from_json <- function(x, ...) {
+  jsonlite::fromJSON(x, simplifyVector = FALSE, ...)
+}
+
+
+as_json <- function(str) {
+  assert_scalar_character(str)
+  structure(str, class = "json")
+}
+
+
+last <- function(x) {
+  x[[length(x)]]
+}
+
+
+collector <- function() {
+  env <- new.env(parent = emptyenv())
+  env$data <- list()
+  list(
+    add = function(x) {
+      env$data <- c(env$data, list(x))
+    },
+    get = function() {
+      env$data
+    }
+  )
 }

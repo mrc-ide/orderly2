@@ -165,7 +165,7 @@ orderly_resource <- function(files) {
     } else {
       assert_file_exists(files, workdir = p$path)
     }
-    outpack::outpack_packet_file_mark(p, files_expanded, "immutable")
+    outpack_packet_file_mark(p, files_expanded, "immutable")
     p$orderly2$resources <- c(p$orderly2$resources, files_expanded)
   }
 
@@ -257,12 +257,12 @@ orderly_dependency <- function(name, query, use) {
 
   ctx <- orderly_context()
   subquery <- NULL
-  query <- outpack::outpack_query(query, name = name, subquery = subquery)
+  query <- outpack_query(query, name = name, subquery = subquery)
   if (ctx$is_active) {
-    outpack::outpack_packet_use_dependency(ctx$packet, query, use,
+    outpack_packet_use_dependency(ctx$packet, query, use,
                                            ctx$search_options)
   } else {
-    id <- outpack::outpack_search(query, parameters = ctx$parameters,
+    id <- outpack_search(query, parameters = ctx$parameters,
                                   options = ctx$search_options,
                                   root = ctx$root)
     ## TODO: slightly nicer if outpack exposes the coersion for us
@@ -274,7 +274,7 @@ orderly_dependency <- function(name, query, use) {
     ## TODO: this *will* fail if called twice, that's fixable
     ## elsewhere, along with the above!
     allow_remote <- isTRUE(ctx$options$allow_remote)
-    outpack::outpack_copy_files(id, use, ctx$path, allow_remote, ctx$root)
+    outpack_copy_files(id, use, ctx$path, allow_remote, ctx$root)
   }
 
   invisible()
@@ -321,7 +321,7 @@ orderly_global_resource <- function(...) {
 
   files <- copy_global(ctx$root, ctx$path, ctx$config, files)
   if (ctx$is_active) {
-    outpack::outpack_packet_file_mark(ctx$packet, files$here, "immutable")
+    outpack_packet_file_mark(ctx$packet, files$here, "immutable")
     ctx$packet$orderly2$global_resources <-
       rbind(ctx$packet$orderly2$global_resources, files)
   }
@@ -356,7 +356,7 @@ copy_global <- function(path_root, path_dest, config, files) {
 
   global_path <- file.path(path_root, config$global_resources)
   assert_file_exists(
-    there, check_case = TRUE, workdir = global_path,
+    there, workdir = global_path,
     name = sprintf("Global resources in '%s'", global_path))
   src <- file.path(global_path, there)
   dst <- file.path(path_dest, here)

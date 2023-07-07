@@ -14,6 +14,14 @@ To install `orderly2`:
 remotes::install_github("mrc-ide/orderly2", upgrade = FALSE)
 ```
 
+## Testing
+
+To run all tests, you need to have [`outpack_server`](https://github.com/mrc-ide/outpack_server) available on your system path. One way to achieve this is to run
+
+```
+cargo install --git https://github.com/mrc-ide/outpack_server
+```
+
 ## License
 
 MIT © Imperial College of Science, Technology and Medicine

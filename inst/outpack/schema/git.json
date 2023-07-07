@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Information about source versioning with git",
+
+    "type": "object",
+    "properties": {
+        "sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]+$"
+        },
+        "branch": {
+            "type": "string"
+        },
+        "url": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}

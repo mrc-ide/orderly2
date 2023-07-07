@@ -13,7 +13,7 @@ test_that("Configuration must exist", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
   fs::dir_create(tmp)
-  outpack::outpack_init(tmp, logging_console = FALSE)
+  outpack_init(tmp, logging_console = FALSE)
   expect_error(orderly_config(tmp),
                "Orderly configuration does not exist: 'orderly_config.yml'")
   expect_error(orderly_root(tmp, FALSE),

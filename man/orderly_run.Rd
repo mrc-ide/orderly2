@@ -27,11 +27,11 @@ report script; by default we use the global environment, which
 may not always be what is wanted.}
 
 \item{logging_console}{Optional logical, passed through to
-\link[outpack:outpack_packet]{outpack::outpack_packet_start} to control printing logs to the
+\link{outpack_packet_start} to control printing logs to the
 console, overriding any default configuration set at the root.}
 
 \item{logging_threshold}{Optional logging threshold, passed through to
-\link[outpack:outpack_packet]{outpack::outpack_packet_start} to control the amount of detail
+\link{outpack_packet_start} to control the amount of detail
 in logs printed during running, overriding any default
 configuration set at the root. If given, must be one of \code{info},
 \code{debug} or \code{trace} (in increasing order of
@@ -82,7 +82,7 @@ network connection (but \emph{not} pulling in the packets could mean
 that your packet fails to run).
 
 To allow for control over this you can pass in an argument
-\code{search_options}, which is a \link[outpack:outpack_search_options]{outpack::outpack_search_options}
+\code{search_options}, which is a \link{outpack_search_options}
 object, and allows control over the names of the locations to
 use, whether metadata should be refreshed before we pull
 anything and if packets that are not currently downloaded should
@@ -98,12 +98,12 @@ can specify the search options (root specific) with
 
 The above location handling generalises orderly (v1)'s old
 \code{use_draft} option, in terms of the \code{location} argument to
-outpack::outpack_search_options`:
+orderly2::outpack_search_options`:
 \itemize{
 \item \code{use_draft = TRUE} is \code{location = "local"}
 \item \code{use_draft = FALSE} is \code{location = c(...)} where you should provide
 all locations \emph{except} local
-(\code{setdiff(outpack::outpack_location_list(), "local")})
+(\code{setdiff(orderly2::outpack_location_list(), "local")})
 \item \code{use_draft = "newer"} is \code{location = NULL}
 }
 

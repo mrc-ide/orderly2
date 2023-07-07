@@ -12,6 +12,20 @@ test_that("assert_character", {
 })
 
 
+test_that("assert_numeric", {
+  expect_silent(assert_numeric(1))
+  expect_error(assert_numeric("one"), "must be numeric")
+  expect_error(assert_numeric(TRUE), "must be numeric")
+})
+
+
+test_that("assert_logical", {
+  expect_silent(assert_logical(TRUE))
+  expect_error(assert_logical(1), "must be logical")
+  expect_error(assert_logical("true"), "must be logical")
+})
+
+
 test_that("assert_scalar_atomic", {
   expect_silent(assert_scalar_atomic(TRUE))
   expect_silent(assert_scalar_atomic(1))
@@ -44,21 +58,34 @@ test_that("assert_file_exists", {
 })
 
 
-test_that("assert_file_exists: error in case", {
-  mockery::stub(assert_file_exists, "file_exists",
-                structure(c(TRUE, FALSE, FALSE),
-                          incorrect_case = c(FALSE, TRUE, FALSE),
-                          correct_case = c("FOO" = "foo")))
-  expect_error(assert_file_exists(c("bar", "FOO", "gaz")),
-               "File does not exist: 'FOO' (should be 'foo'), 'gaz'",
-               fixed = TRUE)
+test_that("assert_is_directory", {
+  path <- tempfile(tmpdir = normalizePath(tempdir()))
+  expect_error(assert_is_directory(path), "Directory does not exist")
+  file.create(path)
+  expect_error(assert_is_directory(path),
+               "Path exists but is not a directory")
+  expect_silent(assert_is_directory("."))
 })
 
 
-test_that("assert_is_directory", {
-  path <- tempfile(tmpdir = normalizePath(tempdir()))
-  expect_error(assert_is_directory(path), "File does not exist")
-  file.create(path)
-  expect_error(assert_is_directory(path), "File exists but is not a directory")
-  expect_silent(assert_is_directory("."))
+test_that("assert_relative_path", {
+  expect_error(assert_relative_path(getwd()),
+               "'getwd()' must be relative path",
+               fixed = TRUE)
+  expect_silent(assert_relative_path("relpath"))
+
+  expect_silent(
+    assert_relative_path("../my/path"))
+  expect_error(
+    assert_relative_path("../my/path", TRUE),
+    "must not contain '..' path components")
+  expect_error(
+    assert_relative_path("my/../../path", TRUE),
+    "must not contain '..' path components")
+})
+
+
+test_that("match_value", {
+  expect_error(match_value("foo", letters), "must be one of")
+  expect_silent(match_value("a", letters))
 })

@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "outpack configuration schema",
+    "description": "Configuration schema",
+    "version": "0.0.1",
+
+    "type": "object",
+    "properties": {
+        "schema_version": {
+            "description": "Schema version, used to manage migrations",
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+
+        "core": {
+            "type": "object",
+            "properties": {
+                "path_archive": {
+                    "type": ["null", "string"]
+                },
+                "use_file_store": {
+                    "type": "boolean"
+                },
+                "hash_algorithm": {
+                    "enum": ["md5", "sha1", "sha256", "sha384", "sha512"]
+                }
+            },
+            "required": ["path_archive", "use_file_store", "hash_algorithm"]
+        },
+
+        "logging": {
+            "type": "object",
+            "properties": {
+                "log_level": {
+                    "type": "integer"
+                },
+                "console": {
+                    "type": "boolean"
+                }
+            }
+        },
+
+        "location": {
+            "description": "Information about known locations. This is preliminary and will need changing as soon as we have any sort of generalised locations (especially ones that work over a HTTP API).  The current format is definitely not sufficient to capture the required concepts - 'path' is going to be required everywhere.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "$ref": "locationId.json"
+                    },
+                    "priority": {
+                        "type": "number"
+                    },
+                    "type": {
+                        "enum": ["http", "local", "orphan", "path"]
+                    }
+                },
+                "required": ["name", "id", "priority", "type"]
+            }
+        }
+    },
+
+    "required": ["schema_version", "core"]
+}
