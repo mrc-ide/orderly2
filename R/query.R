@@ -273,6 +273,22 @@ is_id_lookup <- function(expr) {
   expr$type == "lookup" && expr$name == "id"
 }
 
+is_logical <- function(expr) {
+  truthy <- c(quote(TRUE), quote(FALSE), quote(true), quote(false))
+  bool <- vlapply(truthy, function(x) x == expr)
+  sum(bool) == 1
+}
+
+as_logical <- function(expr) {
+  if (expr == quote(true)) {
+    ret <- quote(TRUE)
+  } else if (expr == quote(false)) {
+    ret <- quote(FALSE)
+  } else {
+    ret <- expr
+  }
+  ret
+}
 
 query_error <- function(msg, expr, context, prefix) {
   if (identical(expr, context)) {
@@ -362,8 +378,10 @@ query_parse_check_call <- function(expr, context) {
 
 
 query_parse_value <- function(expr, context, subquery_env) {
-  if (is.numeric(expr) || is.character(expr) || is.logical(expr)) {
+  if (is.numeric(expr) || is.character(expr)) {
     list(type = "literal", value = expr)
+  } else if (is_logical(expr)) {
+    list(type = "literal", value = as_logical(expr))
   } else if (identical(expr, quote(name)) || identical(expr, quote(id))) {
     list(type = "lookup",
          name = deparse(expr))

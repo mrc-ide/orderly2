@@ -844,3 +844,54 @@ test_that("allow search before query", {
     ids)
   expect_setequal(names(root$a$index()$metadata), ids)
 })
+
+test_that("can search for queries using boolean", {
+  root <- create_temporary_root(use_file_store = TRUE)
+  x1 <- create_random_packet(root, "x", list(a = TRUE))
+  x2 <- create_random_packet(root, "x", list(a = FALSE))
+  y1 <- create_random_packet(root, "y", list(a = "TRUE"))
+
+  expect_equal(
+    outpack_search(quote(parameter:a == TRUE), root = root),
+    x1)
+  expect_equal(
+    outpack_search(quote(parameter:a == true), root = root),
+    x1)
+  expect_equal(
+    outpack_search(quote(parameter:a == "TRUE"), root = root),
+    c(y1))
+  expect_equal(
+    outpack_search(quote(parameter:a == 1), root = root),
+    character(0))
+  expect_equal(
+    outpack_search(quote(parameter:a == "1"), root = root),
+    character(0))
+  expect_equal(
+    outpack_search(quote(parameter:a == "true"), root = root),
+    character(0))
+  expect_equal(
+    outpack_search(quote(parameter:a == "T"), root = root),
+    character(0))
+
+  expect_equal(
+    outpack_search(quote(parameter:a == FALSE), root = root),
+    x2)
+  expect_equal(
+    outpack_search(quote(parameter:a == false), root = root),
+    x2)
+  expect_equal(
+    outpack_search(quote(parameter:a == "FALSE"), root = root),
+    character(0))
+  expect_equal(
+    outpack_search(quote(parameter:a == 0), root = root),
+    character(0))
+  expect_equal(
+    outpack_search(quote(parameter:a == "0"), root = root),
+    character(0))
+  expect_equal(
+    outpack_search(quote(parameter:a == "false"), root = root),
+    character(0))
+  expect_equal(
+    outpack_search(quote(parameter:a == "F"), root = root),
+    character(0))
+})
