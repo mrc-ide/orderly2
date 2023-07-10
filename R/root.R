@@ -1,3 +1,49 @@
+##' Initialise an empty orderly repository. An orderly repository is
+##' also an outpack repository, so most of the work here is done by
+##' [orderly2::outpack_init()], however, you should call this
+##' function!  You can also turn any outpack repository into an
+##' orderly one, adding appropriate bits of configuration into it,
+##' though this function.
+##'
+##' @title Initialise an orderly repository
+##'
+##' @param path The path to initialise the repository at.  If the
+##'   repository is already initialised, this operation does nothing.
+##'
+##' @param ... Additional arguments passed through to
+##'   [orderly2::outpack_init], if (and only if) the outpack
+##'   repository is not already created.
+##'
+##' @return An orderly root object, invisibly. Typically this is
+##'   called only for its side effect.
+##'
+##' @export
+orderly_init <- function(path, ...) {
+  assert_scalar_character(path)
+  if (file.exists(file.path(path, "orderly_config.yml"))) {
+    return(orderly_root(path, locate = FALSE))
+  }
+  if (file.exists(path)) {
+    if (!is_directory(path)) {
+      stop("'path' exists but is not a directory")
+    }
+    if (!file.exists(file.path(path, ".outpack"))) {
+      if (length(dir(path, all.files = TRUE, no.. = TRUE)) > 0) {
+        stop("'path' exists but is not empty, or an outpack archive")
+      }
+    }
+  }
+
+  if (file.exists(file.path(path, ".outpack"))) {
+    root <- outpack_root_open(path, FALSE)
+  } else {
+    root <- outpack_init(path, ...)
+  }
+  writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
+  invisible(orderly_root(root, locate = FALSE))
+}
+
+
 ## In orderly, there's quite a bit more to read here, coping with the
 ## configuration (orderly_config.yml) which also marks the root.
 ##
@@ -34,19 +80,6 @@ orderly_root <- function(root, locate) {
   ret
 }
 
-
-orderly_init <- function(path, ...) {
-  if (file.exists(path)) {
-    if (!is_directory(path) || length(dir(path)) > 0) {
-      stop("'path', if it already exists, must be an empty directory")
-    }
-  } else {
-    fs::dir_create(path)
-  }
-  outpack_init(path, ...)
-  writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
-  orderly_root(path, locate = FALSE)
-}
 
 
 empty_config_contents <- function() {
