@@ -722,3 +722,57 @@ test_that("can select location when querying dependencies interactively", {
     readRDS(file.path(path[["prod"]], "archive", "data", ids[["prod"]],
                       "data.rds")))
 })
+
+
+test_that("can use a resource from a directory", {
+  path <- test_prepare_orderly_example("directories")
+  env <- new.env()
+  id <- orderly_run("directories", root = path, envir = env)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  expect_equal(meta$custom$orderly$role,
+               list(list(path = "data/a.csv", role = "resource"),
+                    list(path = "data/b.csv", role = "resource")))
+  expect_equal(meta$custom$orderly$artefacts,
+               list(list(description = "output files",
+                         paths = list("output/a.rds", "output/b.rds"))))
+})
+
+
+test_that("can use a resource from a directory", {
+  path <- test_prepare_orderly_example("directories")
+  env <- new.env()
+  id <- orderly_run("directories", root = path, envir = env)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  expect_equal(meta$custom$orderly$role,
+               list(list(path = "data/a.csv", role = "resource"),
+                    list(path = "data/b.csv", role = "resource")))
+  expect_equal(meta$custom$orderly$artefacts,
+               list(list(description = "output files",
+                         paths = list("output/a.rds", "output/b.rds"))))
+  expect_setequal(meta$files$path,
+                  c("data/a.csv", "data/b.csv", "log.json", "orderly.R",
+                    "output/a.rds", "output/b.rds"))
+})
+
+
+test_that("can depend on a directory artefact", {
+  path <- test_prepare_orderly_example("directories")
+  env1 <- new.env()
+  id1 <- orderly_run("directories", root = path, envir = env1)
+
+  path_src <- file.path(path, "src", "use")
+  fs::dir_create(path_src)
+  writeLines(c(
+    'orderly2::orderly_dependency("directories", "latest()", c(d = "output/"))',
+    'orderly2::orderly_artefact("data", "d.rds")',
+    'd <- c(readRDS("d/a.rds", "d/b.rds"))',
+    'saveRDS(d, "d.rds")'),
+    file.path(path_src, "orderly.R"))
+  env2 <- new.env()
+  id2 <- orderly_run("use", root = path, envir = env2)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id2, full = TRUE)
+  expect_equal(meta$depends$packet, id1)
+  expect_equal(meta$depends$files[[1]],
+               data_frame(here = c("d/a.rds", "d/b.rds"),
+                          there = c("output/a.rds", "output/b.rds")))
+})

@@ -300,10 +300,10 @@ index_update <- function(root, prev, skip_cache) {
 
 ## Not just for the file store, but this is how we can interact with
 ## the files safely:
-file_export <- function(root, id, path, dest) {
+file_export <- function(root, id, there, here, dest) {
   ## This validation *always* occurs; does the packet even claim to
   ## have this path?
-  validate_packet_has_file(root, id, path)
+  validate_packet_has_file(root, id, there)
   ## TODO: log file copy information, including hashes.  Because copy
   ## can be slow for large files, we might want to do this file by
   ## file?
@@ -317,20 +317,35 @@ file_export <- function(root, id, path, dest) {
   ## TODO: Additional work required to support directory based
   ## dependencies
 
-  fs::dir_create(dirname(dest))
-
   meta <- root$metadata(id)
-  hash <- meta$files$hash[match(path, meta$files$path)]
+  is_dir <- grepl("/$", there)
+  if (any(is_dir)) {
+    files <- meta$files$path
+    expanded <- lapply(which(is_dir), function(i) {
+      p <- there[[i]]
+      j <- string_starts_with(p, files)
+      set_names(files[j],
+                file.path(here[[i]], string_drop_prefix(p, files[j])))
+    })
+
+    there <- replace_ragged(there, is_dir, lapply(expanded, unname))
+    here <- replace_ragged(here, is_dir, lapply(expanded, names))
+  }
+
+  here_full <- file.path(dest, here)
+  hash <- meta$files$hash[match(there, meta$files$path)]
+  stopifnot(all(!is.na(hash)))
+  fs::dir_create(dirname(here_full))
 
   if (root$config$core$use_file_store) {
-    for (i in seq_along(dest)) {
-      root$files$get(hash[[i]], dest[[i]])
+    for (i in seq_along(here_full)) {
+      root$files$get(hash[[i]], here_full[[i]])
     }
   } else {
-    src <- file.path(root$path, root$config$core$path_archive,
-                     meta$name, meta$id, path)
-    if (!all(file.exists(src))) {
-      missing <- hash[!file.exists(src)]
+    there_full <- file.path(root$path, root$config$core$path_archive,
+                     meta$name, meta$id, there)
+    if (!all(file.exists(there_full))) {
+      missing <- hash[!file.exists(there_full)]
       message <- paste("File not found in archive:\n%s",
                        paste(sprintf("  - %s", missing), collapse = "\n"))
       stop(not_found_error(message, missing))
@@ -340,13 +355,15 @@ file_export <- function(root, id, path, dest) {
     ## size, validate hash); this only applies to this non-file-store
     ## using branch, so typically would affect users running "draft"
     ## type analyses
-    for (i in seq_along(dest)) {
+    for (i in seq_along(here_full)) {
       tryCatch(
-        hash_validate_file(src[[i]], hash[[i]]),
-        error = function(e) stop(not_found_error(e$message, src[[i]])))
+        hash_validate_file(there_full[[i]], hash[[i]]),
+        error = function(e) stop(not_found_error(e$message, there_full[[i]])))
     }
-    fs::file_copy(src, dest)
+    fs::file_copy(there_full, here_full)
   }
+
+  data.frame(there, here, hash)
 }
 
 
@@ -408,22 +425,32 @@ find_file_by_hash <- function(root, hash) {
 }
 
 
-## This might move elsewhere
 validate_packet_has_file <- function(root, id, path) {
-  ## TODO: wrap this in tryCatch/withCallingHandlers or similar to get
-  ## better error, or make this part of the metadata call (a 'reason'
-  ## arg?).  This issue will appear elsewhere too.
-  meta <- root$metadata(id)
-  err <- setdiff(path, meta$files$path)
-  if (length(err) > 0) {
-    ## TODO: this might also want wrapping so that we report back
-    ## better errors.  One possibility here is that we should report
-    ## "near misses" (Did you mean: X), though that will be best to
-    ## think about fairly broadly as it will likely affect other parts
-    ## of the packge.
-    stop(sprintf("Packet '%s' does not contain path %s",
-                 id, paste(squote(err), collapse = ", ")))
+  files <- root$metadata(id)$files$path
+
+  is_dir <- grepl("/$", path)
+  found <- path %in% files
+  found[is_dir] <- vlapply(
+    path[is_dir], function(x) any(string_starts_with(x, files)),
+    USE.NAMES = FALSE)
+
+  if (all(found)) {
+    return(invisible)
   }
+
+  ## Then, look to see if any of the missing ones are actually directories:
+  msg <- path[!found]
+  found_if_dir <- vlapply(sub("(?<![/])$", "/", msg, perl = TRUE),
+                          function(x) any(string_starts_with(x, files)),
+                          USE.NAMES = FALSE)
+
+  err <- sprintf("Packet '%s' does not contain path %s",
+                 id, paste(squote(msg), collapse = ", "))
+  if (any(found_if_dir)) {
+    err <- sprintf("%s\n  Consider adding a trailing slash to %s",
+                   err, paste(squote(msg[found_if_dir]), collapse = ", "))
+  }
+  stop(err, call. = FALSE)
 }
 
 

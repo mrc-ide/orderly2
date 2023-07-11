@@ -329,3 +329,13 @@ collector <- function() {
     }
   )
 }
+
+
+string_starts_with <- function(sub, str) {
+  substr(str, 1, nchar(sub)) == sub
+}
+
+
+string_drop_prefix <- function(sub, str) {
+  substr(str, nchar(sub) + 1, nchar(str))
+}

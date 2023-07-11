@@ -212,6 +212,12 @@ check_produced_artefacts <- function(path, artefacts) {
     stop("Script did not produce expected artefacts: ",
          paste(squote(expected[!found]), collapse = ", "))
   }
+
+  for (i in seq_along(artefacts)) {
+    artefacts[[i]]$files <- expand_dirs(artefacts[[i]]$files, path)
+  }
+
+  artefacts
 }
 
 
@@ -363,7 +369,7 @@ orderly_packet_cleanup_success <- function(p) {
   path <- p$path
 
   plugin_run_cleanup(path, p$orderly2$config$plugins)
-  check_produced_artefacts(path, p$orderly2$artefacts)
+  p$orderly2$artefacts <- check_produced_artefacts(path, p$orderly2$artefacts)
   if (p$orderly2$strict$enabled) {
     check_files_strict(path, p$files, p$orderly2$artefacts)
   } else {

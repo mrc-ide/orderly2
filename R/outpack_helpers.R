@@ -49,25 +49,23 @@ outpack_copy_files <- function(id, files, dest, allow_remote = FALSE,
 
   assert_named(files, unique = TRUE)
   assert_relative_path(names(files), no_dots = TRUE)
-  src <- unname(files)
-  dst <- file.path(dest, names(files))
-  validate_packet_has_file(root, id, src)
-
-  tryCatch(
-    file_export(root, id, src, dst),
+  there <- unname(files)
+  here <- names(files)
+  validate_packet_has_file(root, id, there)
+  res <- tryCatch(
+    file_export(root, id, there, here, dest),
     not_found_error = function(e) {
-      if (allow_remote) {
-        copy_files_from_remote(id, files, dst, root)
-      } else {
+      if (!allow_remote) {
         stop(paste0(
           "Unable to copy files, as they are not available locally\n",
           "To fetch from a location, try again with 'allow_remote = TRUE'\n",
           "Original error:\n", e$message),
           call. = FALSE)
       }
+      copy_files_from_remote(id, files, there, here, dest, root)
     })
 
-  invisible()
+  invisible(res)
 }
 
 
