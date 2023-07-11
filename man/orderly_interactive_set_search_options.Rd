@@ -34,6 +34,6 @@ details. This may be either an \link{outpack_search_options}
 object, or a list that will be coerced into one at the point of
 use (or \code{NULL}). This applies only for the current session, but
 applies to all interactive uses of orderly functions that might
-have recieved a copy of \code{search_options} via
+have received a copy of \code{search_options} via
 \link{orderly_run}
 }

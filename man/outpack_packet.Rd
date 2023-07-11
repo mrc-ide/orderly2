@@ -167,7 +167,7 @@ and \emph{if needed} we will pull the resolved files from a remote
 location. Note that even if the packet is not locally present
 this might not be needed - if you have the same content anywhere
 else in an unpacked packet we will reuse the same content
-without refetching.
+without re-fetching.
 
 If \code{pull_metadata = TRUE}, then we will refresh location metadata
 before pulling, and the \code{location} argument controls which
@@ -187,7 +187,7 @@ For example, orderly tracks "artefacts" which collect groups of
 file outputs into logical bundles.  To support this it needs to
 register additional data for each artefact with:
 \itemize{
-\item the description of the artefect (a short phrase)
+\item the description of the artefact (a short phrase)
 \item the format of the artefact (a string describing the data type)
 \item the contents of the artefact (an array of filenames)
 }

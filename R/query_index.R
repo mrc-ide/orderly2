@@ -11,7 +11,7 @@ query_index <- R6::R6Class(
     #' @field index The packet index
     index = NULL,
     #' @field depends Named list of data frames. Names are packet ids, values
-    #'   are packets dependend on by this packet id (i.e. its parents).
+    #'   are packets depended on by this packet id (i.e. its parents).
     depends = NULL,
     #' @field uses Named list of data frames. Names are packet ids, values
     #'   are packets which are used by this packet id (i.e. its children).
@@ -25,7 +25,7 @@ query_index <- R6::R6Class(
     #' @param root The outpack root object
     #' @param index The packet index as a data frame
     #' @param depends Named list of data frames. Names are packet ids, values
-    #'   are packets dependend on by this packet id (i.e. its parents).
+    #'   are packets depended on by this packet id (i.e. its parents).
     #' @param uses Named list of data frames. Names are packet ids, values
     #'   are packets used by on by this packet id (i.e. its children). This is
     #'   the same data as `depends` but relationships flow in the other

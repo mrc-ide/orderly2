@@ -13,7 +13,7 @@ Class for managing the active index whilst evaluating a query
 \item{\code{index}}{The packet index}
 
 \item{\code{depends}}{Named list of data frames. Names are packet ids, values
-are packets dependend on by this packet id (i.e. its parents).}
+are packets depended on by this packet id (i.e. its parents).}
 
 \item{\code{uses}}{Named list of data frames. Names are packet ids, values
 are packets which are used by this packet id (i.e. its children).}
@@ -47,7 +47,7 @@ Create a new query_index object
 \item{\code{index}}{The packet index as a data frame}
 
 \item{\code{depends}}{Named list of data frames. Names are packet ids, values
-are packets dependend on by this packet id (i.e. its parents).}
+are packets depended on by this packet id (i.e. its parents).}
 
 \item{\code{uses}}{Named list of data frames. Names are packet ids, values
 are packets used by on by this packet id (i.e. its children). This is

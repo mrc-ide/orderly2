@@ -3,7 +3,7 @@
 ##' [orderly2::orderly_resource] and
 ##' [orderly2::orderly_global_resource]) are copied when running a
 ##' packet, and we warn about any unexpected files at the end of the
-##' run.  Using strict mode allows orderly2 to be more agressive in
+##' run.  Using strict mode allows orderly2 to be more aggressive in
 ##' how it deletes files within the source directory, more accurate in
 ##' what it reports to you, and faster to start packets after
 ##' developing them interactively.

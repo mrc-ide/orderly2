@@ -19,7 +19,7 @@ it's possible we'll change the name).}
 \item{allow_remote}{Logical, indicating if we should allow
 packets to be found that are not currently unpacked (i.e., are
 known only to a location that we have metadata from). If this is
-\code{TRUE}, then inconjunction with
+\code{TRUE}, then in conjunction with
 \link{outpack_packet_use_dependency} you might pull a large
 quantity of data.}
 
