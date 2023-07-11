@@ -1,3 +1,27 @@
+##' Read metadata for a particular id. You may want to use
+##' [orderly2::outpack_search] to find an id corresponding to a
+##' particular query.
+##'
+##' @title Read outpack metadata
+##'
+##' @param id The id to fetch metadata for. An error will be thrown if
+##'   this id is not known
+##'
+##' @param The outpack root, typically the path to the root. The
+##'   default value of `NULL` looks for the root from the current
+##'   directory which is typically correct.
+##'
+##' @return A list of metadata. See the outpack schema for details
+##'   (https://github.com/mrc-ide/outpack)
+##'
+##' @export
+outpack_metadata <- function(id, root = NULL) {
+  validate_outpack_id(id)
+  root <- outpack_root_open(root, locate = TRUE)
+  root$metadata(id, full = TRUE)
+}
+
+
 ##' Low-level function for reading metadata and deserialising it. This
 ##' function can be used to directly read a metadata json file without
 ##' reference to a root which contains it. It may be useful in the
