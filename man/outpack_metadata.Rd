@@ -10,7 +10,7 @@ outpack_metadata(id, root = NULL)
 \item{id}{The id to fetch metadata for. An error will be thrown if
 this id is not known}
 
-\item{The}{outpack root, typically the path to the root. The
+\item{root}{The outpack root, typically the path to the root. The
 default value of \code{NULL} looks for the root from the current
 directory which is typically correct.}
 }

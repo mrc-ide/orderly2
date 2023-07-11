@@ -7,7 +7,7 @@
 ##' @param id The id to fetch metadata for. An error will be thrown if
 ##'   this id is not known
 ##'
-##' @param The outpack root, typically the path to the root. The
+##' @param root The outpack root, typically the path to the root. The
 ##'   default value of `NULL` looks for the root from the current
 ##'   directory which is typically correct.
 ##'
