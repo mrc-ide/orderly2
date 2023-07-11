@@ -88,5 +88,5 @@ test_that("Sensible error if metadata file not found", {
     "Malformed id 'some-id'")
   expect_error(
     outpack_metadata(outpack_id(), root),
-    "id '20230711-154758-232a1b64' not found in index")
+    "id '.+' not found in index")
 })
