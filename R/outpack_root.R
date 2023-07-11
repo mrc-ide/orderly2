@@ -313,26 +313,8 @@ file_export <- function(root, id, there, here, dest) {
 
   ## TODO: check that no dependency destination exists, or offer solution
   ## to overwrite (requires argument here, flowing back to the interface)
-
-  ## TODO: Additional work required to support directory based
-  ## dependencies
-
-  meta <- root$metadata(id)
-  is_dir <- grepl("/$", there)
-  if (any(is_dir)) {
-    files <- meta$files$path
-    expanded <- lapply(which(is_dir), function(i) {
-      p <- there[[i]]
-      j <- string_starts_with(p, files)
-      set_names(files[j],
-                file.path(here[[i]], string_drop_prefix(p, files[j])))
-    })
-
-    there <- replace_ragged(there, is_dir, lapply(expanded, unname))
-    here <- replace_ragged(here, is_dir, lapply(expanded, names))
-  }
-
   here_full <- file.path(dest, here)
+  meta <- root$metadata(id)
   hash <- meta$files$hash[match(there, meta$files$path)]
   stopifnot(all(!is.na(hash)))
   fs::dir_create(dirname(here_full))
@@ -362,8 +344,6 @@ file_export <- function(root, id, there, here, dest) {
     }
     fs::file_copy(there_full, here_full)
   }
-
-  data.frame(there, here, hash)
 }
 
 
@@ -435,7 +415,7 @@ validate_packet_has_file <- function(root, id, path) {
     USE.NAMES = FALSE)
 
   if (all(found)) {
-    return(invisible)
+    return(invisible())
   }
 
   ## Then, look to see if any of the missing ones are actually directories:
@@ -450,6 +430,7 @@ validate_packet_has_file <- function(root, id, path) {
     err <- sprintf("%s\n  Consider adding a trailing slash to %s",
                    err, paste(squote(msg[found_if_dir]), collapse = ", "))
   }
+
   stop(err, call. = FALSE)
 }
 

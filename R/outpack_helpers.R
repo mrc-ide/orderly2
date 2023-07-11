@@ -48,12 +48,10 @@ outpack_copy_files <- function(id, files, dest, allow_remote = FALSE,
   root <- outpack_root_open(root, locate = TRUE)
 
   assert_named(files, unique = TRUE)
-  assert_relative_path(names(files), no_dots = TRUE)
-  there <- unname(files)
-  here <- names(files)
-  validate_packet_has_file(root, id, there)
-  res <- tryCatch(
-    file_export(root, id, there, here, dest),
+  plan <- plan_copy_files(root, id, unname(files), names(files))
+
+  tryCatch(
+    file_export(root, id, plan$there, plan$here, dest),
     not_found_error = function(e) {
       if (!allow_remote) {
         stop(paste0(
@@ -62,16 +60,37 @@ outpack_copy_files <- function(id, files, dest, allow_remote = FALSE,
           "Original error:\n", e$message),
           call. = FALSE)
       }
-      copy_files_from_remote(id, files, there, here, dest, root)
+      copy_files_from_remote(id, plan$there, plan$here, dest, root)
     })
 
-  invisible(res)
+  invisible(plan)
+}
+
+
+plan_copy_files <- function(root, id, there, here) {
+  assert_relative_path(there, no_dots = TRUE)
+  validate_packet_has_file(root, id, there)
+  meta <- root$metadata(id)
+  is_dir <- grepl("/$", there)
+  if (any(is_dir)) {
+    files <- meta$files$path
+    expanded <- lapply(which(is_dir), function(i) {
+      p <- there[[i]]
+      j <- string_starts_with(p, files)
+      set_names(files[j],
+                file.path(here[[i]], string_drop_prefix(p, files[j])))
+    })
+
+    there <- replace_ragged(there, is_dir, lapply(expanded, unname))
+    here <- replace_ragged(here, is_dir, lapply(expanded, names))
+  }
+  data_frame(there, here)
 }
 
 
 ## We don't want here to necessarily download all of these files; some
 ## might be found locally.
-copy_files_from_remote <- function(id, files, dest, root) {
+copy_files_from_remote <- function(id, there, here, dest, root) {
   location_id <- location_resolve_valid(NULL, root,
                                         include_local = FALSE,
                                         allow_no_locations = FALSE)
@@ -79,17 +98,19 @@ copy_files_from_remote <- function(id, files, dest, root) {
   driver <- location_driver(plan$location_id[match(id, plan$packet)], root)
 
   meta <- root$metadata(id)
-  hash <- meta$files$hash[match(unname(files), meta$files$path)]
+  hash <- meta$files$hash[match(there, meta$files$path)]
+  here_full <- file.path(dest, here)
 
   if (root$config$core$use_file_store) {
     hash_msg <- hash[!root$files$exists(hash)]
     location_pull_hash_store(root, driver, hash_msg)
-    root$files$get(hash, dest)
+    root$files$get(hash, here_full)
   } else {
     src <- lapply(hash, function(h) find_file_by_hash(root, h))
     is_missing <- vlapply(src, is.null)
     hash_msg <- hash[is_missing]
-    location_pull_hash_archive(root, driver, hash[is_missing], dest[is_missing])
-    fs::file_copy(list_to_character(src[!is_missing]), dest[!is_missing])
+    location_pull_hash_archive(root, driver, hash[is_missing],
+                               here_full[is_missing])
+    fs::file_copy(list_to_character(src[!is_missing]), here_full[!is_missing])
   }
 }
