@@ -25,10 +25,14 @@ Imports:
 Suggests:
     httr,
     jsonvalidate (>= 1.4.0),
+    knitr,
     mockery,
     pkgload,
     processx,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes:
   ropensci/jsonvalidate
+VignetteBuilder: knitr
+Language: en-GB
