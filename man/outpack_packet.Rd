@@ -79,7 +79,12 @@ times within a single packet run (or zero times!) as needed.}
 
 \item{files}{A named character vector of files; the name
 corresponds to the name within the current packet, while the
-value corresponds to the name within the upstream packet}
+value corresponds to the name within the upstream packet. If you
+want to import a directory of files from a packet, you must
+refer to the source with a trailing slash (e.g., \code{c(here = "there/")}), which will create the local directory \code{here/...}
+with files from the upstream packet directory \verb{there/}. If you
+omit the slash then an error will be thrown suggesting that you
+add a slash if this is what you intended.}
 
 \item{search_options}{Optional search options for restricting the
 search (see \link{outpack_search} for details)}
