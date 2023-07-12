@@ -73,6 +73,31 @@ outpack_log_trace <- function(object, topic, detail, caller) {
 }
 
 
+##' Read logs of a previously-run packet. This will fail if the logs
+##' are not available locally (e.g., if a packet was run remotely, or
+##' if you have manually deleted the logs).
+##'
+##' Every time that outpack runs a packet, it saves a log at a path
+##' `logs.json`; this function reads that file and deserialises it
+##' into a [data.frame] for ease of access from R.
+##'
+##' @title Read packet logs
+##'
+##' @param id The identifier of the packet to read logs for
+##'
+##' @inheritParams outpack_search
+##'
+##' @return A [data.frame] of log information
+##'
+##' @export
+outpack_log_read <- function(id, root = NULL) {
+  root <- outpack_root_open(root, locate = TRUE)
+  meta <- root$metadata(id)
+  hash <- meta$files$hash[meta$files$path == "log.json"]
+  log_read(find_file_by_hash(root, hash))
+}
+
+
 outpack_packet_logger <- function(path, root, console, threshold) {
   ret <- root$config$logging
   ret$json <- log_collector_json()
