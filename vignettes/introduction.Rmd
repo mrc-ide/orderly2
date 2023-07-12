@@ -401,3 +401,12 @@ dir_tree(path, ".outpack", all = TRUE)
 ```
 
 The files under `.outpack/files/` should never be modified or deleted. This approach to storage naturally deduplicates the file archive, so that a large file used in many places is only ever stored once.
+
+# Relationship between `orderly` and `outpack`
+
+The `orderly2` package is built on a metadata and file storage system called `outpack`. There are two function prefixes present in the package (this may change if we feel that this causes more surprise than ideal);
+
+* `orderly_*` these functions do orderly-specific things. They are used to create (or in the creation of) a new orderly-based packet.
+* `outpack_*` these functions interact with a store of packets, regardless of how they were generated. Some of these provide the low-level support on which `orderly2` is built.
+
+See `vignette("outpack")` for information about the ideas in outpack.

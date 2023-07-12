@@ -7,9 +7,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-The new version of orderly (codename `orderly2` for now) is very different to the previously released version on CRAN (orderly 1.4.3; September 2021) or the latest development version of the 1.x line (orderly 1.6.x; June 2023).  These changes constitute a ground-up rewrite in order to bring out the best features we found that orderly enabled within workflows, while removing some features we felt have outlived their usefulness.  This is disruptive change.
+The new version of orderly (codename `orderly2` for now) is very different to the previously released version on CRAN (orderly 1.4.3; September 2021) or the last development version of the 1.x line (orderly 1.6.x; June 2023).  These changes constitute a ground-up rewrite in order to bring out the best features we found that orderly enabled within workflows, while removing some features we felt have outlived their usefulness.  This is disruptive change, but we hope that it will be worth it.
 
-This vignette is divided into two parts; one covers the conceptual differences between orderly and `orderly2` while the second covers the mechanical process of migrating from an existing orderly source tree and archive to take advantage of the new features.
+This vignette is divided into two parts; one covers the conceptual differences between `orderly1` and `orderly2` while the second covers the mechanical process of migrating from an existing orderly source tree and archive to take advantage of the new features.
 
 If you have never used version 1.x of orderly, you should not read this document unless you are curious about the history of design decisions. Instead you should read the introductory vignette (`vignette("orderly2")`).
 
@@ -71,17 +71,29 @@ In version 1, we had built-in support for accessing data from SQL databases; thi
 
 ## New, language-agnostic, backend
 
-The biggest change, but perhaps the least visible, is that orderly is now built on an open spec [outpack](https://github.com/mrc-ide/outpack) which can be implemented for any language. We will develop a Python implementation of this.
+The biggest change, but perhaps the least visible, is that orderly is now built on an open spec [outpack](https://github.com/mrc-ide/outpack) which can be implemented for any language. We will develop a Python implementation of this, and possibly other languages.
 
-This takes control of all 
+This takes control of all the metadata. As such there is a split between "`orderly_`" and "`outpack_`" functions in this package, for more information see the last section of `vignette("introduction")` and also `vignette("outpack")`.
+
+# What is missing from `orderly1`
+
+* the changelog feature (we will implement something to support this)
+* extraction of secrets from vault (we will support this)
+* automatic handling of README files (we may implement support for this)
 
 # How to migrate
 
 There are two parts to a migration; updating the canonical copy of your orderly archive (ideally you only have one of these) and updating your source tree. These steps should be done via the `orderly2outpack` package.
 
+You should migrate your archive first. Do this for every archive that you want to retain (you might have local archives, ones on production servers and ones on staging servers). Archive migration happens *out of place*; that is, we do not modify anything in the original location. If your archive is old and has been used with very old versions of `orderly1` it is possible that this process will have a few hiccups, please let us know if that is the case.  The result of this process is that you will end up with a new directory that contains a new archive conforming to the `outpack` spec and containing `orderly2` metadata.
+
+Next, migrate your source tree. This will be done *in place* so should be done on a fresh clone of your source git repository. For each report, we will examine your `orderly.yml` files and your script files (often `script.R`), delete these, and then write out a new `orderly.R` file that will adapt your report to work for `orderly2`.  It is possible that this will not be perfect and might need some minor tweaking but hopefully it will be reasonable. One thing that is not preserved (and we probably cannot do so) is the comments from the `yaml` but as these often refer to `yaml` formatting or `orderly1` features hopefully this is not too much of a problem.  You will probably want to manually tweak the generated code anyway, to take advantage of some of the new `orderly2` features such as being able to compute dependencies.
+
+If you are using OrderlyWeb, you probably need to pause before migrating, as the replacement is not yet ready.
+
+We will merge `orderly2` into the `orderly` package, so once we are ready for release you can use that. However, we antipate a period of coexistance of both legacy `orderly1` systems while we develop `orderly2`. To help with this we have a small helper package [`orderly.helper`](https://mrc-ide.github.io/orderly.helper) which can smooth over these namespace differences; this may be useful if you interact with both versions.
+
 # What were the problems in version 1
 
 * The YAML format is inflexible, error prone for users, and leads to duplication
 * It was too focussed around our initial needs with the [Vaccine Impact Modelling Consortium](https://vaccineimpact.org)
-
-

@@ -42,9 +42,9 @@ We refer to a transportable unit of analysis as a "packet". This conceptually a 
 
 Any degree of collaboration in the style above requires reproducibility, but there are several aspects of this.
 
-With the system we describe here, even though everyone can typically run any step of an analysis, they typically don't. This differs from a workflow tool where reproducibility
+With the system we describe here, even though everyone *can* typically run any step of an analysis, they typically *don't*. This differs from workflow tools, which users may be familiar with.
 
-# Difference from a workflow system
+## Difference from a workflow system
 
 Workflow systems have been hugely influential in scientific computing, from people co-opting build systems like [make](https://en.wikipedia.org/wiki/Make_(software)) through to sophisticated systems designed for parallel running of large and complex workflows such as [nextflow](https://www.nextflow.io/). The general approach is to define interdependencies among parts of an analysis, forming a [_graph_](https://en.wikipedia.org/wiki/Directed_acyclic_graph) over parts of an analysis and track inputs and outputs through the workflow. 
 
@@ -65,3 +65,17 @@ We have designed `orderly2` for working patterns that do not suit the above. Som
 In all these cases the missing piece we need is a way of versioning the nodes within the computational graph, and shift the emphasis from automatically rerunning portions of the graph to tracking how data has flowed through the graph.  This in turn shifts the reproducibility emphasis from "everyone _will_ run the same code and get the same results" to "everyone _could_ run the same code, but will instead work with the results".
 
 For those familiar with docker, our approach is similar to working with pre-built docker images, whereas the workflow approach is more similar to working directly with Dockerfiles; in many situations the end result is the same, but the approaches differ in guarantees, in where the computation happens, and in how users refer to versions.
+
+## What is reproducibility anyway?
+
+Reproducibility means different things to different people, even within the narrow sense of "rerun an analysis and retrieve the same results".  In the last decade, the idea that one should be *able* to rerun a piece of analysis and retrieve the same results has slightly morphed into one *must* rerun a piece of analysis.  Similarly, the emphasis on the utility of reproducubility has shifted from authors being able to rerun their own work (or have confidence that they could rerun it) to some hypothetical third party wanting to rerun an analysis.
+
+Our approach flips the perspective around a bit, based on our experiences with collaborative research projects, and draws from an (overly) ambitious aim we had:
+
+> Can we prove that a given set of inputs produced a given set of outputs?
+
+We quickly found that this was impossible, but provided a few systems were in place one could be satisfied with this statement to a given level of trust in a system. So if a piece of analysis comes from a server where the primary way people run analyses is through our web front-end (currently [OrderlyWeb](https://github.com/mrc-ide/orderly-web), soon to be [Packit](https://github.com/mrc-ide/packit)) we *know* that the analysis was run end-to-end with no modification and that `orderly2`preserves inputs alongside outputs so the files that are present in the final packet **were** the files that went into the analysis, and the recorded R and package versions **were** the full set that were used. 
+
+Because this system naturally involves running on multiple machines (typically we will have the analysts' laptops, a server and perhaps a HPC environment), and because of the way that `orderly2` treats paths, practically there is very little problem getting analyses working in multiple places, trivially satisfying the typical reproducibility aim, even though it is not what people are typically focussed on.
+
+This shift in focus has proved valuable. In any analysis that is run on more than one occasion (e.g., regular reporting, or simply updating a figure for a final submission of a manuscript after revision), the outputs may change. Understanding *why* these changes have happened is important. Because `orderly2` automatically saves a lot of metadata about what was run it is easy to find out why things might have changed.  Further, you can start interrogating the graph among packets to find out what effect that change has had; so find all the previously run packets that pulled in the old version of a data set, or that used the previous release of a package.
