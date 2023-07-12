@@ -362,15 +362,18 @@ After doing this, you will have a mix of files within your source directory. We 
 
 Some guidelines:
 
-* Make sure to exclude some files from `.git`:
-  - `.outpack/` - nothing in here is suitable for version control
-  - `archive/` - if you have `core.archive_path` set to a non-null value, this should be excluded. The default is `archive`
-  - `draft/` - the temporary draft directory
-  - `orderly_envir.yml` - used for setting machine-specific configuration
-* You absolutely should version control some files:
-  - `src/` the main source of your analyses
-  - `orderly_config.yml` - this high level configuration is suitable for sharing
-  - Any global resource directory (configured in `orderly_config.yml`) should probably be version controlled
+Make sure to exclude some files from `.git`:
+
+- `.outpack/` - nothing in here is suitable for version control
+- `archive/` - if you have `core.archive_path` set to a non-null value, this should be excluded. The default is `archive`
+- `draft/` - the temporary draft directory
+- `orderly_envir.yml` - used for setting machine-specific configuration
+
+You absolutely should version control some files:
+
+- `src/` the main source of your analyses
+- `orderly_config.yml` - this high level configuration is suitable for sharing
+- Any global resource directory (configured in `orderly_config.yml`) should probably be version controlled
 
 Your source repository will end up in multiple people's machines, each of which are configured differently. The configuration option set via `orderly2::outpack_config_set` are designed to be (potentially) different for different users, so this configuration needs to be not version controlled. It also means that reports/packets can't directly refer to values set here.  This includes the directory used to save archive packets at (if enabled) and the names of locations (equivalent to git remotes).
 
@@ -384,7 +387,7 @@ As alluded to above, the `.outpack` directory contains lots of information about
 
 After all the work above, our directory structure looks like:
 
-```{r, results = "asis", echo = FALSE}
+```{r, echo = FALSE}
 dir_tree(path, ".outpack", all = TRUE)
 ```
 
@@ -392,7 +395,7 @@ As can be perhaps inferred from the filenames, the files `.outpack/metadata/<pac
 
 The default orderly configuration is to store the final files in a directory called `archive/`, but alternatively (or additionally) you can use a [content- addressable](https://en.wikipedia.org/wiki/Content-addressable_storage) file store. With this enabled, the `.outpack` directory looks like:
 
-```{r, results = "asis", echo = FALSE}
+```{r, echo = FALSE}
 orderly2::outpack_config_set(core.use_file_store = TRUE, root = path)
 dir_tree(path, ".outpack", all = TRUE)
 ```

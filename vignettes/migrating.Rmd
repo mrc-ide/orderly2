@@ -2,7 +2,7 @@
 title: "Migrating from orderly (1.x)"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{migrating}
+  %\VignetteIndexEntry{Migrating from orderly (1.x)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
