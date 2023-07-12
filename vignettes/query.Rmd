@@ -50,7 +50,7 @@ Tests can be grouped together `(`, `!`, `&&`, and `||` as you might expect:
 
 There are four other functions
 
-* `latest(expr)` finds the latest packet satifying `expr` - it always returns a length 1 character, but this is `NA_character_` if no suitable packet is found. If no `expr` is given then the latest of all packets is returned.
+* `latest(expr)` finds the latest packet satisfying `expr` - it always returns a length 1 character, but this is `NA_character_` if no suitable packet is found. If no `expr` is given then the latest of all packets is returned.
 * `single(expr)` is like `latest(expr)` except that it is an error if `expr` does not evaluate to exactly one packet id
 * `usedby(expr, FALSE)` where `expr` is either a literal `id` or an expression which returns 1 `id`. This finds all packets which were used in generation of packet with `id` returned from `expr` (see dependencies section for more details).
 
@@ -132,7 +132,7 @@ outpack_search(quote(usedby(latest(name == "C")) && parameter:year == 2022),
                name = "A")
 ```
 
-The depth that `usedby` will recuse can be controlled by setting the `depth` e.g.
+The depth that `usedby` will recurse can be controlled by setting the `depth` e.g.
 
 ```r
 outpack_search(quote(usedby(latest(name == "C"), depth = 1)), name = "A")

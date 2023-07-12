@@ -1,7 +1,9 @@
 Dockerfiles
+HPC
 IDEs
 Inf
 OOP
+OrderlyWeb
 R's
 Rstudio's
 YAML
@@ -22,6 +24,7 @@ json
 jsonlite
 jsonvalidate
 knitr
+md
 nextflow
 orderly's
 outpack
@@ -31,6 +34,7 @@ parameterised
 plugin's
 plugins
 sha
+sortability
 src
 standalone
 stderr

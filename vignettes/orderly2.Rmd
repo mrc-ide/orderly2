@@ -68,7 +68,7 @@ For those familiar with docker, our approach is similar to working with pre-buil
 
 ## What is reproducibility anyway?
 
-Reproducibility means different things to different people, even within the narrow sense of "rerun an analysis and retrieve the same results".  In the last decade, the idea that one should be *able* to rerun a piece of analysis and retrieve the same results has slightly morphed into one *must* rerun a piece of analysis.  Similarly, the emphasis on the utility of reproducubility has shifted from authors being able to rerun their own work (or have confidence that they could rerun it) to some hypothetical third party wanting to rerun an analysis.
+Reproducibility means different things to different people, even within the narrow sense of "rerun an analysis and retrieve the same results".  In the last decade, the idea that one should be *able* to rerun a piece of analysis and retrieve the same results has slightly morphed into one *must* rerun a piece of analysis.  Similarly, the emphasis on the utility of reproducibility has shifted from authors being able to rerun their own work (or have confidence that they could rerun it) to some hypothetical third party wanting to rerun an analysis.
 
 Our approach flips the perspective around a bit, based on our experiences with collaborative research projects, and draws from an (overly) ambitious aim we had:
 
