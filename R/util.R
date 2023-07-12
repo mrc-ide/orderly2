@@ -329,3 +329,8 @@ collector <- function() {
     }
   )
 }
+
+
+is_same_type <- function(a, b) {
+  (is.numeric(a) && is.numeric(b)) || (storage.mode(a) == storage.mode(b))
+}

@@ -231,14 +231,10 @@ query_eval_test_binary <- function(op, a, b) {
   if (length(a) == 0 || length(b) == 0) {
     return(logical(0))
   }
-  is_equal <- function(a, b) {
-    !is.null(a) && !is.null(b) &&
-      (is.numeric(a) && is.numeric(b) ||
-         is.logical(a) && is.logical(b) ||
-         is.character(a) && is.character(b)) &&
-      op(a, b)
+  run_op <- function(a, b) {
+    !is.null(a) && !is.null(b) && is_same_type(a, b) && op(a, b)
   }
-  vlapply(Map(is_equal, a, b, USE.NAMES = FALSE),
+  vlapply(Map(run_op, a, b, USE.NAMES = FALSE),
           identity)
 }
 

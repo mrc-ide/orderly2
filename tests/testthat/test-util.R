@@ -151,3 +151,16 @@ test_that("Descend failure", {
   expect_null(find_file_descend(".orderly_foobar", "/", path))
   expect_null(find_file_descend(".orderly_foobar", "/", "/"))
 })
+
+
+test_that("can check two vars are of same type", {
+  expect_true(is_same_type(1L, 2L))
+  expect_true(is_same_type(1L, 2.0))
+  expect_true(is_same_type(1, 2))
+  expect_true(is_same_type("this", "that"))
+  expect_true(is_same_type(TRUE, FALSE))
+  expect_false(is_same_type(1, TRUE))
+  expect_false(is_same_type(1, "1"))
+  expect_false(is_same_type(1, "TRUE"))
+  expect_false(is_same_type(TRUE, "TRUE"))
+})
