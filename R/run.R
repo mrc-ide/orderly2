@@ -230,16 +230,35 @@ check_parameters <- function(given, spec) {
     assert_named(given, unique = TRUE)
   }
 
-  is_required <- vlapply(spec, is.null)
+  if (is.null(spec)) {
+    cli::cli_abort(c(
+      "Parameters given, but none declared",
+      i = "Did you forget 'orderly2::orderly_parameter()"))
+  }
 
+  is_required <- vlapply(spec, is.null)
   msg <- setdiff(names(spec)[is_required], names(given))
-  if (length(msg) > 0L) {
-    stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
-  }
   extra <- setdiff(names(given), names(spec))
-  if (length(extra) > 0L) {
-    stop("Extra parameters: ", paste(squote(extra), collapse = ", "))
+
+  if (length(msg) > 0L) {
+    cli::cli_abort(error_near_match(
+      "Missing parameters",
+      msg,
+      "You have extra parameters, possibly misspelt?",
+      "could be your",
+      extra))
   }
+
+  if (length(extra) > 0L) {
+    unused <- setdiff(names(spec), names(given))
+    cli::cli_abort(error_near_match(
+      "Extra parameters",
+      extra,
+      "You have extra parameters, possibly misspelt?",
+      "should perhaps be",
+      unused))
+  }
+
   if (length(spec) == 0) {
     return(NULL)
   }

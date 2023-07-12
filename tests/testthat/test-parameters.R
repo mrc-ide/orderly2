@@ -14,19 +14,41 @@ test_that("prevent missing parameters", {
   expect_error(
     check_parameters(list(a = 1), list(a = NULL, b = 2, c = NULL)),
     "Missing parameters: 'c'")
+
+  err <- expect_error(
+    check_parameters(list(thing = 1), list(things = NULL)),
+    "Missing parameters: 'things'")
+  expect_equal(
+    err$body,
+    c(i = "You have extra parameters, possibly misspelt?",
+      "*" = "'things': could be your 'thing'"))
 })
 
 
 test_that("prevent extra parameters", {
-  expect_error(
+  err <- expect_error(
     check_parameters(list(a = 1), NULL),
-    "Extra parameters: 'a'")
+    "Parameters given, but none declared")
+  expect_equal(err$body,
+               c(i = "Did you forget 'orderly2::orderly_parameter()"))
+
   expect_error(
-    check_parameters(list(a = 1, b = 2), NULL),
+    check_parameters(list(a = 1, b = 2), list()),
     "Extra parameters: 'a', 'b'")
   expect_error(
     check_parameters(list(a = 1, b = 2), list(a = NULL)),
     "Extra parameters: 'b'")
+})
+
+
+test_that("prevent extra parameters that might be misspelt optional ones", {
+  err <- expect_error(
+    check_parameters(list(apple = 1), list(apples = 2)),
+    "Extra parameters: 'apple'")
+  expect_equal(
+    err$body,
+    c("i" = "You have extra parameters, possibly misspelt?",
+      "*" = "'apple': should perhaps be 'apples'"))
 })
 
 
