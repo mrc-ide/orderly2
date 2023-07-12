@@ -1,0 +1,218 @@
+---
+title: "Outpack metadata"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Outpack metadata}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The `orderly2` package is the reference implementation at the moment of the outpack specification; a collection of schemas and directory structures that outpack requires. Once we release (or possibly before), we will split this specification from the package, though the package will continue to bundle a copy.
+
+We make use of [JSON schema](https://json-schema.org) to document the schemas used.
+
+This vignette outlines the basic structure of files within the `.outpack/` directories, and is not itself an overview of how outpack works; the primary audience is people working on outpack itself (though a small introduction is provided below).
+
+# Basic overview
+
+Each "packet" is conceptually a directory, corresponding to a particular analysis or data product, though this is not necessarily how it is stored. The internal representation includes:
+
+* metadata about the packet - which files it contains and their hashes along with information about what was done to create it and the environment it was created in etc (see below)
+* actual file contents of every included file. This might be stored in a simple content-addressable file storage system (see below) or actual copies of the directories as originally created
+
+Every packet is referenced uniquely by a primary key. We use a key format that encodes the current date and time, as well as random data to avoid collisions.
+
+There exists some dependency graph among packets, as one packet depends on another. Each edge of this graph has a hard link (from one packet to another by an id) and also a query (e.g., latest packet with some name) which was used to find the packet. This means that there are many ways of looking at or thinking about the dependency graph.
+
+Not all packets are available locally, some are on other outpack repositories, typically (but not always) on other machines and accessed over an HTTP API. These are conceptually similar to git "remotes".
+
+We will need to distinguish between packets which are "unpacked" (that is, packets with every file available in the current archive) and packets that are merely known about (those for which we have the metadata but not the files).  We will sometimes refer to these unpacked packets as "local" as they are known to the "local" location which is special.
+
+*We use the terms "archive" and "repository" fairly interchangeably below and will try and nail that down.*
+
+# What goes into a packet
+
+Each packet must have a few things:
+
+* a name (for example `model_fits`). This cannot be changed (or rather changes cannot be tracked) and there is not currently a way of namespacing this between different repositories
+* an id (see "outpack id" below) which is created by outpack at the point where the packet is started
+* a set of parameters - this is a mapping between strings and some scalar type (boolean, number, string). Packets may have zero to many parameters.
+* a set of files - these have a local (relative) path within a packet (e.g., `output/data.csv`) and also a hash (e.g., `sha256:69f6cf230416cf40828da251a0dad17cbbf078587883e826f3345ff08d1aaa7d`)
+* Information about when the packet was run (start and end time), each represented in seconds post epoch, UTC (see below).
+
+In addition it may contain information about:
+
+* dependencies that it used, tracking the name of the included packet, the query used to find it, the resolved id, and the set of files extracted from that packet (source name, hash and destination name)
+* the names of scripts that were run to create the packet (typically also included as files within the final packet)
+* information about state of git at the point where the packet was run (current branch, hash, etc)
+* information about the system used to run the packet (format unspecified but might include hostname, operating system version, package/module versions, etc)
+* custom metadata added by the implementation
+
+# Types of users of outpack
+
+There are a few types of "persona" of outpack user that we imagine exist and which guide some decisions abut layout below. At the extremes we have:
+
+* a user on a desktop who wants to develop or run some analyses, using files present in packets available on some server. They will want to visually inspect the results of running their packets, so need to see files on disk in a way that makes sense to a human, but they do not care about having a complete copy of all dependencies down the graph.
+* a server instance which is responsible for delivering packets to users (e.g., the persona above). They are expected to have (or be able to fetch) any part of the outpack graph, but we do not expect that anyone will want to visually inspect the packets directly on this machine (that is, the storage does not need to be human-readable).
+
+This impacts two configuration options and associated parts of the directory structure below:
+
+* Does the user use the content-addressable "file store" or human-readable "archive" (explained in detail below)
+* Do we require that the archive contains a complete tree of all dependencies?
+
+We expect the first persona wants the human readable archive and not to contain a full tree, while the second wants the opposite.
+
+# Directory layout
+
+This section discusses the files and directory that make outpack work, but not so much how these come to be; see below for that.
+
+A typical `.outpack` directory layout looks like this:
+
+```
+.outpack/
+  config.json
+  files/
+  location/
+  metadata/
+archive/
+```
+
+(note that `archive/` and `.outpack` here are at the same level). Not all of these directories will necessarily be present; indeed the only required file is `.outpack/config.json`.
+
+## Configuration (`.outpack/config.json`)
+
+The outpack configuration schema is defined in [`config.json`](https://github.com/mrc-ide/orderly2/blob/main/inst/outpack/schema/config.json)
+
+The configuration format is still subject to change...
+
+## Packet metadata (`.outpack/metadata/`)
+
+Each file within this directory has a filename that is an outpack id (matching the regular expression `^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$`, see below. Each file is a json file conforming to the schema [`metadata.json`](https://github.com/mrc-ide/orderly2/blob/main/inst/outpack/schema/metadata.json).
+
+Being present here means that an outpack implementation can report information back about a packet (when it was created, what files it contains, etc), but packet metadata are not very meaningful on their own; we want to know where they might have come from (a location that is distributing this packet) and if we have a copy of the packet locally.
+
+## Location information (`.outpack/location/`)
+
+This directory matches the regular expression `^[0-9]{8}$` (e.g., `457f4f2a`) and is a "location id" (see below) corresponding to a "location". Each file within this directory has an outpack id as name, and contains json about when that location unpacked (or installed) the packet, and the hash of the metadata. This file conforms to the schema [`location.json`](https://github.com/mrc-ide/orderly2/blob/main/inst/outpack/schema/location.json).
+
+## A file store (`.outpack/files`)
+
+If the configuration option `core.use_file_store` is `true`, then outpack keeps a content addressable file store of all files that it knows about. This is much more space efficient than having the entire packet unpacked as it automatically deduplicates shared content among packets (e.g., if a large file is present in two packets it will only be stored once). The file store layout is described below.
+
+This storage format is not human-readable (and indeed present only within the hidden directory `.outpack`). It can be enabled on either server or user
+
+## An archive (`archive/` by default)
+
+If the configuration option `core.path_archive` is non-`null` then there will be a directory with that path containing unpacked packets. Each packet will be available at the path
+
+```
+archive/<name>/<id>/<files...>
+```
+
+With `<name>` being the "name" of the packet, `<id>` being its outpack id.  There will be several files per packet, possibly themselves in directories. This storage approach is designed to be human readable, and will typically only be enabled where the outpack repository is being used on a laptop where a user wants to interactively work with files.
+
+# Adding a packet
+
+In order to make a packet available locally, you need to import the metadata and the files, then mark the packet as available. This will be roughly the same if you are creating a packet (i.e., you are the first place where a packet has ever existed) or if you are importing a packet from elsewhere.
+
+Making the packet available allows it to be used as a dependency, allows serving that packet if you are acting as a location (over the http or file protocols), and guarantees that the files are actually present locally.
+
+## Adding metadata
+
+You can simply copy metadata as the file `.outpack/metadata/<packet id>` if it does not yet exist. This does not make it available to anything yet as it is not known from any location. Dangling metadata (that is, metadata present in this directory but not known anywhere) is currently mostly ignored.
+
+## Adding files
+
+If the repository uses a file store, you should fill this first, because it is much easier to think about. You can easily get the difference between files used by a packet (the list of files in the packet manifest) and what you already have in the file store by looking up each hash in turn.  You should then request and missing files and insert them into the store. This may leave "dangling" files for a while (files referred to by no packet) but that is not  problem.
+
+If the repository has a human-readable archive **and** uses a file store, then after the files are all present in the file store it is easy enough to check them out of the file store to the requested path (the local relative path in the packet manifest). Because you update the file store first, all files are guaranteed to be present.
+
+If the repository **only** uses a human readable archive, the simplest thing is to request each file from the remote. However, it might be more efficient to check locally for any previously fetched copies of files with the same content, verify that they have not been modified, and then copy those into place rather than re-downloading.
+
+## Marking the packet as unpacked and known locally
+
+For your local location id, write out a file
+
+```
+.outpack/<local location id>/<packet id>
+```
+
+conforming to the [`location.json`](https://github.com/mrc-ide/orderly2/blob/main/inst/outpack/schema/location.json) schema, and containing the packet id, the time that it was marked as unpacked and the hash of the metadata.
+
+## Ordering of operations
+
+We only need both files and metadata once the packet is marked as unpacked; note that some configurations guarantee that every packet is unpacked in a  complete tree.
+
+You can import files first, or metadata; there is not a lot of disadvantage to either. You should only mark a package unpacked and known locally though once both components are present.
+
+# Details
+
+## Outpack ids
+
+Outpack ids match the regular expression `^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$`; they are encode UTC date-time as with the prefix `YYYYMMDD-HHMMSS-` and are followed by 8 hexadecimal digits. In the R implementation, we encode the current second as the first four digits (2 bytes) and append 2 bytes of cryptographically random data.
+
+The id tries to balance a reasonable degree of collision resistance (65536 combinations per millisecond), lexicographic sortability and a reasonable degree of meaningfulness.
+
+## Location ids
+
+Location ids are meaningless 4-byte (8 character) hex strings. They are immutable once created and are different between different machines even if they point to the same location. This location id is then mapped (via `.outpack/config.json`) to a location *name* which is a human-readable name (e.g., `production` or `staging`).  There is no requirement that this name is the same for different machines.
+
+One of these directories represents the local location; you can find that mapping within the configuration.
+
+## Representing hashes
+
+Outpack typically uses `sha256` hashes, but we want to be able to change this in future. So wherever a hash is presented, the algorithm is included as part of the string. For example
+
+```
+sha256:69f6cf230416cf40828da251a0dad17cbbf078587883e826f3345ff08d1aaa7d
+```
+
+If we had instead used the md5 algorithm we would have written
+
+```
+md5:bd57f7123c6bfb95c3234ff56373b7f4
+```
+
+The schema currently assumes that the hash value is represented as a hex string.
+
+## Times
+
+We store information about times in a few places (e.g., times that a packet was run, imported, etc). Rather than trying to deal with strings, we always store time in seconds since `1970-01-01 00:00.00 UTC` (including fractional seconds, to whatever accuracy your system allows).
+
+## File store
+
+The file store is designed to be simple, and is not as sophisticated as that in git, whose object store does a similar thing.
+
+The general layout looks like:
+
+```
+.outpack/files
+  sha256/
+    5d/
+      dfaf1f4a2e15e8fe46dbed145bf2f84bba1b3367d0a56f73de08f8585dd153
+      ...
+    77/
+    ...
+```
+
+With hopefully a fairly obvious structure. Paths have format:
+
+```
+<algorithm>/<first two bytes>/<remaining bytes>
+```
+
+The reason for the second level is to prevent performance degradation with directories containing millions of files, again copying git.
+
+The store is designed to cope with different hashing algorithms, though the R implementation of `outpack` only supports `sha256` for now.
+
+Multiple hashing algorithms could be supported by hard linking content into multiple places with in the tree, so we might link
+
+```
+sha256/5d/dfaf1f4a2e15e8fe46dbed145bf2f84bba1b3367d0a56f73de08f8585dd153
+```
+
+as
+
+```
+md5/84/0bc6ad3ae479dccc1c49a1910b37bd
+```
