@@ -263,11 +263,18 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##' @param search_options Optional search options for restricting the
 ##'   search (see [orderly2::outpack_search] for details)
 ##'
+##' @param envir Optional environment for `environment:` lookups; the
+##'   default is to use the parent frame, but other suitable options
+##'   are the global environment or the environment of the script you
+##'   are running (this only relevant if you have `environment:`
+##'   lookups in `query`).
+##'
 ##' @param overwrite Overwrite files at the destination; this is
 ##'   typically what you want, but set to `FALSE` if you would prefer
 ##'   that an error be thrown if the destination file already exists.
 outpack_packet_use_dependency <- function(packet, query, files,
                                           search_options = NULL,
+                                          envir = parent.frame(),
                                           overwrite = TRUE) {
   packet <- check_current_packet(packet)
   query <- as_outpack_query(query)
@@ -280,8 +287,11 @@ outpack_packet_use_dependency <- function(packet, query, files,
       "Did you forget latest(...)?"))
   }
 
-  id <- outpack_search(query, parameters = packet$parameters,
-                       options = search_options, root = packet$root)
+  id <- outpack_search(query,
+                       parameters = packet$parameters,
+                       envir = envir,
+                       options = search_options,
+                       root = packet$root)
   if (is.na(id)) {
     ## TODO: this is where we would want to consider explaining what
     ## went wrong; because that comes with a cost we should probably

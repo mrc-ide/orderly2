@@ -13,6 +13,11 @@
 ##' @param parameters Optionally, a named list of parameters to substitute
 ##'   into the query (using the `this:` prefix)
 ##'
+##' @param envir Optionally, an environment to substitute into the
+##'   query (using the `environment:` prefix). The default here is to
+##'   use the calling environment, but you can explicitly pass this in
+##'   if you want to control where this lookup happens.
+##'
 ##' @param options Optionally, a [orderly2::outpack_search_options]
 ##'   object for controlling how the search is performed, and which
 ##'   packets should be considered in scope. If not provided, default
@@ -27,12 +32,12 @@
 ##'   (`NA_character_`)
 ##'
 ##' @export
-outpack_search <- function(..., parameters = NULL, options = NULL,
-                           root = NULL) {
+outpack_search <- function(..., parameters = NULL, envir = parent.frame(),
+                           options = NULL, root = NULL) {
   root <- outpack_root_open(root, locate = TRUE)
   query <- as_outpack_query(...)
   options <- as_outpack_search_options(options)
-  outpack_query_eval(query, parameters, options, root)
+  outpack_query_eval(query, parameters, envir, options, root)
 }
 
 
@@ -111,48 +116,56 @@ as_outpack_search_options <- function(x, name = deparse(substitute(x))) {
 }
 
 
-outpack_query_eval <- function(query, parameters, options, root) {
+outpack_query_eval <- function(query, parameters, environment, options, root) {
   assert_is(query, "outpack_query")
   assert_is(options, "outpack_search_options")
   assert_is(root, "outpack_root")
   validate_parameters(parameters)
+  assert_is(environment, "environment")
   ## It's simple enough here to pre-compare the provided parameters
   ## with query$info$parameters, but we already have nicer error
   ## reporting at runtime that shows the context of where the
   ## parameter is used.
   index <- new_query_index(root, options)
-  query_eval(query$value, index, parameters, list2env(query$subquery))
+
+  ## All the (possibly mutable) bits that define our query environment.
+  query_env <- list(index = index,
+                    parameters = parameters,
+                    environment = environment,
+                    subquery = list2env(query$subquery))
+
+  query_eval(query$value, query_env)
 }
 
 
-query_eval <- function(query, index, parameters, subquery) {
+query_eval <- function(query, query_env) {
   switch(query$type,
          literal = query$value,
-         lookup = query_eval_lookup(query, index, parameters),
-         empty = query_eval_empty(query, index, parameters, subquery),
-         group = query_eval_group(query, index, parameters, subquery),
-         test = query_eval_test(query, index, parameters, subquery),
-         latest = query_eval_latest(query, index, parameters, subquery),
-         single = query_eval_single(query, index, parameters, subquery),
-         subquery = query_eval_subquery(query, index, parameters, subquery),
-         dependency = query_eval_dependency(query, index, parameters, subquery),
+         lookup = query_eval_lookup(query, query_env),
+         empty = query_eval_empty(query, query_env),
+         group = query_eval_group(query, query_env),
+         test = query_eval_test(query, query_env),
+         latest = query_eval_latest(query, query_env),
+         single = query_eval_single(query, query_env),
+         subquery = query_eval_subquery(query, query_env),
+         dependency = query_eval_dependency(query, query_env),
          ## Normally unreachable
          stop("Unhandled expression [outpack bug - please report]"))
 }
 
 
-query_eval_latest <- function(query, index, parameters, subquery) {
+query_eval_latest <- function(query, query_env) {
   if (length(query$args) == 0) {
-    candidates <- index$index$id
+    candidates <- query_env$index$index$id
   } else {
-    candidates <- query_eval(query$args[[1]], index, parameters, subquery)
+    candidates <- query_eval(query$args[[1]], query_env)
   }
   if (length(candidates) == 0) NA_character_ else last(candidates)
 }
 
 
-query_eval_single <- function(query, index, parameters, subquery) {
-  candidates <- query_eval(query$args[[1]], index, parameters, subquery)
+query_eval_single <- function(query, query_env) {
+  candidates <- query_eval(query$args[[1]], query_env)
   len <- length(candidates)
   if (len == 0) {
     query_eval_error("Query did not find any packets",
@@ -169,13 +182,14 @@ query_eval_single <- function(query, index, parameters, subquery) {
 ## TODO: we probably also need to make sure that none of this is
 ## recursive (e.g., subquery A referencing B etc; do that in the parse
 ## phase; things are now set up to support this).
-query_eval_subquery <- function(query, index, parameters, subquery) {
+query_eval_subquery <- function(query, query_env) {
   name <- query$args$name
+  subquery <- query_env$subquery
   if (!subquery[[name]]$evaluated) {
     ## TODO: should we really not allow parameters here? Feels like
     ## they might be relevant?
-    result <- query_eval(subquery[[name]]$parsed, index, parameters = NULL,
-                         subquery)
+    result <- query_eval(subquery[[name]]$parsed, query_env$index,
+                         parameters = NULL, subquery)
     subquery[[name]]$result <- result
     subquery[[name]]$evaluated <- TRUE
   }
@@ -183,50 +197,55 @@ query_eval_subquery <- function(query, index, parameters, subquery) {
 }
 
 
-query_eval_dependency <- function(query, index, parameters, subquery) {
+query_eval_dependency <- function(query, query_env) {
   ## Eval dependency arg without scope, we need to find all packets which
   ## were usedby or used in this one, so find parents/children without scope
   ## and apply scope later when finding the results of the main query.
-  id <- query_eval(query$args[[1]], index, parameters, subquery)
+  id <- query_eval(query$args[[1]], query_env)
   switch(query$name,
          usedby = index$get_packet_depends(id, query$args[[2]]$value),
          uses = index$get_packet_uses(id, query$args[[2]]$value))
 }
 
 
-query_eval_lookup <- function(query, index, parameters) {
+query_eval_lookup <- function(query, query_env) {
+  index <- query_env$index
   switch(query$name,
          name = index$index$name,
          id = index$index$id,
          parameter = lapply(index$index$parameters, "[[", query$query),
-         this = query_eval_this(query$query, parameters, query$expr,
-                                query$context),
+         this = query_eval_lookup_get(
+           query$query, query_env$parameters, "parameters",
+           query$expr, query$context),
+         environment = query_eval_lookup_get(
+           query$query, query_env$environment, "environment",
+           query$expr, query$context),
          ## Normally unreachable
          stop("Unhandled lookup [outpack bug - please report]"))
 }
 
 
-query_eval_empty <- function(query, index, parameters, subquery) {
-  index$index$id
+query_eval_empty <- function(query, query_env) {
+  query_env$index$index$id
 }
 
 
-query_eval_group <- function(query, index, parameters, subquery) {
-  args <- lapply(query$args, query_eval, index, parameters, subquery)
+query_eval_group <- function(query, query_env) {
+  args <- lapply(query$args, query_eval, query_env)
   switch(query$name,
          "&&" = intersect(args[[1]], args[[2]]),
          "||" = union(args[[1]], args[[2]]),
-         "!" = setdiff(index$index$id, args[[1]]),
+         "!" = setdiff(query_env$index$index$id, args[[1]]),
          "(" = args[[1]],
          ## Normally unreachable
          stop("Unhandled operator [outpack bug - please report]"))
 }
 
 
-query_eval_test <- function(query, index, parameters, subquery) {
-  args <- lapply(query$args, query_eval, index, parameters, subquery)
+query_eval_test <- function(query, query_env) {
+  args <- lapply(query$args, query_eval, query_env)
   i <- query_eval_test_binary(query$name, args[[1]], args[[2]])
-  index$index$id[i]
+  query_env$index$index$id[i]
 }
 
 
@@ -243,11 +262,12 @@ query_eval_test_binary <- function(op, a, b) {
 }
 
 
-query_eval_this <- function(name, parameters, expr, context) {
-  if (!(name %in% names(parameters))) {
-    msg <- sprintf("Did not find '%s' within given parameters (%s)",
-                   name, paste(squote(names(parameters)), collapse = ", "))
+query_eval_lookup_get <- function(name, data, data_name, expr, context) {
+  if (!(name %in% names(data))) {
+    msg <- sprintf("Did not find '%s' within given %s (containing %s)",
+                   name, data_name,
+                   paste(squote(names(data)), collapse = ", "))
     query_eval_error(msg, expr, context)
   }
-  parameters[[name]]
+  data[[name]]
 }
