@@ -109,6 +109,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   envir <- envir %||% .GlobalEnv
   assert_is(envir, "environment")
 
+  src <- file.path(root$path, "src", name)
   dat <- orderly_read(src)
 
   parameters <- check_parameters(parameters, dat$parameters,
@@ -419,7 +420,7 @@ orderly_packet_cleanup_failure <- function(p) {
 
 validate_orderly_directory <- function(name, root) {
   assert_scalar_character(name)
-  if (!file_exists(file.path(root$path, "src", name, "ordery.R"))) {
+  if (!file_exists(file.path(root$path, "src", name, "orderly.R"))) {
     src <- file.path(root$path, "src", name)
     err <- sprintf("Did not find orderly report '%s'", name)
     if (file_exists(src)) {
