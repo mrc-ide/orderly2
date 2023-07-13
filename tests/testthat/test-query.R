@@ -228,9 +228,21 @@ test_that("report on parameters used in the query", {
     outpack_query(x)$info$parameters
   }
   expect_equal(f(quote(latest())), character())
-  expect_equal(f(quote(parameter:a < this:a)), "a")
-  expect_equal(f(quote(parameter:a < this:a && this:a > this:b)),
+  expect_equal(f(quote(parameter:x < this:a)), "a")
+  expect_equal(f(quote(parameter:x < this:a && this:a > this:b)),
                c("a", "b"))
+})
+
+
+test_that("report on environment variables used in the query", {
+  f <- function(x) {
+    outpack_query(x)$info$environment
+ }
+  expect_equal(f(quote(latest())), character())
+  expect_equal(f(quote(parameter:x < environment:a)), "a")
+  expect_equal(
+    f(quote(parameter:x < environment:a && environment:a > environment:b)),
+    c("a", "b"))
 })
 
 

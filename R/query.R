@@ -35,9 +35,11 @@ outpack_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
     expr_parsed <- query_parse_add_scope(expr_parsed, scope)
   }
 
+  lookup <- query_collect_lookup(expr_parsed, subquery_env)
   info <- list(
     single = is_expr_single_value(expr_parsed, subquery_env),
-    parameters = query_parameters(expr_parsed, subquery_env))
+    parameters = lookup$this,
+    environment = lookup$environment)
 
   ret <- list(value = expr_parsed,
               subquery = as.list(subquery_env),
@@ -382,7 +384,7 @@ query_parse_value <- function(expr, context, subquery_env) {
          name = deparse(expr))
   } else if (is_call(expr, ":")) {
     name <- deparse_query(expr[[2]], NULL)
-    valid <- c("parameter", "this")
+    valid <- c("parameter", "this", "environment")
     if (!(name %in% valid)) {
         query_parse_error(sprintf(
           "Invalid lookup '%s'", name), expr, context)
@@ -433,12 +435,15 @@ add_subquery <- function(name, expr, context, subquery_env) {
 }
 
 
-query_parameters <- function(expr_parsed, subquery_env) {
+query_collect_lookup <- function(expr_parsed, subquery_env) {
   env <- new.env(parent = emptyenv())
-  env$seen <- character()
+  collect <- c("this", "environment")
+  for (nm in collect) {
+    env[[nm]] <- character()
+  }
   f <- function(x) {
-    if (is.recursive(x) && x$type == "lookup" && x$name == "this") {
-      env$seen <- c(env$seen, x$query)
+    if (is.recursive(x) && x$type == "lookup" && x$name %in% collect) {
+      env[[x$name]] <- c(env[[x$name]], x$query)
     } else if (x$type == "subquery") {
       sub <- subquery_env[[x$args$name]]
       if (!is.null(sub)) {
@@ -451,5 +456,5 @@ query_parameters <- function(expr_parsed, subquery_env) {
     }
   }
   f(expr_parsed)
-  unique(env$seen)
+  set_names(lapply(collect, function(nm) unique(env[[nm]])), collect)
 }
