@@ -4,7 +4,7 @@
 \alias{orderly_global_resource}
 \title{Copy global resources into a packet directory}
 \usage{
-orderly_global_resource(..., overwrite = TRUE)
+orderly_global_resource(...)
 }
 \arguments{
 \item{...}{Named arguments corresponding to global resources to
