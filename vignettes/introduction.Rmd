@@ -23,11 +23,11 @@ orderly_file <- function(...) {
 }
 ```
 
-This vignette provides a how-to style introduction to `orderly2`, an overview of key ingredients to writing orderly reports, and a summary of key features and ideas. It may be useful to look at `vignette("orderly2")` for a more roundabout discussion about what `orderly2` is trying to achieve, or `vignette("migrating")` if you are familiar with version 1 of orderly as this explains concepts in terms of differences from the previous version.
+This vignette provides a how-to style introduction to `orderly2`, an overview of key ingredients to writing orderly reports, and a summary of key features and ideas. It may be useful to look at `vignette("orderly2")` for a more roundabout discussion of what `orderly2` is trying to achieve, or `vignette("migrating")` if you are familiar with version 1 of orderly as this explains concepts in terms of differences from the previous version.
 
 # Creating an empty orderly repository
 
-The first step is to initialise an empty orderly repository. This is a directory with the file `orderly_config.yml` within it, and since version 2 also a directory `.outpack/`.  The `.outpack/` directory should not be modified and should be excluded from version control, this can be done with `orderly2::orderly_init()`;
+The first step is to initialise an empty orderly repository. This is a directory with the file `orderly_config.yml` within it, and since version 2 also a directory `.outpack/`.  The `.outpack/` directory should not be modified and should be excluded from version control. This can be done with `orderly2::orderly_init()`;
 
 ```{r}
 path <- tempfile() # we'll use a temporary directory here
@@ -105,7 +105,7 @@ A few things have changed here:
 
 In addition, quite a few files have changed within the `.outpack` directory, but these are not covered here.
 
-That's it! Notice that the initial script is just a plain R script, and you can develop it interactively from within the `src/data` directory. Note however, that it refers to path relative to `src/data` and **not** the orderly repository root. This is important as all reports only see the world relative to their `orderly.R` file.
+That's it! Notice that the initial script is just a plain R script, and you can develop it interactively from within the `src/data` directory. Note however, that any paths referred to within will be relative to `src/data` and **not** the orderly repository root. This is important as all reports only see the world relative to their `orderly.R` file.
 
 Once created, you can then refer to this report by id and pull its files wherever you need them, both in the context of another orderly report or just to copy to your desktop to email someone. For example, to copy the file `data.rds` that we created to some location outside of orderly's control you could do
 
