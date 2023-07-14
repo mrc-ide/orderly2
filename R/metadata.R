@@ -315,11 +315,11 @@ static_orderly_dependency <- function(args) {
 ##'
 ##' @return Undefined
 ##' @export
-orderly_global_resource <- function(...) {
+orderly_global_resource <- function(..., overwrite = TRUE) {
   files <- validate_global_resource(list(...))
   ctx <- orderly_context()
 
-  files <- copy_global(ctx$root, ctx$path, ctx$config, files)
+  files <- copy_global(ctx$root, ctx$path, ctx$config, files, overwrite)
   if (ctx$is_active) {
     outpack_packet_file_mark(ctx$packet, files$here, "immutable")
     ctx$packet$orderly2$global_resources <-
@@ -344,7 +344,7 @@ validate_global_resource <- function(args) {
 }
 
 
-copy_global <- function(path_root, path_dest, config, files) {
+copy_global <- function(path_root, path_dest, config, files, overwrite) {
   if (is.null(config$global_resources)) {
     stop(paste("'global_resources' is not supported;",
                "please edit orderly_config.yml to enable"),
@@ -371,7 +371,7 @@ copy_global <- function(path_root, path_dest, config, files) {
     there <- replace_ragged(there, is_dir, Map(file.path, there[is_dir], files))
   }
   if (any(!is_dir)) {
-    fs::file_copy(src[!is_dir], dst[!is_dir])
+    fs::file_copy(src[!is_dir], dst[!is_dir], overwrite)
   }
 
   data_frame(here = here, there = there)

@@ -913,3 +913,21 @@ test_that("exporting directories reports on trailing slashes being missing", {
     outpack_packet_use_dependency(p2, 'latest(name == "a")', c(d = "data")),
     err)
 })
+
+
+test_that("can overwrite dependencies", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root, "data")
+  path_src <- withr::local_tempdir()
+  p <- outpack_packet_start(path_src, "next", root = root)
+  file.create(file.path(path_src, "data.rds"))
+  err <- expect_error(
+    outpack_packet_use_dependency(p, id, c("data.rds" = "data.rds"),
+                                  overwrite = FALSE))
+  ## Default allows overwrite:
+  expect_silent(
+    outpack_packet_use_dependency(p, id, c("data.rds" = "data.rds")))
+  expect_equal(
+    hash_file(file.path(path_src, "data.rds")),
+    hash_file(file.path(root$path, "archive", "data", id, "data.rds")))
+})

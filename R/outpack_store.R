@@ -24,8 +24,7 @@ file_store <- R6::R6Class(
                 substr(dat$value, 3, nchar(dat$value)))
     },
 
-    ## TODO: bulk get, with overwrite control
-    get = function(hash, dst) {
+    get = function(hash, dst, overwrite) {
       src <- self$filename(hash)
       if (any(!file.exists(src))) {
         missing <- hash[!file.exists(src)]
@@ -34,7 +33,7 @@ file_store <- R6::R6Class(
         stop(not_found_error(message, missing))
       }
       fs::dir_create(dirname(dst))
-      fs::file_copy(src, dst)
+      fs::file_copy(src, dst, overwrite)
       invisible(dst)
     },
 
@@ -56,7 +55,7 @@ file_store <- R6::R6Class(
         if (move) {
           fs::file_move(src, dst)
         } else {
-          fs::file_copy(src, dst)
+          fs::file_copy(src, dst, overwrite = FALSE)
         }
         fs::file_chmod(dst, "a-wx")
       } else if (move) {

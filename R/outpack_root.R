@@ -300,7 +300,7 @@ index_update <- function(root, prev, skip_cache) {
 
 ## Not just for the file store, but this is how we can interact with
 ## the files safely:
-file_export <- function(root, id, there, here, dest) {
+file_export <- function(root, id, there, here, dest, overwrite) {
   ## This validation *always* occurs; does the packet even claim to
   ## have this path?
   validate_packet_has_file(root, id, there)
@@ -321,7 +321,7 @@ file_export <- function(root, id, there, here, dest) {
 
   if (root$config$core$use_file_store) {
     for (i in seq_along(here_full)) {
-      root$files$get(hash[[i]], here_full[[i]])
+      root$files$get(hash[[i]], here_full[[i]], overwrite)
     }
   } else {
     there_full <- file.path(root$path, root$config$core$path_archive,
@@ -342,7 +342,7 @@ file_export <- function(root, id, there, here, dest) {
         hash_validate_file(there_full[[i]], hash[[i]]),
         error = function(e) stop(not_found_error(e$message, there_full[[i]])))
     }
-    fs::file_copy(there_full, here_full)
+    fs::file_copy(there_full, here_full, overwrite)
   }
 }
 
@@ -376,7 +376,8 @@ file_import_archive <- function(root, path, file_path, name, id) {
   ## store version, but not of orderly.
   file_path_dest <- file.path(dest, file_path)
   fs::dir_create(dirname(file_path_dest))
-  fs::file_copy(file.path(path, file_path), file_path_dest)
+  ## overwrite = FALSE; see assertion above
+  fs::file_copy(file.path(path, file_path), file_path_dest, overwrite = FALSE)
 }
 
 
