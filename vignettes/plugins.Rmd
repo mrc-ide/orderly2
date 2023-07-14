@@ -1,0 +1,383 @@
+---
+title: "plugins"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{plugins}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+``` {r include = FALSE}
+lang_output <- function(x, lang) {
+  writeLines(c(sprintf("```%s", lang), x, "```"))
+}
+r_output <- function(x) lang_output(x, "r")
+json_output <- function(x) lang_output(x, "json")
+yaml_output <- function(x) lang_output(x, "yaml")
+plain_output <- function(x) lang_output(x, "plain")
+knitr::opts_chunk$set(
+  error = FALSE)
+```
+
+In order to make orderly/orderly2 more extensible without bloating the core, we have designed a simple plugin interface. Our first use case for this is shifting all of orderly 1.0's database functionality out of the main package, but other uses are possible!
+
+This vignette is intended to primarily serve as a design document, and will be of interest to the small number of people who might want to write a new plugin, or to edit an existing one.
+
+## The basic idea
+
+A plugin is provided by a package, possibly it will be the only thing that a package provides.  The plugin name will be the same as the package name.  The only functions that the package needs to call is `orderly2::orderly_plugin` and `orderly2::orderly_plugin_register` which create and register the plugin, respectively.
+
+To make a plugin available for an orderly project, two new bits of configuration may be present in `orderly_config.yml` - one declares the plugin will be used, the other configures the plugin.
+
+To use a plugin for an individual report, a configuration with a plugin name must be present, and includes any instructions to that plugin.
+
+Finally, we can save information back into the final orderly2 metadata about what the plugin did.
+
+## An example
+
+As an example, we'll implement a stripped down version of the database plugin that inspired this work. To make this work:
+
+* we need to add to `orderly_config.yml` some information about where to find the database
+* we need to add to `orderly.yml` some information about queries that we want to make, resulting in data available to the report
+
+We'll start with the report side of things, describing what we want to happen, then work on the implementation.
+
+```{r, include = FALSE}
+path_db <- tempfile()
+con <- DBI::dbConnect(RSQLite::SQLite(), dbname = path_db)
+DBI::dbWriteTable(con, "mtcars", mtcars)
+DBI::dbWriteTable(con, "iris", iris)
+DBI::dbWriteTable(con, "npk", npk)
+DBI::dbDisconnect(con)
+
+path_root <- tempfile()
+orderly2:::orderly_init(path_root)
+fs::dir_create(path_root)
+writeLines(c(
+  "plugins:",
+  "  example.db: ~",
+  "",
+  "example.db:",
+  sprintf("  path: %s", path_db)),
+  file.path(path_root, "orderly_config.yml"))
+
+path_example <- file.path(path_root, "src", "example")
+fs::dir_create(path_example)
+writeLines(c(
+  "script:",
+  "  script.R",
+  "",
+  "example.db:",
+  "  dat:",
+  "     SELECT * from mtcars WHERE cyl == 4",
+  "",
+  "artefacts:",
+  "  data:",
+  "    description: summary of data",
+  "    filenames: data.rds"),
+  file.path(path_example, "orderly.yml"))
+
+writeLines(
+  'saveRDS(summary(dat), "data.rds")',
+  file.path(path_example, "script.R"))
+
+path_schema <- tempfile(fileext = ".json")
+writeLines(c(
+  '{',
+  '    "$schema": "http://json-schema.org/draft-07/schema#",',
+  '',
+  '    "type": "object",',
+  '    "additionalProperties": {',
+  '        "type": "object",',
+  '        "properties": {',
+  '            "query": {',
+  '                "type": "string"',
+  '            },',
+  '            "rows": {',
+  '                "type": "number"',
+  '            },',
+  '            "cols": {',
+  '                "type": "array",',
+  '                "items": {',
+  '                    "type": "character"',
+  '                }',
+  '            }',
+  '        },',
+  '        "required": ["query", "rows", "cols"],',
+  '        "additionalProperties": false',
+  '    }',
+  '}'),
+  path_schema)
+# Try to get things behaving on windows
+path_schema <- normalizePath(path_schema, winslash = "/", mustWork = TRUE)
+```
+
+Here is the directory structure of our minimal project
+
+```{r, echo = FALSE}
+withr::with_dir(path_root, fs::dir_tree("."))
+```
+
+The `orderly_config.yml` file contains the information shared by all possible uses of the plugin - in the case the connection information for the database:
+
+```{r, echo = FALSE, results = "asis"}
+yaml_output(readLines(file.path(path_root, "orderly_config.yml")))
+```
+
+The `orderly.yml` file contains information about use of the database for this specific report; in this case, making the results of the query `SELECT * from mtcars WHERE cyl == 4` against the database available as some R object `dat`
+
+```{r, echo = FALSE, results = "asis"}
+yaml_output(readLines(file.path(path_example, "orderly.yml")))
+```
+
+In this example, the script is trivial:
+
+```{r, echo = FALSE, results = "asis"}
+r_output(readLines(file.path(path_example, "script.R")))
+```
+
+but normally you'd be doing some calculation here, using any of the other functionality of orderly.
+
+To implement this we need to write three functions:
+
+(1) A "config" function to process the data from `orderly_config.yml`, primarily this is concerned with validation so can be fairly simple at first, later we'll expand this to report errors nicely.
+
+```{r}
+db_config <- function(data, filename) {
+  data
+}
+```
+
+The arguments here are
+
+* `data`: the deserialised section of the `orderly_config.yml` specific to this plugin
+* `filename`: the full path to `orderly_config.yml`
+
+The return value here should be the `data` argument with any auxiliary data added after validation.
+
+(2) A "read" function to process and validate the data from `orderly.yml` specific to this plugin, again we can make this very simple at first
+
+```{r}
+db_read <- function(data, filename, root) {
+  data
+}
+```
+
+The arguments here are
+
+* `data`: the deserialised section of `orderly.yml` specific to this plugin
+* `filename`: the full path to `orderly.yml`
+* `root`: the orderly root object. This is currently undocumented and subject to change, but can be used (theoretically) to access other parts of the orderly configuration
+
+The return value should be the `data` argument with any auxiliary data added after validation.
+
+(3) Finally a "run" function that actually does the query and sets the data just before the report runs.
+
+```{r}
+db_run <- function(data, root, parameters, environment, path) {
+  dbname <- root$config$example.db$path
+  con <- DBI::dbConnect(RSQLite::SQLite(), dbname)
+  on.exit(DBI::dbDisconnect(con))
+  for (i in names(data)) {
+    environment[[i]] <- DBI::dbGetQuery(con, data[[i]])
+  }
+  NULL
+}
+```
+
+The arguments here are
+
+* `data`: the configuration data as processed by the "read" function (here, `db_read`)
+* `root`: the root object, as above. From this you can access the plugin-specific configuration as `root$config$plugin.name`, substituting `plugin.name` for your plugin name (here it is `example.db`)
+* `parameters`: a named list of parameters, as passed to `orderly2::orderly_run`
+* `envir`: the report environment. You can save data here and it will be available to your report
+* `path`: the working directory for the report. You can save files here and they will be available to the report
+
+The primary ways that this function will affect the running of a report is in creating objects within the report environment (by setting elements in `environment`, as we do here) or by writing files into the report running directory, using the `path` argument.
+
+The return value of this function is `NULL`, indicating that no metadata will be saved into the orderly/outpack index. Later, we'll show why and how to change this.
+
+With these three functions we can manually register the plugin (see below for how this will eventually be done in a package context)
+
+```{r}
+orderly2::orderly_plugin_register(
+  orderly2::orderly_plugin(db_config, db_read, db_run),
+  "example.db")
+```
+
+The name argument here must match the name used in the configuration.
+
+Now, we can run the report:
+
+```{r}
+orderly2::orderly_run("example", root = path_root)
+```
+
+# Making the plugin more robust
+
+The plugin above is fairly fragile because it does not do any validation on the input data from `orderly_config.yml` or `orderly.yml`.  This is fairly annoying to do as yaml is incredibly flexible and reporting back information to the user about what might have gone wrong is hard.
+
+In our case, we expect a single key-value pair in `orderly_config.yml` with the key being `path` and the value being the path to a SQLite database. We can easily expand our configuration function to report better back to the user when they misconfigure the plugin:
+
+```{r, export_to_package = TRUE}
+db_config <- function(data, filename) {
+  if (!is.list(data) || !is.null(names(data)) || length(data) == 0) {
+    stop("Expected a named list for orderly_config.yml:example.db")
+  }
+  if (length(data$path) != 1 || !is.character(data$path)) {
+    stop("Expected a string for orderly_config.yml:example.db:path")
+  }
+  if (!file.exists(data$path)) {
+    stop(sprintf(
+      "The database '%s' does not exist (orderly_config:example.db:path)",
+      data$path))
+  }
+  data
+}
+```
+
+This should do an acceptable job of preventing poor input while suggesting to the user where they might look within the configuration to fix it. Note that we return the configuration data here, and you can augment (or otherwise change) this data as you need.
+
+Similarly, for the use in `orderly.yml`, we require a named list of query strings.
+
+```{r, export_to_package = TRUE}
+db_read <- function(data, filename, root) {
+  if (length(data) == 0) {
+    return(NULL)
+  }
+  if (is.null(names(data))) {
+    stop("Expected 'orderly.yml:example.db' to be named")
+  }
+  for (nm in names(data)) {
+    query <- data[[nm]]
+    if (!(is.character(query) && length(query) == 1)) {
+      stop(sprintf(
+        "Expected query 'orderly.yml:example.db:%s' to be a string",
+        nm))
+    }
+  }
+  data
+}
+```
+
+# Saving metadata about what the plugin did
+
+Nothing about what the plugin does is saved into the report metadata unless you save it. Partly this is because the orderly.yml, which is saved into the final directory, serves as some sort of record.  However, you probably want to know something about the data that you returned here. For example we might want to save
+
+* the query string so that later we can query it without having to read and process the `orderly.yml` file
+* some statistics about the size of the data (e.g., the number of rows returned, or the columns)
+* perhaps some summary of the content such as a hash so that we can see if the content has changed between different versions of a report
+
+```{r, export_to_package = TRUE}
+db_run <- function(data, config, environment, parameters, path) {
+  dbname <- config[[1]]
+  con <- DBI::dbConnect(RSQLite::SQLite(), dbname)
+  on.exit(DBI::dbDisconnect(con))
+  ret <- list()
+  for (i in names(data)) {
+    query <- data[[i]]
+    d <- DBI::dbGetQuery(con, query)
+    environment[[i]] <- d
+    ret[[i]] <- list(query = jsonlite::unbox(query),
+                     rows = jsonlite::unbox(nrow(d)),
+                     cols = names(d))
+  }
+  ret
+}
+```
+
+Here, we use `jsonlite::unbox` to tell the eventual serialisation that this is a scalar (so should be saved as a string or a number, not an array of length 1 containing a string or a number). You can also directly serialise to JSON in this function using `jsonlite::toJSON` with whatever arguments you prefer, and so long as the class of the returned object is `json` then it will be inserted correctly into the final metadata.
+
+Taking this a step further, we can also specify a [schema](https://json-schema.org/) that this metadata will conform to
+
+```{r, echo = FALSE, results = "asis"}
+json_output(readLines(path_schema))
+```
+
+Now, when we register the plugin, we provide the path to this schema
+
+```{r}
+orderly2::orderly_plugin_register(
+  orderly2::orderly_plugin(db_config, db_read, db_run, path_schema),
+  "example.db")
+```
+
+Now, when the orderly metadata is saved (just before running the script part of a report) we will validate output that `db_run` generates against the schema, if `jsonvalidate` is installed (currently this requires our development version) and if the R option `outpack.schema_validate` is set to `TRUE` (e.g., by running `options(outpack.schema_validate = TRUE)`).
+
+If you need to control serialisation of the output from the "run" function, you should use `jsonlite::toJSON` within that function directly and orderly2 will interpolate it verbatim into the final JSON (the important part of this is that it ends up as a string with class `json`).
+
+# Arranging the plugin in a package
+
+Typically, a plugin should be in a package. Currently we only allow for a single plugin per package but later may relax this.
+
+All you need to do is make sure that the `.onLoad` function calls `orderly2:::orderly_register_plugin` - your package does not need to export any functions at all.
+
+```{r, export_to_package = TRUE}
+.onLoad <- function(...) {
+  orderly2::orderly_plugin_register(
+    orderly2::orderly_plugin(db_config, db_read, db_run, path_schema),
+    "example.db")
+}
+```
+
+The `name` argument to `orderly2:::orderly_register_plugin` must be the package name, as orderly2 will trigger loading the package based on this name in the configuration.
+
+```{r, include = FALSE}
+## This is a bit nasty, but saves keeping code in sync; collect up all the
+## chunks that have the option "export_to_package" together and concatenate
+## into a file
+code <- unname(Filter(
+  function(x) isTRUE(attr(x, "chunk_opts")$export_to_package),
+  knitr::knit_code$get()))
+path_pkg <- file.path(tempfile(), "example.db")
+fs::dir_create(path_pkg)
+
+writeLines(c(
+  "Package: example.db",
+  "Version: 0.0.1",
+  "License: CC0",
+  "Title: Orderly Database Example Plugin",
+  "Description: Simple example of an orderly plugin.",
+  "Authors@R: person('Orderly Authors', role = c('aut', 'cre'), email = 'email@example.com')",
+  "Imports: orderly2"),
+  file.path(path_pkg, "DESCRIPTION"))
+
+file.create(file.path(path_pkg, "NAMESPACE"))
+
+fs::dir_create(file.path(path_pkg, "R"))
+writeLines(
+  paste(vapply(code, paste, "", collapse = "\n"), collapse = "\n\n"),
+  file.path(path_pkg, "R/plugin.R"))
+```
+
+A complete, minimal, package for this plugin would look like:
+
+```{r, echo = FALSE}
+withr::with_dir(dirname(path_pkg), fs::dir_tree(basename(path_pkg)))
+```
+
+The `DESCRIPTION` file contains:
+
+```{r, echo = FALSE, results = "asis"}
+plain_output(readLines(file.path(path_pkg, "DESCRIPTION")))
+```
+
+The `NAMESPACE` file is empty, but must exist.
+
+The `plugin.R` file contains the code from above:
+
+```{r, echo = FALSE, results = "asis"}
+r_output(readLines(file.path(path_pkg, "R/plugin.R")))
+```
+
+(this code could be in any .R file in the package, or across several).
+
+# Potential uses
+
+Our need for this functionality are similar to this example - pulling out the database functionality from the original version of orderly into something that is more independent, as it turns out to be useful only in a fraction of orderly use-cases. We can imagine other potential uses though, such as:
+
+* Non-DBI-based database data extraction, or customised routines for pulling data from a database
+* Download files from some shared location just before use (e.g., SharePoint, OneDrive, AWS). The `orderly_config.yml` would contain account connection details and `orderly.yml` would contain mapping between the remote data/files and local files. Rather than writing to the environment as we do above, use the `path` argument to copy files into the correct place.
+* Pull data from some web API just before running
+
+These all follow the same basic pattern of requiring some configuration in order to be able to connect to the resource service, some specification of what resources are to be fetched, and some action to actually fetch the resource and put it into place.
