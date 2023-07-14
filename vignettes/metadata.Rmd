@@ -123,7 +123,7 @@ You can simply copy metadata as the file `.outpack/metadata/<packet id>` if it d
 
 ## Adding files
 
-If the repository uses a file store, you should fill this first, because it is much easier to think about. You can easily get the difference between files used by a packet (the list of files in the packet manifest) and what you already have in the file store by looking up each hash in turn.  You should then request and missing files and insert them into the store. This may leave "dangling" files for a while (files referred to by no packet) but that is not  problem.
+If the repository uses a file store, you should fill this first, because it is much easier to think about. You can easily get the difference between files used by a packet (the list of files in the packet manifest) and what you already have in the file store by looking up each hash in turn.  You should then request and missing files and insert them into the store. This may leave "dangling" files for a while (files referred to by no packet) but that is not a problem.
 
 If the repository has a human-readable archive **and** uses a file store, then after the files are all present in the file store it is easy enough to check them out of the file store to the requested path (the local relative path in the packet manifest). Because you update the file store first, all files are guaranteed to be present.
 

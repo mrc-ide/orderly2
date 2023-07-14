@@ -75,7 +75,7 @@ The biggest change, but perhaps the least visible, is that orderly is now built 
 
 This takes control of all the metadata. As such there is a split between "`orderly_`" and "`outpack_`" functions in this package, for more information see the last section of `vignette("introduction")` and also `vignette("outpack")`.
 
-# What is missing from `orderly1`
+# What is missing compared with `orderly1`
 
 * the changelog feature (we will implement something to support this)
 * extraction of secrets from vault (we will support this)

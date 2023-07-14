@@ -346,7 +346,7 @@ anywhere within your `orderly.R` script (conventionally at the top). We may make
 * only copy files from the source directory (`src/<name>/`) to the draft directory where the report runs (`draft/<name>/<packet-id>`) that were declared with `orderly2::orderly_resource`; this leaves behind any extra files left over in development
 * warn at the end of running a packet if any files are found that are not part of an artefact
 
-Using strict mode also helps `orderly2` clean up the `src/<name>` directory more effectively after interactive development (see next section.
+Using strict mode also helps `orderly2` clean up the `src/<name>` directory more effectively after interactive development (see next section).
 
 # Interactive development
 
