@@ -149,6 +149,7 @@ outpack_search(quote(usedby({C}) && parameter:year == 2022),
 ```
 
 There are two important things to note about `usedby`:
+
 * The query inside `usedby` will search the entire index, ignoring any `scope` or `name` parameters. This is because we want to find all packets which are used by `latest` `C`. If the subquery `C` was scoped this would return no results.
 * The query inside `usedby` must return a single result. To ensure this it must either be a literal `id`, a call to `latest` or a call to `single`
 
