@@ -109,9 +109,9 @@ We could equivalently say
 * A is used by B , B uses A
 * A is a parent of B, B is a child of A
 
-With the tree of dependencies built by outpack we might want to search for packets which have been used by another packet. We can use the query function `usedby(id)` to list all packets which are used by `id`. This will search recursively through all packets used by `id` and its parents and its parents parents and so on.
+With the tree of dependencies built by outpack we might want to search for packets which have been used by another packet. We can use the query function `usedby(id)` to list all packets which are used by `id`. This will search recursively through all packets used by `id` and its parents and its parents' parents and so on.
 
-The optional second arg `immedate` is `FALSE` by default, if set to `TRUE` then we search only for immediate (e.g. level 1) dependencies.
+The optional second arg `immediate` is `FALSE` by default, if set to `TRUE` then we search only for immediate (e.g. level 1) dependencies.
 
 Being able to search through dependencies like this means if we have some packet structure like
 

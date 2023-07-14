@@ -58,7 +58,7 @@ In fact, for simple reports, **no** special functions are required, though you'l
 
 This change has widespread implications:
 
-* you can program against things like dependencies, creating a for loop over a series of parameter values, or conditionally depending on other reports
+* you can program against things like dependencies, creating a `for` loop over a series of parameter values, or conditionally depending on other reports
 * any R script can be the basis of an orderly report, and you can add orderly functions annotating inputs and outputs progressively
 
 ## Database support has been moved into a plugin
@@ -83,9 +83,9 @@ This takes control of all the metadata. As such there is a split between "`order
 
 # How to migrate
 
-There are two parts to a migration; updating the canonical copy of your orderly archive (ideally you only have one of these) and updating your source tree. These steps should be done via the `orderly2outpack` package.
+There are two parts to a migration: updating the canonical copy of your orderly archive (ideally you only have one of these) and updating your source tree. These steps should be done via the `orderly2outpack` package.
 
-You should migrate your archive first. Do this for every archive that you want to retain (you might have local archives, ones on production servers and ones on staging servers). Archive migration happens *out of place*; that is, we do not modify anything in the original location. If your archive is old and has been used with very old versions of `orderly1` it is possible that this process will have a few hiccups, please let us know if that is the case.  The result of this process is that you will end up with a new directory that contains a new archive conforming to the `outpack` spec and containing `orderly2` metadata.
+You should migrate your archive first. Do this for every archive that you want to retain (you might have archives stored lcoally, on production servers and on staging servers). Archive migration happens *out of place*; that is, we do not modify anything in the original location. If your archive is old and has been used with very old versions of `orderly1` it is possible that this process will have a few hiccups. Please let us know if that is the case.  The result of this process is that you will end up with a new directory that contains a new archive conforming to the `outpack` spec and containing `orderly2` metadata.
 
 Next, migrate your source tree. This will be done *in place* so should be done on a fresh clone of your source git repository. For each report, we will examine your `orderly.yml` files and your script files (often `script.R`), delete these, and then write out a new `orderly.R` file that will adapt your report to work for `orderly2`.  It is possible that this will not be perfect and might need some minor tweaking but hopefully it will be reasonable. One thing that is not preserved (and we probably cannot do so) is the comments from the `yaml` but as these often refer to `yaml` formatting or `orderly1` features hopefully this is not too much of a problem.  You will probably want to manually tweak the generated code anyway, to take advantage of some of the new `orderly2` features such as being able to compute dependencies.
 

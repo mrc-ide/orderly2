@@ -26,17 +26,17 @@ If you update the data, the whole pipeline should rerun.  But if you update the 
 
 In our experience, this model works well for a single-user setting but falls over in a collaborative setting, especially where the analysis is partitioned by person; so Alice is handling the data pipeline, Bob is running fits, while Carol is organising forecasts and the final report.  In this context, changes upstream affect downstream analysis, and require the same set of care around integration as you might be used to with version controlling source code.
 
-For example, if Alice is dealing with a change in the incoming data format which is going to break the analysis at the same time that Bob is trying to get the model fits working, Bob should not be trying to integrate both his code changes *and* the Alice's new data. We typically deal with this for source code by using branches within git; for the code Bob would work on a branch that is isolated from Alice's changes.  But in most contexts like this you will not have (and _should no have_) the data and analysis products in git.  What is needed is a way of versioning the outputs of each step of analysis and controlling when these are integrated into subsequent analyses.
+For example, if Alice is dealing with a change in the incoming data format which is going to break the analysis at the same time that Bob is trying to get the model fits working, Bob should not be trying to integrate both his code changes *and* Alice's new data. We typically deal with this for source code by using branches within git; for the code Bob would work on a branch that is isolated from Alice's changes.  But in most contexts like this you will not have (and _should not have_) the data and analysis products in git.  What is needed is a way of versioning the outputs of each step of analysis and controlling when these are integrated into subsequent analyses.
 
-Another way of of looking at the problem is that we seek a way of making analysis **composable** in the same way that functions and OOP achieve for programs, or the way that docker and containerisation have achieved for deploying software.  To do this we need a way of putting interfaces around pieces of analysis and to allow people to refer to them and fetch them from somewhere where they have been run.
+Another way of looking at the problem is that we seek a way of making analysis **composable** in the same way that functions and OOP achieve for programs, or the way that docker and containerisation have achieved for deploying software.  To do this we need a way of putting interfaces around pieces of analysis and to allow people to refer to them and fetch them from somewhere where they have been run.
 
 The conceptual pieces that are needed here are:
 
-* some way of referring unambiguously (and globally) to a piece of analysis so that it can be depended up, and so that everyone can agree they're talking about the same piece of analysis
+* some way of referring unambiguously (and globally) to a piece of analysis so that it can be depended upon, and so that everyone can agree they're talking about the same piece of analysis
 * a system of storage so that results of running analysis can be shared among a group
 * a system to control how integration of these pieces of analysis takes place
 
-We refer to a transportable unit of analysis as a "packet". This conceptually a directory of files created by running some code, and is our atomic unit of work from the point of view of `orderly`.  Each packet has an underlying source form, which anyone *can* run. However, most of the time people will use pre-run packets and 
+We refer to a transportable unit of analysis as a "packet". This conceptually is a directory of files created by running some code, and is our atomic unit of work from the point of view of `orderly`.  Each packet has an underlying source form, which anyone *can* run. However, most of the time people will use pre-run packets and 
 
 # Reproducible analyses
 
@@ -58,11 +58,11 @@ This model of computation has lots of good points:
 We have designed `orderly2` for working patterns that do not suit the above. Some motivating reasons include:
 
 * Some nodes in the computational graph are very expensive to compute or require exotic hardware.
-* Workflows where the upstream data never settle, but for which we need to know which version of the data end up used in a particular analysis
-* Workflows where upstream analyses are used in many downstream analyses, and which the upstream developer may not know much about the downstream use
-* Nondeterministic analyses, e.g., those involving stochastic simulations, where rerunning a node is not expected to return the same exact numerical results, and so we can't rely on different users recovering the same results on different occasions.
+* Workflows where the upstream data never settle, but we need to know which version of the data ends up used in a particular analysis
+* Workflows where upstream analyses are used in many downstream analyses, and where the upstream developer may not know much about the downstream use
+* Nondeterministic analyses, e.g., those involving stochastic simulations, where rerunning a node is not expected to return the exact same numerical results, and so we can't rely on different users recovering the same results on different occasions.
 
-In all these cases the missing piece we need is a way of versioning the nodes within the computational graph, and shift the emphasis from automatically rerunning portions of the graph to tracking how data has flowed through the graph.  This in turn shifts the reproducibility emphasis from "everyone _will_ run the same code and get the same results" to "everyone _could_ run the same code, but will instead work with the results".
+In all these cases the missing piece we need is a way of versioning the nodes within the computational graph, and shifting the emphasis from automatically rerunning portions of the graph to tracking how data has flowed through the graph.  This in turn shifts the reproducibility emphasis from "everyone _will_ run the same code and get the same results" to "everyone _could_ run the same code, but will instead work with the results".
 
 For those familiar with docker, our approach is similar to working with pre-built docker images, whereas the workflow approach is more similar to working directly with Dockerfiles; in many situations the end result is the same, but the approaches differ in guarantees, in where the computation happens, and in how users refer to versions.
 
@@ -74,7 +74,7 @@ Our approach flips the perspective around a bit, based on our experiences with c
 
 > Can we prove that a given set of inputs produced a given set of outputs?
 
-We quickly found that this was impossible, but provided a few systems were in place one could be satisfied with this statement to a given level of trust in a system. So if a piece of analysis comes from a server where the primary way people run analyses is through our web front-end (currently [OrderlyWeb](https://github.com/mrc-ide/orderly-web), soon to be [Packit](https://github.com/mrc-ide/packit)) we *know* that the analysis was run end-to-end with no modification and that `orderly2`preserves inputs alongside outputs so the files that are present in the final packet **were** the files that went into the analysis, and the recorded R and package versions **were** the full set that were used. 
+We quickly found that this was impossible, but provided a few systems were in place one could be satisfied with this statement to a given level of trust in a system. So if a piece of analysis comes from a server where the primary way people run analyses is through our web front-end (currently [OrderlyWeb](https://github.com/mrc-ide/orderly-web), soon to be [Packit](https://github.com/mrc-ide/packit)) we *know* that the analysis was run end-to-end with no modification and that `orderly2` preserves inputs alongside outputs so the files that are present in the final packet **were** the files that went into the analysis, and the recorded R and package versions **were** the full set that were used. 
 
 Because this system naturally involves running on multiple machines (typically we will have the analysts' laptops, a server and perhaps a HPC environment), and because of the way that `orderly2` treats paths, practically there is very little problem getting analyses working in multiple places, trivially satisfying the typical reproducibility aim, even though it is not what people are typically focussed on.
 
