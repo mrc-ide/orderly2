@@ -100,6 +100,8 @@ Next, migrate your source tree. This will be done *in place* so should be done o
 
 If you are using OrderlyWeb, you probably need to pause before migrating, as the replacement is not yet ready.
 
+# What about the packages?
+
 We will merge `orderly2` into the `orderly` package, so once we are ready for release you can use that. However, we anticipate a period of coexistence of both legacy `orderly1` systems while we develop `orderly2`. To help with this we have a small helper package [`orderly.helper`](https://mrc-ide.github.io/orderly.helper) which can smooth over these namespace differences; this may be useful if you interact with both versions.
 
 # What were the problems in version 1
