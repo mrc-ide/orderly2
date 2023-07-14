@@ -25,7 +25,13 @@ outpack_packet_end(packet, insert = TRUE)
 
 outpack_packet_run(packet, script, envir = .GlobalEnv)
 
-outpack_packet_use_dependency(packet, query, files, search_options = NULL)
+outpack_packet_use_dependency(
+  packet,
+  query,
+  files,
+  search_options = NULL,
+  overwrite = TRUE
+)
 
 outpack_packet_add_custom(packet, application, data, schema = NULL)
 }
@@ -88,6 +94,10 @@ add a slash if this is what you intended.}
 
 \item{search_options}{Optional search options for restricting the
 search (see \link{outpack_search} for details)}
+
+\item{overwrite}{Overwrite files at the destination; this is
+typically what you want, but set to \code{FALSE} if you would prefer
+that an error be thrown if the destination file already exists.}
 
 \item{application}{The name of the application (used to organise
 the data and query it later, see Details)}
