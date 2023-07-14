@@ -56,15 +56,15 @@ An orderly report is a directory `src/<name>` containing a file `orderly.R`. Tha
 * merging some set of files together to create a final data set
 
 ```{r, include = FALSE}
-fs::dir_create(file.path(path, "src", "data"))
+fs::dir_create(file.path(path, "src", "incoming_data"))
 write.csv(data.frame(x = 1:10, y = 1:10 + rnorm(10)), 
-          file.path(path, "src", "data", "data.csv"),
+          file.path(path, "src", "incoming_data", "data.csv"),
           row.names = FALSE)
 writeLines(c(
   'd <- read.csv("data.csv")',
   "d$z <- resid(lm(y ~ x, d))",
   'saveRDS(d, "data.rds")'),
-  file.path(path, "src", "data", "orderly.R"))
+  file.path(path, "src", "incoming_data", "orderly.R"))
 ```
 
 Our directory structure (ignoring `.outpack`) looks like:
@@ -73,21 +73,21 @@ Our directory structure (ignoring `.outpack`) looks like:
 dir_tree(path, all = FALSE)
 ```
 
-and `src/data/orderly.R` contains:
+and `src/incoming_data/orderly.R` contains:
 
 
 ```{r, echo = FALSE, results = "asis"}
-r_output(readLines(file.path(path, "src/data/orderly.R")))
+r_output(readLines(file.path(path, "src/incoming_data/orderly.R")))
 ```
 
 To run the report and create a new **packet**, use `orderly2::orderly_run()`:
 
 ```{r}
-id <- orderly2::orderly_run("data", root = path)
+id <- orderly2::orderly_run("incoming_data", root = path)
 id
 ```
 
-The `id` that is created is a new identifier for the packet that will be both unique among all packets (within reason) and chronologically sortable. A packet that has an that sorts after another was started before that packet.
+The `id` that is created is a new identifier for the packet that will be both unique among all packets (within reason) and chronologically sortable. A packet that has an id that sorts after another packet's id was started before that packet.
 
 Having run the report, our directory structure looks like:
 
@@ -97,15 +97,15 @@ dir_tree(path, all = FALSE)
 
 A few things have changed here:
 
-* we have a directory `r paste0("archive/data/", id)`; this directory contains
+* we have a directory `r paste0("archive/incoming_data/", id)`; this directory contains
   - the file that was created when we ran the report (`data.rds`; see the script above)
   - a log of what happened when the report was run and the packet was created
   - `orderly.R` and `data.csv`, the original input that have come from our source tree
-* there is an empty directory `draft/data` which was created when orderly ran the report in the first place
+* there is an empty directory `draft/incoming_data` which was created when orderly ran the report in the first place
 
 In addition, quite a few files have changed within the `.outpack` directory, but these are not covered here.
 
-That's it! Notice that the initial script is just a plain R script, and you can develop it interactively from within the `src/data` directory. Note however, that any paths referred to within will be relative to `src/data` and **not** the orderly repository root. This is important as all reports only see the world relative to their `orderly.R` file.
+That's it! Notice that the initial script is just a plain R script, and you can develop it interactively from within the `src/incoming_data` directory. Note however, that any paths referred to within will be relative to `src/incoming_data` and **not** the orderly repository root. This is important as all reports only see the world relative to their `orderly.R` file.
 
 Once created, you can then refer to this report by id and pull its files wherever you need them, both in the context of another orderly report or just to copy to your desktop to email someone. For example, to copy the file `data.rds` that we created to some location outside of orderly's control you could do
 
@@ -124,7 +124,7 @@ Creating a new dataset is mostly useful if someone else can use it. To do this w
 ```{r, include = FALSE}
 fs::dir_create(file.path(path, "src", "analysis"))
 writeLines(c(
-  'orderly2::orderly_dependency("data", "latest()",',
+  'orderly2::orderly_dependency("incoming_data", "latest()",',
   '                             c("incoming.rds" = "data.rds"))',
   'd <- readRDS("incoming.rds")',
   'png("analysis.png")',
@@ -171,24 +171,24 @@ In addition, there is also a function `orderly::orderly_run_info()` that can be 
 Let's add some additional annotations to the previous reports:
 
 ```{r, include = FALSE}
-code_data <- readLines(file.path(path, "src", "data", "orderly.R"))
+code_data <- readLines(file.path(path, "src", "incoming_data", "orderly.R"))
 writeLines(c(
   'orderly2::orderly_strict_mode()',
   'orderly2::orderly_resource("data.csv")',
   'orderly2::orderly_artefact("Processed data", "data.rds")',
   "",
   code_data),
-  file.path(path, "src", "data", "orderly.R"))
+  file.path(path, "src", "incoming_data", "orderly.R"))
 ```
 
 ```{r, echo = FALSE, results = "asis"}
-r_output(readLines(file.path(path, "src/data/orderly.R")))
+r_output(readLines(file.path(path, "src/incoming_data/orderly.R")))
 ```
 
 Here, we've added a block of special orderly commands; these could go anywhere, for example above the files that they refer to. If strict mode is enabled (see below) then `orderly2::orderly_resource` calls must go before the files are used as they will only be made available at that point (see below).
 
 ```{r}
-id <- orderly2::orderly_run("data", root = path)
+id <- orderly2::orderly_run("incoming_data", root = path)
 ```
 
 # Parameterised reports
@@ -197,7 +197,7 @@ Much of the flexibility that comes from the orderly graph comes from using param
 
 For example, consider a simple report where we generate samples based on some parameter:
 
-```{r}
+```{r, include = FALSE}
 fs::dir_create(file.path(path, "src", "random"))
 writeLines(c(
   "orderly2::orderly_parameters(n_samples = 10)",
@@ -283,7 +283,7 @@ Sometimes it is useful to share data between different reports, for example some
 
 To do this, you should set up a global resources directory by editing the `orderly_config.yml` file to say:
 
-```{r}
+```{r, echo = FALSE, results = "asis"}
 contents <- readLines(file.path(path, "orderly_config.yml"))
 writeLines(c(
   contents,
@@ -362,7 +362,7 @@ After doing this, you will have a mix of files within your source directory. We 
 
 Some guidelines:
 
-Make sure to exclude some files from `.git`:
+Make sure to exclude some files from `git` by listing them in `.gitignore`:
 
 - `.outpack/` - nothing in here is suitable for version control
 - `archive/` - if you have `core.archive_path` set to a non-null value, this should be excluded. The default is `archive`
