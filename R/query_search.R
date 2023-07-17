@@ -129,6 +129,7 @@ query_eval <- function(query, index, parameters, subquery) {
   switch(query$type,
          literal = query$value,
          lookup = query_eval_lookup(query, index, parameters),
+         empty = query_eval_empty(query, index, parameters, subquery),
          group = query_eval_group(query, index, parameters, subquery),
          test = query_eval_test(query, index, parameters, subquery),
          latest = query_eval_latest(query, index, parameters, subquery),
@@ -202,6 +203,11 @@ query_eval_lookup <- function(query, index, parameters) {
                                 query$context),
          ## Normally unreachable
          stop("Unhandled lookup [outpack bug - please report]"))
+}
+
+
+query_eval_empty <- function(query, index, parameters, subquery) {
+  index$index$id
 }
 
 

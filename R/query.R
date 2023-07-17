@@ -3,7 +3,7 @@
 ##'
 ##' @title Construct outpack query
 ##'
-##' @param expr The query expression
+##' @param expr The query expression. A `NULL` expression matches everything.
 ##'
 ##' @param name Optionally, the name of the packet to scope the query on. This
 ##'   will be intersected with `scope` arg and is a shorthand way of running
@@ -48,6 +48,9 @@ outpack_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
 
 
 as_outpack_query <- function(expr, ...) {
+  if (missing(expr)) {
+    expr <- NULL
+  }
   if (inherits(expr, "outpack_query")) {
     if (...length() > 0) {
       stop("If 'expr' is an 'outpack_query', no additional arguments allowed")
@@ -71,7 +74,7 @@ query_parse <- function(expr, context, subquery_env) {
       }
       expr <- expr[[1L]]
     }
-  } else if (!is.language(expr)) {
+  } else if (!(is.null(expr) || is.language(expr))) {
     stop("Invalid input for query")
   }
 
@@ -107,6 +110,7 @@ query_component <- function(type, expr, context, args, ...) {
 query_parse_expr <- function(expr, context, subquery_env) {
   type <- query_parse_check_call(expr, context)
   fn <- switch(type,
+               empty = query_parse_empty,
                test = query_parse_test,
                group = query_parse_group,
                latest = query_parse_latest,
@@ -116,6 +120,11 @@ query_parse_expr <- function(expr, context, subquery_env) {
                ## normally unreachable
                stop("Unhandled expression [outpack bug - please report]"))
   fn(expr, context, subquery_env)
+}
+
+
+query_parse_empty <- function(expr, context, subquery_env) {
+  query_component("empty", expr, context, list())
 }
 
 
@@ -301,6 +310,10 @@ query_eval_error <- function(msg, expr, context) {
 
 
 query_parse_check_call <- function(expr, context) {
+  if (is.null(expr)) {
+    return("empty")
+  }
+
   if (!is.call(expr)) {
     query_parse_error(sprintf(
       "Invalid query '%s'; expected some sort of expression",
