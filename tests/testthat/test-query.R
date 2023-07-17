@@ -12,8 +12,23 @@ test_that("Parse basic query", {
 })
 
 
+test_that("empty query is possible", {
+  expect_equal(
+    query_parse(NULL, NULL, new.env(parent = emptyenv())),
+    query_component("empty", expr = NULL, context = NULL, args = list()))
+  expect_equal(
+    outpack_query(NULL),
+    structure(
+      list(value = query_parse(NULL, NULL, new.env(parent = emptyenv())),
+           subquery = list(),
+           info = list(single = FALSE,
+                       parameters = character())),
+      class = "outpack_query"))
+})
+
+
 test_that("Prevent unparseable queries", {
-  expect_error(query_parse(NULL, NULL, emptyenv()),
+  expect_error(query_parse(1, NULL, emptyenv()),
                "Invalid input for query")
   expect_error(query_parse("latest(); latest()", NULL, emptyenv()),
                "Expected a single expression")

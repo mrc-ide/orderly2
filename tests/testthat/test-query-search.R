@@ -844,3 +844,16 @@ test_that("allow search before query", {
     ids)
   expect_setequal(names(root$a$index()$metadata), ids)
 })
+
+
+
+test_that("empty search returns full set", {
+  root <- create_temporary_root(use_file_store = TRUE)
+  ids <- list(a = vcapply(1:3, function(i) create_random_packet(root, "a")),
+              b = vcapply(1:3, function(i) create_random_packet(root, "b")))
+
+  expect_equal(outpack_search(root = root),
+               c(ids$a, ids$b))
+  expect_equal(outpack_search(name = "a", root = root),
+               c(ids$a))
+})
