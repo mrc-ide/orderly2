@@ -776,3 +776,15 @@ test_that("can depend on a directory artefact", {
                data_frame(here = c("d/a.rds", "d/b.rds"),
                           there = c("output/a.rds", "output/b.rds")))
 })
+
+
+test_that("run without logging config works", {
+  ## This test makes sure that we can load a configuration without a
+  ## logging section and still run something:
+  path <- test_prepare_orderly_example("data")
+  config_remove_logging(path)
+  env <- new.env()
+  res <- testthat::evaluate_promise(
+    orderly_run("data", root = path, envir = env))
+  expect_match(res$messages, "\\[ name\\s+\\]  data", all = FALSE)
+})

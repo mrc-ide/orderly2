@@ -250,5 +250,10 @@ config_read <- function(root_path) {
     priority = vnapply(config$location, "[[", "priority"),
     type = vcapply(config$location, "[[", "type"),
     args = I(lapply(config$location, "[[", "args")))
+  if (is.null(config$logging)) {
+    ## Logging is unspecified in config, so use implementation defined
+    ## defaults:
+    config$logging <- list(console = TRUE, threshold = "info")
+  }
   config
 }

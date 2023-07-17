@@ -360,3 +360,11 @@ test_that("can control console logging", {
   root3 <- outpack_root_open(root$path, FALSE)
   expect_false(root3$config$logging$console)
 })
+
+
+test_that("loading config without logging adds defaults", {
+  root <- create_temporary_root()
+  config_remove_logging(root$path)
+  root2 <- outpack_root_open(root$path, FALSE)
+  expect_equal(root2$config$logging, list(console = TRUE, threshold = "info"))
+})
