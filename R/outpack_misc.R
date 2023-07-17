@@ -87,3 +87,33 @@ validate_parameters <- function(parameters) {
                  paste(squote(names(parameters)[!ok]), collapse = ", ")))
   }
 }
+
+
+validate_file_from_to <- function(x, environment,
+                                  name = deparse(substitute(x)),
+                                  call = NULL) {
+  if (is.character(x)) {
+    to <- names(x) %||% x
+    from <- unname(x)
+    if (any(i <- !nzchar(to))) {
+      to[i] <- from[i]
+    }
+  } else if (inherits(x, c("data_frame", "tbl"))) {
+    nms <- names(x)
+    if (!setequal(nms, c("from", "to"))) {
+      err <- sprintf(
+        "If a 'data.frame' is given for '%s' its names must be 'from' and 'to'",
+        name)
+      hint <- sprintf("Names of '%s': %s", paste(squote(nms, collapse = ", ")))
+      cli::cli_abort(c(err, i = hint))
+    }
+  } else {
+    cli::cli_abort(c(
+      sprintf("Unexpected object type for '%s'", name),
+      x = sprintf("Given object of class %s", collapseq(names(x))),
+      i = "Expected a (named) character vector or 'data.frame' / 'tbl_df'"))
+  }
+
+  data_frame(from = from,
+             to = string_interpolate_simple(to, environment, call))
+}

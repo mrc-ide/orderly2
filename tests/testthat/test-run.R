@@ -912,3 +912,29 @@ test_that("validation of orderly directories", {
       i = hint_close,
       i = hint_root))
 })
+
+
+test_that("can rename dependencies programmatically", {
+  path <- test_prepare_orderly_example("data")
+  env1 <- new.env()
+  id1 <- orderly_run("data", root = path, envir = env1)
+
+  path_src <- file.path(path, "src", "use")
+  fs::dir_create(path_src)
+  writeLines(c(
+    'orderly2::orderly_artefact("data", "d.rds")',
+    'p <- "x"',
+    "orderly2::orderly_dependency(",
+    '  "data", "latest()",',
+    '  c("${p}/data.rds" = "data.rds"))',
+    'd <- readRDS(file.path(p, "data.rds"))',
+    'saveRDS(d, "d.rds")'),
+    file.path(path_src, "orderly.R"))
+  env2 <- new.env()
+  id2 <- orderly_run("use", root = path, envir = env2)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id2, full = TRUE)
+  expect_equal(meta$depends$packet, id1)
+  expect_equal(meta$depends$files[[1]],
+               data_frame(here = "x/data.rds",
+                          there = "data.rds"))
+})

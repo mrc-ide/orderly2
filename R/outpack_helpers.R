@@ -39,16 +39,22 @@
 ##'   though associated with no packet so that it is subject to
 ##'   garbage collection (once we write support for that).
 ##'
+##' @param envir An environment into which string interpolation
+##'   may happen (TODO: docs!). The default here is to use the calling
+##'   environment, whcih is typically reasonableb, but may need
+##'   changing in programmatic use.
+##'
 ##' @return Nothing, invisibly. Primarily called for its side effect
 ##'   of copying files from a packet into the directory `dest`
 ##'
 ##' @export
 outpack_copy_files <- function(id, files, dest, allow_remote = FALSE,
-                               overwrite = TRUE, root = NULL) {
+                               overwrite = TRUE, envir = parent.frame(),
+                               root = NULL) {
   root <- outpack_root_open(root, locate = TRUE)
 
-  assert_named(files, unique = TRUE)
-  plan <- plan_copy_files(root, id, unname(files), names(files))
+  files <- validate_file_from_to(files, envir)
+  plan <- plan_copy_files(root, id, files$from, files$to)
 
   tryCatch(
     file_export(root, id, plan$there, plan$here, dest, overwrite),

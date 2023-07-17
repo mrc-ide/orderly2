@@ -263,18 +263,19 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##' @param search_options Optional search options for restricting the
 ##'   search (see [orderly2::outpack_search] for details)
 ##'
-##' @param envir Optional environment for `environment:` lookups; the
-##'   default is to use the parent frame, but other suitable options
-##'   are the global environment or the environment of the script you
-##'   are running (this only relevant if you have `environment:`
-##'   lookups in `query`).
+##' @param envir Optional environment for `environment:` lookups in
+##'   `query`, and for interpolating filenames in `files; the default
+##'   is to use the parent frame, but other suitable options are the
+##'   global environment or the environment of the script you are
+##'   running (this only relevant if you have `environment:` lookups
+##'   in `query`).
 ##'
 ##' @param overwrite Overwrite files at the destination; this is
 ##'   typically what you want, but set to `FALSE` if you would prefer
 ##'   that an error be thrown if the destination file already exists.
 outpack_packet_use_dependency <- function(packet, query, files,
-                                          search_options = NULL,
                                           envir = parent.frame(),
+                                          search_options = NULL,
                                           overwrite = TRUE) {
   packet <- check_current_packet(packet)
   query <- as_outpack_query(query)
@@ -314,6 +315,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
   result <- outpack_copy_files(id, files, packet$path,
                                allow_remote = search_options$allow_remote,
                                overwrite = overwrite,
+                               envir = envir,
                                root = packet$root)
 
   query_str <- deparse_query(query$value$expr,

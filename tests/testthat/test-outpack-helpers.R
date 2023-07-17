@@ -57,3 +57,20 @@ test_that("can copy files from location, using archive", {
   hash <- meta$files$hash[meta$files$path == "data.rds"]
   expect_equal(hash_file(file.path(tmp, "data.rds"), "sha256"), hash)
 })
+
+
+test_that("can interpolate filenames in copy", {
+  root <- create_temporary_root(use_file_store = TRUE)
+  id <- create_random_packet(root)
+  dst <- temp_file()
+  ## Some bindings to force lookup:
+  path <- "a"
+  file <- "b"
+  outpack_copy_files(id, c("${path}/${file}.rds" = "data.rds"),
+                     dst, root = root)
+  expect_equal(dir(dst), "a")
+  expect_equal(dir(file.path(dst, "a")), "b.rds")
+  expect_identical(
+    readRDS(file.path(dst, "a", "b.rds")),
+    readRDS(file.path(root$path, "archive", "data", id, "data.rds")))
+})

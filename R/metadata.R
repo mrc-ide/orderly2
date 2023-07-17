@@ -261,6 +261,7 @@ orderly_dependency <- function(name, query, use) {
   search_options <- as_outpack_search_options(ctx$search_options)
   if (ctx$is_active) {
     outpack_packet_use_dependency(ctx$packet, query, use,
+                                  envir = ctx$env,
                                   search_options = search_options,
                                   envir = ctx$env,
                                   overwrite = TRUE)
@@ -272,6 +273,7 @@ orderly_dependency <- function(name, query, use) {
     outpack_copy_files(id, use, ctx$path,
                        allow_remote = search_options$allow_remote,
                        overwrite = TRUE,
+                       envir = ctx$env,
                        root = ctx$root)
   }
 

@@ -10,6 +10,7 @@ outpack_copy_files(
   dest,
   allow_remote = FALSE,
   overwrite = TRUE,
+  envir = parent.frame(),
   root = NULL
 )
 }
@@ -39,6 +40,11 @@ garbage collection (once we write support for that).}
 \item{overwrite}{Overwrite files at the destination; this is
 typically what you want, but set to \code{FALSE} if you would prefer
 that an error be thrown if the destination file already exists.}
+
+\item{envir}{An environment into which string interpolation
+may happen (TODO: docs!). The default here is to use the calling
+environment, whcih is typically reasonableb, but may need
+changing in programmatic use.}
 
 \item{root}{The outpack root. Will be searched for from the
 current directory if not given.}
