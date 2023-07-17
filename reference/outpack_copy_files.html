@@ -58,7 +58,14 @@ control of outpack, for example.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">outpack_copy_files</span><span class="op">(</span><span class="va">id</span>, <span class="va">files</span>, <span class="va">dest</span>, allow_remote <span class="op">=</span> <span class="cn">FALSE</span>, root <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">outpack_copy_files</span><span class="op">(</span></span>
+<span>  <span class="va">id</span>,</span>
+<span>  <span class="va">files</span>,</span>
+<span>  <span class="va">dest</span>,</span>
+<span>  allow_remote <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  root <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -91,6 +98,12 @@ on the speed of the connection. If you use a file store, note
 that this does add the downloaded file into your file store,
 though associated with no packet so that it is subject to
 garbage collection (once we write support for that).</p></dd>
+
+
+<dt>overwrite</dt>
+<dd><p>Overwrite files at the destination; this is
+typically what you want, but set to <code>FALSE</code> if you would prefer
+that an error be thrown if the destination file already exists.</p></dd>
 
 
 <dt>root</dt>
