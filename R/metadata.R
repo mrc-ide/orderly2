@@ -241,19 +241,13 @@ static_orderly_artefact <- function(args) {
 ##'   the string `latest`, indicating the most recent version. You may
 ##'   want a more complex query here though.
 ##'
-##' @param use A named character vector of filenames to copy from the
-##'   upstream packet. The name corresponds to the destination name,
-##'   so c(here.csv = "there.csv") will take the upstream file
-##'   `there.csv` and copy it over as `here.csv`.
+##' @param use See [outpack_packet_use_dependency]'s `file` argument
 ##'
 ##' @return Undefined
 ##' @export
 orderly_dependency <- function(name, query, use) {
   assert_scalar_character(name)
   assert_scalar_character(query)
-
-  assert_character(use)
-  assert_named(use, unique = TRUE)
 
   ctx <- orderly_context()
   subquery <- NULL
@@ -287,6 +281,9 @@ static_orderly_dependency <- function(args) {
   use <- args$use
 
   name <- static_string(name)
+
+  ## TODO: this is no longer ok, it might not easily be computable
+  ## really; see mrc-4398
   use <- static_character_vector(use)
   ## TODO: allow passing expressions directly in, that will be much
   ## nicer, but possibly needs some care as we do want a consistent

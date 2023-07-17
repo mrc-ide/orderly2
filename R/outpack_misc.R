@@ -98,7 +98,9 @@ validate_file_from_to <- function(x, environment,
     if (any(i <- !nzchar(to))) {
       to[i] <- from[i]
     }
-  } else if (inherits(x, c("data_frame", "tbl"))) {
+  } else if (inherits(x, "data.frame")) {
+    ## tbl_df (from tibble/dplyr) and data.table both inherit from
+    ## data.frame here so this will work.
     nms <- names(x)
     if (!setequal(nms, c("from", "to"))) {
       err <- sprintf(
@@ -107,6 +109,7 @@ validate_file_from_to <- function(x, environment,
       hint <- sprintf("Names of '%s': %s", paste(squote(nms, collapse = ", ")))
       cli::cli_abort(c(err, i = hint))
     }
+    ## Cope with missing values here?
   } else {
     cli::cli_abort(c(
       sprintf("Unexpected object type for '%s'", name),
@@ -114,6 +117,10 @@ validate_file_from_to <- function(x, environment,
       i = "Expected a (named) character vector or 'data.frame' / 'tbl_df'"))
   }
 
-  data_frame(from = from,
-             to = string_interpolate_simple(to, environment, call))
+  to_value <- string_interpolate_simple(to, environment, call)
+
+  ## TODO: disallow duplicates
+  ## TODO: disallow interpolation in from
+  ## TODO: do we cope with trailing slashes in to?
+  data_frame(from = from, to = to_value)
 }
