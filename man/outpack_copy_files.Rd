@@ -4,7 +4,14 @@
 \alias{outpack_copy_files}
 \title{Copy files from a packet}
 \usage{
-outpack_copy_files(id, files, dest, allow_remote = FALSE, root = NULL)
+outpack_copy_files(
+  id,
+  files,
+  dest,
+  allow_remote = FALSE,
+  overwrite = TRUE,
+  root = NULL
+)
 }
 \arguments{
 \item{id}{Optionally, an outpack id via \link{outpack_id}. If
@@ -28,6 +35,10 @@ on the speed of the connection. If you use a file store, note
 that this does add the downloaded file into your file store,
 though associated with no packet so that it is subject to
 garbage collection (once we write support for that).}
+
+\item{overwrite}{Overwrite files at the destination; this is
+typically what you want, but set to \code{FALSE} if you would prefer
+that an error be thrown if the destination file already exists.}
 
 \item{root}{The outpack root. Will be searched for from the
 current directory if not given.}

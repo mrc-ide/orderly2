@@ -23,7 +23,7 @@ test_that("Can store files", {
   expect_equal(obj$list(), h)
   expect_true(file.exists(obj$filename(h)))
   dest <- tempfile()
-  expect_equal(obj$get(h, dest), dest)
+  expect_equal(obj$get(h, dest, TRUE), dest)
   expect_true(file.exists(dest))
   expect_equal(hash_file(dest), h)
 
@@ -36,7 +36,7 @@ test_that("Can store files", {
                rep(TRUE, 10))
   dest <- temp_file()
   dir.create(dest)
-  obj$get(obj$list(), dest)
+  obj$get(obj$list(), dest, TRUE)
 })
 
 

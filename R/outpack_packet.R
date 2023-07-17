@@ -262,8 +262,13 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'
 ##' @param search_options Optional search options for restricting the
 ##'   search (see [orderly2::outpack_search] for details)
+##'
+##' @param overwrite Overwrite files at the destination; this is
+##'   typically what you want, but set to `FALSE` if you would prefer
+##'   that an error be thrown if the destination file already exists.
 outpack_packet_use_dependency <- function(packet, query, files,
-                                          search_options = NULL) {
+                                          search_options = NULL,
+                                          overwrite = TRUE) {
   packet <- check_current_packet(packet)
   query <- as_outpack_query(query)
   search_options <- as_outpack_search_options(search_options)
@@ -298,6 +303,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
 
   result <- outpack_copy_files(id, files, packet$path,
                                allow_remote = search_options$allow_remote,
+                               overwrite = overwrite,
                                root = packet$root)
 
   query_str <- deparse_query(query$value$expr,

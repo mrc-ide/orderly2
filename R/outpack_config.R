@@ -146,7 +146,7 @@ config_set_path_archive <- function(value, root) {
       invisible(lapply(root$index()$unpacked, function(id) {
         meta <- root$metadata(id)
         dst <- file.path(path_archive, meta$name, id, meta$files$path)
-        root$files$get(meta$files$hash, dst)
+        root$files$get(meta$files$hash, dst, TRUE)
       }))
       config$core$path_archive <- value
     }, error = function(e) {

@@ -44,14 +44,14 @@
 ##'
 ##' @export
 outpack_copy_files <- function(id, files, dest, allow_remote = FALSE,
-                               root = NULL) {
+                               overwrite = TRUE, root = NULL) {
   root <- outpack_root_open(root, locate = TRUE)
 
   assert_named(files, unique = TRUE)
   plan <- plan_copy_files(root, id, unname(files), names(files))
 
   tryCatch(
-    file_export(root, id, plan$there, plan$here, dest),
+    file_export(root, id, plan$there, plan$here, dest, overwrite),
     not_found_error = function(e) {
       if (!allow_remote) {
         stop(paste0(
@@ -60,7 +60,7 @@ outpack_copy_files <- function(id, files, dest, allow_remote = FALSE,
           "Original error:\n", e$message),
           call. = FALSE)
       }
-      copy_files_from_remote(id, plan$there, plan$here, dest, root)
+      copy_files_from_remote(id, plan$there, plan$here, dest, overwrite, root)
     })
 
   invisible(plan)
@@ -90,7 +90,7 @@ plan_copy_files <- function(root, id, there, here) {
 
 ## We don't want here to necessarily download all of these files; some
 ## might be found locally.
-copy_files_from_remote <- function(id, there, here, dest, root) {
+copy_files_from_remote <- function(id, there, here, dest, overwrite, root) {
   location_id <- location_resolve_valid(NULL, root,
                                         include_local = FALSE,
                                         allow_no_locations = FALSE)
@@ -104,13 +104,15 @@ copy_files_from_remote <- function(id, there, here, dest, root) {
   if (root$config$core$use_file_store) {
     hash_msg <- hash[!root$files$exists(hash)]
     location_pull_hash_store(root, driver, hash_msg)
-    root$files$get(hash, here_full)
+    root$files$get(hash, here_full, overwrite)
   } else {
     src <- lapply(hash, function(h) find_file_by_hash(root, h))
     is_missing <- vlapply(src, is.null)
     hash_msg <- hash[is_missing]
     location_pull_hash_archive(root, driver, hash[is_missing],
                                here_full[is_missing])
-    fs::file_copy(list_to_character(src[!is_missing]), here_full[!is_missing])
+    fs::file_copy(list_to_character(src[!is_missing]),
+                  here_full[!is_missing],
+                  overwrite = overwrite)
   }
 }

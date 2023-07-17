@@ -48,7 +48,7 @@ outpack_location_path <- R6::R6Class(
           stop(sprintf("Hash '%s' not found at location", hash))
         }
       }
-      fs::file_copy(path, dest)
+      fs::file_copy(path, dest, overwrite = TRUE)
       dest
     },
 
@@ -95,7 +95,7 @@ location_path_import_metadata <- function(str, hash, root) {
   if (!is.null(root$config$core$path_archive)) {
     dst <- file.path(root$path, root$config$core$path_archive,
                      meta$name, id, meta$files$path)
-    root$files$get(meta$files$hash, dst)
+    root$files$get(meta$files$hash, dst, TRUE)
   }
 
   writeLines(str, file.path(root$path, ".outpack", "metadata", id))

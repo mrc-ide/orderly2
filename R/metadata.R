@@ -258,23 +258,17 @@ orderly_dependency <- function(name, query, use) {
   ctx <- orderly_context()
   subquery <- NULL
   query <- outpack_query(query, name = name, subquery = subquery)
+  search_options <- as_outpack_search_options(ctx$search_options)
   if (ctx$is_active) {
     outpack_packet_use_dependency(ctx$packet, query, use,
-                                           ctx$search_options)
+                                  search_options = search_options,
+                                  overwrite = TRUE)
   } else {
     id <- outpack_search(query, parameters = ctx$parameters,
-                                  options = ctx$search_options,
-                                  root = ctx$root)
-    ## TODO: slightly nicer if outpack exposes the coersion for us
-    ## which then fills this in; we'd do that here.
-    ##
-    ## TODO: can save effort here if files have already been
-    ## downloaded once and are still correct.
-    ##
-    ## TODO: this *will* fail if called twice, that's fixable
-    ## elsewhere, along with the above!
-    allow_remote <- isTRUE(ctx$options$allow_remote)
-    outpack_copy_files(id, use, ctx$path, allow_remote, ctx$root)
+                         options = search_options, root = ctx$root)
+    outpack_copy_files(id, use, ctx$path,
+                       allow_remote = search_options$allow_remote,
+                       overwrite = TRUE, root = ctx$root)
   }
 
   invisible()
@@ -371,7 +365,7 @@ copy_global <- function(path_root, path_dest, config, files) {
     there <- replace_ragged(there, is_dir, Map(file.path, there[is_dir], files))
   }
   if (any(!is_dir)) {
-    fs::file_copy(src[!is_dir], dst[!is_dir])
+    fs::file_copy(src[!is_dir], dst[!is_dir], overwrite = TRUE)
   }
 
   data_frame(here = here, there = there)

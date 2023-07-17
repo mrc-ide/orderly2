@@ -437,7 +437,7 @@ location_pull_hash_archive <- function(root, driver, hash, dest) {
     if (is.null(src)) {
       driver$fetch_file(hash[[i]], dest[[i]])
     } else {
-      fs::file_copy(src, dest[[i]])
+      fs::file_copy(src, dest[[i]], overwrite = TRUE)
     }
   }
 }
@@ -448,7 +448,7 @@ location_pull_files_archive <- function(root, driver, packet_id) {
                     packet_id, meta$files$path)
   if (root$config$core$use_file_store) {
     for (i in seq_len(nrow(meta$files))) {
-      root$files$get(meta$files$hash[[i]], dest[[i]])
+      root$files$get(meta$files$hash[[i]], dest[[i]], overwrite = TRUE)
     }
   } else {
     location_pull_hash_archive(root, driver, meta$files$hash, dest)
