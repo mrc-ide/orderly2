@@ -188,8 +188,11 @@ query_eval_subquery <- function(query, query_env) {
   if (!subquery[[name]]$evaluated) {
     ## TODO: should we really not allow parameters here? Feels like
     ## they might be relevant?
-    result <- query_eval(subquery[[name]]$parsed, query_env$index,
-                         parameters = NULL, subquery)
+    subquery_env <- list(index = query_env$index,
+                         parameters = NULL,
+                         environment = query_env$environment,
+                         subquery = subquery)
+    result <- query_eval(subquery[[name]]$parsed, subquery_env)
     subquery[[name]]$result <- result
     subquery[[name]]$evaluated <- TRUE
   }
@@ -202,6 +205,7 @@ query_eval_dependency <- function(query, query_env) {
   ## were usedby or used in this one, so find parents/children without scope
   ## and apply scope later when finding the results of the main query.
   id <- query_eval(query$args[[1]], query_env)
+  index <- query_env$index
   switch(query$name,
          usedby = index$get_packet_depends(id, query$args[[2]]$value),
          uses = index$get_packet_uses(id, query$args[[2]]$value))

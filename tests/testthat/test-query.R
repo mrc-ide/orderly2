@@ -205,7 +205,9 @@ test_that("construct a query", {
   expect_setequal(names(obj), c("value", "info", "subquery"))
   expect_s3_class(obj$value, "outpack_query_component")
   expect_equal(obj$value, query_parse("latest", "latest", emptyenv()))
-  expect_equal(obj$info, list(single = TRUE, parameters = character()))
+  expect_equal(obj$info, list(single = TRUE,
+                              parameters = character(),
+                              environment = character()))
   expect_equal(obj$subquery, list())
 })
 
@@ -232,7 +234,6 @@ test_that("report on parameters used in the query", {
   expect_equal(f(quote(parameter:x < this:a && this:a > this:b)),
                c("a", "b"))
 })
-
 
 test_that("report on environment variables used in the query", {
   f <- function(x) {

@@ -177,7 +177,8 @@ test_that("switch statements will prevent regressions", {
     "Unhandled expression [outpack bug - please report]",
     fixed = TRUE)
   expect_error(
-    query_eval_lookup(list(name = "custom:orderly:displayname")),
+    query_eval_lookup(list(name = "custom:orderly:displayname"),
+                      new.env(parent = emptyenv())),
     "Unhandled lookup [outpack bug - please report]",
     fixed = TRUE)
   expect_error(
