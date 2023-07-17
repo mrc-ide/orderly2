@@ -26,12 +26,16 @@ test_that("can extract from parameters", {
   expect_equal(d$i, I(as.list(1:5)))
 
   d <- outpack_metadata_extract('name == "data"',
-                                extract = c("name", "time"),
+                                extract = c(i = "parameters.i is number"),
                                 root = root)
-  expect_setequal(names(d), c("id", "name", "time"))
+  expect_setequal(names(d), c("id", "i"))
   expect_equal(d$id, ids)
-  expect_equal(d$name, rep("data", 5))
-  expect_equal(d$time, I(lapply(meta, "[[", "time")))
+  expect_equal(d$i, as.numeric(1:5))
+
+  ## This is a bad error:
+  ## d <- outpack_metadata_extract('name == "data"',
+  ##                               extract = c(i = "parameters.i is string"),
+  ##                               root = root)
 })
 
 test_that("can extract from time", {
@@ -40,6 +44,14 @@ test_that("can extract from time", {
     create_random_packet(root, parameters = list(i = i))
   })
   meta <- lapply(ids, outpack_metadata, root = root)
+
+  d <- outpack_metadata_extract('name == "data"',
+                                extract = c("name", "time"),
+                                root = root)
+  expect_setequal(names(d), c("id", "name", "time"))
+  expect_equal(d$id, ids)
+  expect_equal(d$name, rep("data", 5))
+  expect_equal(d$time, I(lapply(meta, "[[", "time")))
 
   d <- outpack_metadata_extract(
     'name == "data"',
@@ -50,4 +62,42 @@ test_that("can extract from time", {
   expect_equal(d$start, num_to_time(vnapply(meta, function(x) x$time$start)))
   expect_equal(d$end, num_to_time(vnapply(meta, function(x) x$time$end)))
   expect_equal(d$end, num_to_time(vnapply(meta, function(x) x$time$end)))
+})
+
+
+test_that("can extract files metadata", {
+  root <- create_temporary_root()
+  ids <- vcapply(1:5, function(i) {
+    create_random_packet(root, parameters = list(i = i))
+  })
+
+  meta <- lapply(ids, outpack_metadata, root = root)
+
+  d <- outpack_metadata_extract('name == "data"',
+                                extract = "files",
+                                root = root)
+  expect_setequal(names(d), c("id", "files"))
+  expect_equal(d$id, ids)
+  expect_equal(d$files, I(lapply(meta, "[[", "files")))
+
+  d <- outpack_metadata_extract('name == "data"',
+                                extract = c("files" = "files.path"),
+                                root = root)
+  expect_setequal(names(d), c("id", "files"))
+  expect_equal(d$id, ids)
+  expect_equal(d$files, I(lapply(meta, function(x) x$files$path)))
+})
+
+
+test_that("can extract git metadata", {
+
+})
+
+
+test_that("can extract orderly metadata", {
+
+})
+
+
+test_that("can extract session metadata", {
 })

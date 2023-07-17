@@ -112,16 +112,24 @@
 ##' between packets). We can add that information ourselves though and write:
 ##'
 ##' ```
-##' extract = c(x = "parameters.x as integer")
+##' extract = c(x = "parameters.x is number")
 ##' ```
 ##'
-##' to create an integer column. If any packet has a value of `x` that
+##' to create an numeric column. If any packet has a value of `x` that
 ##' is non-integer, your call to `outpack_metadata_extract` will fail
 ##' with an error, and if a packet lacks a value of `x`, a missing
 ##' value of the appropriate type will be added.
 ##'
+##' Note that this does not do any coersion to number, it will error
+##' if a non-NULL non-numeric value is found.  Valid types for use
+##' with `is <type>` are `boolean`, `number` and `string` (note that
+##' these differ slightly from R's names because we want to emphasise
+##' that these are *scalar* quantities; also note that there is no
+##' `integer` here as this may produce unexpected errors with
+##' integer-like numeric values).
+##'
 ##' You can index into the array-valued elements (`files` and
-##' `depends`) in the same way;
+##' `depends`) in the same way as for the object-valued elements:
 ##'
 ##' ```
 ##' extract = c(file_path = "files.path", file_hash = "files.hash")
@@ -136,7 +144,7 @@
 ##' orderly "display name" with:
 ##'
 ##' ```
-##' extract = c(description = "custom.orderly.description.display as string")
+##' extract = c(description = "custom.orderly.description.display is string")
 ##' ```
 ##'
 ##' @title Extract metadata from orderly2 packets
@@ -171,7 +179,7 @@ outpack_metadata_extract <- function(..., extract = NULL, root = NULL) {
 
   ret <- data_frame(id = ids)
   for (i in seq_len(nrow(extract))) {
-    d <- extract_metadata(meta, extract$from[[i]])
+    d <- extract_metadata(meta, extract$from[[i]], extract$is[[i]])
     if (length(extract$to[[i]]) != 1){
       stop("unhandled")
     }
@@ -189,13 +197,35 @@ parse_extract <- function(extract) {
   if ("id" %in% c(names(extract), extract)) {
     stop("Don't use 'id' in 'extract'; this column is always added")
   }
+
+  extract_as_nms <- sub(".", "_", extract, fixed = TRUE)
   if (is.null(names(extract))) {
-    names(extract) <- sub(".", "_", extract, fixed = TRUE)
-    ## names(extract) <- sub("\\s+as.*", "", sub(".", "_", extract, fixed = TRUE))
+    names(extract) <- extract_as_nms
+  } else {
+    i <- !nzchar(names(extract))
+    names(extract)[i] <- extract_as_nms[i]
   }
+
   if (any(duplicated(names(extract)))) {
     stop("Duplicate names in 'extract'")
   }
+
+  is <- rep(NA_character_, length(extract))
+  re_type <- "^(.+)\\s+as+\\s+(.+)$"
+  i <- grepl(re_type, extract)
+  if (any(i)) {
+    ## TODO: be nice and map:
+    ##
+    ##   character -> string
+    ##   numeric -> number
+    ##   real -> number
+    ##   logical -> boolean
+    ##
+    ## and then throw a sensible error if not valid.
+    is[i] <- unname(sub(re_type, "\\2", extract[i]))
+    extract[i] <- sub(re_type, "\\1", extract[i])
+  }
+
   extract <- strsplit(extract, ".", fixed = TRUE)
   if (any(grepl(".", names(extract), fixed = TRUE))) {
     stop("Dotted insertion not yet supported")
@@ -203,7 +233,8 @@ parse_extract <- function(extract) {
 
   data_frame(
     from = I(as.list(unname(extract))),
-    to = I(as.list(names(extract))))
+    to = I(as.list(names(extract))),
+    is = is)
 }
 
 
@@ -211,32 +242,36 @@ parse_extract <- function(extract) {
 ##
 ## [ok] id: not subsettable, string
 ## [ok] name: not subsettable, string
-## parameters: subsettable, unknowable without conversion
+## [ok] parameters: subsettable, unknowable without conversion
 ## [ok] time: subsettable, all are POSIX
-## files: array!
-## depends: array!
+## [ok] files: array!
+## [ok] depends: array!
 ## script: array!
 ## custom: special
 ## git: subsettable, nullable string/string/array of strings
 ## session: unknowable
-extract_type <- function(nm) {
+extract_type <- function(nm, is) {
   if (length(nm) == 1 && nm %in% c("id", "name")) {
     "string"
   } else if (length(nm) == 2 && nm[[1]] == "time") {
     "time"
+  } else if (!is.na(is)) {
+    is
   } else {
     "list"
   }
 }
 
 
-extract_metadata <- function(meta, from) {
-  type <- extract_type(from)
+extract_metadata <- function(meta, from, is) {
+  type <- extract_type(from, is)
   switch(
     type,
     list = I(lapply(meta, function(x) x[[from]])),
     time = num_to_time(vnapply(meta, function(x) x[[from]] %||% NA_real_)),
     string = vcapply(meta, function(x) x[[from]] %||% NA_character_),
+    number = vnapply(meta, function(x) x[[from]] %||% NA_real_),
+    boolean = vlapply(meta, function(x) x[[from]] %||% NA),
     stop("not sure"))
 }
 
