@@ -22,7 +22,8 @@ test_that("empty query is possible", {
       list(value = query_parse(NULL, NULL, new.env(parent = emptyenv())),
            subquery = list(),
            info = list(single = FALSE,
-                       parameters = character())),
+                       parameters = character(),
+                       environment = character())),
       class = "outpack_query"))
 })
 
