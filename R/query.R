@@ -74,8 +74,7 @@ query_parse <- function(expr, context, subquery_env) {
       }
       expr <- expr[[1L]]
     }
-  } else if (is.null(expr)) {
-  } else if (!is.language(expr)) {
+  } else if (!(is.null(expr) || is.language(expr))) {
     stop("Invalid input for query")
   }
 
