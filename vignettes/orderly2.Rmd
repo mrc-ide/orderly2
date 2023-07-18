@@ -60,11 +60,15 @@ We have designed `orderly2` for working patterns that do not suit the above. Som
 * Some nodes in the computational graph are very expensive to compute or require exotic hardware.
 * Workflows where the upstream data never settle, but we need to know which version of the data ends up used in a particular analysis
 * Workflows where upstream analyses are used in many downstream analyses, and where the upstream developer may not know much about the downstream use
-* Nondeterministic analyses, e.g., those involving stochastic simulations, where rerunning a node is not expected to return the exact same numerical results, and so we can't rely on different users recovering the same results on different occasions.
+* Nondeterministic analyses, e.g., those involving stochastic simulations, where rerunning a node is not expected to return the exact same numerical results, and so we can't rely on different users recovering the same results on different occasions[*]
 
 In all these cases the missing piece we need is a way of versioning the nodes within the computational graph, and shifting the emphasis from automatically rerunning portions of the graph to tracking how data has flowed through the graph.  This in turn shifts the reproducibility emphasis from "everyone _will_ run the same code and get the same results" to "everyone _could_ run the same code, but will instead work with the results".
 
 For those familiar with docker, our approach is similar to working with pre-built docker images, whereas the workflow approach is more similar to working directly with Dockerfiles; in many situations the end result is the same, but the approaches differ in guarantees, in where the computation happens, and in how users refer to versions.
+
+<small>
+[*] We discourage trying to force determinism by manually setting seeds, as this has the potential to violate the statistical properties of random number streams, and is fragile at best.
+</small>
 
 ## What is reproducibility anyway?
 

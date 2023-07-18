@@ -160,7 +160,7 @@ outpack_search(quote(uses(latest(name == "A"))),
                name = "C")
 ```
 
-`uses` and `useby` can be combined to search more complex arrangements of dependencies. If we have something like
+`uses` and `usedby` can be combined to search more complex arrangements of dependencies. If we have something like
 
 ```{r, echo = FALSE, fig.align = 'center'}
 knitr::include_graphics("images/dependency_multiple.png")
