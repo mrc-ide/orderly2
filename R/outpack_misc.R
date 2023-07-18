@@ -102,7 +102,7 @@ validate_file_from_to <- function(x, environment,
   } else {
     cli::cli_abort(c(
       sprintf("Unexpected object type for '%s'", name),
-      x = sprintf("Given object of class %s", collapseq(names(x))),
+      x = sprintf("Given object of class %s", collapseq(class(x))),
       i = "Expected a (named) character vector"))
   }
 

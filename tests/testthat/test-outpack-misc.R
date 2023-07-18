@@ -69,3 +69,25 @@ test_that("Can select multiple dependencies at once", {
   expect_equal(find_all_dependencies(c("d", "e", "f"), metadata),
                c("a", "b", "c", "d", "e", "f"))
 })
+
+
+test_that("can validate file renaming inputs", {
+  env <- list2env(list(a = "aaa", b = "bbb"), parent = emptyenv())
+  expect_equal(
+    validate_file_from_to("a", env),
+    data_frame(from = "a", to = "a"))
+  expect_equal(
+    validate_file_from_to(c("a", B = "b"), env),
+    data_frame(from = c("a", "b"), to = c("a", "B")))
+  expect_equal(
+    validate_file_from_to(c("${a}/a" = "a"), env),
+    data_frame(from = "a", to = "aaa/a"))
+
+  err <- expect_error(
+    validate_file_from_to(1, env, "files"),
+    "Unexpected object type for 'files'")
+  expect_equal(
+    err$body,
+    c(x = "Given object of class 'numeric'",
+      i = "Expected a (named) character vector"))
+})
