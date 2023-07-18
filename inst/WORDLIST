@@ -11,6 +11,7 @@ arg
 booleans
 cleanup
 codecov
+com
 composable
 csv
 deduplicates
@@ -18,6 +19,8 @@ deparseable
 deserialised
 deserialising
 etc
+github
+ide
 init
 io
 json
@@ -25,6 +28,7 @@ jsonlite
 jsonvalidate
 knitr
 md
+mrc
 nextflow
 orderly's
 outpack
