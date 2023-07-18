@@ -106,7 +106,7 @@ validate_file_from_to <- function(x, environment,
       err <- sprintf(
         "If a 'data.frame' is given for '%s' its names must be 'from' and 'to'",
         name)
-      hint <- sprintf("Names of '%s': %s", paste(squote(nms, collapse = ", ")))
+      hint <- sprintf("Names of '%s': %s", collapseq(nms))
       cli::cli_abort(c(err, i = hint))
     }
     ## Cope with missing values here?
