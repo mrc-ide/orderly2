@@ -1,8 +1,8 @@
 ---
-title: "plugins"
+title: "Orderly plugins"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{plugins}
+  %\VignetteIndexEntry{Orderly plugins}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,26 +19,31 @@ knitr::opts_chunk$set(
   error = FALSE)
 ```
 
-In order to make orderly/orderly2 more extensible without bloating the core, we have designed a simple plugin interface. Our first use case for this is shifting all of orderly 1.0's database functionality out of the main package, but other uses are possible!
+**You may not need to read this: the intended readers are authors of `orderly2` plugins, not users of such plugins.**
+
+In order to make `orderly2` more extensible without bloating the core, we have designed a simple plugin interface. Our first use case for this is shifting all of `orderly1`'s database functionality out of the main package, but other uses are possible!
 
 This vignette is intended to primarily serve as a design document, and will be of interest to the small number of people who might want to write a new plugin, or to edit an existing one.
 
 ## The basic idea
 
-A plugin is provided by a package, possibly it will be the only thing that a package provides.  The plugin name will be the same as the package name.  The only functions that the package needs to call is `orderly2::orderly_plugin` and `orderly2::orderly_plugin_register` which create and register the plugin, respectively.
+A plugin is provided by a package, possibly it will be the only thing that a package provides.  The plugin name must (currently) be the same as the package name.  The only functions that the package needs to call are `orderly2::orderly_plugin` and `orderly2::orderly_plugin_register` which create and register the plugin, respectively.
 
 To make a plugin available for an orderly project, two new bits of configuration may be present in `orderly_config.yml` - one declares the plugin will be used, the other configures the plugin.
 
-To use a plugin for an individual report, a configuration with a plugin name must be present, and includes any instructions to that plugin.
+To use a plugin for an individual report, functions from the plugin should be used, which configure and use the plugin.
 
-Finally, we can save information back into the final orderly2 metadata about what the plugin did.
+Finally, we can save information back into the final `orderly2` metadata about what the plugin did.
+
+With the yaml-less design of `orderly2` (see `vignette("migrating")` if you are familar with `orderly1`), the line between a plugin and just package code is fairly blurred, but reasons for writing a plugin are typically that you want to make something easier in reports, and you want that action reflected in the orderly metadata.
 
 ## An example
 
-As an example, we'll implement a stripped down version of the database plugin that inspired this work. To make this work:
+As an example, we'll implement a stripped down version of the database plugin that inspired this work (see [`orderly.db](https://github.com/mrc-ide/orderly.db) for a fuller implementation). To make this work we need functions:
 
-* we need to add to `orderly_config.yml` some information about where to find the database
-* we need to add to `orderly.yml` some information about queries that we want to make, resulting in data available to the report
+* ...that process additional fields in `orderly_config.yml` that describe where to find the database
+* ...that can be called from `orderly.R` that access the database
+* ...that can add metadata to the final orderly metadata about what was done
 
 We'll start with the report side of things, describing what we want to happen, then work on the implementation.
 
@@ -64,22 +69,11 @@ writeLines(c(
 path_example <- file.path(path_root, "src", "example")
 fs::dir_create(path_example)
 writeLines(c(
-  "script:",
-  "  script.R",
+  'example.db::query(query = "SELECT * FROM mtcars WHERE cyl == 4", as = "dat")',
+  'orderly2::orderly_artefact("Summary of data", "data.rds")',
   "",
-  "example.db:",
-  "  dat:",
-  "     SELECT * from mtcars WHERE cyl == 4",
-  "",
-  "artefacts:",
-  "  data:",
-  "    description: summary of data",
-  "    filenames: data.rds"),
-  file.path(path_example, "orderly.yml"))
-
-writeLines(
-  'saveRDS(summary(dat), "data.rds")',
-  file.path(path_example, "script.R"))
+  'saveRDS(summary(dat), "data.rds")'),
+  file.path(path_example, "orderly.R"))
 
 path_schema <- tempfile(fileext = ".json")
 writeLines(c(
@@ -108,7 +102,6 @@ writeLines(c(
   '    }',
   '}'),
   path_schema)
-# Try to get things behaving on windows
 path_schema <- normalizePath(path_schema, winslash = "/", mustWork = TRUE)
 ```
 
@@ -124,19 +117,15 @@ The `orderly_config.yml` file contains the information shared by all possible us
 yaml_output(readLines(file.path(path_root, "orderly_config.yml")))
 ```
 
-The `orderly.yml` file contains information about use of the database for this specific report; in this case, making the results of the query `SELECT * from mtcars WHERE cyl == 4` against the database available as some R object `dat`
+Our plugin is called `example.db` and is listed within the `plugins` section. Then there is a top-level `example.db` field which contains configuration for our plugin; in this case indicating the path where the SQLite file can be loaded from.
+
+The `orderly.R` file contains information about use of the database for this specific report; in this case, making the results of the query `SELECT * from mtcars WHERE cyl == 4` against the database available as some R object `dat`
 
 ```{r, echo = FALSE, results = "asis"}
-yaml_output(readLines(file.path(path_example, "orderly.yml")))
+r_output(readLines(file.path(path_example, "orderly.R")))
 ```
 
-In this example, the script is trivial:
-
-```{r, echo = FALSE, results = "asis"}
-r_output(readLines(file.path(path_example, "script.R")))
-```
-
-but normally you'd be doing some calculation here, using any of the other functionality of orderly.
+Normally, we imagine some calculation here but this is kept minimal for the purpose of demonstration.
 
 To implement this we need to write three functions:
 
@@ -155,37 +144,34 @@ The arguments here are
 
 The return value here should be the `data` argument with any auxiliary data added after validation.
 
-(2) A "read" function to process and validate the data from `orderly.yml` specific to this plugin, again we can make this very simple at first
+(2) A function for serialising the results of running any functions from `orderly.R`; for now we leave that as an empty function (we may change this to make it optional?)
 
 ```{r}
-db_read <- function(data, filename, root) {
-  data
-}
-```
-
-The arguments here are
-
-* `data`: the deserialised section of `orderly.yml` specific to this plugin
-* `filename`: the full path to `orderly.yml`
-* `root`: the orderly root object. This is currently undocumented and subject to change, but can be used (theoretically) to access other parts of the orderly configuration
-
-The return value should be the `data` argument with any auxiliary data added after validation.
-
-(3) Finally a "run" function that actually does the query and sets the data just before the report runs.
-
-```{r}
-db_run <- function(data, root, parameters, environment, path) {
-  dbname <- root$config$example.db$path
-  con <- DBI::dbConnect(RSQLite::SQLite(), dbname)
-  on.exit(DBI::dbDisconnect(con))
-  for (i in names(data)) {
-    environment[[i]] <- DBI::dbGetQuery(con, data[[i]])
-  }
+db_serialise <- function(data) {
   NULL
 }
 ```
 
-The arguments here are
+(3) The function that actually does the query; in our example above this is `example.db::query`:
+
+```{r}
+query <- function(query, as) {
+  ctx <- orderly2::orderly_plugin_context("example.db")
+  dbname <- ctx$config$path
+  con <- DBI::dbConnect(RSQLite::SQLite(), dbname)
+  on.exit(DBI::dbDisconnect(con))
+  d <- DBI::dbGetQuery(con, query)
+  ctx$env[[as]] <- d
+  NULL
+}
+```
+The arguments here are whatever you want the user to provide. The important function here to call is `orderly2::orderly_plugin_context` which returns information that you can use to make the plugin work. This is explained in the orderly docs, but in this example we use two elements:
+
+* `config`: the configuration fo this plugin (i.e., the processed dat from `db_config`
+* `env`: the environment that the current packet is using
+
+We modify the packet environment (by writing to `ctx$env` and return `NULL` for now.
+
 
 * `data`: the configuration data as processed by the "read" function (here, `db_read`)
 * `root`: the root object, as above. From this you can access the plugin-specific configuration as `root$config$plugin.name`, substituting `plugin.name` for your plugin name (here it is `example.db`)
