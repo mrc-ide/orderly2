@@ -339,3 +339,37 @@ string_starts_with <- function(sub, str) {
 string_drop_prefix <- function(sub, str) {
   substr(str, nchar(sub) + 1, nchar(str))
 }
+
+
+near_match <- function(x, possibilities, threshold = 2, max_matches = 5) {
+  if (length(possibilities) == 0) {
+    return(character())
+  }
+  d <- set_names(drop(adist(x, possibilities, ignore.case = TRUE)),
+                 possibilities)
+  utils::head(names(sort(d[d <= threshold])), max_matches)
+}
+
+
+near_matches <- function(x, ...) {
+  set_names(lapply(x, near_match, ...), x)
+}
+
+
+error_near_match <- function(title, x, hint, join, possibilities) {
+  err <- sprintf("%s: %s", title, paste(squote(x), collapse = ", "))
+  near <- near_matches(x, possibilities)
+  i <- lengths(near) > 0
+  if (any(i)) {
+    near_str <- vcapply(which(lengths(near) > 0), function(i) {
+      sprintf("'%s': %s %s",
+              names(near)[[i]],
+              join,
+              paste(squote(near[[i]]), collapse = ", "))
+    })
+    err <- c(err,
+             i = hint,
+             set_names(near_str, rep("*", length(near_str))))
+  }
+  err
+}
