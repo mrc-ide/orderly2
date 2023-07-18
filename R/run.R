@@ -111,7 +111,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
   dat <- orderly_read(src)
 
-  parameters <- check_parameters(parameters, dat$parameters)
+  parameters <- check_parameters(parameters, dat$parameters,
+                                 environment())
 
   orderly_validate(dat, src)
 
@@ -225,15 +226,16 @@ check_produced_artefacts <- function(path, artefacts) {
 ## to relax additional parameters here later, but that requires some
 ## thinking about what to do with them (do they get passed into the
 ## environment etc or not? do they get validated?)
-check_parameters <- function(given, spec) {
+check_parameters <- function(given, spec, call) {
   if (length(given) > 0) {
     assert_named(given, unique = TRUE)
   }
 
   if (length(given) > 0 && is.null(spec)) {
-    cli::cli_abort(c(
-      "Parameters given, but none declared",
-      i = "Did you forget 'orderly2::orderly_parameter()"))
+    cli::cli_abort(
+      c("Parameters given, but none declared",
+        i = "Did you forget 'orderly2::orderly_parameter()"),
+      call = call)
   }
 
   is_required <- vlapply(spec, is.null)
@@ -241,22 +243,26 @@ check_parameters <- function(given, spec) {
   extra <- setdiff(names(given), names(spec))
 
   if (length(msg) > 0L) {
-    cli::cli_abort(error_near_match(
-      "Missing parameters",
-      msg,
-      "You have extra parameters, possibly misspelt?",
-      "could be your",
-      extra))
+    cli::cli_abort(
+      error_near_match(
+        "Missing parameters",
+        msg,
+        "You have extra parameters, possibly misspelt?",
+        "could be your",
+        extra),
+      call = call)
   }
 
   if (length(extra) > 0L) {
     unused <- setdiff(names(spec), names(given))
-    cli::cli_abort(error_near_match(
-      "Extra parameters",
-      extra,
-      "You have extra parameters, possibly misspelt?",
-      "should perhaps be",
-      unused))
+    cli::cli_abort(
+      error_near_match(
+        "Extra parameters",
+        extra,
+        "You have extra parameters, possibly misspelt?",
+        "should perhaps be",
+        unused),
+      call = call)
   }
 
   if (length(spec) == 0) {
