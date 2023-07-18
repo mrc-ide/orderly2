@@ -844,7 +844,7 @@ test_that("nice error if running nonexistant report", {
     "Did not find orderly report 'xplicit'")
   expect_equal(err$body,
                c(x = "This path does not exist",
-                 i = "Did you mean 'explicit'"))
+                 i = "Did you mean 'explicit', 'implicit'"))
 })
 
 
