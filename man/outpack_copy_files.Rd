@@ -36,7 +36,11 @@ intended.
 
 You can use a limited form of string interpolation in the names of
 this argument (or its \code{to} column if using a \code{data.frame});
-using \verb{$\{variable\}} will}
+using \verb{$\{variable\}} will pick up values from \code{envir} and
+substitute them into your string.  This is similar to the
+interpolation you might be familiar with from \code{glue::glue} or
+similar, but much simpler with no concatenation or other fancy
+features supported.}
 
 \item{dest}{The directory to copy into}
 
@@ -52,10 +56,11 @@ garbage collection (once we write support for that).}
 typically what you want, but set to \code{FALSE} if you would prefer
 that an error be thrown if the destination file already exists.}
 
-\item{envir}{An environment into which string interpolation
-may happen (TODO: docs!). The default here is to use the calling
-environment, whcih is typically reasonableb, but may need
-changing in programmatic use.}
+\item{envir}{An environment into which string interpolation may
+happen (see \link{outpack_packet_use_dependency} for
+details on the string interpolation).  The default here is to
+use the calling environment, whcih is typically reasonable, but
+may need changing in programmatic use.}
 
 \item{root}{The outpack root. Will be searched for from the
 current directory if not given.}

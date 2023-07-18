@@ -241,7 +241,10 @@ static_orderly_artefact <- function(args) {
 ##'   the string `latest`, indicating the most recent version. You may
 ##'   want a more complex query here though.
 ##'
-##' @param use See [outpack_packet_use_dependency]'s `file` argument
+##' @param use Files to use from the packet found by `query`, usually
+##'   as a named character vector with string interpolation in the
+##'   names; see [orderly2::outpack_packet_use_dependency]'s `file`
+##'   argument for details.
 ##'
 ##' @return Undefined
 ##' @export

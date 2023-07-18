@@ -103,7 +103,11 @@ intended.
 
 You can use a limited form of string interpolation in the names of
 this argument (or its \code{to} column if using a \code{data.frame});
-using \verb{$\{variable\}} will}
+using \verb{$\{variable\}} will pick up values from \code{envir} and
+substitute them into your string.  This is similar to the
+interpolation you might be familiar with from \code{glue::glue} or
+similar, but much simpler with no concatenation or other fancy
+features supported.}
 
 \item{search_options}{Optional search options for restricting the
 search (see \link{outpack_search} for details)}

@@ -39,10 +39,11 @@
 ##'   though associated with no packet so that it is subject to
 ##'   garbage collection (once we write support for that).
 ##'
-##' @param envir An environment into which string interpolation
-##'   may happen (TODO: docs!). The default here is to use the calling
-##'   environment, whcih is typically reasonableb, but may need
-##'   changing in programmatic use.
+##' @param envir An environment into which string interpolation may
+##'   happen (see [orderly2::outpack_packet_use_dependency] for
+##'   details on the string interpolation).  The default here is to
+##'   use the calling environment, whcih is typically reasonable, but
+##'   may need changing in programmatic use.
 ##'
 ##' @return Nothing, invisibly. Primarily called for its side effect
 ##'   of copying files from a packet into the directory `dest`
