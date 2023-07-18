@@ -347,7 +347,7 @@ near_match <- function(x, possibilities, threshold = 2, max_matches = 5) {
   }
   d <- set_names(drop(adist(x, possibilities, ignore.case = TRUE)),
                  possibilities)
-  utils::head(names(sort(d[d < threshold], decreasing = TRUE)), max_matches)
+  utils::head(names(sort(d[d <= threshold])), max_matches)
 }
 
 

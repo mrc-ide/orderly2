@@ -151,3 +151,17 @@ test_that("Descend failure", {
   expect_null(find_file_descend(".orderly_foobar", "/", path))
   expect_null(find_file_descend(".orderly_foobar", "/", "/"))
 })
+
+
+test_that("can get near matches", {
+  x <- c("apples", "applez", "appell", "applly")
+  expect_equal(
+    near_match("apple", x),
+    c("apples", "applez", "appell", "applly"))
+  expect_equal(
+    near_match("apple", x, 1),
+    c("apples", "applez"))
+  expect_equal(
+    near_match("apple", x, 2, 3),
+    c("apples", "applez", "appell"))
+})
