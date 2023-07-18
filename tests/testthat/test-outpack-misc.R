@@ -90,4 +90,13 @@ test_that("can validate file renaming inputs", {
     err$body,
     c(x = "Given object of class 'numeric'",
       i = "Expected a (named) character vector"))
+
+  expect_error(
+    validate_file_from_to(c("a", "a"), env, "files"),
+    "Every destination filename (in 'files') must be unique",
+    fixed = TRUE)
+  expect_error(
+    validate_file_from_to(c("a" = "x", "a" = "y"), env, "files"),
+    "Every destination filename (in 'files') must be unique",
+    fixed = TRUE)
 })

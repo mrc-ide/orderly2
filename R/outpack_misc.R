@@ -100,16 +100,22 @@ validate_file_from_to <- function(x, environment,
       to[i] <- from[i]
     }
   } else {
-    cli::cli_abort(c(
-      sprintf("Unexpected object type for '%s'", name),
-      x = sprintf("Given object of class %s", collapseq(class(x))),
-      i = "Expected a (named) character vector"))
+    cli::cli_abort(
+      c(sprintf("Unexpected object type for '%s'", name),
+        x = sprintf("Given object of class %s", collapseq(class(x))),
+        i = "Expected a (named) character vector"),
+      call = call)
   }
 
   to_value <- string_interpolate_simple(to, environment, call)
 
-  ## TODO: disallow duplicates
-  ## TODO: disallow interpolation in from
-  ## TODO: do we cope with trailing slashes in to?
+  if (any(duplicated(to_value))) {
+    dups <- unique(to_value[duplicated(to_value)])
+    cli::cli_abort(
+      c(sprintf("Every destination filename (in '%s') must be unique", name),
+        i = sprintf("Duplicate names: %s", collapseq(dups))),
+      call = call)
+  }
+
   data_frame(from = from, to = to_value)
 }
