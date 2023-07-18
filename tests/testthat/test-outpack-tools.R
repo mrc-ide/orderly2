@@ -11,6 +11,7 @@ test_that("can extract simple data", {
   expect_equal(d$parameters, I(lapply(1:5, function(i) list(i = i))))
 })
 
+
 test_that("can extract from parameters", {
   root <- create_temporary_root()
   ids <- vcapply(1:5, function(i) {
@@ -31,12 +32,27 @@ test_that("can extract from parameters", {
   expect_setequal(names(d), c("id", "i"))
   expect_equal(d$id, ids)
   expect_equal(d$i, as.numeric(1:5))
-
-  ## This is a bad error:
-  ## d <- outpack_metadata_extract('name == "data"',
-  ##                               extract = c(i = "parameters.i is string"),
-  ##                               root = root)
 })
+
+
+test_that("raise sensible error on type assertion failure", {
+  root <- create_temporary_root()
+  ids <- vcapply(1:5, function(i) {
+    create_random_packet(root, parameters = list(i = i))
+  })
+
+  err <- expect_error(
+    outpack_metadata_extract('name == "data"', root = root,
+                             extract = c(i = "parameters.i is string")),
+    "Expected all values of 'parameters.i' to be strings (or NULL)",
+    fixed = TRUE)
+  expect_equal(
+    err$body,
+    set_names(c(sprintf("Found `%d` (a number) for packet '%s'", 1:3, ids[1:3]),
+                "(...and 2 more)"),
+              rep("i", 4)))
+})
+
 
 test_that("can extract from time", {
   root <- create_temporary_root()

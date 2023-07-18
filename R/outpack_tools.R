@@ -179,17 +179,11 @@ outpack_metadata_extract <- function(..., extract = NULL, root = NULL) {
 
   meta <- lapply(ids, root$metadata, full = TRUE)
 
+  env <- environment()
   ret <- data_frame(id = ids)
   for (i in seq_len(nrow(extract))) {
-    d <- extract_metadata(meta, extract$from[[i]], extract$is[[i]])
-    if (length(extract$to[[i]]) != 1) {
-      stop("unhandled")
-    }
+    d <- extract_metadata(ids, meta, extract$from[[i]], extract$is[[i]], env)
     ret[[extract$to[[i]]]] <- d
-    ## Stops us needing to worry about this so much:
-    ## if (inherits(d, "AsIs")) {
-    ##   class(ret[[extract$to[[i]]]]) <- NULL
-    ## }
   }
 
   ret
@@ -201,6 +195,7 @@ parse_extract <- function(extract) {
     extract <- c("name", "parameters")
   }
   if ("id" %in% c(names(extract), extract)) {
+    ## TODO: only an issue in destination column
     stop("Don't use 'id' in 'extract'; this column is always added")
   }
 
@@ -244,18 +239,6 @@ parse_extract <- function(extract) {
 }
 
 
-## Types:
-##
-## [ok] id: not subsettable, string
-## [ok] name: not subsettable, string
-## [ok] parameters: subsettable, unknowable without conversion
-## [ok] time: subsettable, all are POSIX
-## [ok] files: array!
-## [ok] depends: array!
-## [ok] script: array!
-## [ok] custom: special
-## git: subsettable, nullable string/string/array of strings
-## [ok] session: unknowable
 extract_type <- function(nm, is) {
   if (length(nm) == 1 && nm %in% c("id", "name")) {
     "string"
@@ -271,16 +254,9 @@ extract_type <- function(nm, is) {
 }
 
 
-extract_metadata <- function(meta, from, is) {
-  type <- extract_type(from, is)
-  switch(
-    type,
-    list = I(lapply(meta, function(x) x[[from]])),
-    time = num_to_time(vnapply(meta, function(x) x[[from]] %||% NA_real_)),
-    string = vcapply(meta, function(x) x[[from]] %||% NA_character_),
-    number = vnapply(meta, function(x) x[[from]] %||% NA_real_),
-    boolean = vlapply(meta, function(x) x[[from]] %||% NA),
-    stop("not sure"))
+extract_metadata <- function(ids, meta, from, type, call) {
+  value <- lapply(meta, function(x) x[[from]])
+  extract_convert(ids, value, from, type, call)
 }
 
 
@@ -291,4 +267,85 @@ include_metadata <- function(result, data, to) {
     stop("unhandled")
   }
   result
+}
+
+
+extract_convert <- function(ids, value, from, is, call) {
+  examples <- NULL
+  type <- extract_type(from, is)  
+  if (type == "list") {
+    return(I(value))
+  } else {
+    is_null <- vlapply(value, is.null)
+    len <- lengths(value)
+    mode <- vcapply(value, storage.mode)
+    err <- len != 1 & !is_null
+    if (any(err)) {
+      msg <- sprintf(
+        "Expected all values of '%s' to evaluate to a scalar (if not NULL)",
+        paste(from, collapse = "."))
+      examples <- sprintf("%s has length %d", ids[err], len[err])
+      cli::cli_abort(c(msg, error_examples(examples)), call = call)
+    }
+
+    ## convert all integers into reals, just to forget about the
+    ## differences between the two of them here as the user can deal
+    ## with that in the very rare cases where it matters. jsonlite
+    ## does bring `1` as an integer vector, which is rarely what we
+    ## want, and it deparses poorly.
+    if (type == "number" && any(mode == "integer")) {
+      value[mode == "integer"] <- lapply(value[mode == "integer"], as.numeric)
+      mode[mode == "integer"] <- "double"
+    }
+
+    ## We can use the typed missing value here to test against
+    ## storage.mode, to fill in missing values and also to pass
+    ## through to vapply to get a vector of the expected type out:
+    missing <- switch(type,
+                      string = NA_character_,
+                      number = NA_real_,
+                      boolean = NA,
+                      time = NA_real_)
+    err <- !is_null & mode != storage.mode(missing)
+    if (any(err)) {
+      msg <- sprintf(
+        "Expected all values of '%s' to be %ss (or NULL)",
+        paste(from, collapse = "."), type)
+      examples <- sprintf("Found `%s` (a %s) for packet '%s'",
+                          vcapply(value[err], deparse1, control = "keepNA"),
+                          vcapply(value[err], storage_mode_scalar),
+                          ids[err])
+      cli::cli_abort(c(msg, error_examples(examples)), call = call)
+    }
+    value[is_null] <- missing
+    value <- vapply(value, identity, missing)
+    if (type == "time") {
+      value <- num_to_time(value)
+    }
+    value
+  }
+}
+
+
+## Reverses the conversion in extract_convert()
+storage_mode_scalar <- function(x) {
+  if (inherits(x, "POSIXt")) {
+    "time"
+  } else {
+    mode <- storage.mode(x)
+    switch(mode,
+           character = "string",
+           double = "number",
+           integer = "number",
+           logical = "boolean",
+           mode)
+  }
+}
+
+
+error_examples <- function(str, max = 3) {
+  if (length(str) > max) {
+    str <- c(str[seq_len(max)], sprintf("(...and %d more)", length(str) - max))
+  }
+  set_names(str, rep("i", length(str)))
 }
