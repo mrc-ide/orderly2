@@ -171,6 +171,7 @@ outpack_metadata_load <- function(json) {
                            size = vnapply(data$files, "[[", "size"),
                            hash = vcapply(data$files, "[[", "hash"))
   data$time <- lapply(data$time, num_to_time)
+  data$script <- list_to_character(data$script)
   data$depends <- data_frame(
     packet = vcapply(data$depends, "[[", "packet"),
     query = vcapply(data$depends, "[[", "query"),

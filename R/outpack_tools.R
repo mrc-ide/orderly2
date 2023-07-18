@@ -144,7 +144,7 @@
 ##' orderly "display name" with:
 ##'
 ##' ```
-##' extract = c(description = "custom.orderly.description.display is string")
+##' extract = c(display = "custom.orderly.description.display is string")
 ##' ```
 ##'
 ##' @title Extract metadata from orderly2 packets
@@ -180,10 +180,14 @@ outpack_metadata_extract <- function(..., extract = NULL, root = NULL) {
   ret <- data_frame(id = ids)
   for (i in seq_len(nrow(extract))) {
     d <- extract_metadata(meta, extract$from[[i]], extract$is[[i]])
-    if (length(extract$to[[i]]) != 1){
+    if (length(extract$to[[i]]) != 1) {
       stop("unhandled")
     }
     ret[[extract$to[[i]]]] <- d
+    ## Stops us needing to worry about this so much:
+    ## if (inherits(d, "AsIs")) {
+    ##   class(ret[[extract$to[[i]]]]) <- NULL
+    ## }
   }
 
   ret
@@ -211,7 +215,7 @@ parse_extract <- function(extract) {
   }
 
   is <- rep(NA_character_, length(extract))
-  re_type <- "^(.+)\\s+as+\\s+(.+)$"
+  re_type <- "^(.+)\\s+is+\\s+(.+)$"
   i <- grepl(re_type, extract)
   if (any(i)) {
     ## TODO: be nice and map:
@@ -246,10 +250,10 @@ parse_extract <- function(extract) {
 ## [ok] time: subsettable, all are POSIX
 ## [ok] files: array!
 ## [ok] depends: array!
-## script: array!
-## custom: special
+## [ok] script: array!
+## [ok] custom: special
 ## git: subsettable, nullable string/string/array of strings
-## session: unknowable
+## [ok] session: unknowable
 extract_type <- function(nm, is) {
   if (length(nm) == 1 && nm %in% c("id", "name")) {
     "string"

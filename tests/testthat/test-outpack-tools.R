@@ -90,14 +90,59 @@ test_that("can extract files metadata", {
 
 
 test_that("can extract git metadata", {
-
+  ## See test-outpack-git.R for example
 })
 
 
 test_that("can extract orderly metadata", {
+  path <- test_prepare_orderly_example("parameters")
+  env <- new.env()
+  ids <- vcapply(1:3, function(i) {
+    orderly_run("parameters", root = path, envir = env,
+                parameters = list(a = i, b = 20, c = 30))
+  })
 
+  expect_equal(
+    outpack_metadata_extract('name == "parameters"', extract = "script",
+                             root = path)$script,
+    I(as.list(rep("orderly.R", 3))))
+})
+
+
+test_that("can extract orderly custom metadata", {
+  ## This is example in the docs
+  path <- test_prepare_orderly_example("description")
+  env <- new.env()
+  id <- orderly_run("description", root = path, envir = env)
+  root <- orderly_root(path, FALSE)
+  d <- outpack_metadata_extract(
+    'name == "description"',
+    extract = c(display = "custom.orderly.description.display is string"),
+    root = path)
+  expect_equal(d, data_frame(id = id, display = "Packet with description"))
 })
 
 
 test_that("can extract session metadata", {
+  path <- test_prepare_orderly_example("parameters")
+  env <- new.env()
+  ids <- vcapply(1:3, function(i) {
+    orderly_run("parameters", root = path, envir = env,
+                parameters = list(a = i, b = 20, c = 30))
+  })
+  meta <- lapply(ids, outpack_metadata, root = path)
+
+  d <- outpack_metadata_extract('name == "parameters"',
+                                extract = "session",
+                                root = path)
+  expect_equal(d$session, I(lapply(meta, "[[", "session")))
+
+  d <- outpack_metadata_extract(
+    'name == "parameters"',
+    extract = c(version = "session.platform.version is string"),
+    root = path)
+  expect_equal(d,
+               data_frame(id = ids,
+                          version = meta[[1]]$session$platform$version))
+  expect_type(d$version, "character")
 })
