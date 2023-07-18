@@ -180,7 +180,7 @@ outpack_metadata_load <- function(json) {
                  there = vcapply(x$files, "[[", "there"))
     })))
   if (!is.null(data$git)) {
-    data$git$url <- vcapply(data$git$url, identity)
+    data$git$url <- list_to_character(data$git$url)
   }
 
   data

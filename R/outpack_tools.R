@@ -59,9 +59,11 @@
 ##'   columns `there` and `here` corresponding to filenames upstream
 ##'   and in this packet, repsectively)
 ##' * script: the scripts run in creating the packet (may be zero, one or more)
-##' * git: either metadata about the state of git or `null`
+##' * git: either metadata about the state of git or `null`. If given
+##'   then `sha` and `branch` are strings, while `url` is an array of
+##'   strings/character vector (can have zero, one or more elements).
 ##' * session: some information about the session that the packet was run in
-##'   (this is unstandardised)
+##'   (this is unstandardised, and even the orderly version may change)
 ##' * custom: additional metadata added by its respective engine.  For
 ##'   packets run by `orderly2`, there will be a `orderly` field here,
 ##'   which is itself a list (see below)
@@ -259,6 +261,8 @@ extract_type <- function(nm, is) {
     "string"
   } else if (length(nm) == 2 && nm[[1]] == "time") {
     "time"
+  } else if (length(nm) == 2 && nm[[1]] == "git" && nm[[2]] != "url") {
+    "string"
   } else if (!is.na(is)) {
     is
   } else {

@@ -90,7 +90,47 @@ test_that("can extract files metadata", {
 
 
 test_that("can extract git metadata", {
-  ## See test-outpack-git.R for example
+  ## See test-outpack-git.R for this example
+  root <- create_temporary_root()
+  path_src <- create_temporary_simple_src()
+
+  info <- helper_add_git(path_src)
+
+  p <- outpack_packet_start(path_src, "example", root = root)
+  id <- p$id
+  outpack_packet_run(p, "script.R")
+  outpack_packet_end(p)
+
+  meta <- outpack_root_open(root$path)$metadata(id, TRUE)
+
+  d <- outpack_metadata_extract('name == "example"',
+                                extract = "git",
+                                root = root)
+  expect_equal(d$git, I(list(meta$git)))
+
+  d <- outpack_metadata_extract('name == "example"',
+                                extract = "git.sha",
+                                root = root)
+  expect_equal(d$git_sha, meta$git$sha)
+  expect_type(d$git_sha, "character")
+})
+
+
+test_that("fill in types for git data when missing", {
+  root <- create_temporary_root()
+  ids <- vcapply(1:5, function(i) {
+    create_random_packet(root, parameters = list(i = i))
+  })
+
+  d <- outpack_metadata_extract('name == "data"',
+                                extract = "git",
+                                root = root)
+  expect_equal(d$git, I(vector("list", 5)))
+
+  d <- outpack_metadata_extract('name == "data"',
+                                extract = "git.sha",
+                                root = root)
+  expect_equal(d$git_sha, rep(NA_character_, 5))
 })
 
 
