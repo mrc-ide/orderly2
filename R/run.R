@@ -104,7 +104,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                         logging_console = NULL, logging_threshold = NULL,
                         search_options = NULL, root = NULL, locate = TRUE) {
   root <- orderly_root(root, locate)
-  validate_orderly_directory(name, root)
+  validate_orderly_directory(name, root, environment())
 
   envir <- envir %||% .GlobalEnv
   assert_is(envir, "environment")
@@ -418,7 +418,7 @@ orderly_packet_cleanup_failure <- function(p) {
 }
 
 
-validate_orderly_directory <- function(name, root) {
+validate_orderly_directory <- function(name, root, call) {
   assert_scalar_character(name)
   if (!file_exists(file.path(root$path, "src", name, "orderly.R"))) {
     src <- file.path(root$path, "src", name)
@@ -438,6 +438,6 @@ validate_orderly_directory <- function(name, root) {
                       paste(squote(near), collapse = ", "))
       err <- c(err, i = hint)
     }
-    cli::cli_abort(err)
+    cli::cli_abort(err, call = call)
   }
 }
