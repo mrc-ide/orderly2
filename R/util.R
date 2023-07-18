@@ -390,11 +390,6 @@ check_symbol_from_str <- function(str, name) {
 }
 
 
-collapseq <- function(x) {
-  paste(squote(x), collapse = ", ")
-}
-
-
 ## There are so many ways of doing this, none of them are amazing; I
 ## don't really want to use glue for this because it implies we can do
 ## all the things that glue does within the string substitution, which

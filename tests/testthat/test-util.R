@@ -197,6 +197,7 @@ test_that("can perform simple string interpolation", {
                   parent = emptyenv())
 
   expect_equal(string_interpolate_simple("hello", env), "hello")
+  expect_equal(string_interpolate_simple("${hello", env), "${hello")
   expect_equal(string_interpolate_simple("a ${b} c", env),
                "a banana c")
   expect_equal(string_interpolate_simple("a ${b} ${c}", env),

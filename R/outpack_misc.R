@@ -92,29 +92,18 @@ validate_parameters <- function(parameters) {
 validate_file_from_to <- function(x, environment,
                                   name = deparse(substitute(x)),
                                   call = NULL) {
+  ## Later, we can expand this to support a data.frame too perhaps?
   if (is.character(x)) {
     to <- names(x) %||% x
     from <- unname(x)
     if (any(i <- !nzchar(to))) {
       to[i] <- from[i]
     }
-  } else if (inherits(x, "data.frame")) {
-    ## tbl_df (from tibble/dplyr) and data.table both inherit from
-    ## data.frame here so this will work.
-    nms <- names(x)
-    if (!setequal(nms, c("from", "to"))) {
-      err <- sprintf(
-        "If a 'data.frame' is given for '%s' its names must be 'from' and 'to'",
-        name)
-      hint <- sprintf("Names of '%s': %s", collapseq(nms))
-      cli::cli_abort(c(err, i = hint))
-    }
-    ## Cope with missing values here?
   } else {
     cli::cli_abort(c(
       sprintf("Unexpected object type for '%s'", name),
       x = sprintf("Given object of class %s", collapseq(names(x))),
-      i = "Expected a (named) character vector or 'data.frame' / 'tbl_df'"))
+      i = "Expected a (named) character vector"))
   }
 
   to_value <- string_interpolate_simple(to, environment, call)
