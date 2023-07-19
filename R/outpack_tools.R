@@ -263,7 +263,7 @@ extract_type <- function(nm, is) {
 
 extract_convert <- function(ids, value, from, is, call) {
   examples <- NULL
-  type <- extract_type(from, is)  
+  type <- extract_type(from, is)
   if (type == "list") {
     return(I(value))
   } else {
