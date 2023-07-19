@@ -104,5 +104,6 @@ describe("http location integration tests", {
     expect_setequal(plan$packet_id, ids_downstream)
     idx <- root$index()
     expect_true(all(ids_downstream %in% names(idx$metadata)))
+    expect_true(all(root_downstream$files$list() %in% root$files$list()))
   })
 })
