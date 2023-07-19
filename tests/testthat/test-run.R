@@ -857,7 +857,7 @@ test_that("validation of orderly directories", {
   nms <- sprintf("example_%s", letters[1:8])
   fs::dir_create(file.path(path, "src", nms))
   file.create(file.path(path, "src", nms, "orderly.R"))
-  hint_root <- sprintf("Looked relative to orderly root at '%s'", path)
+  hint_root <- sprintf("Looked relative to orderly root at '%s'", root$path)
 
   err <- expect_error(
     validate_orderly_directory("foo", root),
