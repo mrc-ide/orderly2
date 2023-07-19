@@ -104,11 +104,12 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                         logging_console = NULL, logging_threshold = NULL,
                         search_options = NULL, root = NULL, locate = TRUE) {
   root <- orderly_root(root, locate)
-  src <- file.path(root$path, "src", name)
+  validate_orderly_directory(name, root, environment())
 
   envir <- envir %||% .GlobalEnv
   assert_is(envir, "environment")
 
+  src <- file.path(root$path, "src", name)
   dat <- orderly_read(src)
 
   parameters <- check_parameters(parameters, dat$parameters,
@@ -414,4 +415,34 @@ orderly_packet_cleanup_failure <- function(p) {
   custom_metadata_json <- to_json(custom_metadata(p$orderly2))
   outpack_packet_add_custom(p, "orderly", custom_metadata_json)
   outpack_packet_end(p, insert = FALSE)
+}
+
+
+validate_orderly_directory <- function(name, root, call) {
+  assert_scalar_character(name)
+  if (!file_exists(file.path(root$path, "src", name, "orderly.R"))) {
+    src <- file.path(root$path, "src", name)
+    err <- sprintf("Did not find orderly report '%s'", name)
+    if (!file_exists(src)) {
+      detail <- sprintf("The path 'src/%s' does not exist", name)
+    } else if (is_directory(src)) {
+      detail <- sprintf(
+        "The path 'src/%s' exists but does not contain 'orderly.R'",
+        name)
+    } else {
+      detail <- sprintf(
+        "The path 'src/%s' exists but is not a directory",
+        name)
+    }
+    err <- c(err, x = detail)
+    near <- near_match(name, orderly_list_src(root$path))
+    if (length(near) > 0) {
+      hint <- sprintf("Did you mean %s",
+                      paste(squote(near), collapse = ", "))
+      err <- c(err, i = hint)
+    }
+    err <- c(err, i = sprintf("Looked relative to orderly root at '%s'",
+                              root$path))
+    cli::cli_abort(err, call = call)
+  }
 }
