@@ -66,7 +66,7 @@ the \code{extract} argument for doing some simple rewriting of results,
 but you can always do this yourself.
 
 In order to use function you need to know what metadata are
-available; we will expand a the vignette with more worked examples
+available; we will expand the vignette with more worked examples
 here to make this easier to understand. The function works on
 top-level keys, of which there are:
 \itemize{
@@ -86,7 +86,7 @@ and \code{hash}.
 (per packet), each with columns \code{packet} (id), \code{query} (string,
 used to find \code{packet}) and \code{files} (another \code{data.frame} with
 columns \code{there} and \code{here} corresponding to filenames upstream
-and in this packet, repsectively)
+and in this packet, respectively)
 \item script: the scripts run in creating the packet (may be zero, one or more)
 \item git: either metadata about the state of git or \code{null}. If given
 then \code{sha} and \code{branch} are strings, while \code{url} is an array of
@@ -154,7 +154,9 @@ with \verb{is <type>} are \code{boolean}, \code{number} and \code{string} (note 
 these differ slightly from R's names because we want to emphasise
 that these are \emph{scalar} quantities; also note that there is no
 \code{integer} here as this may produce unexpected errors with
-integer-like numeric values).
+integer-like numeric values). You can also use \code{list} but this is
+the default.  Things in the schema that are known to be scalar
+atomics (such as \code{name}) will be automatically simplified.
 
 You can index into the array-valued elements (\code{files} and
 \code{depends}) in the same way as for the object-valued elements:

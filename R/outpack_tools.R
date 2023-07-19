@@ -38,7 +38,7 @@
 ##' but you can always do this yourself.
 ##'
 ##' In order to use function you need to know what metadata are
-##' available; we will expand a the vignette with more worked examples
+##' available; we will expand the vignette with more worked examples
 ##' here to make this easier to understand. The function works on
 ##' top-level keys, of which there are:
 ##'
@@ -58,7 +58,7 @@
 ##'   (per packet), each with columns `packet` (id), `query` (string,
 ##'   used to find `packet`) and `files` (another `data.frame` with
 ##'   columns `there` and `here` corresponding to filenames upstream
-##'   and in this packet, repsectively)
+##'   and in this packet, respectively)
 ##' * script: the scripts run in creating the packet (may be zero, one or more)
 ##' * git: either metadata about the state of git or `null`. If given
 ##'   then `sha` and `branch` are strings, while `url` is an array of
@@ -129,7 +129,9 @@
 ##' these differ slightly from R's names because we want to emphasise
 ##' that these are *scalar* quantities; also note that there is no
 ##' `integer` here as this may produce unexpected errors with
-##' integer-like numeric values).
+##' integer-like numeric values). You can also use `list` but this is
+##' the default.  Things in the schema that are known to be scalar
+##' atomics (such as `name`) will be automatically simplified.
 ##'
 ##' You can index into the array-valued elements (`files` and
 ##' `depends`) in the same way as for the object-valued elements:
