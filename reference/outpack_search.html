@@ -60,7 +60,13 @@ use the <code>options</code> argument.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">outpack_search</span><span class="op">(</span><span class="va">...</span>, parameters <span class="op">=</span> <span class="cn">NULL</span>, options <span class="op">=</span> <span class="cn">NULL</span>, root <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">outpack_search</span><span class="op">(</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  parameters <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  options <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  root <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -73,6 +79,13 @@ just a query expression</p></dd>
 <dt>parameters</dt>
 <dd><p>Optionally, a named list of parameters to substitute
 into the query (using the <code>this:</code> prefix)</p></dd>
+
+
+<dt>envir</dt>
+<dd><p>Optionally, an environment to substitute into the
+query (using the <code>environment:</code> prefix). The default here is to
+use the calling environment, but you can explicitly pass this in
+if you want to control where this lookup happens.</p></dd>
 
 
 <dt>options</dt>
