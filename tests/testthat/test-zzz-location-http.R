@@ -95,7 +95,6 @@ describe("http location integration tests", {
   })
 
   it("can push into server", {
-    url <- "http://localhost:8000"
     root_downstream <- create_temporary_root(use_file_store = TRUE)
     ids_downstream <- create_random_packet_chain(root_downstream, 3)
     outpack_location_add("upstream", "http", list(url = url),
