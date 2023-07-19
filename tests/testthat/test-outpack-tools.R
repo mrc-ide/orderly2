@@ -162,6 +162,26 @@ test_that("can extract orderly metadata", {
     outpack_metadata_extract('name == "parameters"', extract = "script",
                              root = path)$script,
     I(as.list(rep("orderly.R", 3))))
+  expect_equal(
+    outpack_metadata_extract('name == "parameters"',
+                             extract = c(script = "script is string"),
+                             root = path)$script,
+    rep("orderly.R", 3))
+
+  id_extra <- create_random_packet(path, "parameters")
+  expect_equal(
+    outpack_metadata_extract('name == "parameters"', extract = "script",
+                             root = path)$script,
+    I(list("orderly.R", "orderly.R", "orderly.R", character())))
+
+  err <- expect_error(
+    outpack_metadata_extract('name == "parameters"',
+                             extract = c(script = "script is string"),
+                             root = path)$script,
+    "Expected all values of 'script' to evaluate to a scalar (if not NULL)",
+    fixed = TRUE)
+  expect_equal(err$body,
+               c(i = sprintf("Value for %s has length 0", id_extra)))
 })
 
 

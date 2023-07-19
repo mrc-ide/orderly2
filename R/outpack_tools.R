@@ -275,7 +275,7 @@ extract_convert <- function(ids, value, from, is, call) {
       msg <- sprintf(
         "Expected all values of '%s' to evaluate to a scalar (if not NULL)",
         paste(from, collapse = "."))
-      examples <- sprintf("%s has length %d", ids[err], len[err])
+      examples <- sprintf("Value for %s has length %d", ids[err], len[err])
       cli::cli_abort(c(msg, error_examples(examples)), call = call)
     }
 
