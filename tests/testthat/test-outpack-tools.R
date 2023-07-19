@@ -202,3 +202,15 @@ test_that("can extract session metadata", {
                           version = meta[[1]]$session$platform$version))
   expect_type(d$version, "character")
 })
+
+
+test_that("can pass a vector of ids through", {
+  root <- create_temporary_root()
+  ids <- vcapply(1:5, function(i) {
+    create_random_packet(root, parameters = list(i = i))
+  })
+
+  expect_identical(
+    outpack_metadata_extract(ids, root = root),
+    outpack_metadata_extract('name == "data"', root = root))
+})

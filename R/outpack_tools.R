@@ -182,8 +182,10 @@ outpack_metadata_extract <- function(..., extract = NULL, root = NULL) {
   env <- environment()
   ret <- data_frame(id = ids)
   for (i in seq_len(nrow(extract))) {
-    d <- extract_metadata(ids, meta, extract$from[[i]], extract$is[[i]], env)
-    ret[[extract$to[[i]]]] <- d
+    from_i <- extract$from[[i]]
+    is_i <- extract$is[[i]]
+    value_i <- lapply(meta, function(x) x[[from_i]])
+    ret[[extract$to[[i]]]] <- extract_convert(ids, value_i, from_i, is_i, env)
   }
 
   ret
@@ -251,22 +253,6 @@ extract_type <- function(nm, is) {
   } else {
     "list"
   }
-}
-
-
-extract_metadata <- function(ids, meta, from, type, call) {
-  value <- lapply(meta, function(x) x[[from]])
-  extract_convert(ids, value, from, type, call)
-}
-
-
-include_metadata <- function(result, data, to) {
-  if (length(to) == 1) {
-    result[[to]] <- data
-  } else {
-    stop("unhandled")
-  }
-  result
 }
 
 
