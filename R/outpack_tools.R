@@ -175,7 +175,7 @@ outpack_metadata_extract <- function(..., extract = NULL, root = NULL) {
   } else {
     ids <- outpack_search(..., root = root)
   }
-  extract <- parse_extract(extract)
+  extract <- parse_extract(extract, environment())
 
   meta <- lapply(ids, root$metadata, full = TRUE)
 
@@ -192,25 +192,17 @@ outpack_metadata_extract <- function(..., extract = NULL, root = NULL) {
 }
 
 
-parse_extract <- function(extract) {
+parse_extract <- function(extract, call = NULL) {
   if (is.null(extract)) {
     extract <- c("name", "parameters")
   }
-  if ("id" %in% c(names(extract), extract)) {
-    ## TODO: only an issue in destination column
-    stop("Don't use 'id' in 'extract'; this column is always added")
-  }
 
-  extract_as_nms <- sub(".", "_", extract, fixed = TRUE)
+  extract_as_nms <- gsub(".", "_", extract, fixed = TRUE)
   if (is.null(names(extract))) {
     names(extract) <- extract_as_nms
   } else {
     i <- !nzchar(names(extract))
     names(extract)[i] <- extract_as_nms[i]
-  }
-
-  if (any(duplicated(names(extract)))) {
-    stop("Duplicate names in 'extract'")
   }
 
   is <- rep(NA_character_, length(extract))
@@ -230,13 +222,26 @@ parse_extract <- function(extract) {
   }
 
   extract <- strsplit(extract, ".", fixed = TRUE)
-  if (any(grepl(".", names(extract), fixed = TRUE))) {
-    stop("Dotted insertion not yet supported")
+
+  to <- names(extract)
+
+  if ("id" %in% to) {
+    cli::cli_abort(
+      "Don't use 'id' as a column to extract; this column is always added",
+      call = call)
+  }
+
+  if (any(duplicated(to))) {
+    dups <- paste(squote(unique(to[duplicated(to)])), collapse = ", ")
+    cli::cli_abort(
+      c("All destination columns in 'extract' must be unique",
+        x = sprintf("Duplicated names: %s", dups)),
+      call = call)
   }
 
   data_frame(
     from = I(as.list(unname(extract))),
-    to = I(as.list(names(extract))),
+    to = names(extract),
     is = is)
 }
 

@@ -214,3 +214,60 @@ test_that("can pass a vector of ids through", {
     outpack_metadata_extract(ids, root = root),
     outpack_metadata_extract('name == "data"', root = root))
 })
+
+
+test_that("validate extraction", {
+  expect_equal(
+    parse_extract(NULL),
+    data_frame(from = I(list("name", "parameters")),
+               to = c("name", "parameters"),
+               is = NA_character_))
+  expect_equal(
+    parse_extract(c("a", "b")),
+    data_frame(from = I(list("a", "b")),
+               to = c("a", "b"),
+               is = NA_character_))
+  expect_equal(
+    parse_extract(c("a.x", "b.y.z")),
+    data_frame(from = I(list(c("a", "x"), c("b", "y", "z"))),
+               to = c("a_x", "b_y_z"),
+               is = NA_character_))
+  expect_equal(
+    parse_extract(c(a = "a.x", "b.y.z")),
+    data_frame(from = I(list(c("a", "x"), c("b", "y", "z"))),
+               to = c("a", "b_y_z"),
+               is = NA_character_))
+  expect_equal(
+    parse_extract(c(a = "a.x is string", "b.y.z")),
+    data_frame(from = I(list(c("a", "x"), c("b", "y", "z"))),
+               to = c("a", "b_y_z"),
+               is = c("string", NA_character_)))
+
+  expect_error(
+    parse_extract(c("id", "a", "b")),
+    "Don't use 'id' as a column to extract; this column is always added")
+  err <- expect_error(
+    parse_extract(c("a", "b", "a", "b", "c")),
+    "All destination columns in 'extract' must be unique")
+  expect_equal(err$body, c(x = "Duplicated names: 'a', 'b'"))
+
+})
+
+
+## This is only used to construc nice error messages
+test_that("helper converts types correctly", {
+  expect_equal(storage_mode_scalar(num_to_time(1)), "time")
+
+  expect_equal(storage_mode_scalar(TRUE), "boolean")
+  expect_equal(storage_mode_scalar(NA), "boolean")
+
+  expect_equal(storage_mode_scalar(1L), "number")
+  expect_equal(storage_mode_scalar(NA_integer_), "number")
+  expect_equal(storage_mode_scalar(1), "number")
+  expect_equal(storage_mode_scalar(NA_real_), "number")
+
+  expect_equal(storage_mode_scalar("str"), "string")
+  expect_equal(storage_mode_scalar(NA_character_), "string")
+
+  expect_equal(storage_mode_scalar(list()), "list")
+})
