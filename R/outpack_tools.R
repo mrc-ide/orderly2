@@ -38,8 +38,9 @@
 ##' but you can always do this yourself.
 ##'
 ##' In order to use function you need to know what metadata are
-##' available. The function works on top-level keys, of which there
-##' are:
+##' available; we will expand a the vignette with more worked examples
+##' here to make this easier to understand. The function works on
+##' top-level keys, of which there are:
 ##'
 ##' * id: the packet id (this is always returned)
 ##' * name: the packet name
@@ -148,6 +149,14 @@
 ##' ```
 ##' extract = c(display = "custom.orderly.description.display is string")
 ##' ```
+##'
+##' @section Custom 'orderly' metadata
+##'
+##' Within `custom.orderly`, additional fields can be extracted. The
+##'   format of this is subject to change, both in the stored metadata
+##'   and schema (in the short term) and in the way we deserialise it.
+##'   It is probably best not to rely on this right now, and we will
+##'   expand this section when you can.
 ##'
 ##' @title Extract metadata from orderly2 packets
 ##'
