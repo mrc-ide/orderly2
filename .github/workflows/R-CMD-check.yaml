@@ -42,6 +42,14 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # This does take a minute or two to install, and we could cache
+      # it but that's not super easy while still allowing easy
+      # updating. Once things stabilise we might tag outpack server
+      # releases and then we can install and cache against that.
+      - name: setup server
+        run: |
+          cargo install --git https://github.com/mrc-ide/outpack_server --branch mrc-4364
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
