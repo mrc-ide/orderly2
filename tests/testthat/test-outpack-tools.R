@@ -304,3 +304,20 @@ test_that("helper converts types correctly", {
 
   expect_equal(storage_mode_scalar(list()), "list")
 })
+
+
+test_that("sensible behaviour if extracting nonsense", {
+  root <- create_temporary_root()
+  ids <- vcapply(1:5, function(i) {
+    create_random_packet(root, parameters = list(i = i))
+  })
+  d <- outpack_metadata_extract('name == "data"',
+                                extract = c(a = "a.b.c.d"),
+                                root = root)
+  expect_equal(d$a, I(vector("list", 5)))
+
+  d <- outpack_metadata_extract('name == "data"',
+                                extract = c(a = "a.b.c.d is string"),
+                                root = root)
+  expect_equal(d$a, rep(NA_character_, 5))
+})

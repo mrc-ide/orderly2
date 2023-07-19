@@ -195,7 +195,9 @@ outpack_metadata_extract <- function(..., extract = NULL, root = NULL) {
   for (i in seq_len(nrow(extract))) {
     from_i <- extract$from[[i]]
     is_i <- extract$is[[i]]
-    value_i <- lapply(meta, function(x) x[[from_i]])
+    value_i <- lapply(meta, function(x) {
+      tryCatch(x[[from_i]], error = function(e) NULL)
+    })
     ret[[extract$to[[i]]]] <- extract_convert(ids, value_i, from_i, is_i, env)
   }
 
