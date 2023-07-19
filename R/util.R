@@ -373,3 +373,13 @@ error_near_match <- function(title, x, hint, join, possibilities) {
   }
   err
 }
+
+
+check_symbol_from_str <- function(str, name) {
+  assert_scalar_character(str, name)
+  dat <- strsplit(str, "(?<=[^:])::(?=[^:])", perl = TRUE)[[1]]
+  if (length(dat) != 2) {
+    stop(sprintf("Expected fully qualified name for '%s'", name))
+  }
+  list(namespace = dat[[1]], symbol = dat[[2]])
+}

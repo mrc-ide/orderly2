@@ -65,6 +65,21 @@ authentication.
 \item \code{url}: The location of the server, including protocol, for
 example \verb{http://example.com:8080}
 }
+
+\strong{Custom locations}:
+
+All outpack implementations are expected to support path and http
+locations, with the standard arguments above.  But we expect that
+some implementations will support custom locations, and that the
+argument lists for these may vary between implementations. To
+allow this, you can pass a location of type "custom" with a list
+of arguments.  We expect an argument 'driver' to be present among
+this list.  For an example of this in action, see the
+\href{https://mrc-ide.github.io/outpack.sharepoint}{\code{outpack.sharepoint}}
+package.
+
+\emph{Be warned that we may change this interface in future, in which
+case you may need to update your configuration.}
 }
 \section{Warning}{
 

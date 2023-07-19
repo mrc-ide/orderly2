@@ -217,8 +217,14 @@ config_serialise <- function(config, path) {
   config$logging <- lapply(config$logging, scalar)
 
   prepare_location <- function(loc) {
+    args <- loc$args[[1]]
+    if (length(args) == 0) {
+      args <- set_names(list(), character())
+    } else {
+      args <- lapply(args, scalar)
+    }
     c(lapply(loc[setdiff(names(loc), "args")], scalar),
-      list(args = lapply(loc$args[[1]], scalar)))
+      list(args = args))
   }
   config$location <- lapply(seq_len(nrow(config$location)), function(i) {
     prepare_location(config$location[i, ])
@@ -229,8 +235,8 @@ config_serialise <- function(config, path) {
 
 
 config_update <- function(config, root) {
-  root$config <- config
   config_write(config, root$path)
+  root$config <- config
   root
 }
 

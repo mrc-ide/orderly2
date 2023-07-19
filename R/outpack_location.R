@@ -28,6 +28,21 @@
 ##' * `url`: The location of the server, including protocol, for
 ##'   example `http://example.com:8080`
 ##'
+##' **Custom locations**:
+##'
+##' All outpack implementations are expected to support path and http
+##' locations, with the standard arguments above.  But we expect that
+##' some implementations will support custom locations, and that the
+##' argument lists for these may vary between implementations. To
+##' allow this, you can pass a location of type "custom" with a list
+##' of arguments.  We expect an argument 'driver' to be present among
+##' this list.  For an example of this in action, see the
+##' [`outpack.sharepoint`](https://mrc-ide.github.io/outpack.sharepoint)
+##' package.
+##'
+##' *Be warned that we may change this interface in future, in which
+##' case you may need to update your configuration.*
+##'
 ##' @section Warning:
 ##'
 ##' The API here may change as we move to support different types of
@@ -376,7 +391,18 @@ location_driver <- function(location_id, root) {
   args <- root$config$location$args[[i]]
   switch(type,
          path = outpack_location_path$new(args$path),
-         http = outpack_location_http$new(args$url))
+         http = outpack_location_http$new(args$url),
+         custom = outpack_location_custom(args))
+}
+
+
+outpack_location_custom <- function(args) {
+  driver <- check_symbol_from_str(args$driver, "args$driver")
+  driver <- getExportedValue(driver$namespace, driver$symbol)
+  if (inherits(driver, "R6ClassGenerator")) {
+    driver <- driver$new
+  }
+  do.call(driver, args[names(args) != "driver"])
 }
 
 
@@ -575,6 +601,8 @@ new_location_entry <- function(name, priority, type, args) {
     required <- "path"
   } else if (type == "http") {
     required <- "url"
+  } else if (type == "custom") {
+    required <- "driver"
   }
   if (length(args) > 0) {
     assert_is(args, "list")
@@ -584,6 +612,10 @@ new_location_entry <- function(name, priority, type, args) {
   if (length(msg) > 0) {
     stop(sprintf("Fields missing from args: %s",
                  paste(squote(msg), collapse = ", ")))
+  }
+
+  if (type == "custom") {
+    check_symbol_from_str(args$driver, "args$driver")
   }
 
   location_id <- paste(as.character(openssl::rand_bytes(4)), collapse = "")
