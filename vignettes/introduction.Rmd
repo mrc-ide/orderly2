@@ -220,7 +220,7 @@ orderly2::orderly_parameters(n_samples = NULL)`
 to define a parameter with no default, or defined multiple parameters with 
 
 ```r
-orderly2::orderly_parameters(n_samples = 10, distribution = "normal")`
+orderly2::orderly_parameters(n_samples = 10, distribution = "normal")
 ```
 
 You can do anything in your report that switches on the value of a parameter:

@@ -46,7 +46,7 @@ orderly2::orderly_parameters(n_min = 10)
 orderly2::orderly_dependency("raw_data", "latest", 
                              use = c("raw_data.csv" = "data.csv"))
 orderly2::orderly_resource("metadata.csv")
-orderly2::orderly_artefact("Processed data", "data.rds"))
+orderly2::orderly_artefact("Processed data", "data.rds")
 source("functions.R")
 ```
 
@@ -94,7 +94,7 @@ This takes control of all the metadata. As such there is a split between "`order
 
 # How to migrate
 
-There are two parts to a migration: updating the canonical copy of your orderly archive (ideally you only have one of these) and updating your source tree. These steps should be done via the `orderly2outpack` package.
+There are two parts to a migration: updating the canonical copy of your orderly archive (ideally you only have one of these) and updating your source tree. These steps should be done via the [`outpack.orderly`](https://github.com/mrc-ide/outpack.orderly) package.
 
 You should migrate your archive first. Do this for every archive that you want to retain (you might have archives stored locally, on production servers and on staging servers). Archive migration happens *out of place*; that is, we do not modify anything in the original location. If your archive is old and has been used with very old versions of `orderly1` it is possible that this process will have a few hiccups. Please let us know if that is the case.  The result of this process is that you will end up with a new directory that contains a new archive conforming to the `outpack` spec and containing `orderly2` metadata.
 
