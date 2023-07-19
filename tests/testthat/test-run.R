@@ -843,8 +843,9 @@ test_that("nice error if running nonexistant report", {
     orderly_run("xplicit", root = path, envir = env),
     "Did not find orderly report 'xplicit'")
   expect_equal(err$body,
-               c(x = "This path does not exist",
-                 i = "Did you mean 'explicit', 'implicit'"))
+               c(x = "The path 'src/xplicit' does not exist",
+                 i = "Did you mean 'explicit', 'implicit'",
+                 i = sprintf("Looked relative to orderly root at '%s'", path)))
 })
 
 
@@ -858,43 +859,46 @@ test_that("validation of orderly directories", {
   err <- expect_error(
     validate_orderly_directory("foo", root),
     "Did not find orderly report 'foo'")
-  expect_equal(err$body, c(x = "This path does not exist"))
+  expect_equal(err$body[1],
+               c(x = "The path 'src/foo' does not exist"))
 
   file.create(file.path(path, "src", "foo"))
   err <- expect_error(
     validate_orderly_directory("foo", root),
     "Did not find orderly report 'foo'")
-  expect_equal(err$body, c(x = "This path exists but is not a directory"))
+  expect_equal(err$body[1],
+               c(x = "The path 'src/foo' exists but is not a directory"))
 
   fs::dir_create(file.path(path, "src", "bar"))
   err <- expect_error(
     validate_orderly_directory("bar", root),
     "Did not find orderly report 'bar'")
-  expect_equal(err$body,
-               c(x = "This path exists but does not contain 'orderly.R'"))
-
+  expect_equal(
+    err$body[1],
+    c(x = "The path 'src/bar' exists but does not contain 'orderly.R'"))
 
   hint <- sprintf("Did you mean %s", paste(squote(nms[1:5]), collapse = ", "))
   err <- expect_error(
     validate_orderly_directory("example_z", root),
     "Did not find orderly report 'example_z'")
-  expect_equal(err$body,
-               c(x = "This path does not exist",
+  expect_equal(err$body[1:2],
+               c(x = "The path 'src/example_z' does not exist",
                  i = hint))
 
   file.create(file.path(path, "src", "example_z"))
   err <- expect_error(
     validate_orderly_directory("example_z", root),
     "Did not find orderly report 'example_z'")
-  expect_equal(err$body,
-               c(x = "This path exists but is not a directory",
+  expect_equal(err$body[1:2],
+               c(x = "The path 'src/example_z' exists but is not a directory",
                  i = hint))
 
   fs::dir_create(file.path(path, "src", "example_x"))
   err <- expect_error(
     validate_orderly_directory("example_x", root),
     "Did not find orderly report 'example_x'")
-  expect_equal(err$body,
-               c(x = "This path exists but does not contain 'orderly.R'",
-                 i = hint))
+  expect_equal(
+    err$body[1:2],
+    c(x = "The path 'src/example_x' exists but does not contain 'orderly.R'",
+      i = hint))
 })

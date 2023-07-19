@@ -423,21 +423,26 @@ validate_orderly_directory <- function(name, root, call) {
   if (!file_exists(file.path(root$path, "src", name, "orderly.R"))) {
     src <- file.path(root$path, "src", name)
     err <- sprintf("Did not find orderly report '%s'", name)
-    if (file_exists(src)) {
-      if (is_directory(src)) {
-        err <- c(err, x = "This path exists but does not contain 'orderly.R'")
-      } else {
-        err <- c(err, x = "This path exists but is not a directory")
-      }
+    if (!file_exists(src)) {
+      detail <- sprintf("The path 'src/%s' does not exist", name)
+    } else if (is_directory(src)) {
+      detail <- sprintf(
+        "The path 'src/%s' exists but does not contain 'orderly.R'",
+        name)
     } else {
-      err <- c(err, x = "This path does not exist")
+      detail <- sprintf(
+        "The path 'src/%s' exists but is not a directory",
+        name)
     }
+    err <- c(err, x = detail)
     near <- near_match(name, orderly_list_src(root$path))
     if (length(near) > 0) {
       hint <- sprintf("Did you mean %s",
                       paste(squote(near), collapse = ", "))
       err <- c(err, i = hint)
     }
+    err <- c(err, i = sprintf("Looked relative to orderly root at '%s'",
+                              root$path))
     cli::cli_abort(err, call = call)
   }
 }
