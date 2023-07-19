@@ -197,33 +197,38 @@ parse_extract <- function(extract, call = NULL) {
     extract <- c("name", "parameters")
   }
 
-  extract_as_nms <- gsub(".", "_", extract, fixed = TRUE)
+  re_type <- "^(.+)\\s+is+\\s+(.+)$"
+
+  extract_as_nms <- sub(re_type, "\\1", gsub(".", "_", extract, fixed = TRUE))
   if (is.null(names(extract))) {
-    names(extract) <- extract_as_nms
+    to <- extract_as_nms
   } else {
-    i <- !nzchar(names(extract))
-    names(extract)[i] <- extract_as_nms[i]
+    to <- names(extract)
+    i <- !nzchar(to)
+    to[i] <- extract_as_nms[i]
   }
 
   is <- rep(NA_character_, length(extract))
-  re_type <- "^(.+)\\s+is+\\s+(.+)$"
+
   i <- grepl(re_type, extract)
   if (any(i)) {
-    ## TODO: be nice and map:
-    ##
-    ##   character -> string
-    ##   numeric -> number
-    ##   real -> number
-    ##   logical -> boolean
-    ##
-    ## and then throw a sensible error if not valid.
+    valid <- c("string", "number", "boolean", "list")
     is[i] <- unname(sub(re_type, "\\2", extract[i]))
     extract[i] <- sub(re_type, "\\1", extract[i])
+    if (any(err <- !(is.na(is) | is %in% valid))) {
+      collapseq <- function(x) paste(squote(x), collapse = ", ")
+      invalid <- sprintf("Extraction of '%s' used type '%s'",
+                         extract[err], is[err])
+      cli::cli_abort(
+        c(sprintf("Invalid conversion type %s requested in 'extract'",
+                  collapseq(unique(is[err]))),
+          i = sprintf("'is' must be one of %s", collapseq(valid)),
+          set_names(invalid, rep("x", length(invalid)))),
+        call = call)
+    }
   }
 
   extract <- strsplit(extract, ".", fixed = TRUE)
-
-  to <- names(extract)
 
   if ("id" %in% to) {
     cli::cli_abort(
@@ -241,7 +246,7 @@ parse_extract <- function(extract, call = NULL) {
 
   data_frame(
     from = I(as.list(unname(extract))),
-    to = names(extract),
+    to = to,
     is = is)
 }
 

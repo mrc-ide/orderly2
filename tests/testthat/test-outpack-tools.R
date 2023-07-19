@@ -262,6 +262,11 @@ test_that("validate extraction", {
     data_frame(from = I(list(c("a", "x"), c("b", "y", "z"))),
                to = c("a", "b_y_z"),
                is = c("string", NA_character_)))
+  expect_equal(
+    parse_extract(c("a is string", "b.y.z is number")),
+    data_frame(from = I(list("a", c("b", "y", "z"))),
+               to = c("a", "b_y_z"),
+               is = c("string", "number")))
 
   expect_error(
     parse_extract(c("id", "a", "b")),
@@ -271,6 +276,14 @@ test_that("validate extraction", {
     "All destination columns in 'extract' must be unique")
   expect_equal(err$body, c(x = "Duplicated names: 'a', 'b'"))
 
+  err <- expect_error(
+    parse_extract(c("a is number", "b is char", "c is bool")),
+    "Invalid conversion type 'char', 'bool' requested in 'extract'")
+  expect_equal(
+    err$body,
+    c(i = "'is' must be one of 'string', 'number', 'boolean', 'list'",
+      x = "Extraction of 'b' used type 'char'",
+      x = "Extraction of 'c' used type 'bool'"))
 })
 
 
