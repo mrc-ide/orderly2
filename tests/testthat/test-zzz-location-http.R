@@ -84,7 +84,7 @@ describe("http location integration tests", {
     expect_identical(hash_file(res), hash)
   })
 
-  test_that("sensible error if file not found in store", {
+  it("throws sensible error if file not found in store", {
     loc <- orderly_location_http$new(url)
     h <- "md5:c7be9a2c3cd8f71210d9097e128da316"
     dest <- temp_file()
@@ -92,5 +92,18 @@ describe("http location integration tests", {
       loc$fetch_file(h, dest),
       "Hash 'md5:c7be9a2c3cd8f71210d9097e128da316' not found at location")
     expect_false(file.exists(dest))
+  })
+
+  it("can push into server", {
+    url <- "http://localhost:8000"
+    root_downstream <- create_temporary_root(use_file_store = TRUE)
+    ids_downstream <- create_random_packet_chain(root_downstream, 3)
+    outpack_location_add("upstream", "http", list(url = url),
+                         root = root_downstream)
+    plan <- outpack_location_push(ids_downstream[[3]], "upstream",
+                                  root = root_downstream)
+    expect_setequal(plan$packet_id, ids_downstream)
+    idx <- root$index()
+    expect_true(all(ids_downstream %in% names(idx$metadata)))
   })
 })
