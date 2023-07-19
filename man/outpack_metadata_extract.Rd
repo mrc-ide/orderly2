@@ -37,7 +37,7 @@ present in all packets (e.g., a packet that does not depend on
 another will not have a dependency section, and one that was run
 in a context without git will not have git metadata). If you just
 want the raw tree-structured data, you can always use
-\link{orderly_metadata} to load the full metadata for any
+\link{outpack_metadata} to load the full metadata for any
 packet (even one that is not currently available on your computer,
 just known about it) and the structure of the data will remain
 fairly constant across orderly2 versions.
