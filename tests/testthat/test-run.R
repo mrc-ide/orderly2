@@ -788,3 +788,49 @@ test_that("run without logging config works", {
     orderly_run("data", root = path, envir = env))
   expect_match(res$messages, "\\[ name\\s+\\]  data", all = FALSE)
 })
+
+
+test_that("can compute dependencies", {
+  path <- test_prepare_orderly_example("parameters")
+  env1 <- new.env()
+  id1 <- orderly_run("parameters", list(a = 1, b = 2, c = 3),
+                     root = path, envir = env1)
+  id2 <- orderly_run("parameters", list(a = 3, b = 2, c = 1),
+                     root = path, envir = env1)
+
+  path_src <- file.path(path, "src", "use")
+  fs::dir_create(path_src)
+  code <- c(
+    "orderly2::orderly_dependency(",
+    '  "parameters",',
+    '  "latest(parameter:a == environment:x)",',
+    '  c(d.rds = "data.rds"))',
+    'orderly2::orderly_artefact("data", "d.rds")')
+
+  writeLines(code, file.path(path_src, "orderly.R"))
+  env2 <- new.env()
+  expect_error(
+    orderly_run("use", root = path, envir = env2),
+    "Did not find 'x' within given environment")
+
+  env2$x <- 1
+  id <- orderly_run("use", root = path, envir = env2)
+  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id1)
+
+  env2$x <- 2
+  expect_error(
+    orderly_run("use", root = path, envir = env2),
+    "Failed to find packet for query")
+
+  env2$x <- 3
+  id <- orderly_run("use", root = path, envir = env2)
+  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id2)
+
+  writeLines(c("x <- 1", code), file.path(path_src, "orderly.R"))
+  id <- orderly_run("use", root = path, envir = env2)
+  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id1)
+
+  rm(list = "x", envir = env2)
+  id <- orderly_run("use", root = path, envir = env2)
+  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id1)
+})

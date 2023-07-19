@@ -30,6 +30,7 @@ outpack_packet_use_dependency(
   query,
   files,
   search_options = NULL,
+  envir = parent.frame(),
   overwrite = TRUE
 )
 
@@ -78,7 +79,11 @@ marked immutable have not been changed)}
 relative path).  This function can be safely called multiple
 times within a single packet run (or zero times!) as needed.}
 
-\item{envir}{Environment in which to run the script}
+\item{envir}{Optional environment for \verb{environment:} lookups; the
+default is to use the parent frame, but other suitable options
+are the global environment or the environment of the script you
+are running (this only relevant if you have \verb{environment:}
+lookups in \code{query}).}
 
 \item{query}{An \link{outpack_query} object, or something
 (e.g., a string) that can be trivially converted into one.}
