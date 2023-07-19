@@ -150,7 +150,7 @@
 ##' extract = c(display = "custom.orderly.description.display is string")
 ##' ```
 ##'
-##' @section Custom 'orderly' metadata
+##' @section Custom 'orderly' metadata:
 ##'
 ##' Within `custom.orderly`, additional fields can be extracted. The
 ##'   format of this is subject to change, both in the stored metadata
