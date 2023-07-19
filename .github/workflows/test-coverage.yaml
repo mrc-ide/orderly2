@@ -21,6 +21,10 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: setup server
+        run: |
+          cargo install --git https://github.com/mrc-ide/outpack_server --branch mrc-4364
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::covr
