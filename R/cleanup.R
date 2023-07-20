@@ -36,7 +36,7 @@
 ##'   `orderly_cleanup_status`) or that were deleted (for
 ##'   `orderly_cleanup`)
 ##'
-##' @author export
+##' @export
 orderly_cleanup <- function(name = NULL, root = NULL, locate = TRUE) {
   status <- orderly_cleanup_status(name, root, locate)
   if (length(status$delete) > 0) {

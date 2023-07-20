@@ -58,6 +58,3 @@ file. So there, we start from the point of view of the list of
 files then compare that with the directory.
 }
 
-\author{
-export
-}
