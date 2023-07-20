@@ -13,7 +13,7 @@
         },
 
         "id": {
-            "$ref": "id.json"
+            "$ref": "packet-id.json"
         },
 
         "name": {
@@ -36,7 +36,10 @@
                 "description": "Time that the report was completed, in seconds sinec 1970-01-01",
                 "type": "number"
             },
-            "required": ["start", "end"]
+            "required": ["start", "end"],
+            "additionalProperties": {
+                "type": "number"
+            }
         },
 
         "files": {
@@ -68,7 +71,7 @@
                 "type": "object",
                 "properties": {
                     "packet": {
-                        "$ref": "id.json"
+                        "$ref": "packet-id.json"
                     },
                     "query": {
                         "type": "string"
