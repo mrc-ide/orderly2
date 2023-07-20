@@ -722,3 +722,193 @@ test_that("can select location when querying dependencies interactively", {
     readRDS(file.path(path[["prod"]], "archive", "data", ids[["prod"]],
                       "data.rds")))
 })
+
+
+test_that("can use a resource from a directory", {
+  path <- test_prepare_orderly_example("directories")
+  env <- new.env()
+  id <- orderly_run("directories", root = path, envir = env)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  expect_equal(meta$custom$orderly$role,
+               list(list(path = "data/a.csv", role = "resource"),
+                    list(path = "data/b.csv", role = "resource")))
+  expect_equal(meta$custom$orderly$artefacts,
+               list(list(description = "output files",
+                         paths = list("output/a.rds", "output/b.rds"))))
+})
+
+
+test_that("can use a resource from a directory", {
+  path <- test_prepare_orderly_example("directories")
+  env <- new.env()
+  id <- orderly_run("directories", root = path, envir = env)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id, full = TRUE)
+  expect_equal(meta$custom$orderly$role,
+               list(list(path = "data/a.csv", role = "resource"),
+                    list(path = "data/b.csv", role = "resource")))
+  expect_equal(meta$custom$orderly$artefacts,
+               list(list(description = "output files",
+                         paths = list("output/a.rds", "output/b.rds"))))
+  expect_setequal(meta$files$path,
+                  c("data/a.csv", "data/b.csv", "log.json", "orderly.R",
+                    "output/a.rds", "output/b.rds"))
+})
+
+
+test_that("can depend on a directory artefact", {
+  path <- test_prepare_orderly_example("directories")
+  env1 <- new.env()
+  id1 <- orderly_run("directories", root = path, envir = env1)
+
+  path_src <- file.path(path, "src", "use")
+  fs::dir_create(path_src)
+  writeLines(c(
+    'orderly2::orderly_dependency("directories", "latest()", c(d = "output/"))',
+    'orderly2::orderly_artefact("data", "d.rds")',
+    'd <- c(readRDS("d/a.rds", "d/b.rds"))',
+    'saveRDS(d, "d.rds")'),
+    file.path(path_src, "orderly.R"))
+  env2 <- new.env()
+  id2 <- orderly_run("use", root = path, envir = env2)
+  meta <- orderly_root(path, FALSE)$outpack$metadata(id2, full = TRUE)
+  expect_equal(meta$depends$packet, id1)
+  expect_equal(meta$depends$files[[1]],
+               data_frame(here = c("d/a.rds", "d/b.rds"),
+                          there = c("output/a.rds", "output/b.rds")))
+})
+
+
+test_that("run without logging config works", {
+  ## This test makes sure that we can load a configuration without a
+  ## logging section and still run something:
+  path <- test_prepare_orderly_example("data")
+  config_remove_logging(path)
+  env <- new.env()
+  res <- testthat::evaluate_promise(
+    orderly_run("data", root = path, envir = env))
+  expect_match(res$messages, "\\[ name\\s+\\]  data", all = FALSE)
+})
+
+
+test_that("can compute dependencies", {
+  path <- test_prepare_orderly_example("parameters")
+  env1 <- new.env()
+  id1 <- orderly_run("parameters", list(a = 1, b = 2, c = 3),
+                     root = path, envir = env1)
+  id2 <- orderly_run("parameters", list(a = 3, b = 2, c = 1),
+                     root = path, envir = env1)
+
+  path_src <- file.path(path, "src", "use")
+  fs::dir_create(path_src)
+  code <- c(
+    "orderly2::orderly_dependency(",
+    '  "parameters",',
+    '  "latest(parameter:a == environment:x)",',
+    '  c(d.rds = "data.rds"))',
+    'orderly2::orderly_artefact("data", "d.rds")')
+
+  writeLines(code, file.path(path_src, "orderly.R"))
+  env2 <- new.env()
+  expect_error(
+    orderly_run("use", root = path, envir = env2),
+    "Did not find 'x' within given environment")
+
+  env2$x <- 1
+  id <- orderly_run("use", root = path, envir = env2)
+  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id1)
+
+  env2$x <- 2
+  expect_error(
+    orderly_run("use", root = path, envir = env2),
+    "Failed to find packet for query")
+
+  env2$x <- 3
+  id <- orderly_run("use", root = path, envir = env2)
+  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id2)
+
+  writeLines(c("x <- 1", code), file.path(path_src, "orderly.R"))
+  id <- orderly_run("use", root = path, envir = env2)
+  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id1)
+
+  rm(list = "x", envir = env2)
+  id <- orderly_run("use", root = path, envir = env2)
+  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id1)
+})
+
+
+test_that("nice error if running nonexistant report", {
+  path <- test_prepare_orderly_example(c("implicit", "explicit"))
+  env <- new.env()
+  err <- expect_error(
+    orderly_run("xplicit", root = path, envir = env),
+    "Did not find orderly report 'xplicit'")
+  expect_equal(err$body[1:2],
+               c(x = "The path 'src/xplicit' does not exist",
+                 i = "Did you mean 'explicit', 'implicit'"))
+  ## Sloppy check here to avoid tedious macOS temporary path location
+  ## being in two places at once.
+  expect_match(err$body[[3]], "Looked relative to orderly root at")
+})
+
+
+test_that("validation of orderly directories", {
+  path <- test_prepare_orderly_example(character())
+  root <- orderly_root(path, FALSE)
+  nms <- sprintf("example_%s", letters[1:8])
+  fs::dir_create(file.path(path, "src", nms))
+  file.create(file.path(path, "src", nms, "orderly.R"))
+  hint_root <- sprintf("Looked relative to orderly root at '%s'", root$path)
+
+  err <- expect_error(
+    validate_orderly_directory("foo", root),
+    "Did not find orderly report 'foo'")
+  expect_equal(err$body,
+               c(x = "The path 'src/foo' does not exist",
+                 i = hint_root))
+
+  file.create(file.path(path, "src", "foo"))
+  err <- expect_error(
+    validate_orderly_directory("foo", root),
+    "Did not find orderly report 'foo'")
+  expect_equal(err$body,
+               c(x = "The path 'src/foo' exists but is not a directory",
+                 i = hint_root))
+
+  fs::dir_create(file.path(path, "src", "bar"))
+  err <- expect_error(
+    validate_orderly_directory("bar", root),
+    "Did not find orderly report 'bar'")
+  expect_equal(
+    err$body,
+    c(x = "The path 'src/bar' exists but does not contain 'orderly.R'",
+      i = hint_root))
+
+  hint_close <- sprintf("Did you mean %s",
+                        paste(squote(nms[1:5]), collapse = ", "))
+  err <- expect_error(
+    validate_orderly_directory("example_z", root),
+    "Did not find orderly report 'example_z'")
+  expect_equal(err$body,
+               c(x = "The path 'src/example_z' does not exist",
+                 i = hint_close,
+                 i = hint_root))
+
+  file.create(file.path(path, "src", "example_z"))
+  err <- expect_error(
+    validate_orderly_directory("example_z", root),
+    "Did not find orderly report 'example_z'")
+  expect_equal(err$body,
+               c(x = "The path 'src/example_z' exists but is not a directory",
+                 i = hint_close,
+                 i = hint_root))
+
+  fs::dir_create(file.path(path, "src", "example_x"))
+  err <- expect_error(
+    validate_orderly_directory("example_x", root),
+    "Did not find orderly report 'example_x'")
+  expect_equal(
+    err$body,
+    c(x = "The path 'src/example_x' exists but does not contain 'orderly.R'",
+      i = hint_close,
+      i = hint_root))
+})

@@ -4,7 +4,13 @@
 \alias{outpack_search}
 \title{Query outpack's database}
 \usage{
-outpack_search(..., parameters = NULL, options = NULL, root = NULL)
+outpack_search(
+  ...,
+  parameters = NULL,
+  envir = parent.frame(),
+  options = NULL,
+  root = NULL
+)
 }
 \arguments{
 \item{...}{Arguments passed through to \link{outpack_query}, perhaps
@@ -12,6 +18,11 @@ just a query expression}
 
 \item{parameters}{Optionally, a named list of parameters to substitute
 into the query (using the \verb{this:} prefix)}
+
+\item{envir}{Optionally, an environment to substitute into the
+query (using the \verb{environment:} prefix). The default here is to
+use the calling environment, but you can explicitly pass this in
+if you want to control where this lookup happens.}
 
 \item{options}{Optionally, a \link{outpack_search_options}
 object for controlling how the search is performed, and which

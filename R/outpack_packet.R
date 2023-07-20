@@ -241,7 +241,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   location. Note that even if the packet is not locally present
 ##'   this might not be needed - if you have the same content anywhere
 ##'   else in an unpacked packet we will reuse the same content
-##'   without refetching.
+##'   without re-fetching.
 ##'
 ##' If `pull_metadata = TRUE`, then we will refresh location metadata
 ##'   before pulling, and the `location` argument controls which
@@ -252,12 +252,30 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'
 ##' @param files A named character vector of files; the name
 ##'   corresponds to the name within the current packet, while the
-##'   value corresponds to the name within the upstream packet
+##'   value corresponds to the name within the upstream packet. If you
+##'   want to import a directory of files from a packet, you must
+##'   refer to the source with a trailing slash (e.g., `c(here =
+##'   "there/")`), which will create the local directory `here/...`
+##'   with files from the upstream packet directory `there/`. If you
+##'   omit the slash then an error will be thrown suggesting that you
+##'   add a slash if this is what you intended.
 ##'
 ##' @param search_options Optional search options for restricting the
 ##'   search (see [orderly2::outpack_search] for details)
+##'
+##' @param envir Optional environment for `environment:` lookups; the
+##'   default is to use the parent frame, but other suitable options
+##'   are the global environment or the environment of the script you
+##'   are running (this only relevant if you have `environment:`
+##'   lookups in `query`).
+##'
+##' @param overwrite Overwrite files at the destination; this is
+##'   typically what you want, but set to `FALSE` if you would prefer
+##'   that an error be thrown if the destination file already exists.
 outpack_packet_use_dependency <- function(packet, query, files,
-                                          search_options = NULL) {
+                                          search_options = NULL,
+                                          envir = parent.frame(),
+                                          overwrite = TRUE) {
   packet <- check_current_packet(packet)
   query <- as_outpack_query(query)
   search_options <- as_outpack_search_options(search_options)
@@ -269,8 +287,11 @@ outpack_packet_use_dependency <- function(packet, query, files,
       "Did you forget latest(...)?"))
   }
 
-  id <- outpack_search(query, parameters = packet$parameters,
-                       options = search_options, root = packet$root)
+  id <- outpack_search(query,
+                       parameters = packet$parameters,
+                       envir = envir,
+                       options = search_options,
+                       root = packet$root)
   if (is.na(id)) {
     ## TODO: this is where we would want to consider explaining what
     ## went wrong; because that comes with a cost we should probably
@@ -290,9 +311,10 @@ outpack_packet_use_dependency <- function(packet, query, files,
                                  root = packet$root)
   }
 
-  outpack_copy_files(id, files, packet$path,
-                     allow_remote = search_options$allow_remote,
-                     root = packet$root)
+  result <- outpack_copy_files(id, files, packet$path,
+                               allow_remote = search_options$allow_remote,
+                               overwrite = overwrite,
+                               root = packet$root)
 
   query_str <- deparse_query(query$value$expr,
                              lapply(query$subquery, "[[", "expr"))
@@ -302,10 +324,10 @@ outpack_packet_use_dependency <- function(packet, query, files,
   depends <- list(
     packet = id,
     query = query_str,
-    files = data_frame(here = names(files), there = unname(files)))
+    files = data_frame(here = result$here, there = result$there))
   packet$depends <- c(packet$depends, list(depends))
 
-  outpack_packet_file_mark(packet, names(files), "immutable")
+  outpack_packet_file_mark(packet, result$here, "immutable")
 
   invisible()
 }
@@ -323,7 +345,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
 ##'   file outputs into logical bundles.  To support this it needs to
 ##'   register additional data for each artefact with:
 ##'
-##' * the description of the artefect (a short phrase)
+##' * the description of the artefact (a short phrase)
 ##' * the format of the artefact (a string describing the data type)
 ##' * the contents of the artefact (an array of filenames)
 ##'

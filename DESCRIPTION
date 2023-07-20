@@ -16,6 +16,7 @@ URL: https://github.com/mrc-ide/orderly2
 BugReports: https://github.com/mrc-ide/orderly2/issues
 Imports:
     R6,
+    cli,
     fs,
     gert,
     jsonlite,
@@ -25,10 +26,14 @@ Imports:
 Suggests:
     httr,
     jsonvalidate (>= 1.4.0),
+    knitr,
     mockery,
     pkgload,
     processx,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes:
   ropensci/jsonvalidate
+VignetteBuilder: knitr
+Language: en-GB

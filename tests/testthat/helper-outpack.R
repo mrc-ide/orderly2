@@ -122,3 +122,44 @@ temp_file <- function() {
   withr::defer_parent(unlink(path, recursive = TRUE))
   path
 }
+
+
+## Edit an existing configuration to drop the logging section. Hard
+## without loading the json but this works for now:
+config_remove_logging <- function(path) {
+  fmt <- '{
+  "schema_version": "0.0.1",
+  "core": {
+    "path_archive": "archive",
+    "use_file_store": false,
+    "require_complete_tree": false,
+    "hash_algorithm": "sha256"
+  },
+  "location": [
+    {
+      "name": "local",
+      "id": "%s",
+      "priority": 0,
+      "type": "local",
+      "args": []
+    }
+  ]
+}'
+  writeLines(
+    sprintf(fmt, local_location_id(outpack_root_open(path))),
+    file.path(path, ".outpack", "config.json"))
+}
+
+
+helper_add_git <- function(path) {
+  ## Note that the git repo is in the src, not in the outpack root
+  gert::git_init(path)
+  gert::git_add(".", repo = path)
+  user <- "author <author@example.com>"
+  sha <- gert::git_commit("initial", author = user, committer = user,
+                          repo = path)
+  branch <- gert::git_branch(repo = path)
+  url <- "https://example.com/git"
+  gert::git_remote_add(url, repo = path)
+  list(user = user, url = url)
+}

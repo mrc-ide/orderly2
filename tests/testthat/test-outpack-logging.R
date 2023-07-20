@@ -172,3 +172,14 @@ test_that("reject logging calls with invalid object", {
   expect_error(outpack_log_info(NULL, "hello", "error", "test"),
                "Invalid call to outpack_log")
 })
+
+
+test_that("Can read logs", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root)
+  logs <- outpack_log_read(id, root)
+  expect_s3_class(logs, "data.frame")
+  expect_identical(
+    logs,
+    log_read(file.path(root$path, "archive", "data", id, "log.json")))
+})

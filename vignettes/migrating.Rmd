@@ -1,0 +1,112 @@
+---
+title: "Migrating from orderly (1.x)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Migrating from orderly (1.x)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The new version of orderly (codename `orderly2` for now) is very different to the previously released version on CRAN (orderly 1.4.3; September 2021) or the last development version of the 1.x line (orderly 1.6.x; June 2023).  These changes constitute a ground-up rewrite in order to bring out the best features we found that orderly enabled within workflows, while removing some features we felt have outlived their usefulness.  This is disruptive change, but we hope that it will be worth it.
+
+This vignette is divided into two parts; one covers the conceptual differences between `orderly1` and `orderly2` while the second covers the mechanical process of migrating from an existing orderly source tree and archive to take advantage of the new features.
+
+If you have never used version 1.x of orderly, you should not read this document unless you are curious about the history of design decisions. Instead you should read the introductory vignette (`vignette("orderly2")`).
+
+# Summary of changes
+
+## So long YAML and thanks for all the whitespace errors
+
+The most obvious user-facing change is that there is (almost) no [YAML](https://en.wikipedia.org/wiki/YAML), with the definition of inputs and outputs for a report now defined within an R script (`orderly.R`).  So an orderly report that previously had an `orderly.yml` file that looked like
+
+```yaml
+parameters:
+  n_min:
+    default: 10
+script: script.R
+source:
+  - functions.R
+resources:
+  - metadata.csv
+depends:
+  raw_data:
+    id: latest
+    use:
+      raw_data.csv: data.csv
+artefacts:
+  data:
+    description: Processed data
+    filenames: data.rds
+```
+
+would end up within an `orderly.R` script that looks like:
+
+```r
+orderly2::orderly_parameters(n_min = 10)
+orderly2::orderly_dependency("raw_data", "latest", 
+                             use = c("raw_data.csv" = "data.csv"))
+orderly2::orderly_resource("metadata.csv")
+orderly2::orderly_artefact("Processed data", "data.rds")
+source("functions.R")
+```
+
+We think this is much clearer, and comes with documentation and autocomplete support in most IDEs.
+
+In fact, for simple reports, **no** special functions are required, though you'll find that some will be useful (see `vignette("orderly2")`)
+
+### Implications
+
+This change has widespread implications:
+
+* you can program against things like dependencies, creating a `for` loop over a series of parameter values, or conditionally depending on other reports
+* any R script can be the basis of an orderly report, and you can add orderly functions annotating inputs and outputs progressively
+
+## Database support has been moved into a plugin
+
+In version 1, we had built-in support for accessing data from SQL databases; this has moved within the [`orderly.db`](https://github.com/mrc-ide/orderly.db) plugin. All major features are supported.
+
+## No more commit
+
+`orderly2` no longer requires a separate `orderly_commit()` call after `orderly_run()`; we no longer make a distinction between local draft and archive packets. Instead, we have added finer-grained control over where dependencies are resolved from (locally, or from some subset of your servers), which generalises the way that draft/archive was used in practice. See the "Dependency resolution" section of `?outpack_packet_use_dependency` (itself used from `orderly2::orderly_dependency`) for more details.
+
+## No more testing or development mode
+
+We have had two different, but unsatisfactory, mechanisms for developing an orderly report:
+
+* `orderly_test_start` (up to version 1.1.0)
+* `orderly_develop_start` (from 1.1.0 onwards)
+
+These worked by doing the initial setup, and copying of dependencies etc to a location you could work (a new draft for `orderly_test_start` and the source directory for `orderly_develop_start`). From `orderly2` you can just work directly within the source directory, and so long as your working directory is set to `src/<report-name>`, all `orderly2` commands will work as expected.
+
+As with `orderly1`, you will need to be careful not to commit (to git) results of running your analysis, and we encourage per-report `.gitignore` files to help with this.
+
+## New, language-agnostic, backend
+
+The biggest change, but perhaps the least visible, is that orderly is now built on an open spec [outpack](https://github.com/mrc-ide/outpack) which can be implemented for any language. We will develop a Python implementation of this, and possibly other languages.
+
+This takes control of all the metadata. As such there is a split between "`orderly_`" and "`outpack_`" functions in this package, for more information see the last section of `vignette("introduction")` and also `vignette("outpack")`.
+
+# What is missing compared with `orderly1`
+
+* the changelog feature (we will implement something to support this)
+* extraction of secrets from vault (we will support this)
+* automatic handling of README files (we may implement support for this)
+
+# How to migrate
+
+There are two parts to a migration: updating the canonical copy of your orderly archive (ideally you only have one of these) and updating your source tree. These steps should be done via the [`outpack.orderly`](https://github.com/mrc-ide/outpack.orderly) package.
+
+You should migrate your archive first. Do this for every archive that you want to retain (you might have archives stored locally, on production servers and on staging servers). Archive migration happens *out of place*; that is, we do not modify anything in the original location. If your archive is old and has been used with very old versions of `orderly1` it is possible that this process will have a few hiccups. Please let us know if that is the case.  The result of this process is that you will end up with a new directory that contains a new archive conforming to the `outpack` spec and containing `orderly2` metadata.
+
+Next, migrate your source tree. This will be done *in place* so should be done on a fresh clone of your source git repository. For each report, we will examine your `orderly.yml` files and your script files (often `script.R`), delete these, and then write out a new `orderly.R` file that will adapt your report to work for `orderly2`.  It is possible that this will not be perfect and might need some minor tweaking but hopefully it will be reasonable. One thing that is not preserved (and we probably cannot do so) is the comments from the `yaml` but as these often refer to `yaml` formatting or `orderly1` features hopefully this is not too much of a problem.  You will probably want to manually tweak the generated code anyway, to take advantage of some of the new `orderly2` features such as being able to compute dependencies.
+
+If you are using OrderlyWeb, you probably need to pause before migrating, as the replacement is not yet ready.
+
+# What about the packages?
+
+We will merge `orderly2` into the `orderly` package, so once we are ready for release you can use that. However, we anticipate a period of coexistence of both legacy `orderly1` systems while we develop `orderly2`. To help with this we have a small helper package [`orderly.helper`](https://mrc-ide.github.io/orderly.helper) which can smooth over these namespace differences; this may be useful if you interact with both versions.
+
+# What were the problems in version 1
+
+* The YAML format is inflexible, error prone for users, and leads to duplication
+* It was too focussed around our initial needs with the [Vaccine Impact Modelling Consortium](https://vaccineimpact.org)

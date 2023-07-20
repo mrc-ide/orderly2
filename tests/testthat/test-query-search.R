@@ -121,9 +121,30 @@ test_that("Can filter based on given values", {
   expect_error(
     outpack_search(quote(latest(parameter:a == this:x)),
                   parameters = list(a = 3), root = root),
-    paste0("Did not find 'x' within given parameters ('a')\n",
+    paste0("Did not find 'x' within given parameters (containing 'a')\n",
            "  - while evaluating this:x\n",
            "  - within           latest(parameter:a == this:x)"),
+    fixed = TRUE)
+})
+
+
+test_that("can use variables from the environment when searching", {
+  root <- create_temporary_root(use_file_store = TRUE)
+
+  x1 <- vcapply(1:3, function(i) create_random_packet(root, "x", list(a = 1)))
+  x2 <- vcapply(1:3, function(i) create_random_packet(root, "x", list(a = 2)))
+
+  env <- new.env()
+  env$x <- 1
+  expect_equal(
+    outpack_search(quote(latest(parameter:a == environment:x)),
+                   envir = env, root = root),
+    x1[[3]])
+
+  expect_error(
+    outpack_search(quote(latest(parameter:a == environment:other)),
+                   envir = env, root = root),
+    "Did not find 'other' within given environment (containing 'x')",
     fixed = TRUE)
 })
 
@@ -156,7 +177,8 @@ test_that("switch statements will prevent regressions", {
     "Unhandled expression [outpack bug - please report]",
     fixed = TRUE)
   expect_error(
-    query_eval_lookup(list(name = "custom:orderly:displayname")),
+    query_eval_lookup(list(name = "custom:orderly:displayname"),
+                      new.env(parent = emptyenv())),
     "Unhandled lookup [outpack bug - please report]",
     fixed = TRUE)
   expect_error(
@@ -844,6 +866,19 @@ test_that("allow search before query", {
     ids)
   expect_setequal(names(root$a$index()$metadata), ids)
 })
+
+
+test_that("empty search returns full set", {
+  root <- create_temporary_root(use_file_store = TRUE)
+  ids <- list(a = vcapply(1:3, function(i) create_random_packet(root, "a")),
+              b = vcapply(1:3, function(i) create_random_packet(root, "b")))
+
+  expect_equal(outpack_search(root = root),
+               c(ids$a, ids$b))
+  expect_equal(outpack_search(name = "a", root = root),
+               c(ids$a))
+})
+
 
 test_that("can search for queries using boolean", {
   root <- create_temporary_root(use_file_store = TRUE)

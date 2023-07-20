@@ -3,7 +3,7 @@
 ##'
 ##' @title Construct outpack query
 ##'
-##' @param expr The query expression
+##' @param expr The query expression. A `NULL` expression matches everything.
 ##'
 ##' @param name Optionally, the name of the packet to scope the query on. This
 ##'   will be intersected with `scope` arg and is a shorthand way of running
@@ -35,9 +35,11 @@ outpack_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
     expr_parsed <- query_parse_add_scope(expr_parsed, scope)
   }
 
+  lookup <- query_collect_lookup(expr_parsed, subquery_env)
   info <- list(
     single = is_expr_single_value(expr_parsed, subquery_env),
-    parameters = query_parameters(expr_parsed, subquery_env))
+    parameters = lookup$this,
+    environment = lookup$environment)
 
   ret <- list(value = expr_parsed,
               subquery = as.list(subquery_env),
@@ -48,6 +50,9 @@ outpack_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
 
 
 as_outpack_query <- function(expr, ...) {
+  if (missing(expr)) {
+    expr <- NULL
+  }
   if (inherits(expr, "outpack_query")) {
     if (...length() > 0) {
       stop("If 'expr' is an 'outpack_query', no additional arguments allowed")
@@ -71,7 +76,7 @@ query_parse <- function(expr, context, subquery_env) {
       }
       expr <- expr[[1L]]
     }
-  } else if (!is.language(expr)) {
+  } else if (!(is.null(expr) || is.language(expr))) {
     stop("Invalid input for query")
   }
 
@@ -107,6 +112,7 @@ query_component <- function(type, expr, context, args, ...) {
 query_parse_expr <- function(expr, context, subquery_env) {
   type <- query_parse_check_call(expr, context)
   fn <- switch(type,
+               empty = query_parse_empty,
                test = query_parse_test,
                group = query_parse_group,
                latest = query_parse_latest,
@@ -116,6 +122,11 @@ query_parse_expr <- function(expr, context, subquery_env) {
                ## normally unreachable
                stop("Unhandled expression [outpack bug - please report]"))
   fn(expr, context, subquery_env)
+}
+
+
+query_parse_empty <- function(expr, context, subquery_env) {
+  query_component("empty", expr, context, list())
 }
 
 
@@ -317,6 +328,10 @@ query_eval_error <- function(msg, expr, context) {
 
 
 query_parse_check_call <- function(expr, context) {
+  if (is.null(expr)) {
+    return("empty")
+  }
+
   if (!is.call(expr)) {
     query_parse_error(sprintf(
       "Invalid query '%s'; expected some sort of expression",
@@ -387,7 +402,7 @@ query_parse_value <- function(expr, context, subquery_env) {
          name = deparse(expr))
   } else if (is_call(expr, ":")) {
     name <- deparse_query(expr[[2]], NULL)
-    valid <- c("parameter", "this")
+    valid <- c("parameter", "this", "environment")
     if (!(name %in% valid)) {
         query_parse_error(sprintf(
           "Invalid lookup '%s'", name), expr, context)
@@ -438,12 +453,15 @@ add_subquery <- function(name, expr, context, subquery_env) {
 }
 
 
-query_parameters <- function(expr_parsed, subquery_env) {
+query_collect_lookup <- function(expr_parsed, subquery_env) {
   env <- new.env(parent = emptyenv())
-  env$seen <- character()
+  collect <- c("this", "environment")
+  for (nm in collect) {
+    env[[nm]] <- character()
+  }
   f <- function(x) {
-    if (is.recursive(x) && x$type == "lookup" && x$name == "this") {
-      env$seen <- c(env$seen, x$query)
+    if (is.recursive(x) && x$type == "lookup" && x$name %in% collect) {
+      env[[x$name]] <- c(env[[x$name]], x$query)
     } else if (x$type == "subquery") {
       sub <- subquery_env[[x$args$name]]
       if (!is.null(sub)) {
@@ -456,5 +474,5 @@ query_parameters <- function(expr_parsed, subquery_env) {
     }
   }
   f(expr_parsed)
-  unique(env$seen)
+  set_names(lapply(collect, function(nm) unique(env[[nm]])), collect)
 }

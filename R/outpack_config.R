@@ -146,7 +146,7 @@ config_set_path_archive <- function(value, root) {
       invisible(lapply(root$index()$unpacked, function(id) {
         meta <- root$metadata(id)
         dst <- file.path(path_archive, meta$name, id, meta$files$path)
-        root$files$get(meta$files$hash, dst)
+        root$files$get(meta$files$hash, dst, TRUE)
       }))
       config$core$path_archive <- value
     }, error = function(e) {
@@ -217,8 +217,14 @@ config_serialise <- function(config, path) {
   config$logging <- lapply(config$logging, scalar)
 
   prepare_location <- function(loc) {
+    args <- loc$args[[1]]
+    if (length(args) == 0) {
+      args <- set_names(list(), character())
+    } else {
+      args <- lapply(args, scalar)
+    }
     c(lapply(loc[setdiff(names(loc), "args")], scalar),
-      list(args = lapply(loc$args[[1]], scalar)))
+      list(args = args))
   }
   config$location <- lapply(seq_len(nrow(config$location)), function(i) {
     prepare_location(config$location[i, ])
@@ -229,8 +235,8 @@ config_serialise <- function(config, path) {
 
 
 config_update <- function(config, root) {
-  root$config <- config
   config_write(config, root$path)
+  root$config <- config
   root
 }
 
@@ -250,5 +256,10 @@ config_read <- function(root_path) {
     priority = vnapply(config$location, "[[", "priority"),
     type = vcapply(config$location, "[[", "type"),
     args = I(lapply(config$location, "[[", "args")))
+  if (is.null(config$logging)) {
+    ## Logging is unspecified in config, so use implementation defined
+    ## defaults:
+    config$logging <- list(console = TRUE, threshold = "info")
+  }
   config
 }

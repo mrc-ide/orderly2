@@ -12,8 +12,24 @@ test_that("Parse basic query", {
 })
 
 
+test_that("empty query is possible", {
+  expect_equal(
+    query_parse(NULL, NULL, new.env(parent = emptyenv())),
+    query_component("empty", expr = NULL, context = NULL, args = list()))
+  expect_equal(
+    outpack_query(NULL),
+    structure(
+      list(value = query_parse(NULL, NULL, new.env(parent = emptyenv())),
+           subquery = list(),
+           info = list(single = FALSE,
+                       parameters = character(),
+                       environment = character())),
+      class = "outpack_query"))
+})
+
+
 test_that("Prevent unparseable queries", {
-  expect_error(query_parse(NULL, NULL, emptyenv()),
+  expect_error(query_parse(1, NULL, emptyenv()),
                "Invalid input for query")
   expect_error(query_parse("latest(); latest()", NULL, emptyenv()),
                "Expected a single expression")
@@ -190,7 +206,9 @@ test_that("construct a query", {
   expect_setequal(names(obj), c("value", "info", "subquery"))
   expect_s3_class(obj$value, "outpack_query_component")
   expect_equal(obj$value, query_parse("latest", "latest", emptyenv()))
-  expect_equal(obj$info, list(single = TRUE, parameters = character()))
+  expect_equal(obj$info, list(single = TRUE,
+                              parameters = character(),
+                              environment = character()))
   expect_equal(obj$subquery, list())
 })
 
@@ -213,9 +231,20 @@ test_that("report on parameters used in the query", {
     outpack_query(x)$info$parameters
   }
   expect_equal(f(quote(latest())), character())
-  expect_equal(f(quote(parameter:a < this:a)), "a")
-  expect_equal(f(quote(parameter:a < this:a && this:a > this:b)),
+  expect_equal(f(quote(parameter:x < this:a)), "a")
+  expect_equal(f(quote(parameter:x < this:a && this:a > this:b)),
                c("a", "b"))
+})
+
+test_that("report on environment variables used in the query", {
+  f <- function(x) {
+    outpack_query(x)$info$environment
+ }
+  expect_equal(f(quote(latest())), character())
+  expect_equal(f(quote(parameter:x < environment:a)), "a")
+  expect_equal(
+    f(quote(parameter:x < environment:a && environment:a > environment:b)),
+    c("a", "b"))
 })
 
 

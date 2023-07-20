@@ -334,3 +334,57 @@ collector <- function() {
 is_same_type <- function(a, b) {
   (is.numeric(a) && is.numeric(b)) || (storage.mode(a) == storage.mode(b))
 }
+
+
+string_starts_with <- function(sub, str) {
+  substr(str, 1, nchar(sub)) == sub
+}
+
+
+string_drop_prefix <- function(sub, str) {
+  substr(str, nchar(sub) + 1, nchar(str))
+}
+
+
+near_match <- function(x, possibilities, threshold = 2, max_matches = 5) {
+  if (length(possibilities) == 0) {
+    return(character())
+  }
+  d <- set_names(drop(utils::adist(x, possibilities, ignore.case = TRUE)),
+                 possibilities)
+  utils::head(names(sort(d[d <= threshold])), max_matches)
+}
+
+
+near_matches <- function(x, ...) {
+  set_names(lapply(x, near_match, ...), x)
+}
+
+
+error_near_match <- function(title, x, hint, join, possibilities) {
+  err <- sprintf("%s: %s", title, paste(squote(x), collapse = ", "))
+  near <- near_matches(x, possibilities)
+  i <- lengths(near) > 0
+  if (any(i)) {
+    near_str <- vcapply(which(lengths(near) > 0), function(i) {
+      sprintf("'%s': %s %s",
+              names(near)[[i]],
+              join,
+              paste(squote(near[[i]]), collapse = ", "))
+    })
+    err <- c(err,
+             i = hint,
+             set_names(near_str, rep("*", length(near_str))))
+  }
+  err
+}
+
+
+check_symbol_from_str <- function(str, name) {
+  assert_scalar_character(str, name)
+  dat <- strsplit(str, "(?<=[^:])::(?=[^:])", perl = TRUE)[[1]]
+  if (length(dat) != 2) {
+    stop(sprintf("Expected fully qualified name for '%s'", name))
+  }
+  list(namespace = dat[[1]], symbol = dat[[2]])
+}

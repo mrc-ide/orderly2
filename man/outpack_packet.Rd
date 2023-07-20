@@ -25,7 +25,14 @@ outpack_packet_end(packet, insert = TRUE)
 
 outpack_packet_run(packet, script, envir = .GlobalEnv)
 
-outpack_packet_use_dependency(packet, query, files, search_options = NULL)
+outpack_packet_use_dependency(
+  packet,
+  query,
+  files,
+  search_options = NULL,
+  envir = parent.frame(),
+  overwrite = TRUE
+)
 
 outpack_packet_add_custom(packet, application, data, schema = NULL)
 }
@@ -72,17 +79,30 @@ marked immutable have not been changed)}
 relative path).  This function can be safely called multiple
 times within a single packet run (or zero times!) as needed.}
 
-\item{envir}{Environment in which to run the script}
+\item{envir}{Optional environment for \verb{environment:} lookups; the
+default is to use the parent frame, but other suitable options
+are the global environment or the environment of the script you
+are running (this only relevant if you have \verb{environment:}
+lookups in \code{query}).}
 
 \item{query}{An \link{outpack_query} object, or something
 (e.g., a string) that can be trivially converted into one.}
 
 \item{files}{A named character vector of files; the name
 corresponds to the name within the current packet, while the
-value corresponds to the name within the upstream packet}
+value corresponds to the name within the upstream packet. If you
+want to import a directory of files from a packet, you must
+refer to the source with a trailing slash (e.g., \code{c(here = "there/")}), which will create the local directory \code{here/...}
+with files from the upstream packet directory \verb{there/}. If you
+omit the slash then an error will be thrown suggesting that you
+add a slash if this is what you intended.}
 
 \item{search_options}{Optional search options for restricting the
 search (see \link{outpack_search} for details)}
+
+\item{overwrite}{Overwrite files at the destination; this is
+typically what you want, but set to \code{FALSE} if you would prefer
+that an error be thrown if the destination file already exists.}
 
 \item{application}{The name of the application (used to organise
 the data and query it later, see Details)}
@@ -162,7 +182,7 @@ and \emph{if needed} we will pull the resolved files from a remote
 location. Note that even if the packet is not locally present
 this might not be needed - if you have the same content anywhere
 else in an unpacked packet we will reuse the same content
-without refetching.
+without re-fetching.
 
 If \code{pull_metadata = TRUE}, then we will refresh location metadata
 before pulling, and the \code{location} argument controls which
@@ -182,7 +202,7 @@ For example, orderly tracks "artefacts" which collect groups of
 file outputs into logical bundles.  To support this it needs to
 register additional data for each artefact with:
 \itemize{
-\item the description of the artefect (a short phrase)
+\item the description of the artefact (a short phrase)
 \item the format of the artefact (a string describing the data type)
 \item the contents of the artefact (an array of filenames)
 }

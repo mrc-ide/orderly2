@@ -857,3 +857,77 @@ test_that("can pull in dependency when not found, if requested", {
   expect_equal(root$b$index()$unpacked, ids[[3]])
   expect_equal(p_b$depends[[1]]$packet, ids[[3]])
 })
+
+
+test_that("can pull in directories", {
+  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
+  path <- root$path
+
+  path_src1 <- withr::local_tempdir()
+  p1 <- outpack_packet_start(path_src1, "a", root = root)
+  fs::dir_create(file.path(path_src1, "data"))
+  for (i in letters[1:6]) {
+    writeLines(i, file.path(path_src1, "data", i))
+  }
+  outpack_packet_end(p1)
+  id <- p1$id
+
+  dest <- withr::local_tempdir()
+  outpack_copy_files(id, c(d = "data/"), dest, root = root)
+  expect_equal(dir(dest), "d")
+  expect_equal(dir(file.path(dest, "d")), letters[1:6])
+
+  path_src2 <- withr::local_tempdir()
+  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  outpack_packet_use_dependency(p2, 'latest(name == "a")', c(d = "data/"))
+  expect_equal(p2$depends[[1]]$files,
+               data_frame(here = file.path("d", letters[1:6]),
+                          there = file.path("data", letters[1:6])))
+})
+
+
+test_that("exporting directories reports on trailing slashes being missing", {
+  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
+  path <- root$path
+
+  path_src1 <- withr::local_tempdir()
+  p1 <- outpack_packet_start(path_src1, "a", root = root)
+  fs::dir_create(file.path(path_src1, "data"))
+  for (i in letters[1:6]) {
+    writeLines(i, file.path(path_src1, "data", i))
+  }
+  outpack_packet_end(p1)
+  id <- p1$id
+
+  err <- paste0("Packet '.+' does not contain path 'data'\n",
+                "  Consider adding a trailing slash to 'data'")
+
+  dest <- withr::local_tempdir()
+  expect_error(
+    outpack_copy_files(id, c(d = "data"), dest, root = root),
+    err)
+
+  path_src2 <- withr::local_tempdir()
+  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  expect_error(
+    outpack_packet_use_dependency(p2, 'latest(name == "a")', c(d = "data")),
+    err)
+})
+
+
+test_that("can overwrite dependencies", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root, "data")
+  path_src <- withr::local_tempdir()
+  p <- outpack_packet_start(path_src, "next", root = root)
+  file.create(file.path(path_src, "data.rds"))
+  err <- expect_error(
+    outpack_packet_use_dependency(p, id, c("data.rds" = "data.rds"),
+                                  overwrite = FALSE))
+  ## Default allows overwrite:
+  expect_silent(
+    outpack_packet_use_dependency(p, id, c("data.rds" = "data.rds")))
+  expect_equal(
+    hash_file(file.path(path_src, "data.rds")),
+    hash_file(file.path(root$path, "archive", "data", id, "data.rds")))
+})

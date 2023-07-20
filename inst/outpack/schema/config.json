@@ -31,13 +31,14 @@
         "logging": {
             "type": "object",
             "properties": {
-                "log_level": {
-                    "type": "integer"
+                "threshold": {
+                    "enum": ["info", "debug", "trace"]
                 },
                 "console": {
                     "type": "boolean"
                 }
-            }
+            },
+            "required": ["threshold", "console"]
         },
 
         "location": {
@@ -56,7 +57,7 @@
                         "type": "number"
                     },
                     "type": {
-                        "enum": ["http", "local", "orphan", "path"]
+                        "type": "string"
                     }
                 },
                 "required": ["name", "id", "priority", "type"]

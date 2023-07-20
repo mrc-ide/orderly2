@@ -4,7 +4,14 @@
 \alias{outpack_copy_files}
 \title{Copy files from a packet}
 \usage{
-outpack_copy_files(id, files, dest, allow_remote = FALSE, root = NULL)
+outpack_copy_files(
+  id,
+  files,
+  dest,
+  allow_remote = FALSE,
+  overwrite = TRUE,
+  root = NULL
+)
 }
 \arguments{
 \item{id}{Optionally, an outpack id via \link{outpack_id}. If
@@ -12,7 +19,12 @@ not given a new id will be generated.}
 
 \item{files}{A named character vector of files; the name
 corresponds to the name within the current packet, while the
-value corresponds to the name within the upstream packet}
+value corresponds to the name within the upstream packet. If you
+want to import a directory of files from a packet, you must
+refer to the source with a trailing slash (e.g., \code{c(here = "there/")}), which will create the local directory \code{here/...}
+with files from the upstream packet directory \verb{there/}. If you
+omit the slash then an error will be thrown suggesting that you
+add a slash if this is what you intended.}
 
 \item{dest}{The directory to copy into}
 
@@ -23,6 +35,10 @@ on the speed of the connection. If you use a file store, note
 that this does add the downloaded file into your file store,
 though associated with no packet so that it is subject to
 garbage collection (once we write support for that).}
+
+\item{overwrite}{Overwrite files at the destination; this is
+typically what you want, but set to \code{FALSE} if you would prefer
+that an error be thrown if the destination file already exists.}
 
 \item{root}{The outpack root. Will be searched for from the
 current directory if not given.}

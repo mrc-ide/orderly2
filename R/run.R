@@ -104,14 +104,16 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                         logging_console = NULL, logging_threshold = NULL,
                         search_options = NULL, root = NULL, locate = TRUE) {
   root <- orderly_root(root, locate)
-  src <- file.path(root$path, "src", name)
+  validate_orderly_directory(name, root, environment())
 
   envir <- envir %||% .GlobalEnv
   assert_is(envir, "environment")
 
+  src <- file.path(root$path, "src", name)
   dat <- orderly_read(src)
 
-  parameters <- check_parameters(parameters, dat$parameters)
+  parameters <- check_parameters(parameters, dat$parameters,
+                                 environment())
 
   orderly_validate(dat, src)
 
@@ -212,6 +214,12 @@ check_produced_artefacts <- function(path, artefacts) {
     stop("Script did not produce expected artefacts: ",
          paste(squote(expected[!found]), collapse = ", "))
   }
+
+  for (i in seq_along(artefacts)) {
+    artefacts[[i]]$files <- expand_dirs(artefacts[[i]]$files, path)
+  }
+
+  artefacts
 }
 
 
@@ -219,21 +227,45 @@ check_produced_artefacts <- function(path, artefacts) {
 ## to relax additional parameters here later, but that requires some
 ## thinking about what to do with them (do they get passed into the
 ## environment etc or not? do they get validated?)
-check_parameters <- function(given, spec) {
+check_parameters <- function(given, spec, call) {
   if (length(given) > 0) {
     assert_named(given, unique = TRUE)
   }
 
-  is_required <- vlapply(spec, is.null)
+  if (length(given) > 0 && is.null(spec)) {
+    cli::cli_abort(
+      c("Parameters given, but none declared",
+        i = "Did you forget 'orderly2::orderly_parameter()"),
+      call = call)
+  }
 
+  is_required <- vlapply(spec, is.null)
   msg <- setdiff(names(spec)[is_required], names(given))
-  if (length(msg) > 0L) {
-    stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
-  }
   extra <- setdiff(names(given), names(spec))
-  if (length(extra) > 0L) {
-    stop("Extra parameters: ", paste(squote(extra), collapse = ", "))
+
+  if (length(msg) > 0L) {
+    cli::cli_abort(
+      error_near_match(
+        "Missing parameters",
+        msg,
+        "You have extra parameters, possibly misspelt?",
+        "could be your",
+        extra),
+      call = call)
   }
+
+  if (length(extra) > 0L) {
+    unused <- setdiff(names(spec), names(given))
+    cli::cli_abort(
+      error_near_match(
+        "Extra parameters",
+        extra,
+        "You have extra parameters, possibly misspelt?",
+        "should perhaps be",
+        unused),
+      call = call)
+  }
+
   if (length(spec) == 0) {
     return(NULL)
   }
@@ -363,7 +395,7 @@ orderly_packet_cleanup_success <- function(p) {
   path <- p$path
 
   plugin_run_cleanup(path, p$orderly2$config$plugins)
-  check_produced_artefacts(path, p$orderly2$artefacts)
+  p$orderly2$artefacts <- check_produced_artefacts(path, p$orderly2$artefacts)
   if (p$orderly2$strict$enabled) {
     check_files_strict(path, p$files, p$orderly2$artefacts)
   } else {
@@ -383,4 +415,34 @@ orderly_packet_cleanup_failure <- function(p) {
   custom_metadata_json <- to_json(custom_metadata(p$orderly2))
   outpack_packet_add_custom(p, "orderly", custom_metadata_json)
   outpack_packet_end(p, insert = FALSE)
+}
+
+
+validate_orderly_directory <- function(name, root, call) {
+  assert_scalar_character(name)
+  if (!file_exists(file.path(root$path, "src", name, "orderly.R"))) {
+    src <- file.path(root$path, "src", name)
+    err <- sprintf("Did not find orderly report '%s'", name)
+    if (!file_exists(src)) {
+      detail <- sprintf("The path 'src/%s' does not exist", name)
+    } else if (is_directory(src)) {
+      detail <- sprintf(
+        "The path 'src/%s' exists but does not contain 'orderly.R'",
+        name)
+    } else {
+      detail <- sprintf(
+        "The path 'src/%s' exists but is not a directory",
+        name)
+    }
+    err <- c(err, x = detail)
+    near <- near_match(name, orderly_list_src(root$path))
+    if (length(near) > 0) {
+      hint <- sprintf("Did you mean %s",
+                      paste(squote(near), collapse = ", "))
+      err <- c(err, i = hint)
+    }
+    err <- c(err, i = sprintf("Looked relative to orderly root at '%s'",
+                              root$path))
+    cli::cli_abort(err, call = call)
+  }
 }

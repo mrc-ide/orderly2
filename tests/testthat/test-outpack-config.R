@@ -96,13 +96,13 @@ test_that("Can add file_store", {
 
   dest <- temp_file()
   dir.create(dest)
-  root$dst$files$get(hash_pulled[[1]], dest)
-  root$dst$files$get(hash_pulled[[2]], dest)
-  root$dst$files$get(hash_pulled[[3]], dest)
-  root$dst$files$get(hash_pulled[[4]], dest)
+  root$dst$files$get(hash_pulled[[1]], dest, TRUE)
+  root$dst$files$get(hash_pulled[[2]], dest, TRUE)
+  root$dst$files$get(hash_pulled[[3]], dest, TRUE)
+  root$dst$files$get(hash_pulled[[4]], dest, TRUE)
 
   hash_not_pulled <- root$dst$metadata(id[["a"]])$files$hash
-  expect_error(root$dst$files$get(hash_not_pulled[[1]], dest),
+  expect_error(root$dst$files$get(hash_not_pulled[[1]], dest, TRUE),
                "not found in store")
 })
 
@@ -144,7 +144,7 @@ test_that("Files will be searched for by hash when adding file store", {
 
   dest <- temp_file()
   dir.create(dest)
-  root$files$get(root$metadata(id)$files$hash, dest)
+  root$files$get(root$metadata(id)$files$hash, dest, TRUE)
 })
 
 
@@ -247,10 +247,10 @@ test_that("Can add archive", {
 
   dest <- temp_file()
   dir.create(dest)
-  root$files$get(hash[[1]], dest)
-  root$files$get(hash[[2]], dest)
-  root$files$get(hash[[3]], dest)
-  root$files$get(hash[[4]], dest)
+  root$files$get(hash[[1]], dest, TRUE)
+  root$files$get(hash[[2]], dest, TRUE)
+  root$files$get(hash[[3]], dest, TRUE)
+  root$files$get(hash[[4]], dest, TRUE)
 })
 
 
@@ -359,4 +359,12 @@ test_that("can control console logging", {
 
   root3 <- outpack_root_open(root$path, FALSE)
   expect_false(root3$config$logging$console)
+})
+
+
+test_that("loading config without logging adds defaults", {
+  root <- create_temporary_root()
+  config_remove_logging(root$path)
+  root2 <- outpack_root_open(root$path, FALSE)
+  expect_equal(root2$config$logging, list(console = TRUE, threshold = "info"))
 })

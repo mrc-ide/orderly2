@@ -7,7 +7,7 @@
 outpack_query(expr, name = NULL, scope = NULL, subquery = NULL)
 }
 \arguments{
-\item{expr}{The query expression}
+\item{expr}{The query expression. A \code{NULL} expression matches everything.}
 
 \item{name}{Optionally, the name of the packet to scope the query on. This
 will be intersected with \code{scope} arg and is a shorthand way of running
