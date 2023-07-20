@@ -285,9 +285,8 @@ is_id_lookup <- function(expr) {
 }
 
 is_logical <- function(expr) {
-  truthy <- c(quote(TRUE), quote(FALSE), quote(true), quote(false))
-  bool <- vlapply(truthy, function(x) x == expr)
-  sum(bool) == 1
+  truthy <- list(TRUE, FALSE, quote(true), quote(false))
+  any(vlapply(truthy, identical))
 }
 
 as_logical <- function(expr) {
