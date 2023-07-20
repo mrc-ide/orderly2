@@ -7,6 +7,15 @@
 ##' directories; orderly2 has similar semantics here to git where
 ##' directories are never directly tracked.
 ##'
+##' For recent `gert` (not yet on CRAN) we will ask git if files are
+##' ignored; if ignored then they are good candidates for deletion! We
+##' encourage you to keep a per-report `.gitignore` that lists files
+##' that will copy into the source directory, and then we can use that
+##' same information to clean up these files after generation.
+##' Importantly, even if a file matches an ignore rule but has been
+##' committed to your repository, it will no longer match the ignore
+##' rule.
+##'
 ##' @section Notes for user of orderly1:
 ##'
 ##' In orderly1 this function has quite different semantics, because
@@ -66,18 +75,21 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   is_orderly <- files == "orderly.R"
   is_resource <- files %in% info$resources
   is_artefact <- files %in% unlist(lapply(info$artefacts, "[[", "files"))
+  is_dependency <- (files %in%
+                    unlist(lapply(info$dependency, function(x) names(x$use))))
+  is_global_resource <- files %in% names(info$global_resource)
   role <- cbind(orderly = is_orderly,
                 resource = is_resource,
-                global = FALSE,     # TODO
-                dependency = FALSE, # TODO
+                global_resource = is_global_resource,
+                dependency = is_dependency,
                 artefact = is_artefact)
   rownames(role) <- files
 
-  ## TODO: always delete the log.json file!
+  v_source <- c("orderly", "resource")
+  v_derived <- c("global_resource", "dependency", "artefact")
 
-  is_source <- row_any(role[, c("orderly", "resource"), drop = FALSE])
-  is_derived <- !is_source &
-    row_any(role[, c("global", "dependency", "artefact"), drop = FALSE])
+  is_source <- row_any(role[, v_source, drop = FALSE])
+  is_derived <- !is_source & row_any(role[, v_derived, drop = FALSE])
   is_ignored <- path_is_git_ignored(file.path("src", name, files), path)
   status <- cbind(source = is_source,
                   derived = is_derived,

@@ -16,7 +16,7 @@ test_that("can cleanup explicit things quite well", {
   expect_equal(status$role,
                cbind(orderly = set_names(c(FALSE, FALSE, TRUE), paths),
                      resource = c(TRUE, FALSE, FALSE),
-                     global = FALSE,
+                     global_resource = FALSE,
                      dependency = FALSE,
                      artefact = c(FALSE, TRUE, FALSE)))
   expect_equal(status$status,
@@ -62,4 +62,52 @@ test_that("can clean up unknown files if gitignored", {
   expect_setequal(
     dir(path_src, recursive = TRUE, include.dirs = TRUE),
     c("a", "a/x", "data.csv", "orderly.R"))
+})
+
+
+test_that("can clean up globals", {
+  path <- test_prepare_orderly_example("global")
+  path_src <- file.path(path, "src", "global")
+  file.create(file.path(path_src, "global_data.csv"))
+  status <- orderly_cleanup_status("global", path)
+
+  files <- c("global_data.csv", "orderly.R")
+  expect_setequal(rownames(status$role), files)
+  expect_equal(
+    status$role,
+    cbind(orderly = set_names(c(FALSE, TRUE), files),
+          resource = FALSE,
+          global_resource = c(TRUE, FALSE),
+          dependency = FALSE,
+          artefact = FALSE))
+  expect_equal(
+    status$status,
+    cbind(source = set_names(c(FALSE, TRUE), files),
+          derived = c(TRUE, FALSE),
+          ignored = NA))
+  expect_equal(status$delete, "global_data.csv")
+})
+
+
+test_that("can clean up dependencies", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  path_src <- file.path(path, "src", "depends")
+  file.create(file.path(path_src, c("input.rds", "other.rds")))
+  status <- orderly_cleanup_status("depends", path)
+
+  files <- c("input.rds", "orderly.R", "other.rds")
+  expect_setequal(rownames(status$role), files)
+  expect_equal(
+    status$role,
+    cbind(orderly = set_names(c(FALSE, TRUE, FALSE), files),
+          resource = FALSE,
+          global_resource = FALSE,
+          dependency = c(TRUE, FALSE, FALSE),
+          artefact = FALSE))
+  expect_equal(
+    status$status,
+    cbind(source = set_names(c(FALSE, TRUE, FALSE), files),
+          derived = c(TRUE, FALSE, FALSE),
+          ignored = NA))
+  expect_equal(status$delete, "input.rds")
 })

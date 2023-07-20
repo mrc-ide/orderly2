@@ -283,10 +283,7 @@ static_orderly_dependency <- function(args) {
   use <- args$use
 
   name <- static_string(name)
-
-  ## TODO: this is no longer ok, it might not easily be computable
-  ## really; see mrc-4398
-  use <- static_character_vector(use)
+  use <- static_character_vector(use, TRUE)
   ## TODO: allow passing expressions directly in, that will be much
   ## nicer, but possibly needs some care as we do want a consistent
   ## approach to NSE here
@@ -378,7 +375,12 @@ copy_global <- function(path_root, path_dest, config, files) {
 
 
 static_orderly_global_resource <- function(args) {
-  list(files = static_character_vector(args))
+  files <- lapply(args, static_character_vector, TRUE)
+  if (length(files) == 0 || !all(lengths(files) == 1)) {
+    NULL
+  } else {
+    list_to_character(files)
+  }
 }
 
 
@@ -393,12 +395,12 @@ static_string <- function(x) {
 }
 
 
-static_character_vector <- function(x) {
+static_character_vector <- function(x, named) {
   if (is.character(x)) {
     x
   } else if (is_call(x, "c")) {
     x <- lapply(x[-1], static_character_vector)
-    x <- if (all(vlapply(x, is.character))) unlist(x, FALSE, FALSE) else NULL
+    x <- if (all(vlapply(x, is.character))) unlist(x, FALSE, named) else NULL
   } else {
     x <- NULL
   }
