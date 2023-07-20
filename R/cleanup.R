@@ -29,7 +29,7 @@
 ##'
 ##' @author export
 orderly_cleanup <- function(name = NULL, root = NULL, locate = TRUE) {
-  status <- orderly_cleanup_status()
+  status <- orderly_cleanup_status(name, root, locate)
   if (length(status$delete) > 0) {
     withr::with_dir(status$path, fs::file_delete(status$delete))
   }
@@ -41,7 +41,6 @@ orderly_cleanup <- function(name = NULL, root = NULL, locate = TRUE) {
 ##' @export
 ##' @rdname orderly_cleanup
 orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
-  root <- orderly_root(root, locate)
   p <- get_active_packet()
   is_active <- !is.null(p)
   if (is_active) {
@@ -56,6 +55,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
     root <- orderly_root(root, locate)
     validate_orderly_directory(name, root, environment())
     path <- file.path(root$path, "src", name)
+    root <- root$path
   }
 
   info <- orderly_read(path)
@@ -78,7 +78,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   is_source <- row_any(role[, c("orderly", "resource"), drop = FALSE])
   is_derived <- !is_source &
     row_any(role[, c("global", "dependency", "artefact"), drop = FALSE])
-  is_ignored <- path_is_git_ignored(path, repo)
+  is_ignored <- path_is_git_ignored(file.path("src", name, files), path)
   status <- cbind(source = is_source,
                   derived = is_derived,
                   ignored = is_ignored)

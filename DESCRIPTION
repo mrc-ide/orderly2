@@ -34,6 +34,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes:
-  ropensci/jsonvalidate
+  ropensci/jsonvalidate,
+  r-lib/gert
 VignetteBuilder: knitr
 Language: en-GB

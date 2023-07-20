@@ -70,6 +70,9 @@ orderly_init <- function(path, ...) {
 ## * database - lower priority, as only VIMC and everything else must work first
 ## * minimum_orderly_version - the required version
 orderly_root <- function(root, locate) {
+  if (inherits(root, "orderly_root")) {
+    return(root)
+  }
   root <- outpack_root_open(root, locate)
   ## NOTE: it's can't be changed yet, but core.path_archive cannot be
   ## "draft" for this to work well.

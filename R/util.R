@@ -513,9 +513,9 @@ row_any <- function(x) {
 
 
 delete_empty_directories <- function(path) {
-  path <- fs::dir_ls(path, type = "directory")
-  path <- path[order(nchar(path), decreasing = TRUE)]
-  for (p in path) {
+  paths <- fs::dir_ls(path, type = "directory", recurse = TRUE)
+  paths <- setdiff(paths[order(nchar(paths), decreasing = TRUE)], path)
+  for (p in paths) {
     if (length(fs::dir_ls(p, all = TRUE)) == 0) {
       fs::dir_delete(p)
     }

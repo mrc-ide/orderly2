@@ -28,3 +28,38 @@ test_that("can cleanup explicit things quite well", {
   status <- withr::with_dir(path_src, orderly_cleanup())
   expect_equal(dir(path_src), c("data.csv", "orderly.R"))
 })
+
+
+test_that("can clean up unknown files if gitignored", {
+  path <- test_prepare_orderly_example("explicit")
+  env <- new.env()
+  path_src <- file.path(path, "src", "explicit")
+  helper_add_git(path)
+
+  fs::dir_create(file.path(path_src, c("a", "b/c", "b/d")))
+  files <- c("a/x", "b/c/x", "b/c/y")
+  file.create(file.path(path_src, files))
+
+  status <- orderly_cleanup_status("explicit", path)
+  expect_equal(
+    status$status[c("a/x", "b/c/x", "b/c/y"), ],
+    cbind(source = set_names(rep(FALSE, 3), files),
+          derived = FALSE,
+          ignored = FALSE))
+  expect_equal(status$delete, character())
+
+  writeLines(c("b/"), file.path(path_src, ".gitignore"))
+  status <- orderly_cleanup_status("explicit", path)
+  expect_equal(
+    status$status[c("a/x", "b/c/x", "b/c/y"), ],
+    cbind(source = set_names(rep(FALSE, 3), files),
+          derived = FALSE,
+          ignored = c(FALSE, TRUE, TRUE)))
+  expect_equal(status$delete, c("b/c/x", "b/c/y"))
+
+  status2 <- orderly_cleanup("explicit", path)
+  expect_equal(status2, status)
+  expect_setequal(
+    dir(path_src, recursive = TRUE, include.dirs = TRUE),
+    c("a", "a/x", "data.csv", "orderly.R"))
+})
