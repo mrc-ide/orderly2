@@ -177,3 +177,16 @@ test_that("validate namespaced symbol strings", {
   expect_error(check_symbol_from_str("a::b::c", "x"),
                "Expected fully qualified name for 'x'")
 })
+
+
+test_that("can check two vars are of same type", {
+  expect_true(is_same_type(1L, 2L))
+  expect_true(is_same_type(1L, 2.0))
+  expect_true(is_same_type(1, 2))
+  expect_true(is_same_type("this", "that"))
+  expect_true(is_same_type(TRUE, FALSE))
+  expect_false(is_same_type(1, TRUE))
+  expect_false(is_same_type(1, "1"))
+  expect_false(is_same_type(1, "TRUE"))
+  expect_false(is_same_type(TRUE, "TRUE"))
+})
