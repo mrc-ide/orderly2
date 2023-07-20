@@ -19,7 +19,7 @@ locations are supported."><!-- mathjax --><script src="https://cdnjs.cloudflare.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">orderly2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.99.2</span>
       </span>
     </div>
 
@@ -116,7 +116,19 @@ running. The interface here is expected to change as we expand
 the API, but also as we move to support things like TLS and
 authentication.</p><ul><li><p><code>url</code>: The location of the server, including protocol, for
 example <code>http://example.com:8080</code></p></li>
-</ul></div>
+</ul><p><strong>Custom locations</strong>:</p>
+<p>All outpack implementations are expected to support path and http
+locations, with the standard arguments above.  But we expect that
+some implementations will support custom locations, and that the
+argument lists for these may vary between implementations. To
+allow this, you can pass a location of type "custom" with a list
+of arguments.  We expect an argument 'driver' to be present among
+this list.  For an example of this in action, see the
+<a href="https://mrc-ide.github.io/outpack.sharepoint" class="external-link"><code>outpack.sharepoint</code></a>
+package.</p>
+<p><em>Be warned that we may change this interface in future, in which
+case you may need to update your configuration.</em></p>
+    </div>
     <div id="warning">
     <h2>Warning</h2>
     
