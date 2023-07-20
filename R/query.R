@@ -292,9 +292,9 @@ is_logical <- function(expr) {
 
 as_logical <- function(expr) {
   if (expr == quote(true)) {
-    ret <- quote(TRUE)
+    ret <- TRUE
   } else if (expr == quote(false)) {
-    ret <- quote(FALSE)
+    ret <- FALSE
   } else {
     ret <- expr
   }
