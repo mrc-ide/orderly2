@@ -480,3 +480,44 @@ string_interpolate_simple1 <- function(x, environment, call) {
 quote_braces <- function(x) {
   gsub("{", "{{", x, fixed = TRUE)
 }
+
+
+gert_git_ignore_path_is_ignored <- function() {
+  not_supported <- function(path, repo) {
+    rep_len(NA, length(path))
+  }
+  tryCatch(getExportedValue("gert", "git_ignore_path_is_ignored"),
+             error = function(e) not_supported)
+}
+
+
+git_open <- function(path) {
+  tryCatch(gert::git_open(path), error = function(e) NULL)
+}
+
+
+path_is_git_ignored <- function(path, root) {
+  repo <- git_open(root)
+  gert_fn <- gert_git_ignore_path_is_ignored()
+  if (is.null(repo) || is.null(gert_fn)) {
+    rep_len(NA, length(path))
+  } else {
+    gert_fn(path, repo)
+  }
+}
+
+
+row_any <- function(x) {
+  apply(x, 1, any)
+}
+
+
+delete_empty_directories <- function(path) {
+  path <- fs::dir_ls(path, type = "directory")
+  path <- path[order(nchar(path), decreasing = TRUE)]
+  for (p in path) {
+    if (length(fs::dir_ls(p, all = TRUE)) == 0) {
+      fs::dir_delete(p)
+    }
+  }
+}
