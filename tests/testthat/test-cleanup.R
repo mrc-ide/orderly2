@@ -32,6 +32,7 @@ test_that("can cleanup explicit things quite well", {
 
 
 test_that("can clean up unknown files if gitignored", {
+  skip_if_older_gert()
   path <- test_prepare_orderly_example("explicit")
   env <- new.env()
   path_src <- file.path(path, "src", "explicit")
