@@ -170,6 +170,8 @@ outpack_metadata_load <- function(json) {
   data$files <- data_frame(path = vcapply(data$files, "[[", "path"),
                            size = vnapply(data$files, "[[", "size"),
                            hash = vcapply(data$files, "[[", "hash"))
+  data$time <- lapply(data$time, num_to_time)
+  data$script <- list_to_character(data$script)
   data$depends <- data_frame(
     packet = vcapply(data$depends, "[[", "packet"),
     query = vcapply(data$depends, "[[", "query"),
@@ -178,7 +180,7 @@ outpack_metadata_load <- function(json) {
                  there = vcapply(x$files, "[[", "there"))
     })))
   if (!is.null(data$git)) {
-    data$git$url <- vcapply(data$git$url, identity)
+    data$git$url <- list_to_character(data$git$url)
   }
 
   data
