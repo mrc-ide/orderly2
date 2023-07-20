@@ -22,19 +22,24 @@ test_that("Skip over computed resources", {
 
 
 test_that("Can read string vector literals from expressions", {
-  expect_equal(static_character_vector(quote("x")), "x")
-  expect_equal(static_character_vector(quote(c("x"))), "x")
-  expect_equal(static_character_vector(quote(c("x", "y"))), c("x", "y"))
-  expect_equal(static_character_vector(quote(c("x", c("y", "z")))),
+  expect_equal(static_character_vector(quote("x"), FALSE), "x")
+  expect_equal(static_character_vector(quote(c("x")), FALSE), "x")
+  expect_equal(static_character_vector(quote(c("x", "y")), FALSE), c("x", "y"))
+  expect_equal(static_character_vector(quote(c("x", c("y", "z"))), FALSE),
                c("x", "y", "z"))
 
-  expect_null(static_character_vector(quote(a)))
-  expect_null(static_character_vector(quote(c(a))))
-  expect_null(static_character_vector(quote(c(a, "x"))))
-  expect_null(static_character_vector(quote(c(a, b))))
-  expect_null(static_character_vector(quote(c("x", c(a, b)))))
-  expect_null(static_character_vector(quote(c("x", c("y", b)))))
-  expect_null(static_character_vector(quote(c(a, c("x", "y")))))
+  expect_equal(static_character_vector(quote(c(a = "x")), FALSE),
+               "x")
+  expect_equal(static_character_vector(quote(c(a = "x")), TRUE),
+               c(a = "x"))
+
+  expect_null(static_character_vector(quote(a), FALSE))
+  expect_null(static_character_vector(quote(c(a)), FALSE))
+  expect_null(static_character_vector(quote(c(a, "x")), FALSE))
+  expect_null(static_character_vector(quote(c(a, b)), FALSE))
+  expect_null(static_character_vector(quote(c("x", c(a, b))), FALSE))
+  expect_null(static_character_vector(quote(c("x", c("y", b))), FALSE))
+  expect_null(static_character_vector(quote(c(a, c("x", "y"))), FALSE))
 })
 
 

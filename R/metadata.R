@@ -399,7 +399,7 @@ static_character_vector <- function(x, named) {
   if (is.character(x)) {
     x
   } else if (is_call(x, "c")) {
-    x <- lapply(x[-1], static_character_vector)
+    x <- lapply(x[-1], static_character_vector, named)
     x <- if (all(vlapply(x, is.character))) unlist(x, FALSE, named) else NULL
   } else {
     x <- NULL
