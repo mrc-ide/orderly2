@@ -375,12 +375,7 @@ copy_global <- function(path_root, path_dest, config, files) {
 
 
 static_orderly_global_resource <- function(args) {
-  files <- lapply(args, static_character_vector, TRUE)
-  if (length(files) == 0 || !all(lengths(files) == 1)) {
-    NULL
-  } else {
-    list_to_character(files)
-  }
+  unlist(lapply(args, static_character_vector, TRUE), FALSE, TRUE)
 }
 
 

@@ -53,7 +53,9 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   p <- get_active_packet()
   is_active <- !is.null(p)
   if (is_active) {
-    stop("Don't call this with an acive packet...")
+    cli::cli_abort(
+      "Don't call 'orderly2::orderly_cleanup_status()' from a running packet",
+      i = "The orderly_cleanup* functions are for interactive use only")
   }
 
   if (is.null(name)) {

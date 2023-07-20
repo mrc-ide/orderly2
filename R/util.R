@@ -482,12 +482,13 @@ quote_braces <- function(x) {
 }
 
 
+## Currently supported in gert 1.9000 (which is the 2.0
+## prerelease). Rather than depend on that version directly, requiring
+## people to install it from source or r-universe, just sniff for the
+## function we need, for now:
 gert_git_ignore_path_is_ignored <- function() {
-  not_supported <- function(path, repo) {
-    rep_len(NA, length(path))
-  }
   tryCatch(getExportedValue("gert", "git_ignore_path_is_ignored"),
-             error = function(e) not_supported)
+             error = function(e) NULL)
 }
 
 

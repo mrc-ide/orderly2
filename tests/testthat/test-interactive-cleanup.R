@@ -144,3 +144,15 @@ test_that("can clean up directories", {
     dir(path_src, recursive = TRUE, include.dirs = TRUE),
     c("data", "data/a.csv", "data/b.csv", "orderly.R"))
 })
+
+
+test_that("Don't call cleanup on an active packet", {
+  path <- test_prepare_orderly_example("data")
+  path_src <- file.path(path, "src", "data")
+  append_lines(file.path(path_src, "orderly.R"),
+               "orderly2::orderly_cleanup_status()")
+  expect_error(
+    orderly_run("data", root = path),
+    "Don't call 'orderly2::orderly_cleanup_status()' from a running packet",
+    fixed = TRUE)
+})
