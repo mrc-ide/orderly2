@@ -27,11 +27,12 @@
 ##'   console. If `TRUE`, then many operations will produce
 ##'   informational output; set to `FALSE` to prevent this.
 ##'
-##' @param logging_threshold The degree of verbosity; this reflects
-##'   lgr's structures and we might change it later.
+##' @param logging_threshold The degree of verbosity; one of `info`,
+##'   `debug` or `trace` in increasing order of verbosity (see
+##'   [orderly2::outpack_log])
 ##'
 ##' @return Invisibly, an `outpack_root` object; these will change in
-##'   future verisons!
+##'   future versions!
 ##' @export
 outpack_init <- function(root, path_archive = "archive",
                          use_file_store = FALSE,

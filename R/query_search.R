@@ -57,7 +57,7 @@ outpack_search <- function(..., parameters = NULL, envir = parent.frame(),
 ##' @param allow_remote Logical, indicating if we should allow
 ##'   packets to be found that are not currently unpacked (i.e., are
 ##'   known only to a location that we have metadata from). If this is
-##'   `TRUE`, then inconjunction with
+##'   `TRUE`, then in conjunction with
 ##'   [orderly2::outpack_packet_use_dependency] you might pull a large
 ##'   quantity of data.
 ##'

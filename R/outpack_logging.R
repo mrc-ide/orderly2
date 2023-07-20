@@ -125,7 +125,7 @@ log_console <- function(topic, detail, caller, log_level) {
     topic <- c(topic, rep_len("...", length(detail) - 1))
   }
   ## This is the original orderly log format, seems like a sensible
-  ## one to use here, at least for now, as users are familar with it.
+  ## one to use here, at least for now, as users are familiar with it.
   ## We'll sort out colouring here later, and/or possibly use cli for
   ## the final format. For now though we just care about getting
   ## things out.

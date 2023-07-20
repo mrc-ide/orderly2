@@ -25,7 +25,7 @@ detect_orderly_interactive_path <- function(path = getwd()) {
 ##' object, or a list that will be coerced into one at the point of
 ##' use (or `NULL`). This applies only for the current session, but
 ##' applies to all interactive uses of orderly functions that might
-##' have recieved a copy of `search_options` via
+##' have received a copy of `search_options` via
 ##' [orderly2::orderly_run]
 ##'
 ##' @title Set search options for interactive use

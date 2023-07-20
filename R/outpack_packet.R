@@ -241,7 +241,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   location. Note that even if the packet is not locally present
 ##'   this might not be needed - if you have the same content anywhere
 ##'   else in an unpacked packet we will reuse the same content
-##'   without refetching.
+##'   without re-fetching.
 ##'
 ##' If `pull_metadata = TRUE`, then we will refresh location metadata
 ##'   before pulling, and the `location` argument controls which
@@ -345,7 +345,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
 ##'   file outputs into logical bundles.  To support this it needs to
 ##'   register additional data for each artefact with:
 ##'
-##' * the description of the artefect (a short phrase)
+##' * the description of the artefact (a short phrase)
 ##' * the format of the artefact (a string describing the data type)
 ##' * the contents of the artefact (an array of filenames)
 ##'
