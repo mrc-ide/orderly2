@@ -72,17 +72,25 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
     path,
     dir(all.files = TRUE, recursive = TRUE, no.. = TRUE))
 
-  is_orderly <- files == "orderly.R"
-  is_resource <- files %in% info$resources
-  is_artefact <- files %in% unlist(lapply(info$artefacts, "[[", "files"))
-  is_dependency <- (files %in%
-                    unlist(lapply(info$dependency, function(x) names(x$use))))
-  is_global_resource <- files %in% names(info$global_resource)
-  role <- cbind(orderly = is_orderly,
-                resource = is_resource,
-                global_resource = is_global_resource,
-                dependency = is_dependency,
-                artefact = is_artefact)
+  ## Slightly tricky construction here as we need to match all files
+  ## that are present as directory entries; this is explicit only for
+  ## dependencies, but we need to work it out ourselves for the rest.
+  matches_path <- function(x, path, add_slash = TRUE) {
+    path_dir <- if (add_slash) with_trailing_slash(path) else path
+    x %in% path |
+      row_any(vapply(path_dir, function(p) string_starts_with(p, x),
+                     logical(length(x))))
+  }
+  nms_resource <- info$resources
+  nms_artefact <- unlist(lapply(info$artefacts, "[[", "files"))
+  nms_dependency <- unlist(lapply(info$dependency, function(x) names(x$use)))
+  nms_global_resource <- names(info$global_resource)
+
+  role <- cbind(orderly = files == "orderly.R",
+                resource = matches_path(files, nms_resource),
+                global_resource = matches_path(files, nms_global_resource),
+                dependency = matches_path(files, nms_dependency, FALSE),
+                artefact = matches_path(files, nms_artefact))
   rownames(role) <- files
 
   v_source <- c("orderly", "resource")

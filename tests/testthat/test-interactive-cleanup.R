@@ -111,3 +111,36 @@ test_that("can clean up dependencies", {
           ignored = NA))
   expect_equal(status$delete, "input.rds")
 })
+
+
+test_that("can clean up directories", {
+  path <- test_prepare_orderly_example("directories")
+  env <- new.env()
+  path_src <- file.path(path, "src", "directories")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", env))
+  status <- orderly_cleanup_status("directories", path)
+
+  files <- c("data/a.csv", "data/b.csv", "orderly.R",
+             "output/a.rds", "output/b.rds")
+  expect_equal(rownames(status$role), files)
+  expect_equal(
+    status$role,
+    cbind(orderly = set_names(files == "orderly.R", files),
+          resource = c(TRUE, TRUE, FALSE, FALSE, FALSE),
+          global_resource = FALSE,
+          dependency = FALSE,
+          artefact = c(FALSE, FALSE, FALSE, TRUE, TRUE)))
+  expect_equal(
+    status$status,
+    cbind(source = set_names(c(TRUE, TRUE, TRUE, FALSE, FALSE), files),
+          derived = c(FALSE, FALSE, FALSE, TRUE, TRUE),
+          ignored = NA))
+  expect_equal(status$delete, c("output/a.rds", "output/b.rds"))
+
+  status2 <- orderly_cleanup("directories", path)
+  expect_equal(status2, status)
+  expect_setequal(
+    dir(path_src, recursive = TRUE, include.dirs = TRUE),
+    c("data", "data/a.csv", "data/b.csv", "orderly.R"))
+})

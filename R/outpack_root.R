@@ -422,7 +422,7 @@ validate_packet_has_file <- function(root, id, path) {
 
   ## Then, look to see if any of the missing ones are actually directories:
   msg <- path[!found]
-  found_if_dir <- vlapply(sub("(?<![/])$", "/", msg, perl = TRUE),
+  found_if_dir <- vlapply(with_trailing_slash(msg),
                           function(x) any(string_starts_with(x, files)),
                           USE.NAMES = FALSE)
 

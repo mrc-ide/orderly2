@@ -521,3 +521,8 @@ delete_empty_directories <- function(path) {
     }
   }
 }
+
+
+with_trailing_slash <- function(x) {
+  sub("(?<![/])$", "/", x, perl = TRUE)
+}
