@@ -15,7 +15,7 @@
 ##'   (https://github.com/mrc-ide/outpack)
 ##'
 ##' @export
-outpack_metadata <- function(id, root = NULL) {
+orderly_metadata <- function(id, root = NULL) {
   validate_outpack_id(id)
   root <- outpack_root_open(root, locate = TRUE)
   root$metadata(id, full = TRUE)
@@ -38,7 +38,7 @@ outpack_metadata <- function(id, root = NULL) {
 ##'   scalar and length-one vectors into the expected types.
 ##'
 ##' @export
-outpack_metadata_read <- function(path) {
+orderly_metadata_read <- function(path) {
   assert_file_exists(path)
   outpack_metadata_load(path)
 }
