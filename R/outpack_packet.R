@@ -298,7 +298,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
                                  root = packet$root)
   }
 
-  result <- outpack_copy_files(id, files, packet$path,
+  result <- orderly_copy_files(id, files, packet$path,
                                allow_remote = search_options$allow_remote,
                                overwrite = overwrite,
                                envir = envir,

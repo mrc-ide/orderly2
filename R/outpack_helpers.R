@@ -85,7 +85,7 @@
 ##'   of copying files from a packet into the directory `dest`
 ##'
 ##' @export
-outpack_copy_files <- function(id, files, dest, allow_remote = FALSE,
+orderly_copy_files <- function(id, files, dest, allow_remote = FALSE,
                                overwrite = TRUE, envir = parent.frame(),
                                root = NULL) {
   root <- outpack_root_open(root, locate = TRUE)
