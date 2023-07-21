@@ -40,8 +40,7 @@ console. If \code{TRUE}, then many operations will produce
 informational output; set to \code{FALSE} to prevent this.}
 
 \item{logging_threshold}{The degree of verbosity; one of \code{info},
-\code{debug} or \code{trace} in increasing order of verbosity (see
-\link{outpack_log})}
+\code{debug} or \code{trace} in increasing order of verbosity.}
 }
 \value{
 Invisibly, an \code{outpack_root} object; these will change in
