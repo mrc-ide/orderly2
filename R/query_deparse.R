@@ -1,5 +1,5 @@
 #' Format outpack query for displaying to users. It will typically be
-#' easier to use the [format] method of `outpack_query` objects.
+#' easier to use the [format] method of `orderly_query` objects.
 #'
 #' @param query The outpack query to print
 #'
@@ -19,18 +19,18 @@
 #' @export
 #'
 #' @examples
-#' orderly2::outpack_query_format(quote(name == "example"))
-#' orderly2::outpack_query_format(
+#' orderly2::orderly_query_format(quote(name == "example"))
+#' orderly2::orderly_query_format(
 #'   quote(usedby({A})),
 #'   subquery = list(A = quote(latest(name == "a"))))
 #'
-#' orderly2::outpack_query_format(
+#' orderly2::orderly_query_format(
 #'   quote(parameter:x == environment:x))
-#' orderly2::outpack_query_format(
+#' orderly2::orderly_query_format(
 #'   quote(parameter:x == environment:x), envir = list2env(list(x = 1)))
 #'
-#' format(orderly2::outpack_query("latest", name = "a"))
-outpack_query_format <- function(query, subquery = NULL, envir = NULL) {
+#' format(orderly2::orderly_query("latest", name = "a"))
+orderly_query_format <- function(query, subquery = NULL, envir = NULL) {
   if (!is_deparseable_query(query)) {
     stop("Cannot format query, it must be a language object or be length 1.")
   }
@@ -49,7 +49,7 @@ outpack_query_format <- function(query, subquery = NULL, envir = NULL) {
 
 
 ##' @export
-format.outpack_query <- function(x, envir = NULL, ...) {
+format.orderly_query <- function(x, envir = NULL, ...) {
   deparse_query(x$value$expr, lapply(x$subquery, "[[", "expr"), envir)
 }
 

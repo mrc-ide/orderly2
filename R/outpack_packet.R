@@ -213,7 +213,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 }
 
 
-##' @param query An [orderly2::outpack_query] object, or something
+##' @param query An [orderly2::orderly_query] object, or something
 ##'   (e.g., a string) that can be trivially converted into one.
 ##'
 ##' @param files Files to copy from the other packet. This can be (1)
@@ -264,7 +264,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
                                           search_options = NULL,
                                           overwrite = TRUE) {
   packet <- check_current_packet(packet)
-  query <- as_outpack_query(query)
+  query <- as_orderly_query(query)
   search_options <- as_outpack_search_options(search_options)
 
   if (!query$info$single) {

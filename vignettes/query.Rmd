@@ -1,13 +1,13 @@
 ---
-title: "Outpack query DSL"
+title: "Orderly query DSL"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Outpack query DSL}
+  %\VignetteIndexEntry{Orderly query DSL}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-Outpack includes a query DSL (domain specific language), extending the one used by orderly (see [`orderly1::orderly_search()`](https://www.vaccineimpact.org/orderly/reference/orderly_search.html)).
+Orderly includes a query DSL (domain specific language), extending the one used by version 1 of orderly (see [`orderly1::orderly_search()`](https://www.vaccineimpact.org/orderly/reference/orderly_search.html)).
 
 Queries are used in identifying ids to pull in as dependencies, so rather than providing an identifier, you might want to depend on
 
@@ -70,13 +70,13 @@ Scoping queries can be used as a shorthand for filtering the returned packets. I
 For example, the query
 
 ```r
-outpack_query(quote(parameter:x == 1), scope = quote(name == "data"))
+orderly_query(quote(parameter:x == 1), scope = quote(name == "data"))
 ```
 
 is equivalent to
 
 ```r
-outpack_query(quote(parameter:x == 1 && name == "data"))
+orderly_query(quote(parameter:x == 1 && name == "data"))
 ```
 
 `orderly2` uses this functionality when resolving dependencies with `orderly2::orderly_dependency`.
@@ -86,18 +86,18 @@ outpack_query(quote(parameter:x == 1 && name == "data"))
 Very often users will want to scope by name so instead of passing `scope` argument there is a shorthand `name` argument for usability.
 
 ```r
-outpack_query(quote(parameter:x == 1), name = "data")
+orderly_query(quote(parameter:x == 1), name = "data")
 ```
 
 Which is the equivalent of
 
 ```r
-outpack_query(quote(parameter:x == 1), scope = quote(name == "data"))
+orderly_query(quote(parameter:x == 1), scope = quote(name == "data"))
 ```
 
 ## Dependencies
 
-If we have 2 packets, where B depends on output from A (i.e. we call `outpack_packet_use_dependency(id_a, ...)` when running packet B) we can draw this as.
+If we have 2 packets, where B depends on output from A (i.e. we call `(id_a, ...)` when running packet B) we can draw this as.
 
 ```{r, echo = FALSE, fig.align = 'center'}
 knitr::include_graphics("images/dependency_terminology.png")
@@ -179,7 +179,7 @@ This searches up the tree from `C` to `A` and then down the tree to find the ver
 We can also search up the tree and then down to find `A` from `D` e.g.
 
 ```
-outpack_query(
+orderly_query(
   quote(usedby(single(uses(name == "D")))),
   name = "A",
   root = root)
@@ -190,7 +190,7 @@ note as `E` is the only packet which uses `D` we do not need to add a `name == "
 We can combine `usedby` and `uses` in more complex searches, such as to find `D` from `C` we could run
 
 ```
-outpack_query(
+orderly_query(
   quote(usedby(single(uses(single(usedby(latest(name == "C")) && name == "A"))) && name == "E"))),
   name = "D",
   root = root)
