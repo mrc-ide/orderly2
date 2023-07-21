@@ -67,7 +67,7 @@ In version 1, we had built-in support for accessing data from SQL databases; thi
 
 ## No more commit
 
-`orderly2` no longer requires a separate `orderly_commit()` call after `orderly_run()`; we no longer make a distinction between local draft and archive packets. Instead, we have added finer-grained control over where dependencies are resolved from (locally, or from some subset of your servers), which generalises the way that draft/archive was used in practice. See the "Dependency resolution" section of `?outpack_packet_use_dependency` (itself used from `orderly2::orderly_dependency`) for more details.
+`orderly2` no longer requires a separate `orderly_commit()` call after `orderly_run()`; we no longer make a distinction between local draft and archive packets. Instead, we have added finer-grained control over where dependencies are resolved from (locally, or from some subset of your servers), which generalises the way that draft/archive was used in practice.  See `?orderly_run` for more details on how dependencies are resolved.
 
 ## No more testing or development mode
 

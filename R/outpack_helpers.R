@@ -1,8 +1,8 @@
 ##' Copy files from a packet to anywhere. Similar to
-##' [orderly2::outpack_packet_use_dependency] except that this is not
-##' used in an active packet context. You can use this function to
-##' pull files from an outpack root to a directory outside of the
-##' control of outpack, for example.
+##' [orderly2::orderly_dependency] except that this is not used in an
+##' active packet context. You can use this function to pull files
+##' from an outpack root to a directory outside of the control of
+##' outpack, for example.
 ##'
 ##' There are different ways that this might fail (or recover from
 ##' failure):
@@ -27,7 +27,36 @@
 ##'
 ##' @title Copy files from a packet
 ##'
-##' @inheritParams outpack_packet_use_dependency
+##' @param id Id of the packet to copy from (will become a query, see
+##'   mrc-4418)
+##'
+##' @param files Files to copy from the other packet. This can be (1)
+##'   a character vector, in which case files are copied over without
+##'   changing their names, (2) a **named** character vector, in which
+##'   case the name will be used as the destination name, or (3) a
+##'   [data.frame] (including `tbl_df`, or `data.frame` objects)
+##'   containing columns `from` and `to`, in which case the files
+##'   `from` will be copied with names `to`.
+##'
+##' In all cases, if you want to import a directory of files from a
+##'   packet, you must refer to the source with a trailing slash
+##'   (e.g., `c(here = "there/")`), which will create the local
+##'   directory `here/...` with files from the upstream packet
+##'   directory `there/`. If you omit the slash then an error will be
+##'   thrown suggesting that you add a slash if this is what you
+##'   intended.
+##'
+##' You can use a limited form of string interpolation in the names of
+##'   this argument; using `${variable}` will pick up values from
+##'   `envir` and substitute them into your string.  This is similar
+##'   to the interpolation you might be familiar with from
+##'   `glue::glue` or similar, but much simpler with no concatenation
+##'   or other fancy features supported.
+##'
+##' Note that there is an unfortunate, but (to us) avoidable
+##'   inconsistency here; interpolation of values from your
+##'   environment in the query is done by using `environment:x` and in
+##'   the destination filename by doing `${x}`.
 ##'
 ##' @param dest The directory to copy into
 ##'
@@ -39,11 +68,18 @@
 ##'   though associated with no packet so that it is subject to
 ##'   garbage collection (once we write support for that).
 ##'
+##' @param overwrite Overwrite files at the destination; this is
+##'   typically what you want, but set to `FALSE` if you would prefer
+##'   that an error be thrown if the destination file already exists.
+##'
 ##' @param envir An environment into which string interpolation may
-##'   happen (see [orderly2::outpack_packet_use_dependency] for
-##'   details on the string interpolation).  The default here is to
-##'   use the calling environment, which is typically reasonable, but
-##'   may need changing in programmatic use.
+##'   happen (see the `files` argument for details on the string
+##'   interpolation).  The default here is to use the calling
+##'   environment, which is typically reasonable, but may need
+##'   changing in programmatic use.
+##'
+##' @param root The outpack root. Will be searched for from the
+##'   current directory if not given.
 ##'
 ##' @return Nothing, invisibly. Primarily called for its side effect
 ##'   of copying files from a packet into the directory `dest`

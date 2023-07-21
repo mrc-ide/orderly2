@@ -20,6 +20,5 @@ Low-level function for reading metadata and deserialising it. This
 function can be used to directly read a metadata json file without
 reference to a root which contains it. It may be useful in the
 context of reading a metadata file written out as part of a failed
-run (see the \code{insert = FALSE} argument to
-\code{\link[=outpack_packet_end]{outpack_packet_end()}})
+run.
 }

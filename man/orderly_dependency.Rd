@@ -15,8 +15,8 @@ want a more complex query here though.}
 
 \item{use}{Files to use from the packet found by \code{query}, usually
 as a named character vector with string interpolation in the
-names; see \link{outpack_packet_use_dependency}'s \code{file}
-argument for details.}
+names; see \link{outpack_copy_files}' \code{file} argument for
+details.}
 }
 \value{
 Undefined

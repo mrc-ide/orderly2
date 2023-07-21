@@ -15,8 +15,8 @@ outpack_copy_files(
 )
 }
 \arguments{
-\item{id}{Optionally, an outpack id via \link{outpack_id}. If
-not given a new id will be generated.}
+\item{id}{Id of the packet to copy from (will become a query, see
+mrc-4418)}
 
 \item{files}{Files to copy from the other packet. This can be (1)
 a character vector, in which case files are copied over without
@@ -61,10 +61,10 @@ typically what you want, but set to \code{FALSE} if you would prefer
 that an error be thrown if the destination file already exists.}
 
 \item{envir}{An environment into which string interpolation may
-happen (see \link{outpack_packet_use_dependency} for
-details on the string interpolation).  The default here is to
-use the calling environment, which is typically reasonable, but
-may need changing in programmatic use.}
+happen (see the \code{files} argument for details on the string
+interpolation).  The default here is to use the calling
+environment, which is typically reasonable, but may need
+changing in programmatic use.}
 
 \item{root}{The outpack root. Will be searched for from the
 current directory if not given.}
@@ -75,10 +75,10 @@ of copying files from a packet into the directory \code{dest}
 }
 \description{
 Copy files from a packet to anywhere. Similar to
-\link{outpack_packet_use_dependency} except that this is not
-used in an active packet context. You can use this function to
-pull files from an outpack root to a directory outside of the
-control of outpack, for example.
+\link{orderly_dependency} except that this is not used in an
+active packet context. You can use this function to pull files
+from an outpack root to a directory outside of the control of
+outpack, for example.
 }
 \details{
 There are different ways that this might fail (or recover from

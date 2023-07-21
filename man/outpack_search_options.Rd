@@ -20,7 +20,7 @@ it's possible we'll change the name).}
 packets to be found that are not currently unpacked (i.e., are
 known only to a location that we have metadata from). If this is
 \code{TRUE}, then in conjunction with
-\link{outpack_packet_use_dependency} you might pull a large
+\link{orderly_dependency} you might pull a large
 quantity of data.}
 
 \item{pull_metadata}{Logical, indicating if we should pull
@@ -37,7 +37,7 @@ not be modified after creation (but see note about \code{pull_metadata})
 \description{
 Options for controlling how packet searches are carried out, for
 example via \link{outpack_search} and
-\link{outpack_packet_use_dependency}. The details here are
-never included in the metadata alongside the query (that is,
-they're not part of the query even though they affect it).
+\link{orderly_run}. The details here are never included in
+the metadata alongside the query (that is, they're not part of the
+query even though they affect it).
 }
