@@ -98,8 +98,8 @@ one (<code>outpack_packet_use_dependency</code>,
 <span>  <span class="va">packet</span>,</span>
 <span>  <span class="va">query</span>,</span>
 <span>  <span class="va">files</span>,</span>
-<span>  search_options <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  search_options <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -171,11 +171,12 @@ times within a single packet run (or zero times!) as needed.</p></dd>
 
 
 <dt>envir</dt>
-<dd><p>Optional environment for <code>environment:</code> lookups; the
-default is to use the parent frame, but other suitable options
-are the global environment or the environment of the script you
-are running (this only relevant if you have <code>environment:</code>
-lookups in <code>query</code>).</p></dd>
+<dd><p>Optional environment for <code>environment:</code> lookups in
+<code>query</code>, and for interpolating filenames in <code>files</code>; the default
+is to use the parent frame, but other suitable options are the
+global environment or the environment of the script you are
+running (this only relevant if you have <code>environment:</code> lookups
+in <code>query</code>).</p></dd>
 
 
 <dt>query</dt>
@@ -184,14 +185,30 @@ lookups in <code>query</code>).</p></dd>
 
 
 <dt>files</dt>
-<dd><p>A named character vector of files; the name
-corresponds to the name within the current packet, while the
-value corresponds to the name within the upstream packet. If you
-want to import a directory of files from a packet, you must
-refer to the source with a trailing slash (e.g., <code>c(here = "there/")</code>), which will create the local directory <code>here/...</code>
-with files from the upstream packet directory <code>there/</code>. If you
-omit the slash then an error will be thrown suggesting that you
-add a slash if this is what you intended.</p></dd>
+<dd><p>Files to copy from the other packet. This can be (1)
+a character vector, in which case files are copied over without
+changing their names, (2) a <strong>named</strong> character vector, in which
+case the name will be used as the destination name, or (3) a
+<a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> (including <code>tbl_df</code>, or <code>data.frame</code> objects)
+containing columns <code>from</code> and <code>to</code>, in which case the files
+<code>from</code> will be copied with names <code>to</code>.</p>
+<p>In all cases, if you want to import a directory of files from a
+packet, you must refer to the source with a trailing slash
+(e.g., <code>c(here = "there/")</code>), which will create the local
+directory <code>here/...</code> with files from the upstream packet
+directory <code>there/</code>. If you omit the slash then an error will be
+thrown suggesting that you add a slash if this is what you
+intended.</p>
+<p>You can use a limited form of string interpolation in the names of
+this argument; using <code>${variable}</code> will pick up values from
+<code>envir</code> and substitute them into your string.  This is similar
+to the interpolation you might be familiar with from
+<code><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue::glue</a></code> or similar, but much simpler with no concatenation
+or other fancy features supported.</p>
+<p>Note that there is an unfortunate, but (to us) avoidable
+inconsistency here; interpolation of values from your
+environment in the query is done by using <code>environment:x</code> and in
+the destination filename by doing <code>${x}</code>.</p></dd>
 
 
 <dt>search_options</dt>
