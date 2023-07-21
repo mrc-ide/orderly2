@@ -169,27 +169,6 @@ outpack_root <- R6::R6Class(
   ))
 
 
-##' Open an existing outpack root. This returns a "root" object, which
-##' can be passed through to various outpack functions. The root
-##' object is the same as that returned by
-##' [orderly2::outpack_init] and will be documented once the
-##' interface stabilises.
-##'
-##' @title Open outpack root
-##'
-##' @param path The path to look for the root; must be an existing
-##'   directory. Use `NULL` (or `.` or `getwd()`) for the current
-##'   directory.
-##'
-##' @param locate Logical, indicating if we should look in parent
-##'   directories until the root is found (similar behaviour to how
-##'   `git` can find its root directory from any directory below the
-##'   root).
-##'
-##' @return An `outpack_root` object; treat this as an opaque object
-##'   for now.
-##'
-##' @export
 outpack_root_open <- function(path, locate = TRUE) {
   if (inherits(path, "outpack_root")) {
     return(path)

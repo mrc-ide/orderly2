@@ -6,13 +6,6 @@ location_types <- c(local, orphan, "path", "http", "custom")
 re_id <- "^([0-9]{8}-[0-9]{6}-[[:xdigit:]]{8})$"
 
 
-##' Generate a new outpack id
-##'
-##' @title Generate outpack id
-##'
-##' @return A new outpack id (a string)
-##'
-##' @export
 outpack_id <- function() {
   time <- Sys.time()
   sprintf("%s-%s%s",
