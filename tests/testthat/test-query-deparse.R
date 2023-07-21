@@ -99,17 +99,17 @@ test_that("can interpolate environment values back into query", {
   ## No variable found
   expect_equal(
     outpack_query_format(quote(parameter:x == environment:c), envir = env2),
-    'parameter:x == environment:c')
+    "parameter:x == environment:c")
   ## Rejected, is null
   expect_equal(
     outpack_query_format(quote(parameter:x == environment:x), envir = env2),
-    'parameter:x == environment:x')
+    "parameter:x == environment:x")
   ## Rejected, is vector
   expect_equal(
     outpack_query_format(quote(parameter:x == environment:y), envir = env2),
-    'parameter:x == environment:y')
+    "parameter:x == environment:y")
   ## Rejected, is function
   expect_equal(
     outpack_query_format(quote(parameter:x == environment:z), envir = env2),
-    'parameter:x == environment:z')
+    "parameter:x == environment:z")
 })
