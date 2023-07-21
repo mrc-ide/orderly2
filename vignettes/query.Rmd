@@ -109,7 +109,7 @@ We could equivalently say
 * A is used by B , B uses A
 * A is a parent of B, B is a child of A
 
-With the tree of dependencies built by outpack we might want to search for packets which have been used by another packet. We can use the query function `usedby(id)` to list all packets which are used by `id`. This will search recursively through all packets used by `id` and its parents and its parents' parents and so on.
+With the tree of dependencies among our packets we might want to search for packets which have been used by another packet. We can use the query function `usedby(id)` to list all packets which are used by `id`. This will search recursively through all packets used by `id` and its parents and its parents' parents and so on.
 
 The optional second arg `immediate` is `FALSE` by default, if set to `TRUE` then we search only for immediate (e.g. level 1) dependencies.
 
@@ -119,23 +119,23 @@ Being able to search through dependencies like this means if we have some packet
 knitr::include_graphics("images/dependency_recursive.png")
 ```
 
-and we want to know the `id` of `A` which was used by `C` we can find this using `outpack_search`
+and we want to know the `id` of `A` which was used by `C` we can find this using `orderly_search`
 
 ```r
-outpack_search(quote(usedby(latest(name == "C"))), name = "A")
+orderly_search(quote(usedby(latest(name == "C"))), name = "A")
 ```
 
 `usedby` can be combined with groupings and scope:
 
 ```r
-outpack_search(quote(usedby(latest(name == "C")) && parameter:year == 2022),
+orderly_search(quote(usedby(latest(name == "C")) && parameter:year == 2022),
                name = "A")
 ```
 
 The depth that `usedby` will recurse can be controlled by setting the `depth` e.g.
 
 ```r
-outpack_search(quote(usedby(latest(name == "C"), depth = 1)), name = "A")
+orderly_search(quote(usedby(latest(name == "C"), depth = 1)), name = "A")
 ```
 
 will search for just immediate parents of `C`. `depth` can be any positive integer, by default `depth` will recurse until it finds all parents.
@@ -143,7 +143,7 @@ will search for just immediate parents of `C`. `depth` can be any positive integ
 `usedby` can be simplified by using subqueries. Subqueries are denoted by curly braces `{}` and can either be named and passed in `subquery` arg or can be anonymous. The query below is equivalent to the above but uses a subquery for `C`.
 
 ```r
-outpack_search(quote(usedby({C}) && parameter:year == 2022),
+orderly_search(quote(usedby({C}) && parameter:year == 2022),
                name = "A",
                subquery = list(C = quote(latest(name == "C"))))
 ```
@@ -156,7 +156,7 @@ There are two important things to note about `usedby`:
 As well as searching up the dependency tree using `usedby` we can search down with the `uses` function. In the same setup above with reports `A`, `B` and `C` if we want to know the `id` of `C` which uses `A` we can find this by using
 
 ```r
-outpack_search(quote(uses(latest(name == "A"))),
+orderly_search(quote(uses(latest(name == "A"))),
                name = "C")
 ```
 
@@ -169,7 +169,7 @@ knitr::include_graphics("images/dependency_multiple.png")
 If we want to search for the version of `E` which depends on the version of `A` which was used in the latest `C` we can do this via
 
 ```
-outpack_search(
+orderly_search(
   quote(latest(uses(single(usedby(latest(name == "C")) && name == "A")))),
   name = "E")
 ```

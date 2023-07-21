@@ -21,9 +21,9 @@ referenced by name from the \code{expr}.}
 }
 \value{
 An \code{orderly_query} object, which should not be modified,
-but which can be passed to \code{\link[=outpack_search]{outpack_search()}}
+but which can be passed to \code{\link[=orderly_search]{orderly_search()}}
 }
 \description{
 Construct an outpack query, typically then passed through to
-\link{outpack_search}
+\link{orderly_search}
 }

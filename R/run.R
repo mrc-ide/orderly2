@@ -25,7 +25,7 @@
 ##'   that your packet fails to run).
 ##'
 ##' To allow for control over this you can pass in an argument
-##'   `search_options`, which is a [orderly2::outpack_search_options]
+##'   `search_options`, which is a [orderly2::orderly_search_options]
 ##'   object, and allows control over the names of the locations to
 ##'   use, whether metadata should be refreshed before we pull
 ##'   anything and if packets that are not currently downloaded should
@@ -43,7 +43,7 @@
 ##'   everything is resolved locally only; that is we can only depend
 ##'   on packets that are unpacked within our current archive.  If you
 ##'   pass a `search_options` argument that contains `allow_remote =
-##'   TRUE` (see [orderly2::outpack_search_options] then packets
+##'   TRUE` (see [orderly2::orderly_search_options] then packets
 ##'   that are known anywhere are candidates for using as dependencies
 ##'   and *if needed* we will pull the resolved files from a remote
 ##'   location. Note that even if the packet is not locally present
@@ -59,7 +59,7 @@
 ##'
 ##' The above location handling generalises orderly (v1)'s old
 ##'   `use_draft` option, in terms of the `location` argument to
-##'   orderly2::outpack_search_options`:
+##'   orderly2::orderly_search_options`:
 ##'
 ##' * `use_draft = TRUE` is `location = "local"`
 ##' * `use_draft = FALSE` is `location = c(...)` where you should provide

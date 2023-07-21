@@ -249,7 +249,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   the destination filename by doing `${x}`.
 ##'
 ##' @param search_options Optional search options for restricting the
-##'   search (see [orderly2::outpack_search] for details)
+##'   search (see [orderly2::orderly_search] for details)
 ##'
 ##' @param envir Optional environment for `environment:` lookups in
 ##'   `query`, and for interpolating filenames in `files`; the default
@@ -269,7 +269,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
                                           overwrite = TRUE) {
   packet <- check_current_packet(packet)
   query <- as_orderly_query(query)
-  search_options <- as_outpack_search_options(search_options)
+  search_options <- as_orderly_search_options(search_options)
 
   if (!query$info$single) {
     stop(paste(
@@ -278,7 +278,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
       "Did you forget latest(...)?"))
   }
 
-  id <- outpack_search(query,
+  id <- orderly_search(query,
                        parameters = packet$parameters,
                        envir = envir,
                        options = search_options,

@@ -81,7 +81,7 @@ network connection (but \emph{not} pulling in the packets could mean
 that your packet fails to run).
 
 To allow for control over this you can pass in an argument
-\code{search_options}, which is a \link{outpack_search_options}
+\code{search_options}, which is a \link{orderly_search_options}
 object, and allows control over the names of the locations to
 use, whether metadata should be refreshed before we pull
 anything and if packets that are not currently downloaded should
@@ -100,7 +100,7 @@ packets with the given query and if anything might be moved over
 the network (or from one outpack archive to another). By default
 everything is resolved locally only; that is we can only depend
 on packets that are unpacked within our current archive.  If you
-pass a \code{search_options} argument that contains \code{allow_remote = TRUE} (see \link{outpack_search_options} then packets
+pass a \code{search_options} argument that contains \code{allow_remote = TRUE} (see \link{orderly_search_options} then packets
 that are known anywhere are candidates for using as dependencies
 and \emph{if needed} we will pull the resolved files from a remote
 location. Note that even if the packet is not locally present
@@ -118,7 +118,7 @@ locations are pulled from.
 
 The above location handling generalises orderly (v1)'s old
 \code{use_draft} option, in terms of the \code{location} argument to
-orderly2::outpack_search_options`:
+orderly2::orderly_search_options`:
 \itemize{
 \item \code{use_draft = TRUE} is \code{location = "local"}
 \item \code{use_draft = FALSE} is \code{location = c(...)} where you should provide
