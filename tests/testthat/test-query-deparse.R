@@ -76,3 +76,40 @@ test_that("format S3 method dispatches", {
                          subquery = list(X = 'latest(name == "data")'))),
     'latest(usedby({"latest(name == "data")"}) && name == "analysis")')
 })
+
+
+test_that("can interpolate environment values back into query", {
+  env1 <- list2env(list(a = 1, b = "x"), parent = emptyenv())
+  env2 <- list2env(list(a = 2, x = NULL, y = 1:3, z = sum), parent = env1)
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:a)),
+    "parameter:x == environment:a")
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:a), envir = env1),
+    "parameter:x == 1")
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:a), envir = env2),
+    "parameter:x == 2")
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:b), envir = env1),
+    'parameter:x == "x"')
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:b), envir = env2),
+    'parameter:x == "x"')
+  ## No variable found
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:c), envir = env2),
+    'parameter:x == environment:c')
+  ## Rejected, is null
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:x), envir = env2),
+    'parameter:x == environment:x')
+  ## Rejected, is vector
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:y), envir = env2),
+    'parameter:x == environment:y')
+  ## Rejected, is function
+  expect_equal(
+    outpack_query_format(quote(parameter:x == environment:z), envir = env2),
+    'parameter:x == environment:z')
+})

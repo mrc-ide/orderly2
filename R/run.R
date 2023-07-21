@@ -293,9 +293,7 @@ check_parameter_values <- function(given, defaults) {
       name, paste(squote(names(nonscalar[nonscalar])), collapse = ", ")))
   }
 
-  err <- !vlapply(given, function(x) {
-    is.character(x) || is.numeric(x) || is.logical(x)
-  })
+  err <- !vlapply(given, is_simple_atomic)
   if (any(err)) {
     stop(sprintf(
       "Invalid %s: %s - must be character, numeric or logical",

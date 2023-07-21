@@ -527,3 +527,13 @@ delete_empty_directories <- function(path) {
 with_trailing_slash <- function(x) {
   sub("(?<![/])$", "/", x, perl = TRUE)
 }
+
+
+is_simple_scalar_atomic <- function(x) {
+  length(x) == 1 && is_simple_atomic(x)
+}
+
+
+is_simple_atomic <- function(x) {
+  (is.character(x) || is.numeric(x) || is.logical(x)) && !anyNA(x)
+}

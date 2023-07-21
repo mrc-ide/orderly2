@@ -5,7 +5,7 @@
 \title{Format outpack query for displaying to users. It will typically be
 easier to use the \link{format} method of \code{outpack_query} objects.}
 \usage{
-outpack_query_format(query, subquery = NULL)
+outpack_query_format(query, subquery = NULL, envir = NULL)
 }
 \arguments{
 \item{query}{The outpack query to print}
@@ -14,6 +14,13 @@ outpack_query_format(query, subquery = NULL)
 each must be a valid deparseable subquery (i.e., a literal or
 language object).  Note that you must not provide an
 already-deparsed query here or it will get quoted!}
+
+\item{envir}{Optionally an environment of values to substitute in
+for \verb{environment:} lookups; if given, then formatting a query
+will turn something like \code{latest(parameter:x == environment:a)}
+into \code{latest(parameter:x == 1)} (if \code{a} within \code{envir} is
+1). This can be used to make queries self contained even after
+the environment has gone.}
 }
 \value{
 Query expression as a string
@@ -27,6 +34,11 @@ orderly2::outpack_query_format(quote(name == "example"))
 orderly2::outpack_query_format(
   quote(usedby({A})),
   subquery = list(A = quote(latest(name == "a"))))
+
+orderly2::outpack_query_format(
+  quote(parameter:x == environment:x))
+#' orderly2::outpack_query_format(
+  quote(parameter:x == environment:x), envir = list2env(x = 1))
 
 format(orderly2::outpack_query("latest", name = "a"))
 }

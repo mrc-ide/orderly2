@@ -302,7 +302,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
   if (!query$info$single) {
     stop(paste(
       "The provided query is not guaranteed to return a single value:",
-      squote(deparse_query(query$value$expr)),
+      squote(deparse_query(query$value$expr, NULL, NULL)),
       "Did you forget latest(...)?"))
   }
 
@@ -337,7 +337,8 @@ outpack_packet_use_dependency <- function(packet, query, files,
                                root = packet$root)
 
   query_str <- deparse_query(query$value$expr,
-                             lapply(query$subquery, "[[", "expr"))
+                             lapply(query$subquery, "[[", "expr"),
+                             envir)
 
   ## Only update packet information after success, to reflect new
   ## metadata
