@@ -26,8 +26,7 @@ outpack_metadata <- function(id, root = NULL) {
 ##' function can be used to directly read a metadata json file without
 ##' reference to a root which contains it. It may be useful in the
 ##' context of reading a metadata file written out as part of a failed
-##' run (see the `insert = FALSE` argument to
-##' [orderly2::outpack_packet_end()])
+##' run.
 ##'
 ##' @title Read outpack metadata json file
 ##'

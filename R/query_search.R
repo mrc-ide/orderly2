@@ -43,9 +43,9 @@ outpack_search <- function(..., parameters = NULL, envir = parent.frame(),
 
 ##' Options for controlling how packet searches are carried out, for
 ##' example via [orderly2::outpack_search] and
-##' [orderly2::outpack_packet_use_dependency]. The details here are
-##' never included in the metadata alongside the query (that is,
-##' they're not part of the query even though they affect it).
+##' [orderly2::orderly_run]. The details here are never included in
+##' the metadata alongside the query (that is, they're not part of the
+##' query even though they affect it).
 ##'
 ##' @title Packet search options
 ##'
@@ -58,7 +58,7 @@ outpack_search <- function(..., parameters = NULL, envir = parent.frame(),
 ##'   packets to be found that are not currently unpacked (i.e., are
 ##'   known only to a location that we have metadata from). If this is
 ##'   `TRUE`, then in conjunction with
-##'   [orderly2::outpack_packet_use_dependency] you might pull a large
+##'   [orderly2::orderly_dependency] you might pull a large
 ##'   quantity of data.
 ##'
 ##' @param pull_metadata Logical, indicating if we should pull

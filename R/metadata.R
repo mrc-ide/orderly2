@@ -243,8 +243,8 @@ static_orderly_artefact <- function(args) {
 ##'
 ##' @param use Files to use from the packet found by `query`, usually
 ##'   as a named character vector with string interpolation in the
-##'   names; see [orderly2::outpack_packet_use_dependency]'s `file`
-##'   argument for details.
+##'   names; see [orderly2::outpack_copy_files]' `file` argument for
+##'   details.
 ##'
 ##' @return Undefined
 ##' @export

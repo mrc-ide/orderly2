@@ -35,6 +35,26 @@
 ##'   can specify the search options (root specific) with
 ##'   [orderly2::orderly_interactive_set_search_options]
 ##'
+##' @section Which packets might be selected from locations?:
+##'
+##' The `search_options` argument controls where outpack searches for
+##'   packets with the given query and if anything might be moved over
+##'   the network (or from one outpack archive to another). By default
+##'   everything is resolved locally only; that is we can only depend
+##'   on packets that are unpacked within our current archive.  If you
+##'   pass a `search_options` argument that contains `allow_remote =
+##'   TRUE` (see [orderly2::outpack_search_options] then packets
+##'   that are known anywhere are candidates for using as dependencies
+##'   and *if needed* we will pull the resolved files from a remote
+##'   location. Note that even if the packet is not locally present
+##'   this might not be needed - if you have the same content anywhere
+##'   else in an unpacked packet we will reuse the same content
+##'   without re-fetching.
+##'
+##' If `pull_metadata = TRUE`, then we will refresh location metadata
+##'   before pulling, and the `location` argument controls which
+##'   locations are pulled from.
+##'
 ##' @section Equivalence to the old `use_draft` option:
 ##'
 ##' The above location handling generalises orderly (v1)'s old
@@ -73,15 +93,14 @@
 ##'   report script; by default we use the global environment, which
 ##'   may not always be what is wanted.
 ##'
-##' @param logging_console Optional logical, passed through to
-##'   [orderly2::outpack_packet_start] to control printing logs to the
-##'   console, overriding any default configuration set at the root.
+##' @param logging_console Optional logical to control printing logs
+##'   to the console, overriding any default configuration set at the
+##'   root.
 ##'
-##' @param logging_threshold Optional logging threshold, passed through to
-##'   [orderly2::outpack_packet_start] to control the amount of detail
-##'   in logs printed during running, overriding any default
-##'   configuration set at the root. If given, must be one of `info`,
-##'   `debug` or `trace` (in increasing order of
+##' @param logging_threshold Optional logging threshold to control the
+##'   amount of detail in logs printed during running, overriding any
+##'   default configuration set at the root. If given, must be one of
+##'   `info`, `debug` or `trace` (in increasing order of
 ##'   verbosity). Practically this has no effect at present as we've
 ##'   not added any fine-grained logging.
 ##'
