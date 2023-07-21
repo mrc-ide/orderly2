@@ -42,7 +42,7 @@
 ##' @param envir An environment into which string interpolation may
 ##'   happen (see [orderly2::outpack_packet_use_dependency] for
 ##'   details on the string interpolation).  The default here is to
-##'   use the calling environment, whcih is typically reasonable, but
+##'   use the calling environment, which is typically reasonable, but
 ##'   may need changing in programmatic use.
 ##'
 ##' @return Nothing, invisibly. Primarily called for its side effect

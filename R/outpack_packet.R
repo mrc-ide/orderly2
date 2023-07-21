@@ -267,12 +267,16 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   intended.
 ##'
 ##' You can use a limited form of string interpolation in the names of
-##'   this argument (or its `to` column if using a `data.frame`);
-##'   using `${variable}` will pick up values from `envir` and
-##'   substitute them into your string.  This is similar to the
-##'   interpolation you might be familiar with from `glue::glue` or
-##'   similar, but much simpler with no concatenation or other fancy
-##'   features supported.
+##'   this argument; using `${variable}` will pick up values from
+##'   `envir` and substitute them into your string.  This is similar
+##'   to the interpolation you might be familiar with from
+##'   `glue::glue` or similar, but much simpler with no concatenation
+##'   or other fancy features supported.
+##'
+##' Note that there is an unfortunate, but (to us) avoidable
+##'   inconsistency here; interpolation of values from your
+##'   environment in the query is done by using `environment:x` and in
+##'   the destination filename by doing `${x}`.
 ##'
 ##' @param search_options Optional search options for restricting the
 ##'   search (see [orderly2::outpack_search] for details)
