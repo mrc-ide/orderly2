@@ -26,8 +26,8 @@
 #'
 #' orderly2::outpack_query_format(
 #'   quote(parameter:x == environment:x))
-#' #' orderly2::outpack_query_format(
-#'   quote(parameter:x == environment:x), envir = list2env(x = 1))
+#' orderly2::outpack_query_format(
+#'   quote(parameter:x == environment:x), envir = list2env(list(x = 1)))
 #'
 #' format(orderly2::outpack_query("latest", name = "a"))
 outpack_query_format <- function(query, subquery = NULL, envir = NULL) {
