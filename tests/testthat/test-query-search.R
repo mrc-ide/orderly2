@@ -835,7 +835,7 @@ test_that("adding scope filters queries", {
     outpack_search("latest(parameter:i < 3 && name == 'a')", root = root),
     id$a[[2]])
   expect_equal(
-    outpack_search(outpack_query("latest(parameter:i < 3)",
+    outpack_search(orderly_query("latest(parameter:i < 3)",
                                  scope = quote(name == "a")), root = root),
     id$a[[2]])
 })

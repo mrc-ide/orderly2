@@ -7,8 +7,8 @@
 ##'
 ##' @title Query outpack's database
 ##'
-##' @param ... Arguments passed through to [outpack_query], perhaps
-##'   just a query expression
+##' @param ... Arguments passed through to [orderly2::orderly_query],
+##'   perhaps just a query expression
 ##'
 ##' @param parameters Optionally, a named list of parameters to substitute
 ##'   into the query (using the `this:` prefix)
@@ -35,9 +35,9 @@
 outpack_search <- function(..., parameters = NULL, envir = parent.frame(),
                            options = NULL, root = NULL) {
   root <- outpack_root_open(root, locate = TRUE)
-  query <- as_outpack_query(...)
+  query <- as_orderly_query(...)
   options <- as_outpack_search_options(options)
-  outpack_query_eval(query, parameters, envir, options, root)
+  orderly_query_eval(query, parameters, envir, options, root)
 }
 
 
@@ -116,8 +116,8 @@ as_outpack_search_options <- function(x, name = deparse(substitute(x))) {
 }
 
 
-outpack_query_eval <- function(query, parameters, environment, options, root) {
-  assert_is(query, "outpack_query")
+orderly_query_eval <- function(query, parameters, environment, options, root) {
+  assert_is(query, "orderly_query")
   assert_is(options, "outpack_search_options")
   assert_is(root, "outpack_root")
   validate_parameters(parameters)

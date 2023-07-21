@@ -17,14 +17,14 @@ test_that("empty query is possible", {
     query_parse(NULL, NULL, new.env(parent = emptyenv())),
     query_component("empty", expr = NULL, context = NULL, args = list()))
   expect_equal(
-    outpack_query(NULL),
+    orderly_query(NULL),
     structure(
       list(value = query_parse(NULL, NULL, new.env(parent = emptyenv())),
            subquery = list(),
            info = list(single = FALSE,
                        parameters = character(),
                        environment = character())),
-      class = "outpack_query"))
+      class = "orderly_query"))
 })
 
 
@@ -200,11 +200,11 @@ test_that("Queries can only be name and parameter", {
 
 
 test_that("construct a query", {
-  obj <- outpack_query("latest")
-  expect_s3_class(obj, "outpack_query")
+  obj <- orderly_query("latest")
+  expect_s3_class(obj, "orderly_query")
   ## TODO: single_value, parameters
   expect_setequal(names(obj), c("value", "info", "subquery"))
-  expect_s3_class(obj$value, "outpack_query_component")
+  expect_s3_class(obj$value, "orderly_query_component")
   expect_equal(obj$value, query_parse("latest", "latest", emptyenv()))
   expect_equal(obj$info, list(single = TRUE,
                               parameters = character(),
@@ -214,21 +214,21 @@ test_that("construct a query", {
 
 
 test_that("convert to a query", {
-  expect_identical(as_outpack_query("latest"),
-                   outpack_query("latest"))
-  expect_identical(as_outpack_query("latest", name = "a"),
-                   outpack_query("latest", name = "a"))
-  expect_identical(as_outpack_query(outpack_query("latest", name = "a")),
-                   outpack_query("latest", name = "a"))
+  expect_identical(as_orderly_query("latest"),
+                   orderly_query("latest"))
+  expect_identical(as_orderly_query("latest", name = "a"),
+                   orderly_query("latest", name = "a"))
+  expect_identical(as_orderly_query(orderly_query("latest", name = "a")),
+                   orderly_query("latest", name = "a"))
   expect_error(
-    as_outpack_query(outpack_query("latest"), name = "a"),
-    "If 'expr' is an 'outpack_query', no additional arguments allowed")
+    as_orderly_query(orderly_query("latest"), name = "a"),
+    "If 'expr' is an 'orderly_query', no additional arguments allowed")
 })
 
 
 test_that("report on parameters used in the query", {
   f <- function(x) {
-    outpack_query(x)$info$parameters
+    orderly_query(x)$info$parameters
   }
   expect_equal(f(quote(latest())), character())
   expect_equal(f(quote(parameter:x < this:a)), "a")
@@ -238,7 +238,7 @@ test_that("report on parameters used in the query", {
 
 test_that("report on environment variables used in the query", {
   f <- function(x) {
-    outpack_query(x)$info$environment
+    orderly_query(x)$info$environment
  }
   expect_equal(f(quote(latest())), character())
   expect_equal(f(quote(parameter:x < environment:a)), "a")
@@ -249,14 +249,14 @@ test_that("report on environment variables used in the query", {
 
 
 test_that("include parameters from subqueries too", {
-  obj <- outpack_query("latest({B})",
+  obj <- orderly_query("latest({B})",
                        subquery = list(B = quote(parameter:x < this:y)))
   expect_equal(obj$info$parameters, "y")
 })
 
 
-test_that("validate inputs to outpack_query", {
+test_that("validate inputs to orderly_query", {
   expect_error(
-    outpack_query("latest", list(a = 1)),
+    orderly_query("latest", list(a = 1)),
     "'name' must be character")
 })

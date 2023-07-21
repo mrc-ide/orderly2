@@ -13,8 +13,8 @@ outpack_search(
 )
 }
 \arguments{
-\item{...}{Arguments passed through to \link{outpack_query}, perhaps
-just a query expression}
+\item{...}{Arguments passed through to \link{orderly_query},
+perhaps just a query expression}
 
 \item{parameters}{Optionally, a named list of parameters to substitute
 into the query (using the \verb{this:} prefix)}
