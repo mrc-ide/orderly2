@@ -124,7 +124,6 @@ outpack_packet_end <- function(packet, insert = TRUE) {
                                   parameters = packet$parameters,
                                   script = packet$script,
                                   custom = packet$custom,
-                                  session = NULL,
                                   file_hash = packet$files$immutable,
                                   file_ignore = packet$files$ignored,
                                   hash_algorithm = hash_algorithm)

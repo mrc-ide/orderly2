@@ -208,18 +208,19 @@ test_that("can extract session metadata", {
   })
   meta <- lapply(ids, outpack_metadata, root = path)
 
-  d <- outpack_metadata_extract('name == "parameters"',
-                                extract = "session",
-                                root = path)
-  expect_equal(d$session, I(lapply(meta, "[[", "session")))
+  d <- outpack_metadata_extract(
+    'name == "parameters"',
+    extract = c("session" = "custom.orderly.session"),
+    root = path)
+  expect_equal(d$session,
+               I(lapply(meta, "[[", c("custom", "orderly", "session"))))
 
   d <- outpack_metadata_extract(
     'name == "parameters"',
-    extract = c(version = "session.platform.version is string"),
+    extract = c(version = "custom.orderly.session.platform.version is string"),
     root = path)
-  expect_equal(d,
-               data_frame(id = ids,
-                          version = meta[[1]]$session$platform$version))
+  v <- meta[[1]]$custom$orderly$session$platform$version
+  expect_equal(d, data_frame(id = ids, version = v))
   expect_type(d$version, "character")
 })
 
