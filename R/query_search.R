@@ -18,10 +18,10 @@
 ##'   use the calling environment, but you can explicitly pass this in
 ##'   if you want to control where this lookup happens.
 ##'
-##' @param options Optionally, a [orderly2::outpack_search_options]
+##' @param options Optionally, a [orderly2::orderly_search_options]
 ##'   object for controlling how the search is performed, and which
 ##'   packets should be considered in scope. If not provided, default
-##'   options are used (i.e., `orderly2::outpack_search_options()`)
+##'   options are used (i.e., `orderly2::orderly_search_options()`)
 ##'
 ##' @param root The outpack root. Will be searched for from the
 ##'   current directory if not given.
@@ -32,17 +32,17 @@
 ##'   (`NA_character_`)
 ##'
 ##' @export
-outpack_search <- function(..., parameters = NULL, envir = parent.frame(),
+orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
                            options = NULL, root = NULL) {
   root <- outpack_root_open(root, locate = TRUE)
   query <- as_orderly_query(...)
-  options <- as_outpack_search_options(options)
+  options <- as_orderly_search_options(options)
   orderly_query_eval(query, parameters, envir, options, root)
 }
 
 
 ##' Options for controlling how packet searches are carried out, for
-##' example via [orderly2::outpack_search] and
+##' example via [orderly2::orderly_search] and
 ##' [orderly2::orderly_run]. The details here are never included in
 ##' the metadata alongside the query (that is, they're not part of the
 ##' query even though they affect it).
@@ -68,11 +68,11 @@ outpack_search <- function(..., parameters = NULL, envir = parent.frame(),
 ##'   update.  If pulling many packets in sequence, you *will* want to
 ##'   update this option to `FALSE` after the first pull.
 ##'
-##' @return An object of class `outpack_search_options` which should
+##' @return An object of class `orderly_search_options` which should
 ##'   not be modified after creation (but see note about `pull_metadata`)
 ##'
 ##' @export
-outpack_search_options <- function(location = NULL,
+orderly_search_options <- function(location = NULL,
                                    allow_remote = FALSE,
                                    pull_metadata = FALSE) {
   ## TODO: Later, we might allow something like "before" here too to
@@ -85,40 +85,40 @@ outpack_search_options <- function(location = NULL,
   ret <- list(location = location,
               allow_remote = allow_remote,
               pull_metadata = pull_metadata)
-  class(ret) <- "outpack_search_options"
+  class(ret) <- "orderly_search_options"
   ret
 }
 
 
-as_outpack_search_options <- function(x, name = deparse(substitute(x))) {
+as_orderly_search_options <- function(x, name = deparse(substitute(x))) {
   if (!is.name(name)) {
     name <- "options"
   }
   if (is.null(x)) {
-    return(outpack_search_options())
+    return(orderly_search_options())
   }
-  if (inherits(x, "outpack_search_options")) {
+  if (inherits(x, "orderly_search_options")) {
     return(x)
   }
   if (!is.list(x)) {
     stop(sprintf(
-      "Expected '%s' to be an 'outpack_search_options' or a list of options",
+      "Expected '%s' to be an 'orderly_search_options' or a list of options",
       name),
       call. = FALSE)
   }
-  err <- setdiff(names(x), names(formals(outpack_search_options)))
+  err <- setdiff(names(x), names(formals(orderly_search_options)))
   if (length(err) > 0) {
-    stop(sprintf("Invalid option passed to 'outpack_search_options': %s",
+    stop(sprintf("Invalid option passed to 'orderly_search_options': %s",
                  paste(squote(err), collapse = ", ")),
          call. = FALSE)
   }
-  do.call(outpack_search_options, x)
+  do.call(orderly_search_options, x)
 }
 
 
 orderly_query_eval <- function(query, parameters, environment, options, root) {
   assert_is(query, "orderly_query")
-  assert_is(options, "outpack_search_options")
+  assert_is(options, "orderly_search_options")
   assert_is(root, "outpack_root")
   validate_parameters(parameters)
   assert_is(environment, "environment")

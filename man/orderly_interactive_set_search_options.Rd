@@ -17,7 +17,7 @@ Nothing, called for its side effects
 \description{
 Set search options for interactive use of orderly; see
 \link{orderly_dependency} and \link{orderly_run} for
-details. This may be either an \link{outpack_search_options}
+details. This may be either an \link{orderly_search_options}
 object, or a list that will be coerced into one at the point of
 use (or \code{NULL}). This applies only for the current session, but
 applies to all interactive uses of orderly functions that might

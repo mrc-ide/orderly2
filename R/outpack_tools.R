@@ -161,10 +161,11 @@
 ##'
 ##' @title Extract metadata from orderly2 packets
 ##'
-##' @param ... Arguments passed through to [outpack_search]. In the
-##'   special case where the first argument is a character vector of
-##'   ids *and* there are no named dot arguments, then we interpret
-##'   this argument as a vector of ids directly.
+##' @param ... Arguments passed through to
+##'   [orderly2::orderly_search]. In the special case where the first
+##'   argument is a character vector of ids *and* there are no named
+##'   dot arguments, then we interpret this argument as a vector of
+##'   ids directly.
 ##'
 ##' @param extract A character vector of columns to extract, possibly
 ##'   named. See Details for the format.
@@ -183,7 +184,7 @@ orderly_metadata_extract <- function(..., extract = NULL, root = NULL) {
   if (assume_ids) {
     ids <- ..1
   } else {
-    ids <- outpack_search(..., root = root)
+    ids <- orderly_search(..., root = root)
   }
   extract <- parse_extract(extract, environment())
 

@@ -255,14 +255,14 @@ orderly_dependency <- function(name, query, use) {
   ctx <- orderly_context()
   subquery <- NULL
   query <- orderly_query(query, name = name, subquery = subquery)
-  search_options <- as_outpack_search_options(ctx$search_options)
+  search_options <- as_orderly_search_options(ctx$search_options)
   if (ctx$is_active) {
     outpack_packet_use_dependency(ctx$packet, query, use,
                                   search_options = search_options,
                                   envir = ctx$env,
                                   overwrite = TRUE)
   } else {
-    id <- outpack_search(query, parameters = ctx$parameters,
+    id <- orderly_search(query, parameters = ctx$parameters,
                          envir = ctx$env,
                          options = search_options,
                          root = ctx$root)

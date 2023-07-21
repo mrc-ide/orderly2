@@ -7,10 +7,11 @@
 orderly_metadata_extract(..., extract = NULL, root = NULL)
 }
 \arguments{
-\item{...}{Arguments passed through to \link{outpack_search}. In the
-special case where the first argument is a character vector of
-ids \emph{and} there are no named dot arguments, then we interpret
-this argument as a vector of ids directly.}
+\item{...}{Arguments passed through to
+\link{orderly_search}. In the special case where the first
+argument is a character vector of ids \emph{and} there are no named
+dot arguments, then we interpret this argument as a vector of
+ids directly.}
 
 \item{extract}{A character vector of columns to extract, possibly
 named. See Details for the format.}

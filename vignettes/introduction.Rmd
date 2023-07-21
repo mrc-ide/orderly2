@@ -248,14 +248,14 @@ readRDS(file.path(dest, "random.rds"))
 You can use these parameters in orderly's search functions. For example we can find the most recent version of a packet by running:
 
 ```{r}
-orderly2::outpack_search('latest(name == "random")',
+orderly2::orderly_search('latest(name == "random")',
                          root = path)
 ```
 
 But we can also pass in parameter queries here:
 
 ```{r}
-orderly2::outpack_search('latest(name == "random" && parameter:n_samples > 10)',
+orderly2::orderly_search('latest(name == "random" && parameter:n_samples > 10)',
                          root = path)
 ```
 

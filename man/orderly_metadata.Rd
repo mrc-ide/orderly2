@@ -20,6 +20,6 @@ A list of metadata. See the outpack schema for details
 }
 \description{
 Read metadata for a particular id. You may want to use
-\link{outpack_search} to find an id corresponding to a
+\link{orderly_search} to find an id corresponding to a
 particular query.
 }

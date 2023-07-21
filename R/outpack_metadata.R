@@ -1,5 +1,5 @@
 ##' Read metadata for a particular id. You may want to use
-##' [orderly2::outpack_search] to find an id corresponding to a
+##' [orderly2::orderly_search] to find an id corresponding to a
 ##' particular query.
 ##'
 ##' @title Read outpack metadata
