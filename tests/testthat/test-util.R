@@ -259,3 +259,11 @@ test_that("prevent problematic string interpolations", {
                c(x = msg$message,
                  "i" = "Was interpolating string 'a/${f}'"))
 })
+
+
+test_that("fall back if gert does not support ignored files", {
+  mock_ns <- mockery::mock(identity, stop("not found"))
+  mockery::stub(gert_git_ignore_path_is_ignored, "getExportedValue", mock_ns)
+  expect_equal(gert_git_ignore_path_is_ignored(), identity)
+  expect_null(gert_git_ignore_path_is_ignored())
+})

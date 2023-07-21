@@ -2,6 +2,8 @@
 
 S3method(format,outpack_query)
 export(orderly_artefact)
+export(orderly_cleanup)
+export(orderly_cleanup_status)
 export(orderly_dependency)
 export(orderly_description)
 export(orderly_global_resource)

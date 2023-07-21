@@ -34,12 +34,8 @@ detect_orderly_interactive_path <- function(path = getwd()) {
 ##'   with [orderly2::orderly_dependency]; see of Details section of
 ##'   [orderly2::orderly_run].
 ##'
-##' @inheritParams orderly_run
-##'
 ##' @return Nothing, called for its side effects
 ##' @export
-orderly_interactive_set_search_options <- function(options = NULL,
-                                                   root = NULL,
-                                                   locate = TRUE) {
+orderly_interactive_set_search_options <- function(options = NULL) {
   .interactive$search_options <- options
 }

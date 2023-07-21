@@ -47,7 +47,7 @@ not_found_error <- function(message, data) {
 ## Also note that there might be 0, 1, or more urls depending on the
 ## way that the repo is configured; this feels ok really.
 git_info <- function(path) {
-  repo <- tryCatch(gert::git_open(path), error = function(e) NULL)
+  repo <- git_open(path)
   if (is.null(repo)) {
     return(NULL)
   }

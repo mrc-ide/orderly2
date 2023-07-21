@@ -4,25 +4,12 @@
 \alias{orderly_interactive_set_search_options}
 \title{Set search options for interactive use}
 \usage{
-orderly_interactive_set_search_options(
-  options = NULL,
-  root = NULL,
-  locate = TRUE
-)
+orderly_interactive_set_search_options(options = NULL)
 }
 \arguments{
 \item{options}{Optional control over locations, when used
 with \link{orderly_dependency}; see of Details section of
 \link{orderly_run}.}
-
-\item{root}{The path to an orderly root directory, or \code{NULL}
-(the default) to search for one from the current working
-directory if \code{locate} is \code{TRUE}.}
-
-\item{locate}{Logical, indicating if the configuration should be
-searched for.  If \code{TRUE} and \code{config} is not given,
-then orderly looks in the working directory and up through its
-parents until it finds an \code{.outpack} directory}
 }
 \value{
 Nothing, called for its side effects

@@ -87,6 +87,9 @@ orderly_read_r <- function(path) {
   if (length(dat$dependency) > 0) {
     ret$dependency <- drop_null(dat$dependency, empty = NULL)
   }
+  if (length(dat$global_resource) > 0) {
+    ret$global_resource <- unlist(dat$global_resource, FALSE, TRUE)
+  }
 
   ret
 }
