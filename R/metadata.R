@@ -243,7 +243,7 @@ static_orderly_artefact <- function(args) {
 ##'
 ##' @param use Files to use from the packet found by `query`, usually
 ##'   as a named character vector with string interpolation in the
-##'   names; see [orderly2::outpack_copy_files]' `file` argument for
+##'   names; see [orderly2::orderly_copy_files]' `file` argument for
 ##'   details.
 ##'
 ##' @return Undefined
@@ -266,7 +266,7 @@ orderly_dependency <- function(name, query, use) {
                          envir = ctx$env,
                          options = search_options,
                          root = ctx$root)
-    outpack_copy_files(id, use, ctx$path,
+    orderly_copy_files(id, use, ctx$path,
                        allow_remote = search_options$allow_remote,
                        overwrite = TRUE,
                        envir = ctx$env,
