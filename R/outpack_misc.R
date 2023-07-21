@@ -87,3 +87,35 @@ validate_parameters <- function(parameters) {
                  paste(squote(names(parameters)[!ok]), collapse = ", ")))
   }
 }
+
+
+validate_file_from_to <- function(x, environment,
+                                  name = deparse(substitute(x)),
+                                  call = NULL) {
+  ## Later, we can expand this to support a data.frame too perhaps?
+  if (is.character(x)) {
+    to <- names(x) %||% x
+    from <- unname(x)
+    if (any(i <- !nzchar(to))) {
+      to[i] <- from[i]
+    }
+  } else {
+    cli::cli_abort(
+      c(sprintf("Unexpected object type for '%s'", name),
+        x = sprintf("Given object of class %s", collapseq(class(x))),
+        i = "Expected a (named) character vector"),
+      call = call)
+  }
+
+  to_value <- string_interpolate_simple(to, environment, call)
+
+  if (any(duplicated(to_value))) {
+    dups <- unique(to_value[duplicated(to_value)])
+    cli::cli_abort(
+      c(sprintf("Every destination filename (in '%s') must be unique", name),
+        i = sprintf("Duplicate names: %s", collapseq(dups))),
+      call = call)
+  }
+
+  data_frame(from = from, to = to_value)
+}

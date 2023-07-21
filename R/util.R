@@ -388,3 +388,95 @@ check_symbol_from_str <- function(str, name) {
   }
   list(namespace = dat[[1]], symbol = dat[[2]])
 }
+
+
+collapseq <- function(x) {
+  paste(squote(x), collapse = ", ")
+}
+
+
+## There are so many ways of doing this, none of them are amazing; I
+## don't really want to use glue for this because it implies we can do
+## all the things that glue does within the string substitution, which
+## we can't do. Instead, we want something much much simpler that can
+## be used for constructing paths but is fairly intuitive.
+##
+## I've gone with a shell-expansion like ${var} syntax here. If this
+## is not suitable, users can always do their own substitutions.
+string_interpolate_simple <- function(x, environment, call = NULL) {
+  if (inherits(x, "AsIs") || !any(grepl("${", x, fixed = TRUE))) {
+    return(x)
+  }
+  vcapply(x, string_interpolate_simple1, environment, call, USE.NAMES = FALSE)
+}
+
+
+string_interpolate_simple1 <- function(x, environment, call) {
+  re <- "\\$\\{\\s*(.*?)\\s*\\}"
+
+  m <- gregexec(re, x)[[1L]]
+  if (length(m) == 1 && m < 0) {
+    return(x)
+  }
+
+  m_end <- m + attr(m, "match.length") - 1L
+  start <- m[1, ]
+  end <- m_end[1, ]
+  from <- substr(rep(x, ncol(m)), m[1, ], m_end[1, ])
+  to <- substr(rep(x, ncol(m)), m[2, ], m_end[2, ])
+
+  to_value <- lapply(to, function(el) {
+    value <- tryCatch(
+      get(el, environment),
+      error = function(e) {
+        cli::cli_abort(
+          c(sprintf("Failed to find value for '%s'", el),
+            i = sprintf("Was interpolating string '%s'", quote_braces(x))),
+          call = call)
+      })
+    tryCatch(
+      as.character(value),
+      error = function(e) {
+        cli::cli_abort(
+          c(sprintf("Failed to convert '%s' to character", el),
+            x = quote_braces(e$message),
+            i = sprintf("Was interpolating string '%s'", quote_braces(x))),
+          call = call)
+      })
+  })
+
+  if (any(err <- lengths(to_value) != 1)) {
+    msg <- sprintf("Failed when retrieving '%s' which has length %d",
+                   quote_braces(to[err]), lengths(to_value)[err])
+    cli::cli_abort(
+      c("Failed to convert string interpolation variable to string",
+        set_names(msg, rep("x", length(msg))),
+        i = sprintf("Was interpolating string '%s'", quote_braces(x)),
+        i = "All values in ${{...} must refer to strings"),
+      call = call)
+  }
+
+  to_value <- list_to_character(to_value)
+  if (any(err <- grepl(re, to_value))) {
+    msg <- sprintf("Tried to substitute '%s' to '%s'",
+                   quote_braces(from[err]),
+                   quote_braces(to_value[err]))
+    cli::cli_abort(
+      c("Can't perform recursive string interpolation",
+        set_names(msg, rep("x", length(msg))),
+        i = sprintf("Was interpolating string '%s'", quote_braces(x)),
+        i = "Don't use '${{...}' within the values you are substituting to"),
+      call = call)
+  }
+
+  for (i in seq_along(start)) {
+    x <- sub(from[[i]], to_value[[i]], x, fixed = TRUE)
+  }
+
+  x
+}
+
+
+quote_braces <- function(x) {
+  gsub("{", "{{", x, fixed = TRUE)
+}

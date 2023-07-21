@@ -13,10 +13,10 @@ orderly_dependency(name, query, use)
 the string \code{latest}, indicating the most recent version. You may
 want a more complex query here though.}
 
-\item{use}{A named character vector of filenames to copy from the
-upstream packet. The name corresponds to the destination name,
-so c(here.csv = "there.csv") will take the upstream file
-\code{there.csv} and copy it over as \code{here.csv}.}
+\item{use}{Files to use from the packet found by \code{query}, usually
+as a named character vector with string interpolation in the
+names; see \link{outpack_packet_use_dependency}'s \code{file}
+argument for details.}
 }
 \value{
 Undefined

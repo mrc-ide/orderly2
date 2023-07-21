@@ -190,3 +190,72 @@ test_that("can check two vars are of same type", {
   expect_false(is_same_type(1, "TRUE"))
   expect_false(is_same_type(TRUE, "TRUE"))
 })
+
+
+test_that("can perform simple string interpolation", {
+  env <- list2env(list(a = 1, b = "banana", c = "carrot"),
+                  parent = emptyenv())
+
+  expect_equal(string_interpolate_simple("hello", env), "hello")
+  expect_equal(string_interpolate_simple("${hello", env), "${hello")
+  expect_equal(string_interpolate_simple("a ${b} c", env),
+               "a banana c")
+  expect_equal(string_interpolate_simple("a ${b} ${c}", env),
+               "a banana carrot")
+  expect_equal(string_interpolate_simple("a ${b} ${ b }", env),
+               "a banana banana")
+
+  expect_equal(string_interpolate_simple(
+    c("${a}/${b}", "${a}/${c}"), env),
+    c("1/banana", "1/carrot"))
+  expect_equal(string_interpolate_simple(
+    I(c("${a}/${b}", "${a}/${c}")), env),
+    I(c("${a}/${b}", "${a}/${c}")))
+})
+
+
+test_that("prevent problematic string interpolations", {
+  env <- list2env(list(a = NULL, b = "${a}", c = letters, d = "${d}", f = args),
+                  parent = emptyenv())
+
+  err <- expect_error(
+    string_interpolate_simple("a/${b}/c", env),
+    "Can't perform recursive string interpolation")
+  expect_equal(
+    err$body,
+    c(x = "Tried to substitute '${b}' to '${a}'",
+      i = "Was interpolating string 'a/${b}/c'",
+      i = "Don't use '${...}' within the values you are substituting to"))
+
+  err <- expect_error(
+    string_interpolate_simple("a/${b}/${d}", env),
+    "Can't perform recursive string interpolation")
+  expect_equal(
+    err$body,
+    c(x = "Tried to substitute '${b}' to '${a}'",
+      x = "Tried to substitute '${d}' to '${d}'",
+      i = "Was interpolating string 'a/${b}/${d}'",
+      i = "Don't use '${...}' within the values you are substituting to"))
+
+  err <- expect_error(
+    string_interpolate_simple("a/${a}", env),
+    "Failed to convert string interpolation variable to string")
+  expect_equal(
+    err$body,
+    c(x = "Failed when retrieving 'a' which has length 0",
+      i = "Was interpolating string 'a/${a}'",
+      i = "All values in ${...} must refer to strings"))
+
+  err <- expect_error(
+    string_interpolate_simple("a/${x}", env),
+    "Failed to find value for 'x'")
+  expect_equal(err$body, c("i" = "Was interpolating string 'a/${x}'"))
+
+  err <- expect_error(
+    string_interpolate_simple("a/${f}", env),
+    "Failed to convert 'f' to character")
+  msg <- tryCatch(as.character(args), error = identity)
+  expect_equal(err$body,
+               c(x = msg$message,
+                 "i" = "Was interpolating string 'a/${f}'"))
+})

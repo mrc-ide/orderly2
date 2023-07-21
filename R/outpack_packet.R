@@ -250,31 +250,50 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##' @param query An [orderly2::outpack_query] object, or something
 ##'   (e.g., a string) that can be trivially converted into one.
 ##'
-##' @param files A named character vector of files; the name
-##'   corresponds to the name within the current packet, while the
-##'   value corresponds to the name within the upstream packet. If you
-##'   want to import a directory of files from a packet, you must
-##'   refer to the source with a trailing slash (e.g., `c(here =
-##'   "there/")`), which will create the local directory `here/...`
-##'   with files from the upstream packet directory `there/`. If you
-##'   omit the slash then an error will be thrown suggesting that you
-##'   add a slash if this is what you intended.
+##' @param files Files to copy from the other packet. This can be (1)
+##'   a character vector, in which case files are copied over without
+##'   changing their names, (2) a **named** character vector, in which
+##'   case the name will be used as the destination name, or (3) a
+##'   [data.frame] (including `tbl_df`, or `data.frame` objects)
+##'   containing columns `from` and `to`, in which case the files
+##'   `from` will be copied with names `to`.
+##'
+##' In all cases, if you want to import a directory of files from a
+##'   packet, you must refer to the source with a trailing slash
+##'   (e.g., `c(here = "there/")`), which will create the local
+##'   directory `here/...` with files from the upstream packet
+##'   directory `there/`. If you omit the slash then an error will be
+##'   thrown suggesting that you add a slash if this is what you
+##'   intended.
+##'
+##' You can use a limited form of string interpolation in the names of
+##'   this argument; using `${variable}` will pick up values from
+##'   `envir` and substitute them into your string.  This is similar
+##'   to the interpolation you might be familiar with from
+##'   `glue::glue` or similar, but much simpler with no concatenation
+##'   or other fancy features supported.
+##'
+##' Note that there is an unfortunate, but (to us) avoidable
+##'   inconsistency here; interpolation of values from your
+##'   environment in the query is done by using `environment:x` and in
+##'   the destination filename by doing `${x}`.
 ##'
 ##' @param search_options Optional search options for restricting the
 ##'   search (see [orderly2::outpack_search] for details)
 ##'
-##' @param envir Optional environment for `environment:` lookups; the
-##'   default is to use the parent frame, but other suitable options
-##'   are the global environment or the environment of the script you
-##'   are running (this only relevant if you have `environment:`
-##'   lookups in `query`).
+##' @param envir Optional environment for `environment:` lookups in
+##'   `query`, and for interpolating filenames in `files`; the default
+##'   is to use the parent frame, but other suitable options are the
+##'   global environment or the environment of the script you are
+##'   running (this only relevant if you have `environment:` lookups
+##'   in `query`).
 ##'
 ##' @param overwrite Overwrite files at the destination; this is
 ##'   typically what you want, but set to `FALSE` if you would prefer
 ##'   that an error be thrown if the destination file already exists.
 outpack_packet_use_dependency <- function(packet, query, files,
-                                          search_options = NULL,
                                           envir = parent.frame(),
+                                          search_options = NULL,
                                           overwrite = TRUE) {
   packet <- check_current_packet(packet)
   query <- as_outpack_query(query)
@@ -314,6 +333,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
   result <- outpack_copy_files(id, files, packet$path,
                                allow_remote = search_options$allow_remote,
                                overwrite = overwrite,
+                               envir = envir,
                                root = packet$root)
 
   query_str <- deparse_query(query$value$expr,
