@@ -282,7 +282,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   search (see [orderly2::outpack_search] for details)
 ##'
 ##' @param envir Optional environment for `environment:` lookups in
-##'   `query`, and for interpolating filenames in `files; the default
+##'   `query`, and for interpolating filenames in `files`; the default
 ##'   is to use the parent frame, but other suitable options are the
 ##'   global environment or the environment of the script you are
 ##'   running (this only relevant if you have `environment:` lookups

@@ -80,7 +80,11 @@ relative path).  This function can be safely called multiple
 times within a single packet run (or zero times!) as needed.}
 
 \item{envir}{Optional environment for \verb{environment:} lookups in
-\code{query}, and for interpolating filenames in \verb{files; the default is to use the parent frame, but other suitable options are the global environment or the environment of the script you are running (this only relevant if you have }environment:\verb{lookups in}query`).}
+\code{query}, and for interpolating filenames in \code{files}; the default
+is to use the parent frame, but other suitable options are the
+global environment or the environment of the script you are
+running (this only relevant if you have \verb{environment:} lookups
+in \code{query}).}
 
 \item{query}{An \link{outpack_query} object, or something
 (e.g., a string) that can be trivially converted into one.}
