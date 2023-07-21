@@ -4,7 +4,7 @@ test_that("can extract simple data", {
     create_random_packet(root, parameters = list(i = i))
   })
 
-  d <- outpack_metadata_extract('name == "data"', root = root)
+  d <- orderly_metadata_extract('name == "data"', root = root)
   expect_setequal(names(d), c("id", "name", "parameters"))
   expect_equal(d$id, ids)
   expect_equal(d$name, rep("data", 5))
@@ -17,16 +17,16 @@ test_that("can extract from parameters", {
   ids <- vcapply(1:5, function(i) {
     create_random_packet(root, parameters = list(i = i))
   })
-  meta <- lapply(ids, outpack_metadata, root = root)
+  meta <- lapply(ids, orderly_metadata, root = root)
 
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = c(i = "parameters.i"),
                                 root = root)
   expect_setequal(names(d), c("id", "i"))
   expect_equal(d$id, ids)
   expect_equal(d$i, I(as.list(1:5)))
 
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = c(i = "parameters.i is number"),
                                 root = root)
   expect_setequal(names(d), c("id", "i"))
@@ -42,7 +42,7 @@ test_that("raise sensible error on type assertion failure", {
   })
 
   err <- expect_error(
-    outpack_metadata_extract('name == "data"', root = root,
+    orderly_metadata_extract('name == "data"', root = root,
                              extract = c(i = "parameters.i is string")),
     "Expected all values of 'parameters.i' to be strings (or NULL)",
     fixed = TRUE)
@@ -59,9 +59,9 @@ test_that("can extract from time", {
   ids <- vcapply(1:5, function(i) {
     create_random_packet(root, parameters = list(i = i))
   })
-  meta <- lapply(ids, outpack_metadata, root = root)
+  meta <- lapply(ids, orderly_metadata, root = root)
 
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = c("name", "time"),
                                 root = root)
   expect_setequal(names(d), c("id", "name", "time"))
@@ -69,7 +69,7 @@ test_that("can extract from time", {
   expect_equal(d$name, rep("data", 5))
   expect_equal(d$time, I(lapply(meta, "[[", "time")))
 
-  d <- outpack_metadata_extract(
+  d <- orderly_metadata_extract(
     'name == "data"',
     extract = c(start = "time.start", end = "time.end"),
     root = root)
@@ -87,16 +87,16 @@ test_that("can extract files metadata", {
     create_random_packet(root, parameters = list(i = i))
   })
 
-  meta <- lapply(ids, outpack_metadata, root = root)
+  meta <- lapply(ids, orderly_metadata, root = root)
 
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = "files",
                                 root = root)
   expect_setequal(names(d), c("id", "files"))
   expect_equal(d$id, ids)
   expect_equal(d$files, I(lapply(meta, "[[", "files")))
 
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = c("files" = "files.path"),
                                 root = root)
   expect_setequal(names(d), c("id", "files"))
@@ -119,12 +119,12 @@ test_that("can extract git metadata", {
 
   meta <- outpack_root_open(root$path)$metadata(id, TRUE)
 
-  d <- outpack_metadata_extract('name == "example"',
+  d <- orderly_metadata_extract('name == "example"',
                                 extract = "git",
                                 root = root)
   expect_equal(d$git, I(list(meta$git)))
 
-  d <- outpack_metadata_extract('name == "example"',
+  d <- orderly_metadata_extract('name == "example"',
                                 extract = "git.sha",
                                 root = root)
   expect_equal(d$git_sha, meta$git$sha)
@@ -138,12 +138,12 @@ test_that("fill in types for git data when missing", {
     create_random_packet(root, parameters = list(i = i))
   })
 
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = "git",
                                 root = root)
   expect_equal(d$git, I(vector("list", 5)))
 
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = "git.sha",
                                 root = root)
   expect_equal(d$git_sha, rep(NA_character_, 5))
@@ -159,23 +159,23 @@ test_that("can extract orderly metadata", {
   })
 
   expect_equal(
-    outpack_metadata_extract('name == "parameters"', extract = "script",
+    orderly_metadata_extract('name == "parameters"', extract = "script",
                              root = path)$script,
     I(as.list(rep("orderly.R", 3))))
   expect_equal(
-    outpack_metadata_extract('name == "parameters"',
+    orderly_metadata_extract('name == "parameters"',
                              extract = c(script = "script is string"),
                              root = path)$script,
     rep("orderly.R", 3))
 
   id_extra <- create_random_packet(path, "parameters")
   expect_equal(
-    outpack_metadata_extract('name == "parameters"', extract = "script",
+    orderly_metadata_extract('name == "parameters"', extract = "script",
                              root = path)$script,
     I(list("orderly.R", "orderly.R", "orderly.R", character())))
 
   err <- expect_error(
-    outpack_metadata_extract('name == "parameters"',
+    orderly_metadata_extract('name == "parameters"',
                              extract = c(script = "script is string"),
                              root = path)$script,
     "Expected all values of 'script' to evaluate to a scalar (if not NULL)",
@@ -191,7 +191,7 @@ test_that("can extract orderly custom metadata", {
   env <- new.env()
   id <- orderly_run("description", root = path, envir = env)
   root <- orderly_root(path, FALSE)
-  d <- outpack_metadata_extract(
+  d <- orderly_metadata_extract(
     'name == "description"',
     extract = c(display = "custom.orderly.description.display is string"),
     root = path)
@@ -206,14 +206,14 @@ test_that("can extract session metadata", {
     orderly_run("parameters", root = path, envir = env,
                 parameters = list(a = i, b = 20, c = 30))
   })
-  meta <- lapply(ids, outpack_metadata, root = path)
+  meta <- lapply(ids, orderly_metadata, root = path)
 
-  d <- outpack_metadata_extract('name == "parameters"',
+  d <- orderly_metadata_extract('name == "parameters"',
                                 extract = "session",
                                 root = path)
   expect_equal(d$session, I(lapply(meta, "[[", "session")))
 
-  d <- outpack_metadata_extract(
+  d <- orderly_metadata_extract(
     'name == "parameters"',
     extract = c(version = "session.platform.version is string"),
     root = path)
@@ -231,8 +231,8 @@ test_that("can pass a vector of ids through", {
   })
 
   expect_identical(
-    outpack_metadata_extract(ids, root = root),
-    outpack_metadata_extract('name == "data"', root = root))
+    orderly_metadata_extract(ids, root = root),
+    orderly_metadata_extract('name == "data"', root = root))
 })
 
 
@@ -311,12 +311,12 @@ test_that("sensible behaviour if extracting nonsense", {
   ids <- vcapply(1:5, function(i) {
     create_random_packet(root, parameters = list(i = i))
   })
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = c(a = "a.b.c.d"),
                                 root = root)
   expect_equal(d$a, I(vector("list", 5)))
 
-  d <- outpack_metadata_extract('name == "data"',
+  d <- orderly_metadata_extract('name == "data"',
                                 extract = c(a = "a.b.c.d is string"),
                                 root = root)
   expect_equal(d$a, rep(NA_character_, 5))

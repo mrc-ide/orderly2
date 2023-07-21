@@ -11,7 +11,7 @@
 ##' another will not have a dependency section, and one that was run
 ##' in a context without git will not have git metadata). If you just
 ##' want the raw tree-structured data, you can always use
-##' [orderly2::outpack_metadata] to load the full metadata for any
+##' [orderly2::orderly_metadata] to load the full metadata for any
 ##' packet (even one that is not currently available on your computer,
 ##' just known about it) and the structure of the data will remain
 ##' fairly constant across orderly2 versions.
@@ -31,7 +31,7 @@
 ##' ...but being able to answer these questions requires a similar
 ##' approach to interrogating metadata across a range of packets.
 ##'
-##' The `outpack_metadata_extract` function aims to simplify the
+##' The `orderly_metadata_extract` function aims to simplify the
 ##' process of pulling out bits of metadata and arranging it into a
 ##' `data.frame` (of sorts) for you.  It has a little mini-language in
 ##' the `extract` argument for doing some simple rewriting of results,
@@ -119,7 +119,7 @@
 ##' ```
 ##'
 ##' to create an numeric column. If any packet has a value of `x` that
-##' is non-integer, your call to `outpack_metadata_extract` will fail
+##' is non-integer, your call to `orderly_metadata_extract` will fail
 ##' with an error, and if a packet lacks a value of `x`, a missing
 ##' value of the appropriate type will be added.
 ##'
@@ -177,7 +177,7 @@
 ##'   names of `extract`; see Details for more information.
 ##'
 ##' @export
-outpack_metadata_extract <- function(..., extract = NULL, root = NULL) {
+orderly_metadata_extract <- function(..., extract = NULL, root = NULL) {
   root <- outpack_root_open(root, locate = TRUE)
   assume_ids <- ...length() == 1 && is.null(...names()) && is.character(..1) &&
     all(grepl(re_id, ..1))

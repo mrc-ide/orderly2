@@ -62,15 +62,15 @@ test_that("reading metadata via top-level function is same as from root", {
   id <- create_random_packet(root)
   meta <- root$metadata(id, TRUE)
   expect_identical(
-    outpack_metadata_read(file.path(root$path, ".outpack", "metadata", id)),
+    orderly_metadata_read(file.path(root$path, ".outpack", "metadata", id)),
     meta)
-  expect_identical(outpack_metadata(id, root), meta)
+  expect_identical(orderly_metadata(id, root), meta)
 })
 
 
 test_that("Sensible error if metadata file not found", {
   expect_error(
-    outpack_metadata_read(tempfile()),
+    orderly_metadata_read(tempfile()),
     "File does not exist: ")
 })
 
@@ -78,15 +78,15 @@ test_that("Sensible error if metadata file not found", {
 test_that("Sensible error if metadata file not found", {
   root <- create_temporary_root(use_file_store = TRUE)
   expect_error(
-    outpack_metadata(1, root),
+    orderly_metadata(1, root),
     "'id' must be character")
   expect_error(
-    outpack_metadata(letters, root),
+    orderly_metadata(letters, root),
     "'id' must be a scalar")
   expect_error(
-    outpack_metadata("some-id", root),
+    orderly_metadata("some-id", root),
     "Malformed id 'some-id'")
   expect_error(
-    outpack_metadata(outpack_id(), root),
+    orderly_metadata(outpack_id(), root),
     "id '.+' not found in index")
 })
