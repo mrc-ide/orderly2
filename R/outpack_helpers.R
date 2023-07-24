@@ -117,7 +117,8 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
       if (!as_orderly_search_options(options)$allow_remote) {
         stop(paste0(
           "Unable to copy files, as they are not available locally\n",
-          "To fetch from a location, try again with 'allow_remote = TRUE'\n",
+          "To fetch from a location, try again with",
+          "  'options = list(allow_remote = TRUE)'\n",
           "Original error:\n", e$message),
           call. = FALSE)
       }
