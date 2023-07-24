@@ -237,15 +237,15 @@ test_that("can validate global resource arguments", {
 
 test_that("can't use global resources if not enabled", {
   path <- test_prepare_orderly_example("global")
-  writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
+  unlink(file.path(path, "global"), recursive = TRUE)
   env <- new.env()
   path_src <- file.path(path, "src", "global")
   err <- expect_error(
     orderly_run("global", root = path, envir = env),
-    "'global_resources' is not supported; please edit orderly_config.yml")
+    "The global resources directory 'global' does not exist at orderly's root")
   expect_error(
     withr::with_dir(path_src, sys.source("orderly.R", env)),
-    "'global_resources' is not supported; please edit orderly_config.yml")
+    "The global resources directory 'global' does not exist at orderly's root")
 })
 
 

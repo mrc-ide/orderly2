@@ -67,18 +67,3 @@ test_that("can turn an outpack root into an orderly one", {
   expect_equal(root2$config,
                list(minimum_orderly_version = numeric_version("1.99.0")))
 })
-
-
-test_that("Can validate global resources", {
-  tmp <- tempfile()
-  on.exit(unlink(tmp, recursive = TRUE))
-  root <- orderly_init(tmp, logging_console = FALSE)
-  writeLines(c(empty_config_contents(),
-               "global_resources: global"),
-             file.path(tmp, "orderly_config.yml"))
-  expect_error(orderly_config(tmp),
-               "Global resource directory does not exist: 'global'")
-  dir.create(file.path(tmp, "global"))
-  cfg <- orderly_config(tmp)
-  expect_equal(cfg$global_resources, "global")
-})
