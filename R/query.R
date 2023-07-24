@@ -49,6 +49,12 @@ orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
 }
 
 
+dots_is_literal_id <- function(...) {
+  ...length() == 1 && is.null(...names()) && is.character(..1) &&
+    all(grepl(re_id, ..1))
+}
+
+
 as_orderly_query <- function(expr, ...) {
   if (missing(expr)) {
     expr <- NULL

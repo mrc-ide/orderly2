@@ -2,7 +2,8 @@ test_that("can copy files from outpack", {
   root <- create_temporary_root(use_file_store = TRUE)
   id <- create_random_packet(root)
   dst <- temp_file()
-  orderly_copy_files(id, c("incoming.rds" = "data.rds"), dst, root = root)
+  orderly_copy_files(id, files = c("incoming.rds" = "data.rds"), dest = dst,
+                     root = root)
   expect_equal(dir(dst), "incoming.rds")
   expect_identical(
     readRDS(file.path(dst, "incoming.rds")),
@@ -18,16 +19,18 @@ test_that("can copy files from location, using store", {
 
   tmp <- withr::local_tempdir()
   expect_error(
-    orderly_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
+    orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
+                       root = here),
     "id '.+' not found in index")
   outpack_location_pull_metadata(root = here)
 
   expect_error(
-    orderly_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
+    orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
+                       root = here),
     "Unable to copy files, as they are not available locally")
 
-  orderly_copy_files(id, c("data.rds" = "data.rds"), tmp,
-                     allow_remote = TRUE, root = here)
+  orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
+                     options = list(allow_remote = TRUE), root = here)
   expect_equal(dir(tmp), "data.rds")
 
   meta <- there$metadata(id)
@@ -46,11 +49,12 @@ test_that("can copy files from location, using archive", {
   tmp <- withr::local_tempdir()
   outpack_location_pull_metadata(root = here)
   expect_error(
-    orderly_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
+    orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
+                       root = here),
     "Unable to copy files, as they are not available locally")
 
-  orderly_copy_files(id, c("data.rds" = "data.rds"), tmp,
-                     allow_remote = TRUE, root = here)
+  orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
+                     options = list(allow_remote = TRUE), root = here)
   expect_equal(dir(tmp), "data.rds")
 
   meta <- there$metadata(id)
@@ -66,11 +70,45 @@ test_that("can interpolate filenames in copy", {
   ## Some bindings to force lookup:
   path <- "a"
   file <- "b"
-  orderly_copy_files(id, c("${path}/${file}.rds" = "data.rds"),
-                     dst, root = root)
+  orderly_copy_files(id, files = c("${path}/${file}.rds" = "data.rds"),
+                     dest = dst, root = root)
   expect_equal(dir(dst), "a")
   expect_equal(dir(file.path(dst, "a")), "b.rds")
   expect_identical(
     readRDS(file.path(dst, "a", "b.rds")),
     readRDS(file.path(root$path, "archive", "data", id, "data.rds")))
+})
+
+
+test_that("require a single id for search", {
+  dst <- withr::local_tempdir()
+  root <- create_temporary_root(use_file_store = TRUE)
+  ids <- replicate(3, outpack_id())
+  expect_error(
+    orderly_copy_files(ids, files = c(here = "there"), dest = dst, root = root),
+    "Expected a length 1 value for first argument if id (not 3)",
+    fixed = TRUE)
+  expect_error(
+    orderly_copy_files(character(), files = c(here = "there"), dest = dst,
+                       root = root),
+    "Expected a length 1 value for first argument if id (not 0)",
+    fixed = TRUE)
+})
+
+
+test_that("require a single id for search", {
+  dst <- withr::local_tempdir()
+  root <- create_temporary_root(use_file_store = TRUE)
+  ids <- vcapply(1:3, function(i) create_random_packet(root))
+  err <- expect_error(
+    orderly_copy_files(name = "data", files = c(here = "there"),
+                       dest = dst, root = root),
+    "Query returned 3 results, expected a single result")
+  expect_equal(err$body, c(i = "Did you forget latest()?"))
+
+  err <- expect_error(
+    orderly_copy_files(name = "missing", files = c(here = "there"),
+                       dest = dst, root = root),
+    "Query returned 0 results")
+  expect_null(err$body)
 })

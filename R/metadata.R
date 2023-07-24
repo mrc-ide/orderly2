@@ -262,15 +262,9 @@ orderly_dependency <- function(name, query, use) {
                                   envir = ctx$env,
                                   overwrite = TRUE)
   } else {
-    id <- orderly_search(query, parameters = ctx$parameters,
-                         envir = ctx$env,
-                         options = search_options,
-                         root = ctx$root)
-    orderly_copy_files(id, use, ctx$path,
-                       allow_remote = search_options$allow_remote,
-                       overwrite = TRUE,
-                       envir = ctx$env,
-                       root = ctx$root)
+    orderly_copy_files(query, files = use, dest = ctx$path, overwrite = TRUE,
+                       parameters = ctx$parameters, options = search_options,
+                       envir = ctx$env, root = ctx$root)
   }
 
   invisible()

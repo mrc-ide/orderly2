@@ -180,9 +180,7 @@ orderly_metadata_extract <- function(..., extract = NULL, root = NULL,
                                      locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  assume_ids <- ...length() == 1 && is.null(...names()) && is.character(..1) &&
-    all(grepl(re_id, ..1))
-  if (assume_ids) {
+  if (dots_is_literal_id(...)) {
     ids <- ..1
   } else {
     ids <- orderly_search(..., root = root)

@@ -872,7 +872,7 @@ test_that("can pull in directories", {
   id <- p1$id
 
   dest <- withr::local_tempdir()
-  orderly_copy_files(id, c(d = "data/"), dest, root = root)
+  orderly_copy_files(id, files = c(d = "data/"), dest = dest, root = root)
   expect_equal(dir(dest), "d")
   expect_equal(dir(file.path(dest, "d")), letters[1:6])
 
@@ -903,7 +903,7 @@ test_that("exporting directories reports on trailing slashes being missing", {
 
   dest <- withr::local_tempdir()
   expect_error(
-    orderly_copy_files(id, c(d = "data"), dest, root = root),
+    orderly_copy_files(id, files = c(d = "data"), dest = dest, root = root),
     err)
 
   path_src2 <- withr::local_tempdir()
