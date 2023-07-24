@@ -78,7 +78,7 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
     schema <- paste(readLines(schema), collapse = "\n")
     class(schema) <- "json"
   }
-  if (!is.null(serialise)) {
+  if (is.null(serialise)) {
     serialise <- plugin_no_serialise
   }
   assert_is(cleanup, "function")

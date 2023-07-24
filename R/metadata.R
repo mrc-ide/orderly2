@@ -174,7 +174,7 @@ orderly_resource <- function(files) {
 
 
 static_orderly_resource <- function(args) {
-  list(files = static_character_vector(args$files))
+  list(files = static_character_vector(args$files, FALSE))
 }
 
 
@@ -219,8 +219,8 @@ orderly_artefact <- function(description, files) {
 
 
 static_orderly_artefact <- function(args) {
-  list(description = static_character_vector(args$description),
-       files = static_character_vector(args$files))
+  list(description = static_character_vector(args$description, FALSE),
+       files = static_character_vector(args$files, FALSE))
 }
 
 
