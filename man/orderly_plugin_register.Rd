@@ -4,13 +4,7 @@
 \alias{orderly_plugin_register}
 \title{Register an orderly plugin}
 \usage{
-orderly_plugin_register(
-  name,
-  config,
-  serialise = NULL,
-  cleanup = NULL,
-  schema = NULL
-)
+orderly_plugin_register(name, config, serialise, cleanup = NULL, schema = NULL)
 }
 \arguments{
 \item{name}{The name of the plugin, typically the package name}
@@ -30,9 +24,7 @@ list of all entries pushed in via
 \code{\link[=orderly_plugin_add_metadata]{orderly_plugin_add_metadata()}}; this is a named
 list with names corresponding to the \code{field} argument to
 \code{orderly_plugin_add_metadata} and each list element being an
-unnamed list with values corresponding to \code{data}. If \code{NULL},
-then no serialisation is done, and no metadata from your plugin
-will be added.}
+unnamed list with values corresponding to \code{data}.}
 
 \item{cleanup}{Optionally, a function to clean up any state that
 your plugin uses. You can call \code{orderly_plugin_context} from
