@@ -241,14 +241,11 @@ static_orderly_artefact <- function(args) {
 ##'   the string `latest`, indicating the most recent version. You may
 ##'   want a more complex query here though.
 ##'
-##' @param use Files to use from the packet found by `query`, usually
-##'   as a named character vector with string interpolation in the
-##'   names; see [orderly2::orderly_copy_files]' `file` argument for
-##'   details.
+##' @inheritParams orderly_copy_files
 ##'
 ##' @return Undefined
 ##' @export
-orderly_dependency <- function(name, query, use) {
+orderly_dependency <- function(name, query, files) {
   assert_scalar_character(name)
   assert_scalar_character(query)
 
@@ -257,12 +254,12 @@ orderly_dependency <- function(name, query, use) {
   query <- orderly_query(query, name = name, subquery = subquery)
   search_options <- as_orderly_search_options(ctx$search_options)
   if (ctx$is_active) {
-    outpack_packet_use_dependency(ctx$packet, query, use,
+    outpack_packet_use_dependency(ctx$packet, query, files,
                                   search_options = search_options,
                                   envir = ctx$env,
                                   overwrite = TRUE)
   } else {
-    orderly_copy_files(query, files = use, dest = ctx$path, overwrite = TRUE,
+    orderly_copy_files(query, files = files, dest = ctx$path, overwrite = TRUE,
                        parameters = ctx$parameters, options = search_options,
                        envir = ctx$env, root = ctx$root)
   }
@@ -274,18 +271,18 @@ orderly_dependency <- function(name, query, use) {
 static_orderly_dependency <- function(args) {
   name <- args$name
   query <- args$query
-  use <- args$use
+  files <- args$files
 
   name <- static_string(name)
-  use <- static_character_vector(use, TRUE)
+  files <- static_character_vector(files, TRUE)
   ## TODO: allow passing expressions directly in, that will be much
   ## nicer, but possibly needs some care as we do want a consistent
   ## approach to NSE here
   query <- static_string(query)
-  if (is.null(name) || is.null(use) || is.null(query)) {
+  if (is.null(name) || is.null(files) || is.null(query)) {
     return(NULL)
   }
-  list(name = name, query = query, use = use)
+  list(name = name, query = query, files = files)
 }
 
 
