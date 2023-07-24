@@ -124,3 +124,38 @@ test_that("run cleanup on exit", {
   expect_equal(
     mockery::mock_args(.plugins$example.random$cleanup)[[1]], list())
 })
+
+
+test_that("validate that plugins make sense", {
+  config <- function(...) "config"
+  serialise <- function(...) "serialise"
+  cleanup <- function(...) "cleanup"
+  schema <- withr::local_tempfile()
+  writeLines("{}", schema)
+
+  p <- orderly_plugin(config, NULL, NULL, NULL)
+  expect_identical(p$config, config)
+  expect_identical(p$serialise, plugin_no_serialise)
+  expect_identical(p$cleanup, plugin_no_cleanup)
+  expect_null(p$schema)
+
+  p <- orderly_plugin(config, serialise, cleanup, schema)
+  expect_identical(p$config, config)
+  expect_identical(p$serialise, serialise)
+  expect_identical(p$cleanup, cleanup)
+  expect_identical(p$schema, structure("{}", class = "json"))
+
+  expect_error(
+    orderly_plugin(config, NULL, NULL, schema),
+    "If 'schema' is given, then 'serialise' must be non-NULL")
+})
+
+
+test_that("default serialise errors if metadata found", {
+  js_null <- to_json(NULL, NULL)
+  expect_equal(plugin_no_serialise(NULL), js_null)
+  expect_equal(plugin_no_serialise(list(a = NULL, b = NULL)), js_null)
+  expect_error(
+    plugin_no_serialise(list(a = 1, b = 2)),
+    "Your plugin produced output to be serialise but has no serialise method")
+})
