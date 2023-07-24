@@ -17,8 +17,7 @@ orderly_config_yml_read <- function(path) {
 
   check <- list(
     minimum_orderly_version = orderly_config_validate_minimum_orderly_version,
-    plugins = orderly_config_validate_plugins,
-    global_resources = orderly_config_validate_global_resources)
+    plugins = orderly_config_validate_plugins)
 
   required <- "minimum_orderly_version"
   optional <- setdiff(names(check), required)
@@ -48,15 +47,6 @@ orderly_config_validate_minimum_orderly_version <- function(value, filename) {
       version, current_orderly_version()))
   }
   version
-}
-
-
-orderly_config_validate_global_resources <- function(global_resources,
-                                                     filename) {
-  if (!is.null(global_resources)) {
-    assert_is_directory(global_resources, name = "Global resource directory")
-    global_resources
-  }
 }
 
 
