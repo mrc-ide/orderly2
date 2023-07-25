@@ -152,7 +152,6 @@ outpack_metadata_load <- function(json) {
   }
 
   data <- jsonlite::parse_json(json)
-  ## data$hash <- hash_data(json, "sha256")
   data$files <- data_frame(path = vcapply(data$files, "[[", "path"),
                            size = vnapply(data$files, "[[", "size"),
                            hash = vcapply(data$files, "[[", "hash"))
