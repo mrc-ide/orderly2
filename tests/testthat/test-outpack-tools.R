@@ -151,37 +151,28 @@ test_that("fill in types for git data when missing", {
 
 
 test_that("can extract orderly metadata", {
-  path <- test_prepare_orderly_example("parameters")
+  path <- test_prepare_orderly_example(c("parameters", "description"))
   env <- new.env()
-  ids <- vcapply(1:3, function(i) {
+  ids1 <- vcapply(1:3, function(i) {
     orderly_run("parameters", root = path, envir = env,
                 parameters = list(a = i, b = 20, c = 30))
   })
+  ids2 <- vcapply(1:2, function(i) {
+    orderly_run("description", root = path, envir = env)
+  })
 
   expect_equal(
-    outpack_metadata_extract('name == "parameters"', extract = "script",
-                             root = path)$script,
-    I(as.list(rep("orderly.R", 3))))
+    outpack_metadata_extract(
+      NULL,
+      extract = c(display = "custom.orderly.description.display"),
+      root = path)$display,
+    I(as.list(rep(list(NULL, "Packet with description"), c(3, 2)))))
   expect_equal(
-    outpack_metadata_extract('name == "parameters"',
-                             extract = c(script = "script is string"),
-                             root = path)$script,
-    rep("orderly.R", 3))
-
-  id_extra <- create_random_packet(path, "parameters")
-  expect_equal(
-    outpack_metadata_extract('name == "parameters"', extract = "script",
-                             root = path)$script,
-    I(list("orderly.R", "orderly.R", "orderly.R", character())))
-
-  err <- expect_error(
-    outpack_metadata_extract('name == "parameters"',
-                             extract = c(script = "script is string"),
-                             root = path)$script,
-    "Expected all values of 'script' to evaluate to a scalar (if not NULL)",
-    fixed = TRUE)
-  expect_equal(err$body,
-               c(i = sprintf("Value for %s has length 0", id_extra)))
+    outpack_metadata_extract(
+      NULL,
+      extract = c(display = "custom.orderly.description.display is string"),
+      root = path)$display,
+    rep(c(NA_character_, "Packet with description"), c(3, 2)))
 })
 
 
@@ -321,4 +312,19 @@ test_that("sensible behaviour if extracting nonsense", {
                                 extract = c(a = "a.b.c.d is string"),
                                 root = root)
   expect_equal(d$a, rep(NA_character_, 5))
+})
+
+
+test_that("sensible error if character vectors have inconsistent length", {
+  value <- list("a",
+                NULL,
+                c("a", "b", "c"))
+  err <- expect_error(
+    extract_convert(c("a", "b", "c"), value, c("x", "i"), "string", NULL),
+    "Expected all values of 'x.i' to evaluate to a scalar (if not NULL)",
+    fixed = TRUE)
+  expect_equal(err$body, c(i = "Value for c has length 3"))
+  expect_equal(
+    extract_convert(c("a", "b"), value[1:2], c("x", "i"), "string", NULL),
+    c("a", NA_character_))
 })

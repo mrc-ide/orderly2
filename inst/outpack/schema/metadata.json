@@ -99,14 +99,6 @@
             }
         },
 
-        "script": {
-            "description": "Scripts that were used when running the packet",
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        },
-
         "custom": {
             "description": "Optional custom metadata, grouped under application keys",
             "type": ["null", "object"]
@@ -119,5 +111,5 @@
             ]
         }
     },
-    "required": ["schema_version", "id", "name", "time", "files", "depends", "script", "custom", "git"]
+    "required": ["schema_version", "id", "name", "time", "files", "depends", "custom", "git"]
 }

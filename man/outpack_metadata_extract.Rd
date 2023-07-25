@@ -87,7 +87,6 @@ and \code{hash}.
 used to find \code{packet}) and \code{files} (another \code{data.frame} with
 columns \code{there} and \code{here} corresponding to filenames upstream
 and in this packet, respectively)
-\item script: the scripts run in creating the packet (may be zero, one or more)
 \item git: either metadata about the state of git or \code{null}. If given
 then \code{sha} and \code{branch} are strings, while \code{url} is an array of
 strings/character vector (can have zero, one or more elements).

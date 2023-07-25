@@ -20,7 +20,6 @@ test_that("Can run a basic packet", {
 
   outpack_packet_run(p, "script.R")
   expect_true(file.exists(file.path(path_src, "myplot.png")))
-  expect_equal(p$script, "script.R")
 
   outpack_packet_end(p)
   expect_true(p$complete)
@@ -48,7 +47,7 @@ test_that("Can run a basic packet", {
   expect_setequal(
     names(meta),
     c("schema_version", "name", "id", "time", "parameters", "files",
-      "depends", "script", "custom", "git", "hash"))
+      "depends", "custom", "git"))
 
   expect_equal(meta$schema_version, outpack_schema_version())
   expect_equal(meta$name, "example")
