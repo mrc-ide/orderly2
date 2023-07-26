@@ -190,7 +190,7 @@ test_that("can extract orderly custom metadata", {
   path <- test_prepare_orderly_example("description")
   env <- new.env()
   id <- orderly_run("description", root = path, envir = env)
-  root <- orderly_root(path, FALSE)
+  root <- orderly_root_open(path, FALSE)
   d <- orderly_metadata_extract(
     'name == "description"',
     extract = c(display = "custom.orderly.description.display is string"),
