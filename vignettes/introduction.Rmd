@@ -161,7 +161,7 @@ The function `orderly2::orderly_dependency()` is designed to operate while the p
 * `orderly2::orderly_description()`: Provide a longer name and description for your report; this can be reflected in tooling that uses orderly metadata to be much more informative than your short name.
 * `orderly2::orderly_parameters()`: Declares parameters that can be passed in to control the behaviour of the report. Parameters are key-value pairs of simple data (booleans, numbers, strings) which your report can respond to. They can also be used in queries to `orderly2::orderly_dependency()` to find packets that satisfy some criteria.
 * `orderly2::orderly_resource()`: Declares that a file is a *resource*; a file that is an input to the the report, and which comes from this source directory. By default, orderly treats all files in the directory as a resource, but it can be useful to mark these explicitly, and necessary to do so in "strict mode" (see below). Files that have been marked as a resource are **immutable** and may not be deleted or modified.
-* `orderly2::orderly_global_resource()`: Copies a file from a "global resources" directory, which can be data files or source code located at the root of the orderly repository. This can be a reasonable way of sharing data or commonly used code among several reports.
+* `orderly2::orderly_global_resource()`: Copies a file from the "global resources" directory `global/`, which can be data files or source code located at the root of the orderly repository. This can be a reasonable way of sharing data or commonly used code among several reports.
 * `orderly2::orderly_artefact()`: Declares that a file (or set of files) will be created by this report, before it is even run.  Doing this makes it easier to check that the report behaves as expected and can allow reasoning about what a related set of reports will do without running them. By declaring something as an artefact (especially in conjunction with "strict mode") it is also easier to clean up `src` directories that have been used in interactive development (see below).
 * `orderly2::orderly_dependency()`: Copy files from one packet into this packet as it runs, as seen above.
 * `orderly2::orderly_strict_mode()`: Declares that this report will be run in "strict mode" (see below).
@@ -281,25 +281,14 @@ See the outpack query documentation for much more detail on this.
 
 Sometimes it is useful to share data between different reports, for example some common source utilities that don't warrant their own package, or some common data.
 
-To do this, you should set up a global resources directory by editing the `orderly_config.yml` file to say:
-
-```{r, echo = FALSE, results = "asis"}
-contents <- readLines(file.path(path, "orderly_config.yml"))
-writeLines(c(
-  contents,
-  "global_resources: global"),
-  file.path(path, "orderly_config.yml"))
-fs::dir_create(file.path(path, "global"))
-write.csv(data.frame(x = 1:10, y = runif(10)), 
-          file.path(path, "global/data.csv"))
-yaml_output(readLines(file.path(path, "orderly_config.yml")))
-```
-
-and creating a directory `global` at the orderly root (you can use whatever name you want, the directory and the configuration option must match, and the directory must exist).
+To do this, create a directory `global` at the orderly root and put in it any files or directories you might want to share.
 
 Suppose our global directory contains a file `data.csv`:
 
 ```{r, echo = FALSE}
+fs::dir_create(file.path(path, "global"))
+write.csv(data.frame(x = 1:10, y = runif(10)),
+          file.path(path, "global/data.csv"))
 dir_tree(path)
 ```
 

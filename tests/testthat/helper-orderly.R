@@ -10,8 +10,6 @@ test_prepare_orderly_example <- function(examples, ...) {
   config <- readLines(file.path(tmp, "orderly_config.yml"))
 
   if (any(c("global", "global-dir") %in% examples)) {
-    config <- c(config,
-                "global_resources: global")
     fs::dir_create(file.path(tmp, "global"))
     if ("global" %in% examples) {
       fs::file_copy(test_path("examples/explicit/data.csv"),

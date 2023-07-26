@@ -24,29 +24,6 @@ test_that("environment files must be really simple", {
 })
 
 
-test_that("can interpolate values into an orderly configuration", {
-  ## This is a silly test because we'd never normally interpolate in
-  ## the global resources - this is really to support databases via
-  ## the plugin....
-  path <- test_prepare_orderly_example("global")
-  expect_equal(orderly_root(path, FALSE)$config$global_resources, "global")
-
-  writeLines(c(empty_config_contents(),
-               "global_resources: $PATH_GLOBAL"),
-             file.path(path, "orderly_config.yml"))
-  expect_error(
-    orderly_root(path, FALSE),
-    paste0("Environment variable 'PATH_GLOBAL' is not set\n\t",
-           "(used in orderly_config.yml$global_resources)"),
-    fixed = TRUE)
-  withr::with_envvar(
-    c(PATH_GLOBAL = "global"),
-    expect_equal(orderly_root(path, FALSE)$config$global_resources, "global"))
-  writeLines("PATH_GLOBAL: global", file.path(path, "orderly_envir.yml"))
-  expect_equal(orderly_root(path, FALSE)$config$global_resources, "global")
-})
-
-
 test_that("can validate minimum required version", {
   expect_error(
     orderly_config_validate_minimum_orderly_version("1.4.5", "orderly.yml"),

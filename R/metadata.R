@@ -298,10 +298,9 @@ static_orderly_dependency <- function(args) {
 ##' Copy global resources into a packet directory. You can use this to
 ##' share common resources (data or code) between multiple packets.
 ##' Additional metadata will be added to keep track of where the files
-##' came from.  Using this function requires that the orderly
-##' repository has global resources enabled, with a
-##' `global_resources:` section in the `orderly_config.yml`; an error
-##' will be raised if this is not configured.
+##' came from.  Using this function requires the global resources
+##' directory `global/` exists at the orderly root; an error will be
+##' raised if this is not configured when we attempt to fetch files.
 ##'
 ##' @title Copy global resources into a packet directory
 ##'
@@ -341,16 +340,19 @@ validate_global_resource <- function(args) {
 
 
 copy_global <- function(path_root, path_dest, config, files) {
-  if (is.null(config$global_resources)) {
-    stop(paste("'global_resources' is not supported;",
-               "please edit orderly_config.yml to enable"),
-         call. = FALSE)
+  ## This used to be configurable in orderly1, but almost everyone
+  ## just kept it as 'global'. We might make it configurable later.
+  global_dir <- "global"
+  global_path <- file.path(path_root, global_dir)
+  if (!is_directory(global_path)) {
+    cli::cli_abort(sprintf(
+      "The global resources directory '%s' does not exist at orderly's root",
+      global_dir))
   }
 
   here <- names(files)
   there <- unname(files)
 
-  global_path <- file.path(path_root, config$global_resources)
   assert_file_exists(
     there, workdir = global_path,
     name = sprintf("Global resources in '%s'", global_path))
