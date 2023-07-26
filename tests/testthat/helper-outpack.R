@@ -169,7 +169,6 @@ helper_add_git <- function(path) {
 ## This matches the old semantics of outpack_root, and is used to
 ## create a root that does not have the orderly bits.
 outpack_init_no_orderly <- function(...) {
-  ## warning("consider refactoring this test", immediate. = TRUE)
   path <- orderly_init(...)
   fs::file_delete(file.path(path, "orderly_config.yml"))
   outpack_root$new(path)
