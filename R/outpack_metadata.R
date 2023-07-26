@@ -15,9 +15,10 @@
 ##'   (https://github.com/mrc-ide/outpack)
 ##'
 ##' @export
-orderly_metadata <- function(id, root = NULL) {
+orderly_metadata <- function(id, root = NULL, locate = FALSE) {
   validate_outpack_id(id)
-  root <- outpack_root_open(root, locate = TRUE)
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
   root$metadata(id, full = TRUE)
 }
 

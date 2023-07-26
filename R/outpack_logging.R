@@ -84,8 +84,9 @@ outpack_log_trace <- function(object, topic, detail, caller) {
 ##' @return A [data.frame] of log information
 ##'
 ##' @export
-orderly_log_read <- function(id, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+orderly_log_read <- function(id, root = NULL, locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
   meta <- root$metadata(id)
   hash <- meta$files$hash[meta$files$path == "log.json"]
   log_read(find_file_by_hash(root, hash))

@@ -38,7 +38,7 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
                                  logging_console = NULL,
                                  logging_threshold = NULL,
                                  root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+  root <- root_open(root, locate = FALSE, require_orderly = FALSE)
 
   assert_scalar_character(name)
   assert_is_directory(path)

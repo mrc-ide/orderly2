@@ -158,9 +158,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   }
 
   p <- outpack_packet_start(path, name, parameters = parameters,
-                                     id = id, logging_console = logging_console,
-                                     logging_threshold = logging_threshold,
-                                     root = root)
+                            id = id, logging_console = logging_console,
+                            logging_threshold = logging_threshold,
+                            root = root)
   withCallingHandlers({
     ## TODO: Consider moving 'config' here to 'plugins' and only
     ## moving that.

@@ -8,7 +8,7 @@ outpack_location_path <- R6::R6Class(
 
   public = list(
     initialize = function(path) {
-      private$root <- outpack_root_open(path, locate = FALSE)
+      private$root <- root_open(path, locate = FALSE, require_orderly = FALSE)
       private$local_id <- local_location_id(private$root)
     },
 

@@ -87,8 +87,9 @@
 ##' @export
 orderly_copy_files <- function(id, files, dest, allow_remote = FALSE,
                                overwrite = TRUE, envir = parent.frame(),
-                               root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+                               root = NULL, locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
 
   files <- validate_file_from_to(files, envir)
   plan <- plan_copy_files(root, id, files$from, files$to)

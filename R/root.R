@@ -80,7 +80,7 @@ orderly_init <- function(path,
 
   path_outpack <- file.path(path, ".outpack")
   if (file.exists(path_outpack)) {
-    root <- outpack_root_open(path, FALSE)
+    root <- root_open(path, locate = FALSE, require_orderly = FALSE)
     root_validate_same_configuration(match.call(), config, root, environment())
   } else {
     fs::dir_create(path_outpack)

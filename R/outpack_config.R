@@ -25,8 +25,10 @@
 ##'
 ##' @return Nothing
 ##' @export
-outpack_config_set <- function(..., options = list(...), root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+outpack_config_set <- function(..., options = list(...), root = NULL,
+                               locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
   if (!missing(options) && ...length() > 0) {
     stop("If 'options' is given, no dot arguments are allowed")
   }

@@ -2,7 +2,7 @@
 ## present. It might have been intended for the R-backed server, now
 ## defunct?
 outpack_checksum <- function(hash_algorithm = NULL, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+  root <- root_open(root, locate = TRUE, require_orderly = FALSE)
   hash_algorithm <- hash_algorithm %||% root$config$core$hash_algorithm
 
   ## Don't use the index ever here; we want to always read this from
