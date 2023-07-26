@@ -45,8 +45,8 @@ test_that("Can initialise a new orderly root", {
   root <- orderly_init(tmp, logging_console = FALSE)
   expect_true(file.exists(tmp))
   expect_s3_class(root, "orderly_root")
-  expect_s3_class(root$outpack, "outpack_root")
-  expect_equal(root$config,
+  expect_s3_class(root, "outpack_root")
+  expect_equal(root$config$orderly,
                list(minimum_orderly_version = numeric_version("1.99.0")))
 })
 
