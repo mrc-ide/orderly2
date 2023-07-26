@@ -10,7 +10,7 @@
 ##'
 ##' * `core.require_complete_tree`
 ##'
-##' See [orderly2::outpack_init] for description of these options.
+##' See [orderly2::orderly_init] for description of these options.
 ##'
 ##' @title Set configuration options
 ##'

@@ -34,5 +34,5 @@ Currently you can set:
 \item \code{core.require_complete_tree}
 }
 
-See \link{outpack_init} for description of these options.
+See \link{orderly_init} for description of these options.
 }
