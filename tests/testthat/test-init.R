@@ -66,14 +66,6 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
 })
 
 
-test_that("Re-initialising root errors", {
-  skip("refactor this")
-  root <- create_temporary_root()
-  expect_error(outpack_init_no_orderly(root$path),
-               "outpack already initialised at")
-})
-
-
 test_that("Must include some packet storage", {
   path <- temp_file()
   expect_error(
