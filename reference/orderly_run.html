@@ -49,7 +49,7 @@ your script and check that all expected artefacts were created."><!-- mathjax --
       <a href="../articles/plugins.html">Orderly plugins</a>
     </li>
     <li>
-      <a href="../articles/query.html">Outpack query DSL</a>
+      <a href="../articles/query.html">Orderly query DSL</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -110,17 +110,16 @@ may not always be what is wanted.</p></dd>
 
 
 <dt>logging_console</dt>
-<dd><p>Optional logical, passed through to
-<a href="outpack_packet.html">outpack_packet_start</a> to control printing logs to the
-console, overriding any default configuration set at the root.</p></dd>
+<dd><p>Optional logical to control printing logs
+to the console, overriding any default configuration set at the
+root.</p></dd>
 
 
 <dt>logging_threshold</dt>
-<dd><p>Optional logging threshold, passed through to
-<a href="outpack_packet.html">outpack_packet_start</a> to control the amount of detail
-in logs printed during running, overriding any default
-configuration set at the root. If given, must be one of <code>info</code>,
-<code>debug</code> or <code>trace</code> (in increasing order of
+<dd><p>Optional logging threshold to control the
+amount of detail in logs printed during running, overriding any
+default configuration set at the root. If given, must be one of
+<code>info</code>, <code>debug</code> or <code>trace</code> (in increasing order of
 verbosity). Practically this has no effect at present as we've
 not added any fine-grained logging.</p></dd>
 
@@ -173,7 +172,7 @@ seconds to hours depending on their size and the speed of your
 network connection (but <em>not</em> pulling in the packets could mean
 that your packet fails to run).</p>
 <p>To allow for control over this you can pass in an argument
-<code>search_options</code>, which is a <a href="outpack_search_options.html">outpack_search_options</a>
+<code>search_options</code>, which is a <a href="orderly_search_options.html">orderly_search_options</a>
 object, and allows control over the names of the locations to
 use, whether metadata should be refreshed before we pull
 anything and if packets that are not currently downloaded should
@@ -182,6 +181,27 @@ be considered candidates.</p>
 can specify the search options (root specific) with
 <a href="orderly_interactive_set_search_options.html">orderly_interactive_set_search_options</a></p>
     </div>
+    <div id="which-packets-might-be-selected-from-locations-">
+    <h2>Which packets might be selected from locations?</h2>
+    
+
+
+<p>The <code>search_options</code> argument controls where outpack searches for
+packets with the given query and if anything might be moved over
+the network (or from one outpack archive to another). By default
+everything is resolved locally only; that is we can only depend
+on packets that are unpacked within our current archive.  If you
+pass a <code>search_options</code> argument that contains <code>allow_remote = TRUE</code> (see <a href="orderly_search_options.html">orderly_search_options</a> then packets
+that are known anywhere are candidates for using as dependencies
+and <em>if needed</em> we will pull the resolved files from a remote
+location. Note that even if the packet is not locally present
+this might not be needed - if you have the same content anywhere
+else in an unpacked packet we will reuse the same content
+without re-fetching.</p>
+<p>If <code>pull_metadata = TRUE</code>, then we will refresh location metadata
+before pulling, and the <code>location</code> argument controls which
+locations are pulled from.</p>
+    </div>
     <div id="equivalence-to-the-old-use-draft-option">
     <h2>Equivalence to the old <code>use_draft</code> option</h2>
     
@@ -189,7 +209,7 @@ can specify the search options (root specific) with
 
 <p>The above location handling generalises orderly (v1)'s old
 <code>use_draft</code> option, in terms of the <code>location</code> argument to
-orderly2::outpack_search_options`:</p><ul><li><p><code>use_draft = TRUE</code> is <code>location = "local"</code></p></li>
+orderly2::orderly_search_options`:</p><ul><li><p><code>use_draft = TRUE</code> is <code>location = "local"</code></p></li>
 <li><p><code>use_draft = FALSE</code> is <code>location = c(...)</code> where you should provide
 all locations <em>except</em> local
 (<code>setdiff(orderly2::outpack_location_list(), "local")</code>)</p></li>

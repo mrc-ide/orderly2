@@ -47,7 +47,7 @@
       <a href="../articles/plugins.html">Orderly plugins</a>
     </li>
     <li>
-      <a href="../articles/query.html">Outpack query DSL</a>
+      <a href="../articles/query.html">Orderly query DSL</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -81,6 +81,10 @@
         </td>
         <td><p>Clean up source directory</p></td>
       </tr><tr><td>
+          <p><code><a href="orderly_copy_files.html">orderly_copy_files()</a></code> </p>
+        </td>
+        <td><p>Copy files from a packet</p></td>
+      </tr><tr><td>
           <p><code><a href="orderly_dependency.html">orderly_dependency()</a></code> </p>
         </td>
         <td><p>Declare a dependency</p></td>
@@ -101,6 +105,22 @@
         </td>
         <td><p>Set search options for interactive use</p></td>
       </tr><tr><td>
+          <p><code><a href="orderly_log_read.html">orderly_log_read()</a></code> </p>
+        </td>
+        <td><p>Read packet logs</p></td>
+      </tr><tr><td>
+          <p><code><a href="orderly_metadata.html">orderly_metadata()</a></code> </p>
+        </td>
+        <td><p>Read outpack metadata</p></td>
+      </tr><tr><td>
+          <p><code><a href="orderly_metadata_extract.html">orderly_metadata_extract()</a></code> </p>
+        </td>
+        <td><p>Extract metadata from orderly2 packets</p></td>
+      </tr><tr><td>
+          <p><code><a href="orderly_metadata_read.html">orderly_metadata_read()</a></code> </p>
+        </td>
+        <td><p>Read outpack metadata json file</p></td>
+      </tr><tr><td>
           <p><code><a href="orderly_parameters.html">orderly_parameters()</a></code> </p>
         </td>
         <td><p>Declare orderly parameters</p></td>
@@ -117,6 +137,15 @@
         </td>
         <td><p>Register an orderly plugin</p></td>
       </tr><tr><td>
+          <p><code><a href="orderly_query.html">orderly_query()</a></code> </p>
+        </td>
+        <td><p>Construct outpack query</p></td>
+      </tr><tr><td>
+          <p><code><a href="orderly_query_format.html">orderly_query_format()</a></code> </p>
+        </td>
+        <td><p>Format outpack query for displaying to users. It will typically be
+easier to use the <a href="https://rdrr.io/r/base/format.html" class="external-link">format</a> method of <code>orderly_query</code> objects.</p></td>
+      </tr><tr><td>
           <p><code><a href="orderly_resource.html">orderly_resource()</a></code> </p>
         </td>
         <td><p>Declare orderly resources</p></td>
@@ -129,25 +158,21 @@
         </td>
         <td><p>Information about currently running report</p></td>
       </tr><tr><td>
+          <p><code><a href="orderly_search.html">orderly_search()</a></code> </p>
+        </td>
+        <td><p>Query outpack's database</p></td>
+      </tr><tr><td>
+          <p><code><a href="orderly_search_options.html">orderly_search_options()</a></code> </p>
+        </td>
+        <td><p>Packet search options</p></td>
+      </tr><tr><td>
           <p><code><a href="orderly_strict_mode.html">orderly_strict_mode()</a></code> </p>
         </td>
         <td><p>Enable orderly strict mode</p></td>
       </tr><tr><td>
-          <p><code><a href="outpack_checksum.html">outpack_checksum()</a></code> </p>
-        </td>
-        <td><p>Compute packet metadata checksum</p></td>
-      </tr><tr><td>
           <p><code><a href="outpack_config_set.html">outpack_config_set()</a></code> </p>
         </td>
         <td><p>Set configuration options</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_copy_files.html">outpack_copy_files()</a></code> </p>
-        </td>
-        <td><p>Copy files from a packet</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_id.html">outpack_id()</a></code> </p>
-        </td>
-        <td><p>Generate outpack id</p></td>
       </tr><tr><td>
           <p><code><a href="outpack_init.html">outpack_init()</a></code> </p>
         </td>
@@ -180,55 +205,6 @@
           <p><code><a href="outpack_location_rename.html">outpack_location_rename()</a></code> </p>
         </td>
         <td><p>Rename a location</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_log.html">outpack_log()</a></code> <code><a href="outpack_log.html">outpack_log_info()</a></code> <code><a href="outpack_log.html">outpack_log_debug()</a></code> <code><a href="outpack_log.html">outpack_log_trace()</a></code> </p>
-        </td>
-        <td><p>Create log entry</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_log_read.html">outpack_log_read()</a></code> </p>
-        </td>
-        <td><p>Read packet logs</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_metadata.html">outpack_metadata()</a></code> </p>
-        </td>
-        <td><p>Read outpack metadata</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_metadata_extract.html">outpack_metadata_extract()</a></code> </p>
-        </td>
-        <td><p>Extract metadata from orderly2 packets</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_metadata_read.html">outpack_metadata_read()</a></code> </p>
-        </td>
-        <td><p>Read outpack metadata json file</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_packet.html">outpack_packet_start()</a></code> <code><a href="outpack_packet.html">outpack_packet_cancel()</a></code> <code><a href="outpack_packet.html">outpack_packet_end()</a></code> <code><a href="outpack_packet.html">outpack_packet_run()</a></code> <code><a href="outpack_packet.html">outpack_packet_use_dependency()</a></code> <code><a href="outpack_packet.html">outpack_packet_add_custom()</a></code> </p>
-        </td>
-        <td><p>Start, interact with, and end a packet build</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_packet_file.html">outpack_packet_file_mark()</a></code> <code><a href="outpack_packet_file.html">outpack_packet_file_list()</a></code> </p>
-        </td>
-        <td><p>Mark files during packet run</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_query.html">outpack_query()</a></code> </p>
-        </td>
-        <td><p>Construct outpack query</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_query_format.html">outpack_query_format()</a></code> </p>
-        </td>
-        <td><p>Format outpack query for displaying to users. It will typically be
-easier to use the <a href="https://rdrr.io/r/base/format.html" class="external-link">format</a> method of <code>outpack_query</code> objects.</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_root_open.html">outpack_root_open()</a></code> </p>
-        </td>
-        <td><p>Open outpack root</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_search.html">outpack_search()</a></code> </p>
-        </td>
-        <td><p>Query outpack's database</p></td>
-      </tr><tr><td>
-          <p><code><a href="outpack_search_options.html">outpack_search_options()</a></code> </p>
-        </td>
-        <td><p>Packet search options</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
