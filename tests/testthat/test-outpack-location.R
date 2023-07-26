@@ -57,7 +57,8 @@ test_that("Require that (for now) locations must be paths", {
   fs::dir_create(other)
   expect_error(
     outpack_location_add("other", "path", list(path = other), root = root),
-    "'.+' does not look like an outpack root")
+    "Did not find existing orderly (or outpack) root in",
+    fixed = TRUE)
 })
 
 
@@ -523,7 +524,7 @@ test_that("Can add locations with different priorities", {
   expect_equal(root$a$config$location$name, c("c", "b", "local"))
   expect_equal(root$a$config$location$priority, c(10, 5, 0))
 
-  outpack_root_open(root$a$path)
+  outpack_root_open(root$a$path, FALSE)
   expect_equal(outpack_location_list(root$a),
                c("c", "b", "local"))
 })

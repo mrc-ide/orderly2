@@ -146,7 +146,7 @@ config_remove_logging <- function(path) {
   ]
 }'
   writeLines(
-    sprintf(fmt, local_location_id(outpack_root_open(path))),
+    sprintf(fmt, local_location_id(outpack_root_open(path, FALSE))),
     file.path(path, ".outpack", "config.json"))
 }
 
@@ -173,3 +173,6 @@ outpack_init <- function(...) {
   fs::file_delete(file.path(path, "orderly_config.yml"))
   outpack_root$new(path)
 }
+
+
+outpack_init_no_orderly <- outpack_init

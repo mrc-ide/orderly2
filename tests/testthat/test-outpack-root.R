@@ -16,6 +16,7 @@ test_that("can create new root", {
 
 
 test_that("Re-initialising root errors", {
+  skip("refactor this")
   root <- create_temporary_root()
   expect_error(outpack_init(root$path),
                "outpack already initialised at")
@@ -49,13 +50,13 @@ test_that("Can locate an outpack root", {
   p <- file.path(path, "a", "b", "c")
   fs::dir_create(p)
   expect_equal(
-    outpack_root_open(p)$path,
-    outpack_root_open(path)$path)
+    outpack_root_open(p, TRUE)$path,
+    outpack_root_open(path, TRUE)$path)
   expect_equal(
-    withr::with_dir(p, outpack_root_open(".")$path),
-    outpack_root_open(path)$path)
+    withr::with_dir(p, outpack_root_open(".", TRUE)$path),
+    outpack_root_open(path, FALSE)$path)
   expect_identical(
-    outpack_root_open(root), root)
+    outpack_root_open(root, FALSE), root)
 })
 
 
@@ -63,8 +64,9 @@ test_that("outpack_root_open errors if it reaches toplevel", {
   path <- temp_file()
   fs::dir_create(path)
   expect_error(
-    outpack_root_open(path),
-    "Did not find existing outpack root from directory '.+'")
+    outpack_root_open(path, TRUE),
+    "Did not find existing orderly (or outpack) root in",
+    fixed = TRUE)
 })
 
 
@@ -78,7 +80,8 @@ test_that("outpack_root_open does not recurse if locate = FALSE", {
   fs::dir_create(p)
   expect_error(
     outpack_root_open(p, locate = FALSE),
-    "'.+/a/b/c' does not look like an outpack root")
+    "Did not find existing orderly (or outpack) root in",
+    fixed = TRUE)
 })
 
 

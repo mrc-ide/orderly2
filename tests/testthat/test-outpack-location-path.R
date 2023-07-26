@@ -23,7 +23,8 @@ test_that("outpack_location_path requires exact root", {
   dir.create(subdir)
   expect_error(
     outpack_location_path$new(subdir),
-    "'.+subdir' does not look like an outpack root")
+    "Did not find existing orderly (or outpack) root in",
+    fixed = TRUE)
 
   expect_silent(outpack_location_path$new(root$path))
 })

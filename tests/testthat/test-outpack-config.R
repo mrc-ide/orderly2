@@ -14,7 +14,7 @@ test_that("Setting no options does nothing", {
   root <- create_temporary_root()
   config <- root$config
   outpack_config_set(root = root)
-  expect_identical(outpack_root_open(root$path)$config, config)
+  expect_identical(outpack_root_open(root$path, FALSE)$config, config)
 })
 
 
@@ -33,7 +33,8 @@ test_that("Can update core.require_complete_tree in empty archive", {
   outpack_config_set(core.require_complete_tree = TRUE, root = root)
 
   expect_true(root$config$core$require_complete_tree)
-  expect_true(outpack_root_open(root$path)$config$core$require_complete_tree)
+  expect_true(
+    outpack_root_open(root$path, FALSE)$config$core$require_complete_tree)
 })
 
 
@@ -52,7 +53,7 @@ test_that("Can remove file_store if path_archive exists", {
   outpack_config_set(core.use_file_store = FALSE, root = root)
 
   expect_false(root$config$core$use_file_store)
-  expect_false(outpack_root_open(root$path)$config$core$use_file_store)
+  expect_false(outpack_root_open(root$path, FALSE)$config$core$use_file_store)
   expect_false(fs::dir_exists(file_store))
 })
 
@@ -65,7 +66,7 @@ test_that("Cannot remove file_store if no path_archive", {
                "If 'path_archive' is NULL, then 'use_file_store' must be TRUE")
 
   expect_true(root$config$core$use_file_store)
-  expect_true(outpack_root_open(root$path)$config$core$use_file_store)
+  expect_true(outpack_root_open(root$path, FALSE)$config$core$use_file_store)
   expect_true(fs::dir_exists(file_store))
 })
 
@@ -88,7 +89,8 @@ test_that("Can add file_store", {
   outpack_config_set(core.use_file_store = TRUE, root = root$dst)
 
   expect_true(root$dst$config$core$use_file_store)
-  expect_true(outpack_root_open(root$dst$path)$config$core$use_file_store)
+  expect_true(
+    outpack_root_open(root$dst$path, FALSE)$config$core$use_file_store)
   expect_true(fs::dir_exists(root$dst$files$path))
 
   hash_pulled <- root$dst$metadata(id[["c"]])$files$hash
@@ -306,7 +308,7 @@ test_that("Enabling recursive pulls forces pulling missing packets", {
 
   expect_setequal(root$dst$index()$unpacked, id)
   expect_true(
-    outpack_root_open(root$dst$path)$config$core$require_complete_tree)
+    outpack_root_open(root$dst$path, FALSE)$config$core$require_complete_tree)
 })
 
 

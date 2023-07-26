@@ -101,29 +101,29 @@ outpack_root <- R6::R6Class(
   ))
 
 
-outpack_root_open <- function(path, locate = TRUE) {
-  if (inherits(path, "outpack_root")) {
-    return(path)
-  }
-  if (is.null(path)) {
-    path <- getwd()
-  }
-  assert_scalar_character(path)
-  assert_is_directory(path)
-  if (locate) {
-    root_found <- find_file_descend(".outpack", path)
-    if (is.null(root_found)) {
-      stop(sprintf("Did not find existing outpack root from directory '%s'",
-                   path))
-    }
-    path <- root_found
-  } else {
-    if (!file.exists(file.path(path, ".outpack"))) {
-      stop(sprintf("'%s' does not look like an outpack root", path))
-    }
-  }
-  outpack_root$new(path)
-}
+## outpack_root_open <- function(path, locate = TRUE) {
+##   if (inherits(path, "outpack_root")) {
+##     return(path)
+##   }
+##   if (is.null(path)) {
+##     path <- getwd()
+##   }
+##   assert_scalar_character(path)
+##   assert_is_directory(path)
+##   if (locate) {
+##     root_found <- find_file_descend(".outpack", path)
+##     if (is.null(root_found)) {
+##       stop(sprintf("Did not find existing outpack root from directory '%s'",
+##                    path))
+##     }
+##     path <- root_found
+##   } else {
+##     if (!file.exists(file.path(path, ".outpack"))) {
+##       stop(sprintf("'%s' does not look like an outpack root", path))
+##     }
+##   }
+##   outpack_root$new(path)
+## }
 
 
 read_location <- function(location_id, root_path, prev) {

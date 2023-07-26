@@ -96,34 +96,114 @@ orderly_init <- function(path,
 }
 
 
-orderly_root_open <- function(path, locate, call = NULL) {
-  if (inherits(path, "orderly_root")) {
-    return(path)
-  }
-  if (inherits(path, "outpack_root")) {
-    root <- path
-    path <- root$path
-  } else {
-    assert_scalar_character(path)
-    if (!file.exists(file.path(path, ".outpack"))) {
-      cli::cli_abort(
-        c(sprintf("orderly directory '%s' not initialised", path),
-          x = "Did not find an '.outpack' directory within path",
-          i = 'Please run orderly2::orderly_init("{path}") to initialise',
-          i = "See ?orderly_init for more arguments to this function"),
-        call = call)
-    }
-    root <- outpack_root_open(path, locate)
-  }
-  if (!file.exists(file.path(root$path, "orderly_config.yml"))) {
-    stop("TODO: handle this case well too")
-  }
-  root$config$orderly <- orderly_config(path)
-  class(root) <- c("orderly_root", class(root))
-  root
-}
+## orderly_root_open <- function(path, locate, call = NULL) {
+##   if (inherits(path, "orderly_root")) {
+##     return(path)
+##   }
+##   if (inherits(path, "outpack_root")) {
+##     root <- path
+##     path <- root$path
+##   } else {
+##     assert_scalar_character(path)
+##     if (!file.exists(file.path(path, ".outpack"))) {
+##       cli::cli_abort(
+##         c(sprintf("orderly directory '%s' not initialised", path),
+##           x = "Did not find an '.outpack' directory within path",
+##           i = 'Please run orderly2::orderly_init("{path}") to initialise',
+##           i = "See ?orderly_init for more arguments to this function"),
+##         call = call)
+##     }
+##     root <- outpack_root_open(path, locate)
+##   }
+##   if (!file.exists(file.path(root$path, "orderly_config.yml"))) {
+##     stop("TODO: handle this case well too")
+##   }
+##   root$config$orderly <- orderly_config(path)
+##   class(root) <- c("orderly_root", class(root))
+##   root
+## }
 
 
 empty_config_contents <- function() {
   'minimum_orderly_version: "1.99.0"'
+}
+
+
+## There's quite a few options here:
+##
+## * find an existing outpack root that is not an orderly root
+##   - sometimes require that we upgrade (e.g., run) [require orderly t]
+##   - sometimes just work with it (e.g., search, extract, copy) [r o f]
+## * find an existing orderly root that is not an outpack root
+##   - always error, indicate what to do
+##
+## * also check that the outpack and orderly path are compatibible
+##   (this is actually quite hard to get right, but should be done
+##   before anything is created I think)
+new_root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
+  if (inherits(path, "outpack_root")) {
+    if (require_orderly && !inherits(path, "orderly_root")) {
+      browser()
+    }
+    return(path)
+  }
+  if (is.null(path)) {
+    path <- getwd()
+  }
+  assert_scalar_character(path)
+  assert_is_directory(path)
+  if (locate) {
+    path_outpack <- find_file_descend(".outpack", path)
+    path_orderly <- find_file_descend("orderly_config.yml", path)
+    has_outpack <- !is.null(path_outpack)
+    has_orderly <- !is.null(path_orderly)
+    is_inconsistent <- require_orderly && has_outpack && has_orderly &&
+      path_outpack != path_orderly
+    if (is_inconsistent) {
+      stop("TODO: this requires guidance")
+    }
+    path_open <- path_outpack
+  } else {
+    has_outpack <- file.exists(file.path(path, ".outpack"))
+    has_orderly <- file.exists(file.path(path, "orderly_config.yml"))
+    path_open <- path
+  }
+  if (!has_outpack && !has_orderly) {
+    cli::cli_abort(
+      c(sprintf(
+        "Did not find existing orderly (or outpack) root in '%s'", path),
+        i = paste("Expected to find file 'orderly_config.yml' or directory",
+                  "'.outpack/'"),
+        i = if (locate) "Looked in parents of this path without success"),
+      call = call)
+  }
+  if (has_orderly && !has_outpack) {
+    cli::cli_abort(
+      c(sprintf("orderly directory '%s' not initialised", path),
+        x = "Did not find an '.outpack' directory within path",
+        i = 'Please run orderly2::orderly_init("{path}") to initialise',
+        i = "See ?orderly_init for more arguments to this function"),
+      call = call)
+  }
+
+  root <- outpack_root$new(path_open)
+
+  if (has_orderly) {
+    root$config$orderly <- orderly_config(root$path)
+    class(root) <- c("orderly_root", class(root))
+  } else if (require_orderly) {
+    stop("TODO: handle this case well too")
+  }
+
+  root
+}
+
+
+orderly_root_open <- function(path, locate, call = NULL) {
+  new_root_open(path, locate, TRUE, call)
+}
+
+
+outpack_root_open <- function(path, locate, call = NULL) {
+  new_root_open(path, locate, FALSE, call)
 }

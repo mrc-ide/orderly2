@@ -230,6 +230,8 @@ config_serialise <- function(config, path) {
     prepare_location(config$location[i, ])
   })
 
+  config$orderly <- NULL
+
   to_json(config, "config")
 }
 
