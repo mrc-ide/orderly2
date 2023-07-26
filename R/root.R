@@ -20,10 +20,8 @@
 ##' @export
 orderly_init <- function(path, ...) {
   assert_scalar_character(path)
-  if (file.exists(file.path(path, "orderly_config.yml"))) {
-    return(orderly_root(path, locate = FALSE))
-  }
-  if (file.exists(path)) {
+  has_orderly_config <- file.exists(file.path(path, "orderly_config.yml"))
+  if (!has_orderly_config) {
     if (!is_directory(path)) {
       stop("'path' exists but is not a directory")
     }
@@ -33,14 +31,15 @@ orderly_init <- function(path, ...) {
       }
     }
   }
-
   if (file.exists(file.path(path, ".outpack"))) {
     root <- outpack_root_open(path, FALSE)
   } else {
     root <- outpack_init(path, ...)
   }
-  writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
-  invisible(orderly_root(root, locate = FALSE))
+  if (!has_orderly_config) {
+    writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
+  }
+  invisible(orderly_root(path, locate = FALSE, environment()))
 }
 
 
@@ -69,7 +68,18 @@ orderly_init <- function(path, ...) {
 ## * global_resources - might be the first bit to come back in?
 ## * database - lower priority, as only VIMC and everything else must work first
 ## * minimum_orderly_version - the required version
-orderly_root <- function(root, locate) {
+orderly_root <- function(root, locate, call = NULL) {
+  if (inherits(root, "orderly_root")) {
+    return(root)
+  }
+  if (!file.exists(file.path(root, ".outpack"))) {
+    cli::cli_abort(
+      c(sprintf("orderly directory '%s' not initialised", root),
+        x = "Did not find an '.outpack' directory within path",
+        i = 'Please run orderly2::orderly_init("{root}") to initialise',
+        i = "See ?orderly_init for more arguments to this function"),
+      call = call)
+  }
   root <- outpack_root_open(root, locate)
   ## NOTE: it's can't be changed yet, but core.path_archive cannot be
   ## "draft" for this to work well.
