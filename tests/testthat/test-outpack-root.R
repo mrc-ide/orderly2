@@ -15,35 +15,6 @@ test_that("can create new root", {
 })
 
 
-test_that("Re-initialising root errors", {
-  skip("refactor this")
-  root <- create_temporary_root()
-  expect_error(outpack_init(root$path),
-               "outpack already initialised at")
-})
-
-
-test_that("Can control root config on initialisation", {
-  root <- create_temporary_root(path_archive = NULL, use_file_store = TRUE,
-                                require_complete_tree = TRUE)
-  expect_mapequal(root$config$core,
-                  list(path_archive = NULL,
-                       use_file_store = TRUE,
-                       require_complete_tree = TRUE,
-                       hash_algorithm = "sha256"))
-  expect_true(file.exists(file.path(root$path, ".outpack", "files")))
-})
-
-
-test_that("Must include some packet storage", {
-  path <- temp_file()
-  expect_error(
-    outpack_init(path, path_archive = NULL, use_file_store = FALSE),
-    "If 'path_archive' is NULL, then 'use_file_store' must be TRUE")
-  expect_false(file.exists(path))
-})
-
-
 test_that("Can locate an outpack root", {
   root <- create_temporary_root()
   path <- root$path

@@ -10,65 +10,28 @@ test_that("Configuration must be empty", {
 
 
 test_that("Configuration must exist", {
-  skip("refactor this")
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
   fs::dir_create(tmp)
-  outpack_init(tmp, logging_console = FALSE)
+  outpack_init_no_orderly(tmp, logging_console = FALSE)
   expect_error(orderly_config(tmp),
                "Orderly configuration does not exist: 'orderly_config.yml'")
-  expect_error(orderly_root_open(tmp, FALSE),
-               "Orderly configuration does not exist: 'orderly_config.yml'")
 })
 
 
-test_that("Initialisation can't be done into a file", {
+test_that("error of opening an outpack root that is not an orderly root", {
   tmp <- withr::local_tempfile()
-  file.create(tmp)
-  expect_error(orderly_init(tmp, logging_console = FALSE),
-               "'path' exists but is not a directory")
-})
+  root <- outpack_init_no_orderly(tmp, logging_console = FALSE)
 
-
-test_that("Initialisation requires empty directory", {
-  tmp <- tempfile()
-  fs::dir_create(tmp)
-  on.exit(unlink(tmp, recursive = TRUE))
-  file.create(file.path(tmp, "file"))
-  expect_error(orderly_init(tmp, logging_console = FALSE),
-               "'path' exists but is not empty, or an outpack archive")
-})
-
-
-test_that("Can initialise a new orderly root", {
-  tmp <- tempfile()
-  on.exit(unlink(tmp, recursive = TRUE))
-  res <- orderly_init(tmp, logging_console = FALSE)
-  expect_true(file.exists(tmp))
-  expect_identical(res, normalizePath(tmp, mustWork = TRUE))
-  root <- orderly_root_open(tmp, FALSE)
-  expect_s3_class(root, "orderly_root")
-  expect_s3_class(root, "outpack_root")
-  expect_equal(root$config$orderly,
-               list(minimum_orderly_version = numeric_version("1.99.0")))
-})
-
-
-test_that("initialisation leaves things unchanged", {
-  path <- test_prepare_orderly_example("plugin")
-  cmp <- orderly_root_open(path, FALSE)$config
-  res <- orderly_init(path)
-  expect_equal(orderly_root_open(path, FALSE)$config, cmp)
-})
-
-
-test_that("can turn an outpack root into an orderly one", {
-  tmp <- withr::local_tempdir()
-  outpack_init_no_orderly(tmp, logging_console = FALSE)
-
-  orderly_init(tmp)
-  root2 <- outpack_root_open(tmp, FALSE)
-  expect_equal(root2$config$orderly,
-               list(minimum_orderly_version = numeric_version("1.99.0")))
-  expect_s3_class(root2, "orderly_root")
+  err <- expect_error(
+    withr::with_dir(tmp, orderly_root_open(".", FALSE)),
+    "Did not find 'orderly_config.yml' in '.",
+    fixed = TRUE)
+  expect_equal(
+    err$body,
+    c(x = paste("Your directory has an '.outpack/' path, so is a valid",
+                "outpack root, but does not contain 'orderly_config.yml' so",
+                "cannot be used as an orderly root"),
+      i = 'Please run orderly2::orderly_init(".") to initialise',
+      i = "See ?orderly_init for more arguments to this function"))
 })

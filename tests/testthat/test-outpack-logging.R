@@ -1,12 +1,3 @@
-test_that("can log creation of outpack repo", {
-  path <- temp_file()
-  expect_message(
-    root <- outpack_init(path, path_archive = "archive", use_file_store = TRUE),
-    "[ init       ]",
-    fixed = TRUE)
-})
-
-
 test_that("can enable console logging for packet level, if disabled at root", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
 

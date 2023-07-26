@@ -91,7 +91,8 @@ create_random_dependent_packet <- function(root, name, dependency_ids) {
 create_temporary_root <- function(...) {
   path <- tempfile()
   withr::defer_parent(unlink(path, recursive = TRUE))
-  outpack_init(path, ..., logging_console = FALSE)
+  orderly_init(path, ..., logging_console = FALSE)
+  outpack_root_open(path, FALSE)
 }
 
 
@@ -165,14 +166,11 @@ helper_add_git <- function(path) {
 }
 
 
-## This matches the old semantics of outpack_root; rename this to
-## simple_outpack_init or outpack_init_no_orderly to make it clearer.
-outpack_init <- function(...) {
+## This matches the old semantics of outpack_root, and is used to
+## create a root that does not have the orderly bits.
+outpack_init_no_orderly <- function(...) {
   ## warning("consider refactoring this test", immediate. = TRUE)
   path <- orderly_init(...)
   fs::file_delete(file.path(path, "orderly_config.yml"))
   outpack_root$new(path)
 }
-
-
-outpack_init_no_orderly <- outpack_init
