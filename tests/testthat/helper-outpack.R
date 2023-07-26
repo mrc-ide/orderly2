@@ -163,3 +163,13 @@ helper_add_git <- function(path) {
   gert::git_remote_add(url, repo = path)
   list(user = user, url = url)
 }
+
+
+## This matches the old semantics of outpack_root; rename this to
+## simple_outpack_init or outpack_init_no_orderly to make it clearer.
+outpack_init <- function(...) {
+  ## warning("consider refactoring this test", immediate. = TRUE)
+  path <- orderly_init(...)
+  fs::file_delete(file.path(path, "orderly_config.yml"))
+  outpack_root$new(path)
+}

@@ -91,7 +91,8 @@ orderly_init <- function(path,
     writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
   }
 
-  invisible(orderly_root_open(path, locate = FALSE, environment()))
+  root <- orderly_root_open(path, locate = FALSE, environment())
+  invisible(root$path)
 }
 
 
@@ -106,15 +107,15 @@ orderly_root_open <- function(path, locate, call = NULL) {
     assert_scalar_character(path)
     if (!file.exists(file.path(path, ".outpack"))) {
       cli::cli_abort(
-        c(sprintf("orderly directory '%s' not initialised", root),
+        c(sprintf("orderly directory '%s' not initialised", path),
           x = "Did not find an '.outpack' directory within path",
-          i = 'Please run orderly2::orderly_init("{root}") to initialise',
+          i = 'Please run orderly2::orderly_init("{path}") to initialise',
           i = "See ?orderly_init for more arguments to this function"),
         call = call)
     }
     root <- outpack_root_open(path, locate)
   }
-  if (!file.exists(root$path, "orderly_config.yml")) {
+  if (!file.exists(file.path(root$path, "orderly_config.yml"))) {
     stop("TODO: handle this case well too")
   }
   root$config$orderly <- orderly_config(path)

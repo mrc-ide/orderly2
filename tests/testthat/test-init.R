@@ -13,8 +13,9 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
                   base),
       i = "See ?orderly_init for more arguments to this function"))
 
-  root <- withr::with_dir(parent, orderly_init(base, logging_console = FALSE))
-  expect_false(root$outpack$config$logging$console)
+  withr::with_dir(parent, orderly_init(base, logging_console = FALSE))
+  root <- orderly_root_open(path, FALSE)
+  expect_false(root$config$logging$console)
   expect_true(is_directory(file.path(path, ".outpack")))
 
   id <- withr::with_dir(parent, orderly_run("data", root = base))

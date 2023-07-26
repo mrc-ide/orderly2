@@ -21,9 +21,9 @@ test_that("can run simple task with explicit inputs and outputs", {
                   c("orderly.R", "data.csv"))
 
   root <- orderly_root_open(path, FALSE)
-  idx <- root$outpack$index()
+  idx <- root$index()
   expect_equal(names(idx$metadata), id)
-  meta <- root$outpack$metadata(id, full = TRUE)
+  meta <- root$metadata(id, full = TRUE)
 
   expect_equal(
     meta$custom$orderly$role,
@@ -58,9 +58,9 @@ test_that("can run simple task with implicit inputs and outputs", {
                   c("orderly.R", "data.csv"))
 
   root <- orderly_root_open(path, FALSE)
-  idx <- root$outpack$index()
+  idx <- root$index()
   expect_equal(names(idx$metadata), id)
-  meta <- root$outpack$metadata(id, full = TRUE)
+  meta <- root$metadata(id, full = TRUE)
 
   expect_equal(meta$custom$orderly$role, list())
   expect_equal(meta$custom$orderly$artefacts, list())
@@ -197,7 +197,7 @@ test_that("can run with global resources", {
     dir(file.path(path, "archive", "global", id)),
     c("global_data.csv", "mygraph.png", "orderly.R", "log.json"))
   root <- orderly_root_open(path, FALSE)
-  meta <- root$outpack$metadata(id, full = TRUE)
+  meta <- root$metadata(id, full = TRUE)
   expect_length(meta$custom$orderly$global, 1)
   expect_mapequal(meta$custom$orderly$global[[1]],
                   list(here = "global_data.csv", there = "data.csv"))
@@ -266,7 +266,7 @@ test_that("global resources can be directories", {
     dir(file.path(path, "archive", "global-dir", id, "global_data")),
     c("iris.csv", "mtcars.csv"))
   root <- orderly_root_open(path, FALSE)
-  meta <- root$outpack$metadata(id, full = TRUE)
+  meta <- root$metadata(id, full = TRUE)
   expect_length(meta$custom$orderly$global, 2)
   expect_mapequal(
     meta$custom$orderly$global[[1]],
@@ -292,7 +292,7 @@ test_that("can add description metadata", {
   id <- orderly_run("description", root = path, envir = env)
 
   root <- orderly_root_open(path, FALSE)
-  meta <- root$outpack$metadata(id, full = TRUE)
+  meta <- root$metadata(id, full = TRUE)
   expect_equal(
     meta$custom$orderly$description,
     list(display = "Packet with description",
@@ -400,7 +400,7 @@ test_that("can copy resource from directory, implicitly", {
   env <- new.env()
   id <- orderly_run("resource-in-directory", root = path, envir = env)
 
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id, full = TRUE)
   ## TODO: should we assign these a role?
   expect_length(meta$custom$orderly$role, 0)
   expect_setequal(
@@ -432,7 +432,7 @@ test_that("can copy resource from directory, included by file", {
                 c('orderly2::orderly_resource("data/a.csv")',
                   'orderly2::orderly_resource("data/b.csv")'))
   id <- orderly_run("resource-in-directory", root = path, envir = env)
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id, full = TRUE)
   expect_equal(
     meta$custom$orderly$role,
     list(list(path = "data/a.csv", role = "resource"),
@@ -451,7 +451,7 @@ test_that("can copy resource from directory, included by file, strict mode", {
                   'orderly2::orderly_resource("data/a.csv")',
                   'orderly2::orderly_resource("data/b.csv")'))
   id <- orderly_run("resource-in-directory", root = path, envir = env)
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id, full = TRUE)
   expect_equal(
     meta$custom$orderly$role,
     list(list(path = "data/a.csv", role = "resource"),
@@ -468,7 +468,7 @@ test_that("can copy resource from directory, included by directory", {
   prepend_lines(path_src, 'orderly2::orderly_resource("data")')
   id <- orderly_run("resource-in-directory", root = path, envir = env)
 
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id, full = TRUE)
   expect_equal(
     meta$custom$orderly$role,
     list(list(path = "data/a.csv", role = "resource"),
@@ -487,7 +487,7 @@ test_that("can copy resource from directory, included by directory, strictly", {
                   'orderly2::orderly_resource("data")'))
   id <- orderly_run("resource-in-directory", root = path, envir = env)
 
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id, full = TRUE)
   expect_equal(
     meta$custom$orderly$role,
     list(list(path = "data/a.csv", role = "resource"),
@@ -527,8 +527,8 @@ test_that("can pull resources programmatically", {
                                root = path)
   id2 <- orderly2::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
-  meta1 <- orderly_root_open(path, FALSE)$outpack$metadata(id1, full = TRUE)
-  meta2 <- orderly_root_open(path, FALSE)$outpack$metadata(id2, full = TRUE)
+  meta1 <- orderly_root_open(path, FALSE)$metadata(id1, full = TRUE)
+  meta2 <- orderly_root_open(path, FALSE)$metadata(id2, full = TRUE)
 
   expect_equal(meta1$custom$orderly$role,
                list(list(path = "a.csv", role = "resource")))
@@ -549,8 +549,8 @@ test_that("can pull resources programmatically, strictly", {
                                root = path)
   id2 <- orderly2::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
-  meta1 <- orderly_root_open(path, FALSE)$outpack$metadata(id1, full = TRUE)
-  meta2 <- orderly_root_open(path, FALSE)$outpack$metadata(id2, full = TRUE)
+  meta1 <- orderly_root_open(path, FALSE)$metadata(id1, full = TRUE)
+  meta2 <- orderly_root_open(path, FALSE)$metadata(id2, full = TRUE)
 
   expect_equal(meta1$custom$orderly$role,
                list(list(path = "a.csv", role = "resource")))
@@ -728,7 +728,7 @@ test_that("can use a resource from a directory", {
   path <- test_prepare_orderly_example("directories")
   env <- new.env()
   id <- orderly_run("directories", root = path, envir = env)
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id, full = TRUE)
   expect_equal(meta$custom$orderly$role,
                list(list(path = "data/a.csv", role = "resource"),
                     list(path = "data/b.csv", role = "resource")))
@@ -742,7 +742,7 @@ test_that("can use a resource from a directory", {
   path <- test_prepare_orderly_example("directories")
   env <- new.env()
   id <- orderly_run("directories", root = path, envir = env)
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id, full = TRUE)
   expect_equal(meta$custom$orderly$role,
                list(list(path = "data/a.csv", role = "resource"),
                     list(path = "data/b.csv", role = "resource")))
@@ -770,7 +770,7 @@ test_that("can depend on a directory artefact", {
     file.path(path_src, "orderly.R"))
   env2 <- new.env()
   id2 <- orderly_run("use", root = path, envir = env2)
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id2, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id2, full = TRUE)
   expect_equal(meta$depends$packet, id1)
   expect_equal(meta$depends$files[[1]],
                data_frame(here = c("d/a.rds", "d/b.rds"),
@@ -935,7 +935,7 @@ test_that("can rename dependencies programmatically", {
     file.path(path_src, "orderly.R"))
   env2 <- new.env()
   id2 <- orderly_run("use", root = path, envir = env2)
-  meta <- orderly_root_open(path, FALSE)$outpack$metadata(id2, full = TRUE)
+  meta <- orderly_root_open(path, FALSE)$metadata(id2, full = TRUE)
   expect_equal(meta$depends$packet, id1)
   expect_equal(meta$depends$files[[1]],
                data_frame(here = "x/data.rds",

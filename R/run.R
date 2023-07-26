@@ -160,10 +160,12 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   p <- outpack_packet_start(path, name, parameters = parameters,
                                      id = id, logging_console = logging_console,
                                      logging_threshold = logging_threshold,
-                                     root = root$outpack)
+                                     root = root)
   withCallingHandlers({
+    ## TODO: Consider moving 'config' here to 'plugins' and only
+    ## moving that.
     outpack_packet_file_mark(p, "orderly.R", "immutable")
-    p$orderly2 <- list(config = root$config, envir = envir, src = src,
+    p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
                        strict = dat$strict, inputs_info = inputs_info,
                        search_options = search_options)
     current[[path]] <- p
