@@ -10,7 +10,7 @@ test_that("Can run simple example with plugin", {
 
   expect_identical(env$dat, cmp)
 
-  root <- orderly_root(path, locate = FALSE)
+  root <- orderly_root_open(path, locate = FALSE)
   meta <- root$outpack$metadata(id, full = TRUE)
 
   ## Our nice vectors have become lists here, due to the general pain

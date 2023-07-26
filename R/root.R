@@ -86,11 +86,11 @@ orderly_init <- function(path,
     writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
   }
 
-  invisible(orderly_root(path, locate = FALSE, environment()))
+  invisible(orderly_root_open(path, locate = FALSE, environment()))
 }
 
 
-orderly_root <- function(path, locate, call = NULL) {
+orderly_root_open <- function(path, locate, call = NULL) {
   if (inherits(path, "orderly_root")) {
     return(path)
   }

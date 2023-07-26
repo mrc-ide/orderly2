@@ -16,7 +16,7 @@ test_that("Configuration must exist", {
   outpack_init(tmp, logging_console = FALSE)
   expect_error(orderly_config(tmp),
                "Orderly configuration does not exist: 'orderly_config.yml'")
-  expect_error(orderly_root(tmp, FALSE),
+  expect_error(orderly_root_open(tmp, FALSE),
                "Orderly configuration does not exist: 'orderly_config.yml'")
 })
 
@@ -53,7 +53,7 @@ test_that("Can initialise a new orderly root", {
 
 test_that("initialisation leaves things unchanged", {
   path <- test_prepare_orderly_example("plugin")
-  cmp <- orderly_root(path, FALSE)$config
+  cmp <- orderly_root_open(path, FALSE)$config
   root <- orderly_init(path)
   expect_equal(root$config, cmp)
 })
