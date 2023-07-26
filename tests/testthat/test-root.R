@@ -24,7 +24,7 @@ test_that("error of opening an outpack root that is not an orderly root", {
   root <- outpack_init_no_orderly(tmp, logging_console = FALSE)
 
   err <- expect_error(
-    withr::with_dir(tmp, orderly_root_open(".", FALSE)),
+    withr::with_dir(tmp, root_open(".", FALSE, TRUE)),
     "Did not find 'orderly_config.yml' in '.",
     fixed = TRUE)
   expect_equal(

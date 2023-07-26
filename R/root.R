@@ -95,7 +95,8 @@ orderly_init <- function(path,
     writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
   }
 
-  root <- orderly_root_open(path, locate = FALSE, environment())
+  root <- root_open(path, locate = FALSE, require_orderly = TRUE,
+                    call = environment())
   invisible(root$path)
 }
 
@@ -117,11 +118,8 @@ empty_config_contents <- function() {
 ##   (this is actually quite hard to get right, but should be done
 ##   before anything is created I think)
 root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
-  if (inherits(path, "orderly_root")) {
-    return(path)
-  }
   if (inherits(path, "outpack_root")) {
-    if (!require_orderly) {
+    if (!require_orderly || !is.null(path$config$orderly)) {
       return(path)
     }
     ## This is going to error, but the error later will do.
@@ -180,7 +178,6 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
 
   if (has_orderly) {
     root$config$orderly <- orderly_config(root$path)
-    class(root) <- c("orderly_root", class(root))
   } else if (require_orderly) {
     cli::cli_abort(
       c("Did not find 'orderly_config.yml' in '{path}'",
@@ -197,10 +194,6 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
 
 ## These are helpers, that are easier to read in code, depending on if
 ## we require an outpack root or an orderly one.
-orderly_root_open <- function(path, locate, call = NULL) {
-  root_open(path, locate, TRUE, call)
-}
-
 
 outpack_root_open <- function(path, locate, call = NULL) {
   root_open(path, locate, FALSE, call)

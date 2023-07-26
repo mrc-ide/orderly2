@@ -63,7 +63,8 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
     root <- detect_orderly_interactive_path(path)$path
     name <- basename(path)
   } else {
-    root <- orderly_root_open(root, locate, environment())
+    root <- root_open(root, locate, require_orderly = TRUE,
+                      call = environment())
     validate_orderly_directory(name, root, environment())
     path <- file.path(root$path, "src", name)
     root <- root$path

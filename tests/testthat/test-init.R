@@ -14,8 +14,7 @@ test_that("Can initialise a new orderly root", {
   res <- orderly_init(tmp, logging_console = FALSE)
   expect_true(file.exists(tmp))
   expect_identical(res, normalizePath(tmp, mustWork = TRUE))
-  root <- orderly_root_open(tmp, FALSE)
-  expect_s3_class(root, "orderly_root")
+  root <- root_open(tmp, FALSE, TRUE)
   expect_s3_class(root, "outpack_root")
   expect_equal(root$config$orderly,
                list(minimum_orderly_version = numeric_version("1.99.0")))
@@ -24,9 +23,9 @@ test_that("Can initialise a new orderly root", {
 
 test_that("initialisation leaves things unchanged", {
   path <- test_prepare_orderly_example("plugin")
-  cmp <- orderly_root_open(path, FALSE)$config
+  cmp <- root_open(path, FALSE, TRUE)$config
   res <- orderly_init(path)
-  expect_equal(orderly_root_open(path, FALSE)$config, cmp)
+  expect_equal(root_open(path, FALSE, TRUE)$config, cmp)
 })
 
 
@@ -38,7 +37,7 @@ test_that("can turn an outpack root into an orderly one", {
   root2 <- outpack_root_open(tmp, FALSE)
   expect_equal(root2$config$orderly,
                list(minimum_orderly_version = numeric_version("1.99.0")))
-  expect_s3_class(root2, "orderly_root")
+  expect_s3_class(root2, "outpack_root")
 })
 
 
@@ -58,7 +57,7 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
       i = "See ?orderly_init for more arguments to this function"))
 
   withr::with_dir(parent, orderly_init(base, logging_console = FALSE))
-  root <- orderly_root_open(path, FALSE)
+  root <- root_open(path, FALSE, TRUE)
   expect_false(root$config$logging$console)
   expect_true(is_directory(file.path(path, ".outpack")))
 

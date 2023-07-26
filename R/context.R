@@ -14,7 +14,7 @@ orderly_context <- function() {
   } else {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)$path
-    config <- orderly_root_open(root, FALSE)$config$orderly
+    config <- root_open(root, FALSE, TRUE)$config$orderly
     env <- orderly_environment("orderly2")
     src <- path
     parameters <- current_orderly_parameters(src, env)
@@ -97,7 +97,7 @@ orderly_run_info <- function() {
   id <- ctx$packet$id %||% NA_character_
   name <- ctx$name
 
-  root <- orderly_root_open(ctx$root, FALSE)
+  root <- root_open(ctx$root, FALSE, TRUE, environment())
 
   deps <- ctx$packet$depends
   deps_n <- vnapply(deps, function(x) nrow(x$files))
