@@ -659,21 +659,23 @@ test_that("Can select location when querying dependencies for a report", {
   ids[["us"]] <- orderly_run("data", root = path[["us"]])
 
   ## Without locations we prefer the local one:
-  root <- outpack_root_open(path[["us"]], FALSE)
   id1 <- orderly_run("depends", root = path[["us"]])
-  expect_equal(root$metadata(id1)$depends$packet, ids[["us"]])
+  expect_equal(orderly_metadata(id1, path[["us"]])$depends$packet,
+               ids[["us"]])
 
   ## Filter to only allow prod:
   id2 <- orderly_run("depends",
                      search_options = list(location = "prod"),
                      root = path[["us"]])
-  expect_equal(root$metadata(id2)$depends$packet, ids[["prod"]])
+  expect_equal(orderly_metadata(id2, path[["us"]])$depends$packet,
+               ids[["prod"]])
 
   ## Allow any location:
   id3 <- orderly_run("depends",
                      search_options = list(location = c("prod", "dev")),
                      root = path[["us"]])
-  expect_equal(root$metadata(id3)$depends$packet, ids[["dev"]])
+  expect_equal(orderly_metadata(id3, path[["us"]])$depends$packet,
+               ids[["dev"]])
 })
 
 

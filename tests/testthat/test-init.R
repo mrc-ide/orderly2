@@ -34,7 +34,7 @@ test_that("can turn an outpack root into an orderly one", {
   outpack_init_no_orderly(tmp, logging_console = FALSE)
 
   orderly_init(tmp)
-  root2 <- outpack_root_open(tmp, FALSE)
+  root2 <- root_open(tmp, FALSE, FALSE)
   expect_equal(root2$config$orderly,
                list(minimum_orderly_version = numeric_version("1.99.0")))
   expect_s3_class(root2, "outpack_root")

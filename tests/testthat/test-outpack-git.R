@@ -50,7 +50,7 @@ test_that("store git information into packet, if under git's control", {
   outpack_packet_run(p, "script.R")
   outpack_packet_end(p)
 
-  meta <- outpack_root_open(root$path, FALSE)$metadata(id, TRUE)
+  meta <- orderly_metadata(id, root = root$path)
   expect_mapequal(meta$git,
                   list(branch = branch, sha = sha, url = url))
 })
@@ -65,7 +65,7 @@ test_that("store no information into packet, if no git found", {
   outpack_packet_run(p, "script.R")
   outpack_packet_end(p)
 
-  meta <- outpack_root_open(root$path, FALSE)$metadata(id, TRUE)
+  meta <- orderly_metadata(id, root = root$path)
   expect_true("git" %in% names(meta))
   expect_null(meta$git)
 })

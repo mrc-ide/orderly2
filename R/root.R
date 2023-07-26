@@ -192,14 +192,6 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
 }
 
 
-## These are helpers, that are easier to read in code, depending on if
-## we require an outpack root or an orderly one.
-
-outpack_root_open <- function(path, locate, call = NULL) {
-  root_open(path, locate, FALSE, call)
-}
-
-
 ## This is pretty unpleasant, but does the trick.
 root_validate_same_configuration <- function(args, config, root, call) {
   argmap <- list(

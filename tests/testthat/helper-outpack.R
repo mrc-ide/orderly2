@@ -92,7 +92,7 @@ create_temporary_root <- function(...) {
   path <- tempfile()
   withr::defer_parent(unlink(path, recursive = TRUE))
   orderly_init(path, ..., logging_console = FALSE)
-  outpack_root_open(path, FALSE)
+  root_open(path, locate = FALSE, require_orderly = FALSE)
 }
 
 
@@ -147,7 +147,7 @@ config_remove_logging <- function(path) {
   ]
 }'
   writeLines(
-    sprintf(fmt, local_location_id(outpack_root_open(path, FALSE))),
+    sprintf(fmt, local_location_id(root_open(path, FALSE, FALSE))),
     file.path(path, ".outpack", "config.json"))
 }
 

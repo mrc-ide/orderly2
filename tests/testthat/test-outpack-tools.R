@@ -117,7 +117,7 @@ test_that("can extract git metadata", {
   outpack_packet_run(p, "script.R")
   outpack_packet_end(p)
 
-  meta <- outpack_root_open(root$path, FALSE)$metadata(id, TRUE)
+  meta <- orderly_metadata(id, root = root$path)
 
   d <- orderly_metadata_extract('name == "example"',
                                 extract = "git",
