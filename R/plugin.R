@@ -25,7 +25,9 @@
 ##'   [`orderly2::orderly_plugin_add_metadata()`]; this is a named
 ##'   list with names corresponding to the `field` argument to
 ##'   `orderly_plugin_add_metadata` and each list element being an
-##'   unnamed list with values corresponding to `data`.
+##'   unnamed list with values corresponding to `data`. If `NULL`,
+##'   then no serialisation is done, and no metadata from your plugin
+##'   will be added.
 ##'
 ##' @param cleanup Optionally, a function to clean up any state that
 ##'   your plugin uses. You can call `orderly_plugin_context` from
@@ -39,8 +41,8 @@
 ##'   registering a plugin.
 ##'
 ##' @export
-orderly_plugin_register <- function(name, config, serialise, cleanup = NULL,
-                                    schema = NULL) {
+orderly_plugin_register <- function(name, config, serialise = NULL,
+                                    cleanup = NULL, schema = NULL) {
   assert_scalar_character(name)
   .plugins[[name]] <- orderly_plugin(config, serialise, cleanup, schema)
 }
@@ -65,16 +67,21 @@ load_orderly_plugin <- function(name) {
 
 orderly_plugin <- function(config, serialise, cleanup, schema) {
   assert_is(config, "function")
-  assert_is(serialise, "function")
   if (is.null(cleanup)) {
     cleanup <- plugin_no_cleanup
   }
-  assert_is(cleanup, "function")
   if (!is.null(schema)) {
+    if (is.null(serialise)) {
+      stop("If 'schema' is given, then 'serialise' must be non-NULL")
+    }
     assert_file_exists(schema, name = "Schema file")
     schema <- paste(readLines(schema), collapse = "\n")
     class(schema) <- "json"
   }
+  if (is.null(serialise)) {
+    serialise <- plugin_no_serialise
+  }
+  assert_is(cleanup, "function")
   ret <- list(config = config,
               serialise = serialise,
               cleanup = cleanup,
@@ -197,4 +204,14 @@ plugin_run_cleanup <- function(path, plugins) {
 
 
 plugin_no_cleanup <- function() {
+}
+
+
+plugin_no_serialise <- function(data) {
+  empty <- is.null(data) || all(vlapply(data, is.null))
+  if (!empty) {
+    stop(paste("Your plugin produced output to be serialise but",
+               "has no serialise method"))
+  }
+  to_json(NULL, NULL)
 }
