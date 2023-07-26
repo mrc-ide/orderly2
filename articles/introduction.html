@@ -117,7 +117,7 @@ excluded from version control. This can be done with
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># we'll use a temporary directory here</span></span>
 <span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_init.html">orderly_init</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [ init       ]  /tmp/RtmpETNC94/file19bf136d2df7</span></span></code></pre>
+<pre><code><span><span class="co">## [ init       ]  /tmp/RtmpCLzHMQ/file19503cf9a23a</span></span></code></pre>
 <p>which creates a few files:</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">.outpack</span></span></span>
@@ -161,18 +161,18 @@ like:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"incoming_data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [ name       ]  incoming_data</span></span></code></pre>
-<pre><code><span><span class="co">## [ id         ]  20230724-164752-8baf8069</span></span></code></pre>
-<pre><code><span><span class="co">## [ start      ]  2023-07-24 16:47:52</span></span></code></pre>
+<pre><code><span><span class="co">## [ id         ]  20230726-130859-0637cfc3</span></span></code></pre>
+<pre><code><span><span class="co">## [ start      ]  2023-07-26 13:08:59</span></span></code></pre>
 <pre><code><span><span class="co">## [ script     ]  orderly.R</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; d &lt;- read.csv("data.csv")</span></span>
 <span><span class="co">## &gt; d$z &lt;- resid(lm(y ~ x, d))</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## [ result     ]  success</span></span></code></pre>
-<pre><code><span><span class="co">## [ end        ]  2023-07-24 16:47:52</span></span></code></pre>
-<pre><code><span><span class="co">## [ elapsed    ]  0.01970911 secs</span></span></code></pre>
+<pre><code><span><span class="co">## [ end        ]  2023-07-26 13:08:59</span></span></code></pre>
+<pre><code><span><span class="co">## [ elapsed    ]  0.07900214 secs</span></span></code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "20230724-164752-8baf8069"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20230726-130859-0637cfc3"</span></span></code></pre>
 <p>The <code>id</code> that is created is a new identifier for the
 packet that will be both unique among all packets (within reason) and
 chronologically sortable. A packet that has an id that sorts after
@@ -181,7 +181,7 @@ another packet’s id was started before that packet.</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">incoming_data</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230724-164752-8baf8069</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230726-130859-0637cfc3</span></span></span>
 <span><span class="co">## │           ├── data.csv</span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
 <span><span class="co">## │           ├── log.json</span></span>
@@ -195,7 +195,7 @@ another packet’s id was started before that packet.</p>
 <span><span class="co">##         └── <span style="color: #00BB00;">orderly.R</span></span></span></code></pre>
 <p>A few things have changed here:</p>
 <ul>
-<li>we have a directory archive/incoming_data/20230724-164752-8baf8069;
+<li>we have a directory archive/incoming_data/20230726-130859-0637cfc3;
 this directory contains
 <ul>
 <li>the file that was created when we ran the report
@@ -267,8 +267,8 @@ to make a plot, which we’ve saved as <code>analysis.png</code>.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"analysis"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [ name       ]  analysis</span></span></code></pre>
-<pre><code><span><span class="co">## [ id         ]  20230724-164753-661cd83f</span></span></code></pre>
-<pre><code><span><span class="co">## [ start      ]  2023-07-24 16:47:53</span></span></code></pre>
+<pre><code><span><span class="co">## [ id         ]  20230726-130859-da412260</span></span></code></pre>
+<pre><code><span><span class="co">## [ start      ]  2023-07-26 13:08:59</span></span></code></pre>
 <pre><code><span><span class="co">## [ script     ]  orderly.R</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_dependency("incoming_data", "latest()",</span></span>
 <span><span class="co">## +                              c("incoming.rds" = "data.rds"))</span></span>
@@ -279,8 +279,8 @@ to make a plot, which we’ve saved as <code>analysis.png</code>.</p>
 <span><span class="co">## agg_png </span></span>
 <span><span class="co">##       2</span></span></code></pre>
 <pre><code><span><span class="co">## [ result     ]  success</span></span></code></pre>
-<pre><code><span><span class="co">## [ end        ]  2023-07-24 16:47:53</span></span></code></pre>
-<pre><code><span><span class="co">## [ elapsed    ]  0.07275653 secs</span></span></code></pre>
+<pre><code><span><span class="co">## [ end        ]  2023-07-26 13:09:00</span></span></code></pre>
+<pre><code><span><span class="co">## [ elapsed    ]  0.2034757 secs</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="available-in-report-orderly-commands">Available in-report orderly commands<a class="anchor" aria-label="anchor" href="#available-in-report-orderly-commands"></a>
@@ -352,8 +352,8 @@ available at that point (see below).</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"incoming_data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [ name       ]  incoming_data</span></span></code></pre>
-<pre><code><span><span class="co">## [ id         ]  20230724-164753-ca221f92</span></span></code></pre>
-<pre><code><span><span class="co">## [ start      ]  2023-07-24 16:47:53</span></span></code></pre>
+<pre><code><span><span class="co">## [ id         ]  20230726-130900-63827f69</span></span></code></pre>
+<pre><code><span><span class="co">## [ start      ]  2023-07-26 13:09:00</span></span></code></pre>
 <pre><code><span><span class="co">## [ script     ]  orderly.R</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_strict_mode()</span></span>
 <span><span class="co">## &gt; orderly2::orderly_resource("data.csv")</span></span>
@@ -362,8 +362,8 @@ available at that point (see below).</p>
 <span><span class="co">## &gt; d$z &lt;- resid(lm(y ~ x, d))</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## [ result     ]  success</span></span></code></pre>
-<pre><code><span><span class="co">## [ end        ]  2023-07-24 16:47:53</span></span></code></pre>
-<pre><code><span><span class="co">## [ elapsed    ]  0.01999021 secs</span></span></code></pre>
+<pre><code><span><span class="co">## [ end        ]  2023-07-26 13:09:00</span></span></code></pre>
+<pre><code><span><span class="co">## [ elapsed    ]  0.03012824 secs</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="parameterised-reports">Parameterised reports<a class="anchor" aria-label="anchor" href="#parameterised-reports"></a>
@@ -405,17 +405,17 @@ set.</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"random"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_samples <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [ name       ]  random</span></span></code></pre>
-<pre><code><span><span class="co">## [ id         ]  20230724-164754-225a20c9</span></span></code></pre>
+<pre><code><span><span class="co">## [ id         ]  20230726-130900-be98e653</span></span></code></pre>
 <pre><code><span><span class="co">## [ parameter  ]  n_samples: 15</span></span></code></pre>
-<pre><code><span><span class="co">## [ start      ]  2023-07-24 16:47:54</span></span></code></pre>
+<pre><code><span><span class="co">## [ start      ]  2023-07-26 13:09:00</span></span></code></pre>
 <pre><code><span><span class="co">## [ script     ]  orderly.R</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_parameters(n_samples = 10)</span></span>
 <span><span class="co">## &gt; x &lt;- seq_len(n_samples)</span></span>
 <span><span class="co">## &gt; d &lt;- data.frame(x = x, y = x + rnorm(n_samples))</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## [ result     ]  success</span></span></code></pre>
-<pre><code><span><span class="co">## [ end        ]  2023-07-24 16:47:54</span></span></code></pre>
-<pre><code><span><span class="co">## [ elapsed    ]  0.009053946 secs</span></span></code></pre>
+<pre><code><span><span class="co">## [ end        ]  2023-07-26 13:09:00</span></span></code></pre>
+<pre><code><span><span class="co">## [ elapsed    ]  0.01987815 secs</span></span></code></pre>
 <p>Our resulting file has 15 rows, as the parameter we passed in
 affected the report:</p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
@@ -423,32 +423,32 @@ affected the report:</p>
 <span>                             root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dest</span>, <span class="st">"random.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##     x           y</span></span>
-<span><span class="co">## 1   1  0.04559022</span></span>
-<span><span class="co">## 2   2  2.41437853</span></span>
-<span><span class="co">## 3   3  3.27733248</span></span>
-<span><span class="co">## 4   4  3.40114537</span></span>
-<span><span class="co">## 5   5  4.25336839</span></span>
-<span><span class="co">## 6   6  6.96213803</span></span>
-<span><span class="co">## 7   7  7.47450466</span></span>
-<span><span class="co">## 8   8  8.08756971</span></span>
-<span><span class="co">## 9   9  9.39966644</span></span>
-<span><span class="co">## 10 10  9.96365444</span></span>
-<span><span class="co">## 11 11  9.31366646</span></span>
-<span><span class="co">## 12 12 12.10820582</span></span>
-<span><span class="co">## 13 13 12.67751822</span></span>
-<span><span class="co">## 14 14 13.05904171</span></span>
-<span><span class="co">## 15 15 15.85909801</span></span></code></pre>
+<span><span class="co">## 1   1  0.09128506</span></span>
+<span><span class="co">## 2   2  4.42674531</span></span>
+<span><span class="co">## 3   3  3.31356391</span></span>
+<span><span class="co">## 4   4  4.98383339</span></span>
+<span><span class="co">## 5   5  5.19105817</span></span>
+<span><span class="co">## 6   6  5.89698922</span></span>
+<span><span class="co">## 7   7  9.11464907</span></span>
+<span><span class="co">## 8   8  8.29720267</span></span>
+<span><span class="co">## 9   9 10.23837740</span></span>
+<span><span class="co">## 10 10 10.41562316</span></span>
+<span><span class="co">## 11 11 11.00294957</span></span>
+<span><span class="co">## 12 12 10.12566372</span></span>
+<span><span class="co">## 13 13 12.85573454</span></span>
+<span><span class="co">## 14 14 14.99911938</span></span>
+<span><span class="co">## 15 15 14.51051612</span></span></code></pre>
 <p>You can use these parameters in orderly’s search functions. For
 example we can find the most recent version of a packet by running:</p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/outpack_search.html">outpack_search</a></span><span class="op">(</span><span class="st">'latest(name == "random")'</span>,</span>
 <span>                         root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "20230724-164754-225a20c9"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20230726-130900-be98e653"</span></span></code></pre>
 <p>But we can also pass in parameter queries here:</p>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/outpack_search.html">outpack_search</a></span><span class="op">(</span><span class="st">'latest(name == "random" &amp;&amp; parameter:n_samples &gt; 10)'</span>,</span>
 <span>                         root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "20230724-164754-225a20c9"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20230726-130900-be98e653"</span></span></code></pre>
 <p>These can be used within <code><a href="../reference/orderly_dependency.html">orderly2::orderly_dependency()</a></code>
 (the <code>name == "random"</code> part is implied by the first
 <code>name</code> argument), for example</p>
@@ -485,24 +485,24 @@ option must match, and the directory must exist).</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   ├── <span style="color: #0000BB; font-weight: bold;">analysis</span></span></span>
-<span><span class="co">## │   │   └── <span style="color: #0000BB; font-weight: bold;">20230724-164753-661cd83f</span></span></span>
+<span><span class="co">## │   │   └── <span style="color: #0000BB; font-weight: bold;">20230726-130859-da412260</span></span></span>
 <span><span class="co">## │   │       ├── <span style="color: #BB00BB; font-weight: bold;">analysis.png</span></span></span>
 <span><span class="co">## │   │       ├── incoming.rds</span></span>
 <span><span class="co">## │   │       ├── log.json</span></span>
 <span><span class="co">## │   │       └── <span style="color: #00BB00;">orderly.R</span></span></span>
 <span><span class="co">## │   ├── <span style="color: #0000BB; font-weight: bold;">incoming_data</span></span></span>
-<span><span class="co">## │   │   ├── <span style="color: #0000BB; font-weight: bold;">20230724-164752-8baf8069</span></span></span>
+<span><span class="co">## │   │   ├── <span style="color: #0000BB; font-weight: bold;">20230726-130859-0637cfc3</span></span></span>
 <span><span class="co">## │   │   │   ├── data.csv</span></span>
 <span><span class="co">## │   │   │   ├── data.rds</span></span>
 <span><span class="co">## │   │   │   ├── log.json</span></span>
 <span><span class="co">## │   │   │   └── <span style="color: #00BB00;">orderly.R</span></span></span>
-<span><span class="co">## │   │   └── <span style="color: #0000BB; font-weight: bold;">20230724-164753-ca221f92</span></span></span>
+<span><span class="co">## │   │   └── <span style="color: #0000BB; font-weight: bold;">20230726-130900-63827f69</span></span></span>
 <span><span class="co">## │   │       ├── data.csv</span></span>
 <span><span class="co">## │   │       ├── data.rds</span></span>
 <span><span class="co">## │   │       ├── log.json</span></span>
 <span><span class="co">## │   │       └── <span style="color: #00BB00;">orderly.R</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">random</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230724-164754-225a20c9</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230726-130900-be98e653</span></span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
 <span><span class="co">## │           ├── log.json</span></span>
 <span><span class="co">## │           └── <span style="color: #00BB00;">orderly.R</span></span></span>
@@ -535,8 +535,8 @@ this global file, with its <code>orderly.R</code> containing:</p>
 <div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"use_global"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [ name       ]  use_global</span></span></code></pre>
-<pre><code><span><span class="co">## [ id         ]  20230724-164754-e8db6e9a</span></span></code></pre>
-<pre><code><span><span class="co">## [ start      ]  2023-07-24 16:47:54</span></span></code></pre>
+<pre><code><span><span class="co">## [ id         ]  20230726-130901-9248c158</span></span></code></pre>
+<pre><code><span><span class="co">## [ start      ]  2023-07-26 13:09:01</span></span></code></pre>
 <pre><code><span><span class="co">## [ script     ]  orderly.R</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_global_resource(data.csv = "data.csv")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("analysis", "analysis.png")</span></span>
@@ -547,12 +547,12 @@ this global file, with its <code>orderly.R</code> containing:</p>
 <span><span class="co">## agg_png </span></span>
 <span><span class="co">##       2</span></span></code></pre>
 <pre><code><span><span class="co">## [ result     ]  success</span></span></code></pre>
-<pre><code><span><span class="co">## [ end        ]  2023-07-24 16:47:54</span></span></code></pre>
-<pre><code><span><span class="co">## [ elapsed    ]  0.02734542 secs</span></span></code></pre>
+<pre><code><span><span class="co">## [ end        ]  2023-07-26 13:09:01</span></span></code></pre>
+<pre><code><span><span class="co">## [ elapsed    ]  0.04489994 secs</span></span></code></pre>
 <p>In the resulting archive, the file that was used from the global
 directory is present:</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">archive/use_global</span></span></span>
-<span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">20230724-164754-e8db6e9a</span></span></span>
+<span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">20230726-130901-9248c158</span></span></span>
 <span><span class="co">##     ├── <span style="color: #BB00BB; font-weight: bold;">analysis.png</span></span></span>
 <span><span class="co">##     ├── data.csv</span></span>
 <span><span class="co">##     ├── log.json</span></span>
@@ -676,18 +676,18 @@ the ideas here.</p>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">index</span></span></span>
 <span><span class="co">## │   └── outpack.rds</span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">location</span></span></span>
-<span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">c35992b8</span></span></span>
-<span><span class="co">## │       ├── 20230724-164752-8baf8069</span></span>
-<span><span class="co">## │       ├── 20230724-164753-661cd83f</span></span>
-<span><span class="co">## │       ├── 20230724-164753-ca221f92</span></span>
-<span><span class="co">## │       ├── 20230724-164754-225a20c9</span></span>
-<span><span class="co">## │       └── 20230724-164754-e8db6e9a</span></span>
+<span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">fcf65af4</span></span></span>
+<span><span class="co">## │       ├── 20230726-130859-0637cfc3</span></span>
+<span><span class="co">## │       ├── 20230726-130859-da412260</span></span>
+<span><span class="co">## │       ├── 20230726-130900-63827f69</span></span>
+<span><span class="co">## │       ├── 20230726-130900-be98e653</span></span>
+<span><span class="co">## │       └── 20230726-130901-9248c158</span></span>
 <span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">metadata</span></span></span>
-<span><span class="co">##     ├── 20230724-164752-8baf8069</span></span>
-<span><span class="co">##     ├── 20230724-164753-661cd83f</span></span>
-<span><span class="co">##     ├── 20230724-164753-ca221f92</span></span>
-<span><span class="co">##     ├── 20230724-164754-225a20c9</span></span>
-<span><span class="co">##     └── 20230724-164754-e8db6e9a</span></span></code></pre>
+<span><span class="co">##     ├── 20230726-130859-0637cfc3</span></span>
+<span><span class="co">##     ├── 20230726-130859-da412260</span></span>
+<span><span class="co">##     ├── 20230726-130900-63827f69</span></span>
+<span><span class="co">##     ├── 20230726-130900-be98e653</span></span>
+<span><span class="co">##     └── 20230726-130901-9248c158</span></span></code></pre>
 <p>As can be perhaps inferred from the filenames, the files
 <code>.outpack/metadata/&lt;packet-id&gt;</code> are the metadata for
 each packet as it has been run. The files
@@ -703,51 +703,53 @@ directory looks like:</p>
 <span><span class="co">## ├── config.json</span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">files</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">sha256</span></span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">05</span></span></span>
+<span><span class="co">## │       │   └── b520d9f99c6eee19b962c716294a96ad799dd097b8d34015ff063451f9f764</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">08</span></span></span>
+<span><span class="co">## │       │   └── 934970c6539c076c9c0b8e5dbc9555772987e2eec7c61f02e76dac1e54576d</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">0a</span></span></span>
-<span><span class="co">## │       │   ├── 62667de4118eb375d4a9c0af2c78c6b1722b6af0c95de8d1063657e8ccc0cf</span></span>
 <span><span class="co">## │       │   └── a82571c21c4e5f1f435e8bef2328dda5ef47e177d78d63d1c4ec647a5a388a</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">0c</span></span></span>
-<span><span class="co">## │       │   └── 2c70992e905b1bfc86ea11f36d30f25123e151bef12f14de741d1f98e4916e</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">23</span></span></span>
-<span><span class="co">## │       │   └── 1cf9b21126b557a1312b332bc106c7fc355daf973c53e21d88eaa351cfca71</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">17</span></span></span>
+<span><span class="co">## │       │   └── 79c1986625e3dcdb804a365ed9dda36629c2749f8b866b099f3ecc12a93492</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">28</span></span></span>
 <span><span class="co">## │       │   └── d08ad62b729cb1f5fbab59c1bcf442281abb1ac6e81e2f32dbc5b56c84ef12</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">34</span></span></span>
-<span><span class="co">## │       │   └── 7d7a100e47321d5456de4625a042ecde0e4953aa1c7e713c146db6b5e5d833</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">3d</span></span></span>
-<span><span class="co">## │       │   └── 04a827aed725d39846e651d47b7219b57991b68fb8fea741ba0c5befa477e4</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">47</span></span></span>
-<span><span class="co">## │       │   └── 81d6318d932a39edb21347c7d8b840c523ea1f5d48633b40abb52a0236b6aa</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">58</span></span></span>
-<span><span class="co">## │       │   └── bda8a3e76104474b4d43cb14bfaf4a8f26ab9ed462b540c37d31827f039416</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">42</span></span></span>
+<span><span class="co">## │       │   └── 7a5064c981fca4e2905ac3ee7831d92a0f64c7712e4d9850f418c7cc7de419</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">5f</span></span></span>
-<span><span class="co">## │       │   ├── 96f49230c2791c05706f24cb2335cd0fad5d3625dc6bca124c44a51857f3f8</span></span>
-<span><span class="co">## │       │   └── f08e10f6beca1724ad53a8076710daa0fc666229d0ee71b4b498d1b1429426</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">66</span></span></span>
-<span><span class="co">## │       │   └── 0679cfc8b979c19519cbc79557f9c6bd0e13f853f41286dbfb2c39d884a585</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">7a</span></span></span>
-<span><span class="co">## │       │   └── 205c936caf1ccd0ea06947744c598f4a138b1712e95a78dc17726274570e6b</span></span>
+<span><span class="co">## │       │   └── 96f49230c2791c05706f24cb2335cd0fad5d3625dc6bca124c44a51857f3f8</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">62</span></span></span>
+<span><span class="co">## │       │   └── 249247c1b140ae19cfbef774eb448894703193117ff21b0056e26e2c3e02d9</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">6d</span></span></span>
+<span><span class="co">## │       │   └── aba0bdbd8b99bb95f969810e9cdce566ffb667f0c729a3a81b4e2ced6aa4c2</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">8c</span></span></span>
+<span><span class="co">## │       │   └── 073119889d355a5e0870d6515773e6f6d0f7023a446c4a8f67976e0b97c6cf</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">aa</span></span></span>
+<span><span class="co">## │       │   └── 8acc20ec2b03e59a9f10d365b00fe2054034bfcf83bf6e9859f416f9957c7b</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">af</span></span></span>
 <span><span class="co">## │       │   └── 60a8b657d5c6a57fd4e36e815f4bf758f2de2b96d76ba8ece5d66903a66c58</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">bb</span></span></span>
+<span><span class="co">## │       │   └── 59bc4870400f4513e846ca3313cd1ab6f8d4b603bbbc9e45ecb106174d9f05</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">d6</span></span></span>
+<span><span class="co">## │       │   └── fc707a577fbe1bba9e525fb8553b77084fb41b7e26205ff3735c905d185a4d</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">d9</span></span></span>
 <span><span class="co">## │       │   └── 1699ae410cbd811e1f028f8a732e5162b7df854eec08d921141f965851272d</span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">da</span></span></span>
-<span><span class="co">## │           └── 80f1e9d60c027aa0de86c8e1c0cb9d17a208e073b79f11919fdcc872cf5e0e</span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">f5</span></span></span>
+<span><span class="co">## │           └── 1aceee71b9626a6234cdc0ddb3de88a079ff8be44c1fce5714af30ef74bdbf</span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">index</span></span></span>
 <span><span class="co">## │   └── outpack.rds</span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">location</span></span></span>
-<span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">c35992b8</span></span></span>
-<span><span class="co">## │       ├── 20230724-164752-8baf8069</span></span>
-<span><span class="co">## │       ├── 20230724-164753-661cd83f</span></span>
-<span><span class="co">## │       ├── 20230724-164753-ca221f92</span></span>
-<span><span class="co">## │       ├── 20230724-164754-225a20c9</span></span>
-<span><span class="co">## │       └── 20230724-164754-e8db6e9a</span></span>
+<span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">fcf65af4</span></span></span>
+<span><span class="co">## │       ├── 20230726-130859-0637cfc3</span></span>
+<span><span class="co">## │       ├── 20230726-130859-da412260</span></span>
+<span><span class="co">## │       ├── 20230726-130900-63827f69</span></span>
+<span><span class="co">## │       ├── 20230726-130900-be98e653</span></span>
+<span><span class="co">## │       └── 20230726-130901-9248c158</span></span>
 <span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">metadata</span></span></span>
-<span><span class="co">##     ├── 20230724-164752-8baf8069</span></span>
-<span><span class="co">##     ├── 20230724-164753-661cd83f</span></span>
-<span><span class="co">##     ├── 20230724-164753-ca221f92</span></span>
-<span><span class="co">##     ├── 20230724-164754-225a20c9</span></span>
-<span><span class="co">##     └── 20230724-164754-e8db6e9a</span></span></code></pre>
+<span><span class="co">##     ├── 20230726-130859-0637cfc3</span></span>
+<span><span class="co">##     ├── 20230726-130859-da412260</span></span>
+<span><span class="co">##     ├── 20230726-130900-63827f69</span></span>
+<span><span class="co">##     ├── 20230726-130900-be98e653</span></span>
+<span><span class="co">##     └── 20230726-130901-9248c158</span></span></code></pre>
 <p>The files under <code>.outpack/files/</code> should never be modified
 or deleted. This approach to storage naturally deduplicates the file
 archive, so that a large file used in many places is only ever stored
