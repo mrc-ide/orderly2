@@ -29,7 +29,7 @@
 ##'   package name here.
 ##'
 ##' @return Nothing, this is called for its side effects
-##' @export
+##' @noRd
 outpack_log <- function(object, log_level, topic, detail, caller) {
   if (inherits(object, "outpack_packet") || inherits(object, "outpack_root")) {
     logger <- object$logger
@@ -52,22 +52,16 @@ outpack_log <- function(object, log_level, topic, detail, caller) {
 }
 
 
-##' @export
-##' @rdname outpack_log
 outpack_log_info <- function(object, topic, detail, caller) {
   outpack_log(object, "info", topic, detail, caller)
 }
 
 
-##' @export
-##' @rdname outpack_log
 outpack_log_debug <- function(object, topic, detail, caller) {
   outpack_log(object, "debug", topic, detail, caller)
 }
 
 
-##' @export
-##' @rdname outpack_log
 outpack_log_trace <- function(object, topic, detail, caller) {
   outpack_log(object, "trace", topic, detail, caller)
 }
@@ -85,12 +79,12 @@ outpack_log_trace <- function(object, topic, detail, caller) {
 ##'
 ##' @param id The identifier of the packet to read logs for
 ##'
-##' @inheritParams outpack_search
+##' @inheritParams orderly_search
 ##'
 ##' @return A [data.frame] of log information
 ##'
 ##' @export
-outpack_log_read <- function(id, root = NULL) {
+orderly_log_read <- function(id, root = NULL) {
   root <- outpack_root_open(root, locate = TRUE)
   meta <- root$metadata(id)
   hash <- meta$files$hash[meta$files$path == "log.json"]

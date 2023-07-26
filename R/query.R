@@ -1,5 +1,5 @@
 ##' Construct an outpack query, typically then passed through to
-##' [outpack_search]
+##' [orderly2::orderly_search]
 ##'
 ##' @title Construct outpack query
 ##'
@@ -15,11 +15,11 @@
 ##' @param subquery Optionally, named list of subqueries which can be
 ##'   referenced by name from the `expr`.
 ##'
-##' @return An `outpack_query` object, which should not be modified,
-##'   but which can be passed to [orderly2::outpack_search()]
+##' @return An `orderly_query` object, which should not be modified,
+##'   but which can be passed to [orderly2::orderly_search()]
 ##'
 ##' @export
-outpack_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
+orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
   subquery_env <- make_subquery_env(subquery)
   expr_parsed <- query_parse(expr, expr, subquery_env)
   if (!is.null(name)) {
@@ -44,22 +44,22 @@ outpack_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
   ret <- list(value = expr_parsed,
               subquery = as.list(subquery_env),
               info = info)
-  class(ret) <- "outpack_query"
+  class(ret) <- "orderly_query"
   ret
 }
 
 
-as_outpack_query <- function(expr, ...) {
+as_orderly_query <- function(expr, ...) {
   if (missing(expr)) {
     expr <- NULL
   }
-  if (inherits(expr, "outpack_query")) {
+  if (inherits(expr, "orderly_query")) {
     if (...length() > 0) {
-      stop("If 'expr' is an 'outpack_query', no additional arguments allowed")
+      stop("If 'expr' is an 'orderly_query', no additional arguments allowed")
     }
     expr
   } else {
-    outpack_query(expr, ...)
+    orderly_query(expr, ...)
   }
 }
 
@@ -105,7 +105,7 @@ query_component <- function(type, expr, context, args, ...) {
   stopifnot(is.character(type) && length(type) == 1)
   structure(
     list(type = type, expr = expr, context = context, args = args, ...),
-    class = "outpack_query_component")
+    class = "orderly_query_component")
 }
 
 

@@ -1,5 +1,5 @@
 ##' Read metadata for a particular id. You may want to use
-##' [orderly2::outpack_search] to find an id corresponding to a
+##' [orderly2::orderly_search] to find an id corresponding to a
 ##' particular query.
 ##'
 ##' @title Read outpack metadata
@@ -15,7 +15,7 @@
 ##'   (https://github.com/mrc-ide/outpack)
 ##'
 ##' @export
-outpack_metadata <- function(id, root = NULL) {
+orderly_metadata <- function(id, root = NULL) {
   validate_outpack_id(id)
   root <- outpack_root_open(root, locate = TRUE)
   root$metadata(id, full = TRUE)
@@ -26,8 +26,7 @@ outpack_metadata <- function(id, root = NULL) {
 ##' function can be used to directly read a metadata json file without
 ##' reference to a root which contains it. It may be useful in the
 ##' context of reading a metadata file written out as part of a failed
-##' run (see the `insert = FALSE` argument to
-##' [orderly2::outpack_packet_end()])
+##' run.
 ##'
 ##' @title Read outpack metadata json file
 ##'
@@ -39,7 +38,7 @@ outpack_metadata <- function(id, root = NULL) {
 ##'   scalar and length-one vectors into the expected types.
 ##'
 ##' @export
-outpack_metadata_read <- function(path) {
+orderly_metadata_read <- function(path) {
   assert_file_exists(path)
   outpack_metadata_load(path)
 }

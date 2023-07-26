@@ -177,7 +177,7 @@ test_that("reject logging calls with invalid object", {
 test_that("Can read logs", {
   root <- create_temporary_root()
   id <- create_random_packet(root)
-  logs <- outpack_log_read(id, root)
+  logs <- orderly_log_read(id, root)
   expect_s3_class(logs, "data.frame")
   expect_identical(
     logs,

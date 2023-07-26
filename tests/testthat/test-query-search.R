@@ -1,16 +1,16 @@
 test_that("can construct search options", {
-  defaults <- outpack_search_options()
-  expect_s3_class(defaults, "outpack_search_options")
+  defaults <- orderly_search_options()
+  expect_s3_class(defaults, "orderly_search_options")
   expect_mapequal(
     unclass(defaults),
     list(location = NULL,
          allow_remote = FALSE,
          pull_metadata = FALSE))
 
-  opts <- outpack_search_options(location = c("x", "y"),
+  opts <- orderly_search_options(location = c("x", "y"),
                                  allow_remote = TRUE,
                                  pull_metadata = TRUE)
-  expect_s3_class(opts, "outpack_search_options")
+  expect_s3_class(opts, "orderly_search_options")
   expect_mapequal(
     unclass(opts),
     list(location = c("x", "y"),
@@ -20,25 +20,25 @@ test_that("can construct search options", {
 
 
 test_that("can convert into search options", {
-  opts <- outpack_search_options(location = "x",
+  opts <- orderly_search_options(location = "x",
                                  allow_remote = FALSE,
                                  pull_metadata = FALSE)
-  expect_equal(as_outpack_search_options(NULL),
-               outpack_search_options())
-  expect_equal(as_outpack_search_options(list(location = "x")),
-               modifyList(outpack_search_options(), list(location = "x")))
-  expect_equal(as_outpack_search_options(unclass(opts)),
+  expect_equal(as_orderly_search_options(NULL),
+               orderly_search_options())
+  expect_equal(as_orderly_search_options(list(location = "x")),
+               modifyList(orderly_search_options(), list(location = "x")))
+  expect_equal(as_orderly_search_options(unclass(opts)),
                opts)
 })
 
 
 test_that("validate inputs to outpack search options", {
   expect_error(
-    as_outpack_search_options(c(allow_remote = FALSE)),
-    "Expected 'options' to be an 'outpack_search_options' or a list of options")
+    as_orderly_search_options(c(allow_remote = FALSE)),
+    "Expected 'options' to be an 'orderly_search_options' or a list of options")
   expect_error(
-    as_outpack_search_options(list(allow_remote = FALSE, other = FALSE)),
-    "Invalid option passed to 'outpack_search_options': 'other'")
+    as_orderly_search_options(list(allow_remote = FALSE, other = FALSE)),
+    "Invalid option passed to 'orderly_search_options': 'other'")
 })
 
 
@@ -46,37 +46,37 @@ test_that("Can run very basic queries", {
   root <- create_temporary_root(use_file_store = TRUE)
   ids <- vcapply(1:3, function(i) create_random_packet(root))
   expect_equal(
-    outpack_search(quote(latest), root = root),
+    orderly_search(quote(latest), root = root),
     last(ids))
   expect_equal(
-    outpack_search(quote(latest()), root = root),
+    orderly_search(quote(latest()), root = root),
     last(ids))
   expect_equal(
-    outpack_search(bquote(id == .(ids[[1]])), root = root),
+    orderly_search(bquote(id == .(ids[[1]])), root = root),
     ids[[1]])
   expect_equal(
-    outpack_search(quote(name == "data"), root = root),
+    orderly_search(quote(name == "data"), root = root),
     ids)
   expect_equal(
-    outpack_search(quote(latest(name == "data")), root = root),
+    orderly_search(quote(latest(name == "data")), root = root),
     last(ids))
   expect_equal(
-    outpack_search(quote(name == "other"), root = root),
+    orderly_search(quote(name == "other"), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(latest(name == "other")), root = root),
+    orderly_search(quote(latest(name == "other")), root = root),
     NA_character_)
   expect_equal(
-    outpack_search(quote(name == "other" || name == "data"), root = root),
+    orderly_search(quote(name == "other" || name == "data"), root = root),
     ids)
   expect_equal(
-    outpack_search(quote(name == "other" && name == "data"), root = root),
+    orderly_search(quote(name == "other" && name == "data"), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(!(name == "other") && name == "data"), root = root),
+    orderly_search(quote(!(name == "other") && name == "data"), root = root),
     ids)
   expect_equal(
-    outpack_search(bquote(latest(id == .(ids[[1]]) || id == .(ids[[2]]))),
+    orderly_search(bquote(latest(id == .(ids[[1]]) || id == .(ids[[2]]))),
       root = root),
     ids[[2]])
 })
@@ -91,10 +91,10 @@ test_that("Scope queries", {
   y2 <- vcapply(1:3, function(i) create_random_packet(root, "y", list(a = 2)))
 
   expect_equal(
-    outpack_search(quote(parameter:a == 1), root = root),
+    orderly_search(quote(parameter:a == 1), root = root),
     c(x1, y1))
   expect_equal(
-    outpack_search(quote(parameter:a == 1), scope = quote(name == "x"),
+    orderly_search(quote(parameter:a == 1), scope = quote(name == "x"),
                    root = root),
     x1)
 })
@@ -107,19 +107,19 @@ test_that("Can filter based on given values", {
   x2 <- vcapply(1:3, function(i) create_random_packet(root, "x", list(a = 2)))
 
   expect_equal(
-    outpack_search(quote(latest(parameter:a == this:a)),
+    orderly_search(quote(latest(parameter:a == this:a)),
                   parameters = list(a = 1), root = root),
     last(x1))
   expect_equal(
-    outpack_search(quote(latest(parameter:a == this:a)),
+    orderly_search(quote(latest(parameter:a == this:a)),
                   parameters = list(a = 2), root = root),
     last(x2))
   expect_equal(
-    outpack_search(quote(latest(parameter:a == this:a)),
+    orderly_search(quote(latest(parameter:a == this:a)),
                   parameters = list(a = 3), root = root),
     NA_character_)
   expect_error(
-    outpack_search(quote(latest(parameter:a == this:x)),
+    orderly_search(quote(latest(parameter:a == this:x)),
                   parameters = list(a = 3), root = root),
     paste0("Did not find 'x' within given parameters (containing 'a')\n",
            "  - while evaluating this:x\n",
@@ -127,14 +127,14 @@ test_that("Can filter based on given values", {
     fixed = TRUE)
   env <- list2env(list(a = sum), parent = emptyenv())
   expect_error(
-    outpack_search(quote(latest(parameter:a == environment:x)),
+    orderly_search(quote(latest(parameter:a == environment:x)),
                   envir = env, root = root),
     paste0("Did not find 'x' within given environment (containing 'a')\n",
            "  - while evaluating environment:x\n",
            "  - within           latest(parameter:a == environment:x)"),
     fixed = TRUE)
   expect_error(
-    outpack_search(quote(latest(parameter:a == environment:a)),
+    orderly_search(quote(latest(parameter:a == environment:a)),
                   envir = env, root = root),
     paste0("The value of 'a' from environment is not suitable as a lookup\n",
            "  - while evaluating environment:a\n",
@@ -152,12 +152,12 @@ test_that("can use variables from the environment when searching", {
   env <- new.env()
   env$x <- 1
   expect_equal(
-    outpack_search(quote(latest(parameter:a == environment:x)),
+    orderly_search(quote(latest(parameter:a == environment:x)),
                    envir = env, root = root),
     x1[[3]])
 
   expect_error(
-    outpack_search(quote(latest(parameter:a == environment:other)),
+    orderly_search(quote(latest(parameter:a == environment:other)),
                    envir = env, root = root),
     "Did not find 'other' within given environment (containing 'x')",
     fixed = TRUE)
@@ -168,11 +168,11 @@ test_that("single requires exactly one packet", {
   root <- create_temporary_root(use_file_store = TRUE)
 
   ids <- vcapply(1:3, function(i) create_random_packet(root, "x", list(a = i)))
-  expect_equal(outpack_search(quote(single(parameter:a == 2)), root = root),
+  expect_equal(orderly_search(quote(single(parameter:a == 2)), root = root),
                ids[[2]])
-  expect_error(outpack_search(quote(single(parameter:a >= 2)), root = root),
+  expect_error(orderly_search(quote(single(parameter:a >= 2)), root = root),
                "Query found 2 packets, but expected exactly one")
-  expect_error(outpack_search(quote(single(parameter:a > 10)), root = root),
+  expect_error(orderly_search(quote(single(parameter:a > 10)), root = root),
                "Query did not find any packets")
 })
 
@@ -220,17 +220,17 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
   }
   outpack_location_pull_metadata(root = root$a)
 
-  options_local <- outpack_search_options(location = c("x", "y"),
+  options_local <- orderly_search_options(location = c("x", "y"),
                                           allow_remote = FALSE)
-  options_remote <- outpack_search_options(location = c("x", "y"),
+  options_remote <- orderly_search_options(location = c("x", "y"),
                                           allow_remote = TRUE)
 
   expect_equal(
-    outpack_search(quote(name == "data"), options = options_remote,
+    orderly_search(quote(name == "data"), options = options_remote,
                    root = root$a),
     c(ids$x, ids$y))
   expect_equal(
-    outpack_search(quote(name == "data"), options = options_local,
+    orderly_search(quote(name == "data"), options = options_local,
                    root = root$a),
     character())
 
@@ -239,11 +239,11 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
   }
 
   expect_equal(
-    outpack_search(quote(name == "data"), options = options_remote,
+    orderly_search(quote(name == "data"), options = options_remote,
                    root = root$a),
     c(ids$x, ids$y))
   expect_equal(
-    outpack_search(quote(name == "data"), options = options_local,
+    orderly_search(quote(name == "data"), options = options_local,
                    root = root$a),
     ids$x)
 })
@@ -263,16 +263,16 @@ test_that("scope and allow_local can be used together to filter query", {
   y2 <- create_random_packet(root$src, "y", list(p = 1))
   outpack_location_pull_metadata(root = root$dst)
 
-  options_local <- outpack_search_options(allow_remote = FALSE)
-  options_remote <- outpack_search_options(allow_remote = TRUE)
+  options_local <- orderly_search_options(allow_remote = FALSE)
+  options_remote <- orderly_search_options(allow_remote = TRUE)
 
   expect_equal(
-    outpack_search(quote(latest(parameter:p == 1)), options = options_remote,
+    orderly_search(quote(latest(parameter:p == 1)), options = options_remote,
                   scope = quote(name == "x"),
                   root = root$dst),
     x2)
   expect_equal(
-    outpack_search(quote(latest(parameter:p == 1)), options = options_local,
+    orderly_search(quote(latest(parameter:p == 1)), options = options_local,
                   scope = quote(name == "x"),
                   root = root$dst),
     NA_character_)
@@ -282,12 +282,12 @@ test_that("scope and allow_local can be used together to filter query", {
   }
 
   expect_equal(
-    outpack_search(quote(latest(parameter:p == 1)), options = options_remote,
+    orderly_search(quote(latest(parameter:p == 1)), options = options_remote,
                   scope = quote(name == "x"),
                   root = root$dst),
     x2)
   expect_equal(
-    outpack_search(quote(latest(parameter:p == 1)), options = options_local,
+    orderly_search(quote(latest(parameter:p == 1)), options = options_local,
                   scope = quote(name == "x"),
                   root = root$dst),
     x1)
@@ -309,21 +309,21 @@ test_that("Parse literal id query", {
 })
 
 
-test_that("outpack_search allows ids", {
+test_that("orderly_search allows ids", {
   root <- create_temporary_root(use_file_store = TRUE)
   ids <- vcapply(1:3, function(i) create_random_packet(root))
-  expect_identical(outpack_search(ids[[1]], root = root), ids[[1]])
-  expect_identical(outpack_search(ids[[2]], root = root), ids[[2]])
+  expect_identical(orderly_search(ids[[1]], root = root), ids[[1]])
+  expect_identical(orderly_search(ids[[2]], root = root), ids[[2]])
   expect_error(
-    outpack_search("20220722-085951-148b7686", root = root),
+    orderly_search("20220722-085951-148b7686", root = root),
     "Query did not find any packets")
 })
 
 
 test_that("correct behaviour with empty queries", {
   root <- create_temporary_root(use_file_store = TRUE)
-  expect_equal(outpack_search("latest", root = root), NA_character_)
-  expect_equal(outpack_search(quote(name == "data"), root = root),
+  expect_equal(orderly_search("latest", root = root), NA_character_)
+  expect_equal(orderly_search(quote(name == "data"), root = root),
                character(0))
 })
 
@@ -336,16 +336,16 @@ test_that("named queries", {
   y2 <- create_random_packet(root, "y", list(a = 2))
 
   expect_equal(
-    outpack_search(quote(latest()), name = "x", root = root),
+    orderly_search(quote(latest()), name = "x", root = root),
     x2)
   expect_equal(
-    outpack_search(quote(latest()), scope = quote(parameter:a == 1),
+    orderly_search(quote(latest()), scope = quote(parameter:a == 1),
                   name = "x", root = root),
     x1)
 })
 
 
-test_that("outpack_search can include subqueries", {
+test_that("orderly_search can include subqueries", {
   root <- create_temporary_root(use_file_store = TRUE)
 
   x1 <- create_random_packet(root, "x", list(a = 1))
@@ -354,12 +354,12 @@ test_that("outpack_search can include subqueries", {
   y2 <- create_random_packet(root, "y", list(a = 2))
 
   expect_equal(
-    outpack_search(quote(latest({sub})), # nolint
+    orderly_search(quote(latest({sub})), # nolint
                   subquery = list(sub = quote(name == "x")),
                   root = root),
     x2)
   expect_equal(
-    outpack_search(
+    orderly_search(
       quote({sub}), # nolint
       subquery = list(sub = quote(latest(name == "x"))),
       root = root),
@@ -367,11 +367,11 @@ test_that("outpack_search can include subqueries", {
 })
 
 
-test_that("outpack_search returns useful error when subquery name unknown", {
+test_that("orderly_search returns useful error when subquery name unknown", {
   root <- create_temporary_root()
 
   expect_error(
-    outpack_search(quote(latest({sub})), # nolint
+    orderly_search(quote(latest({sub})), # nolint
                   root = root),
     paste0("Cannot locate subquery named 'sub'. No named subqueries ",
            "provided.\n",
@@ -380,7 +380,7 @@ test_that("outpack_search returns useful error when subquery name unknown", {
     fixed = TRUE)
 
   expect_error(
-    outpack_search(quote(latest({subq})), # nolint
+    orderly_search(quote(latest({subq})), # nolint
                   subquery = list(sub = quote(name == "x"),
                                   foo = quote(name == "y")),
                   root = root),
@@ -392,23 +392,23 @@ test_that("outpack_search returns useful error when subquery name unknown", {
 
   ## Anonymous subqueries are not included in list
   expect_error(
-    outpack_search(quote(latest({name == "x"} && {sub})), # nolint
+    orderly_search(quote(latest({name == "x"} && {sub})), # nolint
                   root = root),
     "Cannot locate subquery named 'sub'. No named subqueries provided.")
 })
 
 
-test_that("outpack_search returns no results when subquery has no results", {
+test_that("orderly_search returns no results when subquery has no results", {
   root <- create_temporary_root(use_file_store = TRUE)
 
   x1 <- create_random_packet(root, "x", list(a = 1))
 
   ## subquery itself has no results
-  expect_equal(outpack_search(quote(latest(name == "y")), root = root),
+  expect_equal(orderly_search(quote(latest(name == "y")), root = root),
                NA_character_)
 
   expect_equal(
-    outpack_search(quote(latest({sub})), # nolint
+    orderly_search(quote(latest({sub})), # nolint
                   subquery = list(sub = quote(name == "y")),
                   root = root),
     NA_character_)
@@ -419,7 +419,7 @@ test_that("subqueries cannot be used in tests e.g. ==, <, >= etc.", {
   root <- create_temporary_root(use_file_store = TRUE)
 
   expect_error(
-    outpack_search(quote({sub} > 2), # nolint
+    orderly_search(quote({sub} > 2), # nolint
                   subquery = list(sub = quote(parameter:a == 2)),
                   root = root),
     paste0("Unhandled query expression value '{sub}'\n",
@@ -428,7 +428,7 @@ test_that("subqueries cannot be used in tests e.g. ==, <, >= etc.", {
     fixed = TRUE)
 
   expect_error(
-    outpack_search(quote(latest({sub}) > 2), # nolint
+    orderly_search(quote(latest({sub}) > 2), # nolint
                   subquery = list(sub = quote(parameter:a == 2)),
                   root = root),
     paste0("Unhandled query expression value 'latest({sub})'\n",
@@ -437,7 +437,7 @@ test_that("subqueries cannot be used in tests e.g. ==, <, >= etc.", {
     fixed = TRUE)
 
   expect_error(
-    outpack_search(quote(latest({sub} == "hello")), # nolint
+    orderly_search(quote(latest({sub} == "hello")), # nolint
                   subquery = list(sub = quote(name == "x")),
                   root = root),
     paste0("Unhandled query expression value '{sub}'\n",
@@ -455,24 +455,24 @@ test_that("subqueries can be used in groups e.g. &&, ||, (), etc.", {
   y1 <- create_random_packet(root, "y", list(a = 2))
 
   expect_setequal(
-    outpack_search(quote({sub} || parameter:a == 2), # nolint
+    orderly_search(quote({sub} || parameter:a == 2), # nolint
                   subquery = list(sub = quote(name == "x")),
                   root = root),
     c(x1, x2, y1))
 
   expect_setequal(
-    outpack_search(quote(!{sub}), # nolint
+    orderly_search(quote(!{sub}), # nolint
                   subquery = list(sub = quote(name == "x")),
                   root = root),
     y1)
 
   expect_setequal(
-    outpack_search(quote(parameter:a == 1 && {sub} || name == "y"), # nolint
+    orderly_search(quote(parameter:a == 1 && {sub} || name == "y"), # nolint
                   subquery = list(sub = quote(name == "x")),
                   root = root),
     c(x1, y1))
   expect_setequal(
-    outpack_search(quote(parameter:a == 1 && ({sub} || name == "y")), # nolint
+    orderly_search(quote(parameter:a == 1 && ({sub} || name == "y")), # nolint
                   subquery = list(sub = quote(name == "x")),
                   root = root),
     x1)
@@ -487,7 +487,7 @@ test_that("subqueries can be used within single", {
   y1 <- create_random_packet(root, "y", list(a = 2))
 
   expect_error(
-    outpack_search(quote(single({sub})), # nolint
+    orderly_search(quote(single({sub})), # nolint
                   subquery = list(sub = quote(name == "x")),
                   root = root),
     paste0("Query found 2 packets, but expected exactly one\n",
@@ -495,14 +495,14 @@ test_that("subqueries can be used within single", {
     fixed = TRUE)
 
   expect_equal(
-    outpack_search(quote(single({sub})), # nolint
+    orderly_search(quote(single({sub})), # nolint
                   subquery = list(sub = quote(name == "y")),
                   root = root),
     y1)
 })
 
 
-test_that("outpack_search can include anonymous subqueries", {
+test_that("orderly_search can include anonymous subqueries", {
   root <- create_temporary_root(use_file_store = TRUE)
 
   x1 <- create_random_packet(root, "x", list(a = 1))
@@ -511,7 +511,7 @@ test_that("outpack_search can include anonymous subqueries", {
   y2 <- create_random_packet(root, "y", list(a = 2))
 
   expect_equal(
-    outpack_search(quote(latest({name == "x"})), # nolint
+    orderly_search(quote(latest({name == "x"})), # nolint
                   root = root),
     x2)
 })
@@ -523,7 +523,7 @@ test_that("anonymous subquery is printed nicely when it errors", {
   x1 <- create_random_packet(root, "x", list(a = 1))
 
   expect_error(
-    outpack_search(quote(latest({ single() })), # nolint
+    orderly_search(quote(latest({ single() })), # nolint
                   root = root),
     paste0("Invalid call to single(); ",
            "expected 1 args but received 0\n",
@@ -542,7 +542,7 @@ test_that("subqueries respect scope", {
   y2 <- create_random_packet(root, "y", list(a = 2))
 
   expect_equal(
-    outpack_search(quote({report_x} || parameter:a == 2), # nolint
+    orderly_search(quote({report_x} || parameter:a == 2), # nolint
                   subquery = list(report_x = quote(name == "x")),
                   scope = quote(name == "y"),
                   root = root),
@@ -550,14 +550,14 @@ test_that("subqueries respect scope", {
 })
 
 
-describe("outpack_search can search for packets usedby another", {
+describe("orderly_search can search for packets usedby another", {
   root <- create_temporary_root(use_file_store = TRUE)
   ids <- create_random_packet_chain(root, 3)
   ids["d"] <- create_random_dependent_packet(root, "d", ids[c("b", "c")])
 
   it("works for simple case", {
     expect_setequal(
-      outpack_search(bquote(usedby(.(ids["b"]))),
+      orderly_search(bquote(usedby(.(ids["b"]))),
                     scope = quote(name == "a"),
                     root = root),
       ids["a"])
@@ -565,7 +565,7 @@ describe("outpack_search can search for packets usedby another", {
 
   it("works with subqueries", {
     expect_setequal(
-      outpack_search(quote(usedby({report_b})), # nolint
+      orderly_search(quote(usedby({report_b})), # nolint
                     scope = quote(name == "a"),
                     subquery = list(report_b = quote(latest(name == "b"))),
                     root = root),
@@ -574,7 +574,7 @@ describe("outpack_search can search for packets usedby another", {
 
   it("can return only immediate dependencies", {
     expect_setequal(
-      outpack_search(quote(usedby({report_d}, 1)), # nolint
+      orderly_search(quote(usedby({report_d}, 1)), # nolint
                     subquery = list(report_d = quote(latest(name == "d"))),
                     root = root),
       ids[c("b", "c")])
@@ -582,14 +582,14 @@ describe("outpack_search can search for packets usedby another", {
 
   it("can use named arg", {
     expect_setequal(
-      outpack_search(quote(usedby({report_d}, depth = 1)), # nolint
+      orderly_search(quote(usedby({report_d}, depth = 1)), # nolint
                     subquery = list(report_d = quote(latest(name == "d"))),
                     root = root),
       ids[c("b", "c")])
   })
 
   it("can recurse full tree", {
-    res <- outpack_search(quote(usedby({report_d})), # nolint
+    res <- orderly_search(quote(usedby({report_d})), # nolint
                          subquery = list(report_d = quote(latest(name == "d"))),
                          root = root)
     expect_setequal(res, ids[c("a", "b", "c")])
@@ -598,14 +598,14 @@ describe("outpack_search can search for packets usedby another", {
 
   it("returns empty vector when id has no dependencies", {
     expect_equal(
-      outpack_search(bquote(usedby(.(ids["a"]))),
+      orderly_search(bquote(usedby(.(ids["a"]))),
                     root = root),
       character(0))
   })
 
   it("returns empty vector when id unknown", {
     expect_equal(
-      outpack_search(quote(usedby("123")),
+      orderly_search(quote(usedby("123")),
                     scope = quote(name == "a"),
                     root = root),
       character(0))
@@ -620,7 +620,7 @@ test_that("usedby returns multiple ids when parent used twice", {
   id_b <- create_random_dependent_packet(root, "b", c(id_a1, id_a2))
 
   expect_setequal(
-    outpack_search(quote(usedby({report_b})), # nolint
+    orderly_search(quote(usedby({report_b})), # nolint
                   scope = quote(name == "a"),
                   subquery = list(report_b = quote(latest(name == "b"))),
                   root = root),
@@ -634,7 +634,7 @@ test_that("usedby output can be used in groupings", {
   ids["c"] <- create_random_dependent_packet(root, "c", ids[c("a", "b")])
 
   expect_setequal(
-    outpack_search(quote(usedby({report_c}) && name == "b"), # nolint
+    orderly_search(quote(usedby({report_c}) && name == "b"), # nolint
                   subquery = list(report_c = quote(latest(name == "c"))),
                   root = root),
     ids["b"])
@@ -647,7 +647,7 @@ test_that("usedby errors if given expression which could return multiple ids", {
   ids["b"] <- create_random_dependent_packet(root, "b", ids["a"])
 
   expect_error(
-    outpack_search(quote(usedby({report_b})), # nolint
+    orderly_search(quote(usedby({report_b})), # nolint
                   subquery = list(report_b = quote(name == "b")),
                   root = root),
     paste0("usedby must be called on an expression guaranteed to return a ",
@@ -657,7 +657,7 @@ test_that("usedby errors if given expression which could return multiple ids", {
 
   ## Suggested fix works
   expect_equal(
-    outpack_search(quote(usedby(latest({report_b}))), # nolint
+    orderly_search(quote(usedby(latest({report_b}))), # nolint
                   subquery = list(report_b = quote(name == "b")),
                   root = root),
     ids["a"], ignore_attr = "names")
@@ -667,7 +667,7 @@ test_that("usedby returns empty vector if usedby called with 0 ids", {
   root <- create_temporary_root(use_file_store = TRUE)
 
   expect_equal(
-    outpack_search(quote(usedby({latest(name == "b")})), root = root), # nolint
+    orderly_search(quote(usedby({latest(name == "b")})), root = root), # nolint
     character(0))
 })
 
@@ -676,17 +676,17 @@ test_that("usedby depth works as expected", {
   ids <- create_random_packet_chain(root, 3)
 
   expect_setequal(
-    outpack_search(quote(
+    orderly_search(quote(
       usedby({latest(name == "c")}, depth = 1)), root = root), # nolint
     ids["b"])
 
   expect_setequal(
-    outpack_search(quote(
+    orderly_search(quote(
       usedby({latest(name == "c")}, depth = 2)), root = root), # nolint
     ids[c("a", "b")])
 
   expect_setequal(
-    outpack_search(quote(
+    orderly_search(quote(
       usedby({latest(name == "c")}, depth = Inf)), root = root), # nolint
     ids[c("a", "b")])
 })
@@ -696,19 +696,19 @@ test_that("useful errors returned when scope is invalid type", {
   root <- create_temporary_root(use_file_store = TRUE)
 
   expect_error(
-    outpack_search(quote(latest()), scope = "the scope", root = root),
+    orderly_search(quote(latest()), scope = "the scope", root = root),
     "Invalid input for `scope`, it must be a language expression.")
 })
 
 
-describe("outpack_search can search for packets which use another", {
+describe("orderly_search can search for packets which use another", {
   root <- create_temporary_root(use_file_store = TRUE)
   ids <- create_random_packet_chain(root, 3)
   ids["d"] <- create_random_dependent_packet(root, "d", ids[c("b", "c")])
 
   it("works for simple case", {
     expect_setequal(
-      outpack_search(bquote(uses(.(ids["b"]))),
+      orderly_search(bquote(uses(.(ids["b"]))),
                     scope = quote(name == "c"),
                     root = root),
       ids["c"])
@@ -716,7 +716,7 @@ describe("outpack_search can search for packets which use another", {
 
   it("can return only immediate dependencies", {
     expect_setequal(
-      outpack_search(quote(uses({report_a}, 1)), # nolint
+      orderly_search(quote(uses({report_a}, 1)), # nolint
                     subquery = list(report_a = quote(latest(name == "a"))),
                     root = root),
       ids["b"])
@@ -724,14 +724,14 @@ describe("outpack_search can search for packets which use another", {
 
   it("can use named arg", {
     expect_setequal(
-      outpack_search(quote(uses({report_a}, depth = 2)), # nolint
+      orderly_search(quote(uses({report_a}, depth = 2)), # nolint
                     subquery = list(report_a = quote(latest(name == "a"))),
                     root = root),
       ids[c("b", "c", "d")])
   })
 
   it("can recurse full tree", {
-    res <- outpack_search(quote(uses({report_a})), # nolint
+    res <- orderly_search(quote(uses({report_a})), # nolint
                          subquery = list(report_a = quote(latest(name == "a"))),
                          root = root)
     expect_setequal(res, ids[c("b", "c", "d")])
@@ -740,14 +740,14 @@ describe("outpack_search can search for packets which use another", {
 
   it("returns empty vector when id has no dependencies", {
     expect_equal(
-      outpack_search(bquote(uses(.(ids["d"]))),
+      orderly_search(bquote(uses(.(ids["d"]))),
                     root = root),
       character(0))
   })
 
   it("returns empty vector when id unknown", {
     expect_equal(
-      outpack_search(quote(uses("123")),
+      orderly_search(quote(uses("123")),
                     scope = quote(name == "b"),
                     root = root),
       character(0))
@@ -770,7 +770,7 @@ test_that("uses and usedby can be used together", {
 
   ## We can get to C from E (up tree then down)
   expect_setequal(
-    outpack_search(
+    orderly_search(
       quote(uses(single(usedby(latest(name == "e")) && name == "a"))),
       scope = quote(name == "c"),
       root = root),
@@ -778,7 +778,7 @@ test_that("uses and usedby can be used together", {
 
   ## We can get to E from C (up tree then down)
   expect_setequal(
-    outpack_search(
+    orderly_search(
       quote(uses(single(usedby(latest(name == "c")) && name == "a"))),
       scope = quote(name == "e"),
       root = root),
@@ -786,14 +786,14 @@ test_that("uses and usedby can be used together", {
 
   ## We can get to A from D (down tree then up)
   expect_setequal(
-    outpack_search(quote(usedby(single(uses(latest(name == "d"))))),
+    orderly_search(quote(usedby(single(uses(latest(name == "d"))))),
                   scope = quote(name == "a"),
                   root = root),
     ids["a"])
 
   ## We can get to D from A (down tree then up)
   expect_setequal(
-    outpack_search(
+    orderly_search(
       quote(usedby(single(uses(latest(name == "a")) && name == "e"))),
       scope = quote(name == "d"),
       root = root),
@@ -801,7 +801,7 @@ test_that("uses and usedby can be used together", {
 
   ## We can get to D from C (up tree, then down, then up again)
   expect_setequal(
-    outpack_search(
+    orderly_search(
       quote(usedby(single(uses({a}) && name == "e"))), # nolint
       scope = quote(name == "d"),
       subquery = list(
@@ -826,16 +826,16 @@ test_that("adding scope filters queries", {
   }
 
   expect_equal(
-    outpack_search("latest(parameter:i < 3)", root = root),
+    orderly_search("latest(parameter:i < 3)", root = root),
     id$b[[2]])
   expect_equal(
-    outpack_search("latest(parameter:i < 3)", name = "a", root = root),
+    orderly_search("latest(parameter:i < 3)", name = "a", root = root),
     id$a[[2]])
   expect_equal(
-    outpack_search("latest(parameter:i < 3 && name == 'a')", root = root),
+    orderly_search("latest(parameter:i < 3 && name == 'a')", root = root),
     id$a[[2]])
   expect_equal(
-    outpack_search(outpack_query("latest(parameter:i < 3)",
+    orderly_search(orderly_query("latest(parameter:i < 3)",
                                  scope = quote(name == "a")), root = root),
     id$a[[2]])
 })
@@ -856,8 +856,8 @@ test_that("Same result with either strings/expressions, named or not", {
   for (x in dat) {
     for (string in c(TRUE, FALSE)) {
       query <- if (string) deparse(x$query) else x$query
-      expect_setequal(outpack_search(query, root = root), x$result)
-      expect_setequal(outpack_search(query, root = root, name = "x"), x$result)
+      expect_setequal(orderly_search(query, root = root), x$result)
+      expect_setequal(orderly_search(query, root = root, name = "x"), x$result)
     }
   }
 })
@@ -873,10 +873,10 @@ test_that("allow search before query", {
   })
 
   expect_equal(
-    outpack_search(quote(name == "data"), root = root$a),
+    orderly_search(quote(name == "data"), root = root$a),
     character(0))
   expect_equal(
-    outpack_search(quote(name == "data"), root = root$a,
+    orderly_search(quote(name == "data"), root = root$a,
                    options = list(pull_metadata = TRUE, allow_remote = TRUE)),
     ids)
   expect_setequal(names(root$a$index()$metadata), ids)
@@ -888,9 +888,9 @@ test_that("empty search returns full set", {
   ids <- list(a = vcapply(1:3, function(i) create_random_packet(root, "a")),
               b = vcapply(1:3, function(i) create_random_packet(root, "b")))
 
-  expect_equal(outpack_search(root = root),
+  expect_equal(orderly_search(root = root),
                c(ids$a, ids$b))
-  expect_equal(outpack_search(name = "a", root = root),
+  expect_equal(orderly_search(name = "a", root = root),
                c(ids$a))
 })
 
@@ -902,46 +902,46 @@ test_that("can search for queries using boolean", {
   y1 <- create_random_packet(root, "y", list(a = "TRUE"))
 
   expect_equal(
-    outpack_search(quote(parameter:a == TRUE), root = root),
+    orderly_search(quote(parameter:a == TRUE), root = root),
     x1)
   expect_equal(
-    outpack_search(quote(parameter:a == true), root = root),
+    orderly_search(quote(parameter:a == true), root = root),
     x1)
   expect_equal(
-    outpack_search(quote(parameter:a == "TRUE"), root = root),
+    orderly_search(quote(parameter:a == "TRUE"), root = root),
     c(y1))
   expect_equal(
-    outpack_search(quote(parameter:a == 1), root = root),
+    orderly_search(quote(parameter:a == 1), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(parameter:a == "1"), root = root),
+    orderly_search(quote(parameter:a == "1"), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(parameter:a == "true"), root = root),
+    orderly_search(quote(parameter:a == "true"), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(parameter:a == "T"), root = root),
+    orderly_search(quote(parameter:a == "T"), root = root),
     character(0))
 
   expect_equal(
-    outpack_search(quote(parameter:a == FALSE), root = root),
+    orderly_search(quote(parameter:a == FALSE), root = root),
     x2)
   expect_equal(
-    outpack_search(quote(parameter:a == false), root = root),
+    orderly_search(quote(parameter:a == false), root = root),
     x2)
   expect_equal(
-    outpack_search(quote(parameter:a == "FALSE"), root = root),
+    orderly_search(quote(parameter:a == "FALSE"), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(parameter:a == 0), root = root),
+    orderly_search(quote(parameter:a == 0), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(parameter:a == "0"), root = root),
+    orderly_search(quote(parameter:a == "0"), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(parameter:a == "false"), root = root),
+    orderly_search(quote(parameter:a == "false"), root = root),
     character(0))
   expect_equal(
-    outpack_search(quote(parameter:a == "F"), root = root),
+    orderly_search(quote(parameter:a == "F"), root = root),
     character(0))
 })

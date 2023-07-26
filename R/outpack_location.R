@@ -248,7 +248,7 @@ outpack_location_pull_metadata <- function(location = NULL, root = NULL) {
 
 ##' Pull a packet (all files) from a location into this archive. This
 ##' will make files available for use as dependencies (e.g., with
-##' [orderly2::outpack_packet_use_dependency])
+##' [orderly2::orderly_dependency])
 ##'
 ##' The behaviour of this function will vary depending on whether or
 ##' not the destination outpack repository (i.e., `root`) uses a file

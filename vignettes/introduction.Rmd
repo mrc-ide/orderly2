@@ -112,7 +112,7 @@ Once created, you can then refer to this report by id and pull its files whereve
 ```{r}
 dest <- tempfile()
 fs::dir_create(dest)
-orderly2::outpack_copy_files(id, c("final.rds" = "data.rds"), dest, root = path)
+orderly2::orderly_copy_files(id, c("final.rds" = "data.rds"), dest, root = path)
 ```
 
 which copies `data.rds` to some new temporary directory `dest` with name `final.rds`. This uses `orderly2`'s `outpack_` functions, which are designed to interact with outpack archives regardless of how they were created (`orderly2` is a program that creates `outpack` archives). Typically these are lower-level than `orderly_` functions.
@@ -240,7 +240,7 @@ id <- orderly2::orderly_run("random", list(n_samples = 15), root = path)
 Our resulting file has 15 rows, as the parameter we passed in affected the report:
 
 ```{r}
-orderly2::outpack_copy_files(id, c("random.rds" = "data.rds"), dest, 
+orderly2::orderly_copy_files(id, c("random.rds" = "data.rds"), dest,
                              root = path)
 readRDS(file.path(dest, "random.rds"))
 ```
@@ -248,14 +248,14 @@ readRDS(file.path(dest, "random.rds"))
 You can use these parameters in orderly's search functions. For example we can find the most recent version of a packet by running:
 
 ```{r}
-orderly2::outpack_search('latest(name == "random")',
+orderly2::orderly_search('latest(name == "random")',
                          root = path)
 ```
 
 But we can also pass in parameter queries here:
 
 ```{r}
-orderly2::outpack_search('latest(name == "random" && parameter:n_samples > 10)',
+orderly2::orderly_search('latest(name == "random" && parameter:n_samples > 10)',
                          root = path)
 ```
 

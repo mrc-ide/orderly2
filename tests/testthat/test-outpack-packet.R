@@ -683,7 +683,7 @@ test_that("can depend based on a simple query", {
          query = "latest()",
          files = data.frame(here = "1.rds", there = "data.rds")))
 
-  query <- outpack_query("latest(parameter:i < 3)", name = "a")
+  query <- orderly_query("latest(parameter:i < 3)", name = "a")
   outpack_packet_use_dependency(p, query, c("2.rds" = "data.rds"))
   expect_mapequal(
     p$depends[[2]],
@@ -711,13 +711,13 @@ test_that("can depend based on a query with subqueries", {
   }
 
   p1 <- outpack_packet_start(src_b, "b", root = root)
-  query1 <- outpack_query("latest(parameter:i < 3)", name = "a")
+  query1 <- orderly_query("latest(parameter:i < 3)", name = "a")
   outpack_packet_use_dependency(p1, query1, c("2.rds" = "data.rds"))
   outpack_packet_end(p1)
   id$b <- p1$id
 
   p2 <- outpack_packet_start(src_c, "c", root = root)
-  query2 <- outpack_query("latest(usedby({B}))", name = "a",
+  query2 <- orderly_query("latest(usedby({B}))", name = "a",
                           subquery = list(B = id$b))
   outpack_packet_use_dependency(p2, query2, files = c("new.rds" = "data.rds"))
   outpack_packet_end(p2)
@@ -872,7 +872,7 @@ test_that("can pull in directories", {
   id <- p1$id
 
   dest <- withr::local_tempdir()
-  outpack_copy_files(id, c(d = "data/"), dest, root = root)
+  orderly_copy_files(id, c(d = "data/"), dest, root = root)
   expect_equal(dir(dest), "d")
   expect_equal(dir(file.path(dest, "d")), letters[1:6])
 
@@ -903,7 +903,7 @@ test_that("exporting directories reports on trailing slashes being missing", {
 
   dest <- withr::local_tempdir()
   expect_error(
-    outpack_copy_files(id, c(d = "data"), dest, root = root),
+    orderly_copy_files(id, c(d = "data"), dest, root = root),
     err)
 
   path_src2 <- withr::local_tempdir()

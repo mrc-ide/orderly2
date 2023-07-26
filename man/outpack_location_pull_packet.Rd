@@ -36,7 +36,7 @@ Invisibly, the ids of packets that were pulled
 \description{
 Pull a packet (all files) from a location into this archive. This
 will make files available for use as dependencies (e.g., with
-\link{outpack_packet_use_dependency})
+\link{orderly_dependency})
 }
 \details{
 The behaviour of this function will vary depending on whether or

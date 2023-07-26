@@ -2,7 +2,7 @@ test_that("can copy files from outpack", {
   root <- create_temporary_root(use_file_store = TRUE)
   id <- create_random_packet(root)
   dst <- temp_file()
-  outpack_copy_files(id, c("incoming.rds" = "data.rds"), dst, root = root)
+  orderly_copy_files(id, c("incoming.rds" = "data.rds"), dst, root = root)
   expect_equal(dir(dst), "incoming.rds")
   expect_identical(
     readRDS(file.path(dst, "incoming.rds")),
@@ -18,15 +18,15 @@ test_that("can copy files from location, using store", {
 
   tmp <- withr::local_tempdir()
   expect_error(
-    outpack_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
+    orderly_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
     "id '.+' not found in index")
   outpack_location_pull_metadata(root = here)
 
   expect_error(
-    outpack_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
+    orderly_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
     "Unable to copy files, as they are not available locally")
 
-  outpack_copy_files(id, c("data.rds" = "data.rds"), tmp,
+  orderly_copy_files(id, c("data.rds" = "data.rds"), tmp,
                      allow_remote = TRUE, root = here)
   expect_equal(dir(tmp), "data.rds")
 
@@ -46,10 +46,10 @@ test_that("can copy files from location, using archive", {
   tmp <- withr::local_tempdir()
   outpack_location_pull_metadata(root = here)
   expect_error(
-    outpack_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
+    orderly_copy_files(id, c("data.rds" = "data.rds"), tmp, root = here),
     "Unable to copy files, as they are not available locally")
 
-  outpack_copy_files(id, c("data.rds" = "data.rds"), tmp,
+  orderly_copy_files(id, c("data.rds" = "data.rds"), tmp,
                      allow_remote = TRUE, root = here)
   expect_equal(dir(tmp), "data.rds")
 
@@ -66,7 +66,7 @@ test_that("can interpolate filenames in copy", {
   ## Some bindings to force lookup:
   path <- "a"
   file <- "b"
-  outpack_copy_files(id, c("${path}/${file}.rds" = "data.rds"),
+  orderly_copy_files(id, c("${path}/${file}.rds" = "data.rds"),
                      dst, root = root)
   expect_equal(dir(dst), "a")
   expect_equal(dir(file.path(dst, "a")), "b.rds")

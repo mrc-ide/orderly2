@@ -643,7 +643,7 @@ test_that("cope with failed run", {
     dir(file.path(path, "draft", "implicit", id)),
     c("data.csv", "log.json", "orderly.R", "outpack.json"))
 
-  d <- outpack_metadata_read(
+  d <- orderly_metadata_read(
     file.path(path, "draft", "implicit", id, "outpack.json"))
   expect_equal(d$id, id)
 })
@@ -815,7 +815,7 @@ test_that("can compute dependencies", {
 
   env2$x <- 1
   id <- orderly_run("use", root = path, envir = env2)
-  expect_equal(outpack_metadata(id, root = path)$depends[[1]], id1)
+  expect_equal(orderly_metadata(id, root = path)$depends[[1]], id1)
 
   env2$x <- 2
   expect_error(
@@ -824,18 +824,18 @@ test_that("can compute dependencies", {
 
   env2$x <- 3
   id <- orderly_run("use", root = path, envir = env2)
-  meta <- outpack_metadata(id, root = path)
+  meta <- orderly_metadata(id, root = path)
   expect_equal(meta$depends$packet, id2)
   expect_equal(meta$depends$query,
                'latest(parameter:a == 3 && name == "parameters")')
 
   writeLines(c("x <- 1", code), file.path(path_src, "orderly.R"))
   id <- orderly_run("use", root = path, envir = env2)
-  expect_equal(outpack_metadata(id, root = path)$depends$packet, id1)
+  expect_equal(orderly_metadata(id, root = path)$depends$packet, id1)
 
   rm(list = "x", envir = env2)
   id <- orderly_run("use", root = path, envir = env2)
-  expect_equal(outpack_metadata(id, root = path)$depends$packet, id1)
+  expect_equal(orderly_metadata(id, root = path)$depends$packet, id1)
 })
 
 

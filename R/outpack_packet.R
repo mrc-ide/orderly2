@@ -33,8 +33,7 @@
 ##' @return Invisibly, a copy of the packet data; this can be passed
 ##'   as the `packet` argument.
 ##'
-##' @rdname outpack_packet
-##' @export
+##' @noRd
 outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
                                  logging_console = NULL,
                                  logging_threshold = NULL,
@@ -83,9 +82,6 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
 }
 
 
-##' @export
-##' @rdname outpack_packet
-##' @param packet A packet object
 outpack_packet_cancel <- function(packet) {
   packet <- check_current_packet(packet)
   outpack_log_info(packet, "cancel", packet$id,
@@ -94,8 +90,6 @@ outpack_packet_cancel <- function(packet) {
 }
 
 
-##' @export
-##'
 ##' @param insert Logical, indicating if we should insert the packet
 ##'   into the store. This is the default and generally what you
 ##'   want. The use-case we have for `insert = FALSE` is where you
@@ -107,7 +101,7 @@ outpack_packet_cancel <- function(packet) {
 ##'   (for example, validating that all files exist and that files
 ##'   marked immutable have not been changed)
 ##'
-##' @rdname outpack_packet
+##' @noRd
 outpack_packet_end <- function(packet, insert = TRUE) {
   packet <- check_current_packet(packet)
   packet$time$end <- Sys.time()
@@ -178,8 +172,7 @@ outpack_packet_end <- function(packet, insert = TRUE) {
 ##'   error will be `NULL`, with an informative message explaining
 ##'   what was not balanced.
 ##'
-##' @export
-##' @rdname outpack_packet
+##' @noRd
 ##'
 ##' @param script Path to the script within the packet directory (a
 ##'   relative path).  This function can be safely called multiple
@@ -220,30 +213,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 }
 
 
-##' @export
-##' @rdname outpack_packet
-##'
-##' @section Dependency resolution:
-##'
-##' The `search_options` argument controls where outpack searches for
-##'   packets with the given query and if anything might be moved over
-##'   the network (or from one outpack archive to another). By default
-##'   everything is resolved locally only; that is we can only depend
-##'   on packets that are unpacked within our current archive.  If you
-##'   pass a `search_options` argument that contains `allow_remote =
-##'   TRUE` (see [orderly2::outpack_search_options] then packets
-##'   that are known anywhere are candidates for using as dependencies
-##'   and *if needed* we will pull the resolved files from a remote
-##'   location. Note that even if the packet is not locally present
-##'   this might not be needed - if you have the same content anywhere
-##'   else in an unpacked packet we will reuse the same content
-##'   without re-fetching.
-##'
-##' If `pull_metadata = TRUE`, then we will refresh location metadata
-##'   before pulling, and the `location` argument controls which
-##'   locations are pulled from.
-##'
-##' @param query An [orderly2::outpack_query] object, or something
+##' @param query An [orderly2::orderly_query] object, or something
 ##'   (e.g., a string) that can be trivially converted into one.
 ##'
 ##' @param files Files to copy from the other packet. This can be (1)
@@ -275,7 +245,7 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##'   the destination filename by doing `${x}`.
 ##'
 ##' @param search_options Optional search options for restricting the
-##'   search (see [orderly2::outpack_search] for details)
+##'   search (see [orderly2::orderly_search] for details)
 ##'
 ##' @param envir Optional environment for `environment:` lookups in
 ##'   `query`, and for interpolating filenames in `files`; the default
@@ -287,13 +257,15 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
 ##' @param overwrite Overwrite files at the destination; this is
 ##'   typically what you want, but set to `FALSE` if you would prefer
 ##'   that an error be thrown if the destination file already exists.
+##'
+##' @noRd
 outpack_packet_use_dependency <- function(packet, query, files,
                                           envir = parent.frame(),
                                           search_options = NULL,
                                           overwrite = TRUE) {
   packet <- check_current_packet(packet)
-  query <- as_outpack_query(query)
-  search_options <- as_outpack_search_options(search_options)
+  query <- as_orderly_query(query)
+  search_options <- as_orderly_search_options(search_options)
 
   if (!query$info$single) {
     stop(paste(
@@ -302,7 +274,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
       "Did you forget latest(...)?"))
   }
 
-  id <- outpack_search(query,
+  id <- orderly_search(query,
                        parameters = packet$parameters,
                        envir = envir,
                        options = search_options,
@@ -326,7 +298,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
                                  root = packet$root)
   }
 
-  result <- outpack_copy_files(id, files, packet$path,
+  result <- orderly_copy_files(id, files, packet$path,
                                allow_remote = search_options$allow_remote,
                                overwrite = overwrite,
                                envir = envir,
@@ -402,8 +374,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
 ##'   must serialise your own data before passing through to
 ##'   `outpack_packet_add_custom`.
 ##'
-##' @export
-##' @rdname outpack_packet
+##' @noRd
 ##'
 ##' @param application The name of the application (used to organise
 ##'   the data and query it later, see Details)
@@ -459,13 +430,12 @@ outpack_packet_add_custom <- function(packet, application, data,
 ##'
 ##' @title Mark files during packet run
 ##'
+##' @param packet The current packet
+##'
 ##' @param files A character vector of relative paths
 ##'
 ##' @param status A status to mark the file with. Must be "immutable"
 ##'   or "ignored"
-##'
-##' @param packet Optionally, an explicitly-passed packet; see
-##'   [orderly2::outpack_packet_start()] for details.
 ##'
 ##' @return Depending on function
 ##'
@@ -473,9 +443,7 @@ outpack_packet_add_custom <- function(packet, application, data,
 ##' * `outpack_packet_file_list` returns a [data.frame] with columns
 ##'   `path` and `status` (`immutable`, `ignored` or `unknown`)
 ##'
-##' @rdname outpack_packet_file
-##'
-##' @export
+##' @noRd
 outpack_packet_file_mark <- function(packet, files, status) {
   status <- match_value(status, c("immutable", "ignored"))
   packet <- check_current_packet(packet)
@@ -514,8 +482,6 @@ outpack_packet_file_mark <- function(packet, files, status) {
 }
 
 
-##' @export
-##' @rdname outpack_packet_file
 outpack_packet_file_list <- function(packet) {
   packet <- check_current_packet(packet)
   files <- withr::with_dir(packet$path,
