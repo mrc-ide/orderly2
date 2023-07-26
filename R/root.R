@@ -96,34 +96,6 @@ orderly_init <- function(path,
 }
 
 
-## orderly_root_open <- function(path, locate, call = NULL) {
-##   if (inherits(path, "orderly_root")) {
-##     return(path)
-##   }
-##   if (inherits(path, "outpack_root")) {
-##     root <- path
-##     path <- root$path
-##   } else {
-##     assert_scalar_character(path)
-##     if (!file.exists(file.path(path, ".outpack"))) {
-##       cli::cli_abort(
-##         c(sprintf("orderly directory '%s' not initialised", path),
-##           x = "Did not find an '.outpack' directory within path",
-##           i = 'Please run orderly2::orderly_init("{path}") to initialise',
-##           i = "See ?orderly_init for more arguments to this function"),
-##         call = call)
-##     }
-##     root <- outpack_root_open(path, locate)
-##   }
-##   if (!file.exists(file.path(root$path, "orderly_config.yml"))) {
-##     stop("TODO: handle this case well too")
-##   }
-##   root$config$orderly <- orderly_config(path)
-##   class(root) <- c("orderly_root", class(root))
-##   root
-## }
-
-
 empty_config_contents <- function() {
   'minimum_orderly_version: "1.99.0"'
 }
