@@ -117,11 +117,16 @@ empty_config_contents <- function() {
 ##   (this is actually quite hard to get right, but should be done
 ##   before anything is created I think)
 root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
-  if (inherits(path, "outpack_root")) {
-    if (require_orderly && !inherits(path, "orderly_root")) {
-      stop("was passed an unacceptable root - this is a bug?")
-    }
+  if (inherits(path, "orderly_root")) {
     return(path)
+  }
+  if (inherits(path, "outpack_root")) {
+    if (!require_orderly) {
+      return(path)
+    }
+    ## This is going to error, but the error later will do.
+    path <- path$path
+    locate <- FALSE
   }
   if (is.null(path)) {
     path <- getwd()
@@ -190,7 +195,8 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
 }
 
 
-## These are helpers, that are easier to read in code
+## These are helpers, that are easier to read in code, depending on if
+## we require an outpack root or an orderly one.
 orderly_root_open <- function(path, locate, call = NULL) {
   root_open(path, locate, TRUE, call)
 }
