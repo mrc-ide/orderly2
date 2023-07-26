@@ -26,11 +26,11 @@ test_that("assert_logical", {
 })
 
 
-test_that("assert_scalar_atomic", {
-  expect_silent(assert_scalar_atomic(TRUE))
-  expect_silent(assert_scalar_atomic(1))
-  expect_silent(assert_scalar_atomic("a"))
-  expect_error(assert_scalar_atomic(list(1)), "must be atomic")
+test_that("assert_simple_scalar_atomic", {
+  expect_silent(assert_simple_scalar_atomic(TRUE))
+  expect_silent(assert_simple_scalar_atomic(1))
+  expect_silent(assert_simple_scalar_atomic("a"))
+  expect_error(assert_simple_scalar_atomic(list(1)), "must be atomic")
 })
 
 

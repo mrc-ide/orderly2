@@ -125,6 +125,21 @@ test_that("Can filter based on given values", {
            "  - while evaluating this:x\n",
            "  - within           latest(parameter:a == this:x)"),
     fixed = TRUE)
+  env <- list2env(list(a = sum), parent = emptyenv())
+  expect_error(
+    outpack_search(quote(latest(parameter:a == environment:x)),
+                  envir = env, root = root),
+    paste0("Did not find 'x' within given environment (containing 'a')\n",
+           "  - while evaluating environment:x\n",
+           "  - within           latest(parameter:a == environment:x)"),
+    fixed = TRUE)
+  expect_error(
+    outpack_search(quote(latest(parameter:a == environment:a)),
+                  envir = env, root = root),
+    paste0("The value of 'a' from environment is not suitable as a lookup\n",
+           "  - while evaluating environment:a\n",
+           "  - within           latest(parameter:a == environment:a)"),
+    fixed = TRUE)
 })
 
 

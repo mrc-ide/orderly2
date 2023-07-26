@@ -40,9 +40,9 @@ assert_scalar_logical <- function(x, name = deparse(substitute(x))) {
   assert_logical(x, name)
 }
 
-assert_scalar_atomic <- function(x, name = deparse(substitute(x))) {
+assert_simple_scalar_atomic <- function(x, name = deparse(substitute(x))) {
   assert_scalar(x, name)
-  if (!is.atomic(x)) {
+  if (!is_simple_atomic(x)) {
     stop(sprintf("'%s' must be atomic (string, numeric, logical)", name))
   }
   invisible(x)

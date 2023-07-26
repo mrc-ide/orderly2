@@ -8,6 +8,13 @@
 #'   language object).  Note that you must not provide an
 #'   already-deparsed query here or it will get quoted!
 #'
+#' @param envir Optionally an environment of values to substitute in
+#'   for `environment:` lookups; if given, then formatting a query
+#'   will turn something like `latest(parameter:x == environment:a)`
+#'   into `latest(parameter:x == 1)` (if `a` within `envir` is
+#'   1). This can be used to make queries self contained even after
+#'   the environment has gone.
+#'
 #' @return Query expression as a string
 #' @export
 #'
@@ -17,8 +24,13 @@
 #'   quote(usedby({A})),
 #'   subquery = list(A = quote(latest(name == "a"))))
 #'
+#' orderly2::outpack_query_format(
+#'   quote(parameter:x == environment:x))
+#' orderly2::outpack_query_format(
+#'   quote(parameter:x == environment:x), envir = list2env(list(x = 1)))
+#'
 #' format(orderly2::outpack_query("latest", name = "a"))
-outpack_query_format <- function(query, subquery = NULL) {
+outpack_query_format <- function(query, subquery = NULL, envir = NULL) {
   if (!is_deparseable_query(query)) {
     stop("Cannot format query, it must be a language object or be length 1.")
   }
@@ -32,13 +44,13 @@ outpack_query_format <- function(query, subquery = NULL) {
     }
   }
 
-  deparse_query(query, subquery)
+  deparse_query(query, subquery, envir)
 }
 
 
 ##' @export
-format.outpack_query <- function(x, ...) {
-  deparse_query(x$value$expr, lapply(x$subquery, "[[", "expr"))
+format.outpack_query <- function(x, envir = NULL, ...) {
+  deparse_query(x$value$expr, lapply(x$subquery, "[[", "expr"), envir)
 }
 
 
@@ -47,7 +59,7 @@ is_deparseable_query <- function(x) {
 }
 
 
-deparse_query <- function(x, subquery) {
+deparse_query <- function(x, subquery, envir) {
   if (length(x) == 1) {
     return(deparse_single(x))
   }
@@ -63,14 +75,14 @@ deparse_query <- function(x, subquery) {
   bracket_operators <- list("(" = ")", "{" = "}", "[" = "]")
 
   if (fn %in% infix_operators && length(args) == 2) {
-    query_str <- deparse_infix(fn, args, subquery)
+    query_str <- deparse_infix(fn, args, subquery, envir)
   } else if (fn %in% prefix_operators) {
-    query_str <- deparse_prefix(fn, args, subquery)
+    query_str <- deparse_prefix(fn, args, subquery, envir)
   } else if (fn %in% names(bracket_operators)) {
     closing <- bracket_operators[[fn]]
-    query_str <- deparse_brackets(fn, args, subquery, closing)
+    query_str <- deparse_brackets(fn, args, subquery, envir, closing)
   } else {
-    query_str <- deparse_regular_function(fn, args, subquery)
+    query_str <- deparse_regular_function(fn, args, subquery, envir)
   }
   query_str
 }
@@ -85,18 +97,25 @@ deparse_single <- function(x) {
   str
 }
 
-deparse_prefix <- function(fn, args, subquery) {
-  deparse_regular_function(fn, args, subquery,
+deparse_prefix <- function(fn, args, subquery, envir) {
+  deparse_regular_function(fn, args, subquery, envir,
                            opening_bracket = "", closing_bracket = "")
 }
 
-deparse_infix <- function(fn, args, subquery) {
+deparse_infix <- function(fn, args, subquery, envir) {
   sep <- if (fn == ":") "" else " "
-  paste(deparse_query(args[[1]], subquery), fn,
-        deparse_query(args[[2]], subquery), sep = sep)
+  lhs <- deparse_query(args[[1]], subquery, envir)
+  rhs <- deparse_query(args[[2]], subquery, envir)
+  if (fn == ":" && identical(lhs, "environment") && is.environment(envir)) {
+    value <- query_eval_lookup_environment(rhs, envir)
+    if (value$found && value$valid) {
+      return(deparse_single(value$value))
+    }
+  }
+  paste(lhs, fn, rhs, sep = sep)
 }
 
-deparse_brackets <- function(fn, args, subquery, closing) {
+deparse_brackets <- function(fn, args, subquery, envir, closing) {
   if (fn == "[") {
     func <- args[[1]]
     args <- args[-1]
@@ -113,11 +132,13 @@ deparse_brackets <- function(fn, args, subquery, closing) {
     }
   }
 
-  deparse_regular_function(func, args, subquery, fn, closing)
+  deparse_regular_function(func, args, subquery, envir, fn, closing)
 }
 
-deparse_regular_function <- function(fn, args, subquery, opening_bracket = "(",
+deparse_regular_function <- function(fn, args, subquery, envir,
+                                     opening_bracket = "(",
                                      closing_bracket = ")") {
-  arg_str <- paste(vcapply(args, deparse_query, subquery), collapse = ", ")
+  arg_str <- paste(vcapply(args, deparse_query, subquery, envir),
+                   collapse = ", ")
   paste0(fn, opening_bracket, arg_str, closing_bracket)
 }

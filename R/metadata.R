@@ -110,7 +110,7 @@ orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
     assert_named(custom)
     assert_is(custom, "list")
     for (i in names(custom)) {
-      assert_scalar_atomic(custom[[i]], sprintf("custom$%s", i))
+      assert_simple_scalar_atomic(custom[[i]], sprintf("custom$%s", i))
     }
   }
 

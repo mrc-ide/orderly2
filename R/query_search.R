@@ -269,11 +269,38 @@ query_eval_test_binary <- function(op, a, b) {
 
 
 query_eval_lookup_get <- function(name, data, data_name, expr, context) {
-  if (!(name %in% names(data))) {
+  value <- switch(
+    data_name,
+    parameters = query_eval_lookup_parameter(name, data),
+    environment = query_eval_lookup_environment(name, data),
+    stop("unreachable [orderly2 bug]")) # nocov
+  if (!value$found) {
     msg <- sprintf("Did not find '%s' within given %s (containing %s)",
                    name, data_name,
                    paste(squote(names(data)), collapse = ", "))
     query_eval_error(msg, expr, context)
   }
+  if (!value$valid) {
+    msg <- sprintf("The value of '%s' from %s is not suitable as a lookup",
+                   name, data_name)
+    query_eval_error(msg, expr, context)
+  }
   data[[name]]
+}
+
+
+query_eval_lookup_environment <- function(name, envir) {
+  tryCatch({
+    value <- get(name, envir)
+    list(found = TRUE, value = value, valid = is_simple_scalar_atomic(value))
+  },
+  error = function(e) list(found = FALSE, value = NULL, valid = FALSE))
+}
+
+
+query_eval_lookup_parameter <- function(name, list) {
+  value <- list[[name]]
+  list(found = name %in% names(list),
+       value = value,
+       valid = is_simple_scalar_atomic(value))
 }
