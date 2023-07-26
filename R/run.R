@@ -122,7 +122,7 @@
 orderly_run <- function(name, parameters = NULL, envir = NULL,
                         logging_console = NULL, logging_threshold = NULL,
                         search_options = NULL, root = NULL, locate = TRUE) {
-  root <- orderly_root(root, locate)
+  root <- orderly_root(root, locate, environment())
   validate_orderly_directory(name, root, environment())
 
   envir <- envir %||% .GlobalEnv
