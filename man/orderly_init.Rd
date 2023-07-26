@@ -64,7 +64,7 @@ You can safely call \code{orderly2::orderly_init()} on an
 already-initialised directory, however, any arguments passed
 through must exactly match the configuration of the current root,
 otherwise an error will be thrown. Please use
-\link{outpack_config_set} to change the configuration, as
+\link{orderly_config_set} to change the configuration, as
 this ensures that the change in configuration is possible. If
 configuration options are given but match those that the directory
 already uses, then nothing happens.

@@ -4,7 +4,7 @@ test_that("Configuration must be empty", {
   fs::dir_create(tmp)
   writeLines(c(empty_config_contents(), "a: 1"),
              file.path(tmp, "orderly_config.yml"))
-  expect_error(orderly_config(tmp),
+  expect_error(orderly_config_read(tmp),
                "Unknown fields in .+: a")
 })
 
@@ -14,7 +14,7 @@ test_that("Configuration must exist", {
   on.exit(unlink(tmp, recursive = TRUE))
   fs::dir_create(tmp)
   outpack_init_no_orderly(tmp, logging_console = FALSE)
-  expect_error(orderly_config(tmp),
+  expect_error(orderly_config_read(tmp),
                "Orderly configuration does not exist: 'orderly_config.yml'")
 })
 

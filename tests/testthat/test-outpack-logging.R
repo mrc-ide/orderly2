@@ -18,7 +18,7 @@ test_that("can enable console logging for packet level, if disabled at root", {
 
 test_that("can disable console logging for packet level, if enabled at root", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
-  outpack_config_set(logging.console = TRUE, root = root)
+  orderly_config_set(logging.console = TRUE, root = root)
 
   path_src <- create_temporary_simple_src()
   msg <- capture_messages(
@@ -33,7 +33,7 @@ test_that("can disable console logging for packet level, if enabled at root", {
 
 test_that("can log basic packet running", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
-  outpack_config_set(logging.console = TRUE, root = root)
+  orderly_config_set(logging.console = TRUE, root = root)
 
   path_src <- create_temporary_simple_src()
 

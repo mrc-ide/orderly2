@@ -14,7 +14,7 @@
 ##' already-initialised directory, however, any arguments passed
 ##' through must exactly match the configuration of the current root,
 ##' otherwise an error will be thrown. Please use
-##' [orderly2::outpack_config_set] to change the configuration, as
+##' [orderly2::orderly_config_set] to change the configuration, as
 ##' this ensures that the change in configuration is possible. If
 ##' configuration options are given but match those that the directory
 ##' already uses, then nothing happens.
@@ -187,7 +187,7 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
   root <- outpack_root$new(path_open)
 
   if (has_orderly) {
-    root$config$orderly <- orderly_config(root$path)
+    root$config$orderly <- orderly_config_read(root$path)
   } else if (require_orderly) {
     cli::cli_abort(
       c("Did not find 'orderly_config.yml' in '{path}'",
@@ -228,7 +228,7 @@ root_validate_same_configuration <- function(args, config, root, call) {
       cli::cli_abort(
         c("Trying to change configuration when re-initialising",
           set_names(err_str, rep("x", length(err_str))),
-          i = "Use 'orderly2::outpack_config_set()' to change configuration"),
+          i = "Use 'orderly2::orderly_config_set()' to change configuration"),
         call = call)
     }
   }
