@@ -51,19 +51,22 @@
                         "type": "string"
                     },
                     "id": {
-                        "$ref": "locationId.json"
+                        "$ref": "location-id.json"
                     },
                     "priority": {
                         "type": "number"
                     },
                     "type": {
                         "type": "string"
+                    },
+                    "args": {
+                        "type": "object"
                     }
                 },
-                "required": ["name", "id", "priority", "type"]
+                "required": ["name", "id", "priority", "type", "args"]
             }
         }
     },
 
-    "required": ["schema_version", "core"]
+    "required": ["schema_version", "core", "location"]
 }

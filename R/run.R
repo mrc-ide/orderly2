@@ -192,14 +192,13 @@ custom_metadata <- function(dat) {
                       long = scalar(dat$description$long),
                       custom = custom)
 
-  ## We can actually get this from reading the file, I think
-  packages <- character(0)
+  session <- orderly_session_info(utils::sessionInfo())
 
   list(artefacts = artefacts,
        role = role,
        description = description,
        global = global,
-       packages = packages,
+       session = session,
        plugins = plugins)
 }
 
@@ -445,4 +444,26 @@ validate_orderly_directory <- function(name, root, call) {
                               root$path))
     cli::cli_abort(err, call = call)
   }
+}
+
+
+orderly_session_info <- function(info) {
+  ## TODO: we might also add some host information here too; orderly
+  ## has some of that for us.
+  assert_is(info, "sessionInfo")
+  platform <- list(version = scalar(info$R.version$version.string),
+                   os = scalar(info$running),
+                   system = scalar(info$R.version$system))
+
+  ## TODO: Where available, we might also include Remotes info, or
+  ## whatever renv uses?
+  pkgs <- c(info$otherPkgs, info$loadedOnly)
+  n <- c(length(info$otherPkgs), length(info$loadedOnly))
+  packages <- data_frame(
+    package = vcapply(pkgs, "[[", "Package", USE.NAMES = FALSE),
+    version = vcapply(pkgs, "[[", "Version", USE.NAMES = FALSE),
+    attached = rep(c(TRUE, FALSE), n))
+
+  list(platform = platform,
+       packages = packages)
 }

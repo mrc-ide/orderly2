@@ -7,10 +7,8 @@ test_that("Can construct metadata with parameters", {
   json <- outpack_metadata_create(path, name, id, time,
                                   parameters = parameters,
                                   files = character(),
-                                  script = character(),
                                   depends = NULL,
                                   custom = NULL,
-                                  session = NULL,
                                   file_hash = NULL,
                                   file_ignore = NULL)
   d <- outpack_metadata_load(json)

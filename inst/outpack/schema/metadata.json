@@ -13,7 +13,7 @@
         },
 
         "id": {
-            "$ref": "id.json"
+            "$ref": "packet-id.json"
         },
 
         "name": {
@@ -36,7 +36,10 @@
                 "description": "Time that the report was completed, in seconds sinec 1970-01-01",
                 "type": "number"
             },
-            "required": ["start", "end"]
+            "required": ["start", "end"],
+            "additionalProperties": {
+                "type": "number"
+            }
         },
 
         "files": {
@@ -68,7 +71,7 @@
                 "type": "object",
                 "properties": {
                     "packet": {
-                        "$ref": "id.json"
+                        "$ref": "packet-id.json"
                     },
                     "query": {
                         "type": "string"
@@ -96,14 +99,6 @@
             }
         },
 
-        "script": {
-            "description": "Scripts that were used when running the packet",
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        },
-
         "custom": {
             "description": "Optional custom metadata, grouped under application keys",
             "type": ["null", "object"]
@@ -114,11 +109,7 @@
                 { "type": "null" },
                 { "$ref": "git.json" }
             ]
-        },
-
-        "session": {
-            "description": "Information about the session; necessarily engine-specific format but in a standardised location"
         }
     },
-    "required": ["schema_version", "id", "name", "time", "files", "depends", "script", "custom", "git", "session"]
+    "required": ["schema_version", "id", "name", "time", "files", "depends", "custom", "git"]
 }

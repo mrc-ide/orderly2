@@ -59,7 +59,6 @@
 ##'   used to find `packet`) and `files` (another `data.frame` with
 ##'   columns `there` and `here` corresponding to filenames upstream
 ##'   and in this packet, respectively)
-##' * script: the scripts run in creating the packet (may be zero, one or more)
 ##' * git: either metadata about the state of git or `null`. If given
 ##'   then `sha` and `branch` are strings, while `url` is an array of
 ##'   strings/character vector (can have zero, one or more elements).
@@ -288,6 +287,8 @@ extract_convert <- function(ids, value, from, is, call) {
     is_null <- vlapply(value, is.null)
     len <- lengths(value)
     mode <- vcapply(value, storage.mode)
+    ## This can't be triggered until we add packages or sources back
+    ## into the orderly custom schema
     err <- len != 1 & !is_null
     if (any(err)) {
       msg <- sprintf(

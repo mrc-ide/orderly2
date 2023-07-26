@@ -33,7 +33,6 @@
                 "type": "number"
             }
         },
-        "required": ["log_level", "topic", "detail", "caller", "time"],
-        "additionalProperties": false
+        "required": ["log_level", "topic", "detail", "caller", "time"]
     }
 }

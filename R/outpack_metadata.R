@@ -45,10 +45,8 @@ outpack_metadata_read <- function(path) {
 }
 
 outpack_metadata_create <- function(path, name, id, time, files,
-                                    depends, parameters,
-                                    script, custom, session,
-                                    file_hash, file_ignore,
-                                    hash_algorithm) {
+                                    depends, parameters, custom,
+                                    file_hash, file_ignore, hash_algorithm) {
   assert_scalar_character(name)
   assert_scalar_character(id)
 
@@ -119,16 +117,6 @@ outpack_metadata_create <- function(path, name, id, time, files,
     ## must be consistent within the metadata.
   }
 
-  if (is.null(script)) {
-    script <- character()
-  } else {
-    assert_character(script)
-  }
-
-  if (is.null(session)) {
-    session <- outpack_session_info(utils::sessionInfo())
-  }
-
   if (!is.null(custom)) {
     ## There's no obvious way of adding the schema information here
     ## because we probably hold either a machine-specific filename or
@@ -151,8 +139,6 @@ outpack_metadata_create <- function(path, name, id, time, files,
               parameters = parameters,
               files = files,
               depends = depends,
-              script = script,
-              session = session,
               git = git,
               custom = custom)
 
@@ -166,12 +152,10 @@ outpack_metadata_load <- function(json) {
   }
 
   data <- jsonlite::parse_json(json)
-  data$hash <- hash_data(json, "sha256")
   data$files <- data_frame(path = vcapply(data$files, "[[", "path"),
                            size = vnapply(data$files, "[[", "size"),
                            hash = vcapply(data$files, "[[", "hash"))
   data$time <- lapply(data$time, num_to_time)
-  data$script <- list_to_character(data$script)
   data$depends <- data_frame(
     packet = vcapply(data$depends, "[[", "packet"),
     query = vcapply(data$depends, "[[", "query"),
@@ -184,28 +168,6 @@ outpack_metadata_load <- function(json) {
   }
 
   data
-}
-
-
-outpack_session_info <- function(info) {
-  ## TODO: we might also add some host information here too; orderly
-  ## has some of that for us.
-  assert_is(info, "sessionInfo")
-  platform <- list(version = scalar(info$R.version$version.string),
-                   os = scalar(info$running),
-                   system = scalar(info$R.version$system))
-
-  ## TODO: Where available, we might also include Remotes info, or
-  ## whatever renv uses?
-  pkgs <- c(info$otherPkgs, info$loadedOnly)
-  n <- c(length(info$otherPkgs), length(info$loadedOnly))
-  packages <- data_frame(
-    package = vcapply(pkgs, "[[", "Package", USE.NAMES = FALSE),
-    version = vcapply(pkgs, "[[", "Version", USE.NAMES = FALSE),
-    attached = rep(c(TRUE, FALSE), n))
-
-  list(platform = platform,
-       packages = packages)
 }
 
 

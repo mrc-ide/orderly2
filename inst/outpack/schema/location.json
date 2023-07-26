@@ -13,7 +13,7 @@
         },
 
         "packet": {
-            "$ref": "id.json"
+            "$ref": "packet-id.json"
         },
 
         "time": {

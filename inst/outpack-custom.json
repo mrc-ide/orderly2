@@ -23,12 +23,6 @@
                 }
             }
         },
-        "packages": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-        },
         "global": {
             "type": "array",
             "items": {
@@ -76,9 +70,51 @@
             "required": ["display", "long", "custom"],
             "additionalProperties": false
         },
+
+        "session": {
+            "description": "Information about the session",
+            "type": "object",
+            "properties": {
+                "platform": {
+                    "type": "object",
+                    "properties": {
+                        "version": {
+                            "type": "string"
+                        },
+                        "os": {
+                            "type": "string"
+                        },
+                        "system": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["version", "os", "system"]
+                },
+                "packages": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "package": {
+                                "type": "string"
+                            },
+                            "version": {
+                                "type": "string"
+                            },
+                            "attached": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": ["package", "version", "attached"]
+                    }
+                }
+            },
+            "required": ["platform", "packages"]
+        },
+
         "plugins": {
         }
     },
     "additionalProperties": false,
-    "required": ["artefacts", "packages", "global", "role", "description"]
+    "required": ["artefacts", "global", "role", "description", "session"]
 }

@@ -122,9 +122,7 @@ outpack_packet_end <- function(packet, insert = TRUE) {
                                   files = NULL,
                                   depends = packet$depends,
                                   parameters = packet$parameters,
-                                  script = packet$script,
                                   custom = packet$custom,
-                                  session = NULL,
                                   file_hash = packet$files$immutable,
                                   file_ignore = packet$files$ignored,
                                   hash_algorithm = hash_algorithm)
@@ -210,8 +208,6 @@ outpack_packet_run <- function(packet, script, envir = .GlobalEnv) {
     warnings_str <- vcapply(result$warnings, conditionMessage)
     outpack_log_info(packet, "warning", I(warnings_str), caller)
   }
-
-  packet$script <- c(packet$script, script)
 
   if (!result$success) {
     class(result) <- c("outpack_packet_run_error", "error", "condition")

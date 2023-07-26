@@ -118,8 +118,10 @@ test_that("Can read full metadata via root", {
   d2 <- root$metadata(id1, FALSE)
 
   expect_identical(d1[names(d2)], d2)
-  extra <- setdiff(names(d1), names(d2))
-  expect_equal(d1$script, character())
+  expect_equal(
+    setdiff(names(d1), names(d2)),
+    c("schema_version", "time", "git", "custom"))
+  expect_setequal(names(d1$time), c("start", "end"))
   expect_equal(d1$schema_version, outpack_schema_version())
 })
 
