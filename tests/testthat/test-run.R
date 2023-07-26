@@ -536,7 +536,7 @@ test_that("can pull resources programmatically, strictly", {
   path <- test_prepare_orderly_example("programmatic-resource")
   path_src <- file.path(path, "src", "programmatic-resource", "orderly.R")
   prepend_lines(path_src, "orderly2::orderly_strict_mode()")
-  id1 <- orderly2::orderly_run("programmatic-resource", list(use= "a"),
+  id1 <- orderly2::orderly_run("programmatic-resource", list(use = "a"),
                                root = path)
   id2 <- orderly2::orderly_run("programmatic-resource", list(use = "b"),
                                root = path)
