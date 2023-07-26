@@ -170,8 +170,7 @@
 ##' @param extract A character vector of columns to extract, possibly
 ##'   named. See Details for the format.
 ##'
-##' @param root The outpack root. Will be searched for from the
-##'   current directory if not given.
+##' @inheritParams orderly_metadata
 ##'
 ##' @return A `data.frame`, the columns of which vary based on the
 ##'   names of `extract`; see Details for more information.

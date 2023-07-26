@@ -4,7 +4,7 @@
 \alias{outpack_location_rename}
 \title{Rename a location}
 \usage{
-outpack_location_rename(old, new, root = NULL)
+outpack_location_rename(old, new, root = NULL, locate = TRUE)
 }
 \arguments{
 \item{old}{The current short name of the location.
@@ -13,8 +13,17 @@ Cannot rename \code{local} or \code{orphan}}
 \item{new}{The desired short name of the location.
 Cannot be one of \code{local} or \code{orphan}}
 
-\item{root}{The outpack root. Will be searched for from the
-current directory if not given.}
+\item{root}{The path to the root directory, or \code{NULL} (the
+default) to search for one from the current working directory if
+\code{locate} is \code{TRUE}. This function does not require that the
+directory is configured for orderly, and can be any \code{outpack}
+root (see \link{orderly_init} for details).}
+
+\item{locate}{Logical, indicating if the root should be searched
+for.  If \code{TRUE}, then we looks in the directory given for \code{root}
+(or the working directory if \code{NULL}) and then up through its
+parents until it finds an \code{.outpack} directory or
+\code{orderly_config.yml}}
 }
 \value{
 Nothing

@@ -27,8 +27,7 @@
 ##'   of `NULL` uses the root value, otherwise use `info`, `debug` or
 ##'   `trace` (in increasing order of verbosity).
 ##'
-##' @param root The outpack root. Will be searched for from the
-##'   current directory if not given.
+##' @inheritParams outpack_metadata
 ##'
 ##' @return Invisibly, a copy of the packet data; this can be passed
 ##'   as the `packet` argument.

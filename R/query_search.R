@@ -23,8 +23,7 @@
 ##'   packets should be considered in scope. If not provided, default
 ##'   options are used (i.e., `orderly2::orderly_search_options()`)
 ##'
-##' @param root The outpack root. Will be searched for from the
-##'   current directory if not given.
+##' @inheritParams orderly_metadata
 ##'
 ##' @return A character vector of matching ids. In the case of no
 ##'   match from a query returning a single value (e.g., `latest(...)`

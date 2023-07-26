@@ -59,4 +59,15 @@ control; this means that for every clone of your project you will
 need to call \code{orderly2::orderly_init()} to initialise the
 \code{.outpack} directory. If you forget to do this, an error will be
 thrown reminding you of what you need to do.
+
+You can safely call \code{orderly2::orderly_init()} on an
+already-initialised directory, however, any arguments passed
+through must exactly match the configuration of the current
+root. Use \link{outpack_config_set} to change the
+configuration. If configuration options match, then this nothing
+happens.
+
+If the repository that you call \code{orderly2::orderly_init()} on is
+already initialised with an \code{.outpack} directory but not an
+\code{orderly_config.yml} file, then we will write that file too.
 }

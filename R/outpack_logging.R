@@ -79,7 +79,7 @@ outpack_log_trace <- function(object, topic, detail, caller) {
 ##'
 ##' @param id The identifier of the packet to read logs for
 ##'
-##' @inheritParams orderly_search
+##' @inheritParams orderly_metadata
 ##'
 ##' @return A [data.frame] of log information
 ##'

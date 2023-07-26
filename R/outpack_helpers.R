@@ -78,8 +78,7 @@
 ##'   environment, which is typically reasonable, but may need
 ##'   changing in programmatic use.
 ##'
-##' @param root The outpack root. Will be searched for from the
-##'   current directory if not given.
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing, invisibly. Primarily called for its side effect
 ##'   of copying files from a packet into the directory `dest`

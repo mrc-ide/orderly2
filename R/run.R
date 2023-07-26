@@ -107,9 +107,11 @@
 ##' @param search_options Optional control over locations, when used with
 ##'   [orderly2::orderly_dependency]; see Details.
 ##'
-##' @param root The path to an orderly root directory, or `NULL`
-##'   (the default) to search for one from the current working
-##'   directory if `locate` is `TRUE`.
+##' @param root The path to the root directory, or `NULL` (the
+##'   default) to search for one from the current working directory if
+##'   `locate` is `TRUE`. This function **does** require that the
+##'   directory is configured for orderly, and not just outpack (see
+##'   [orderly2::orderly_init] for details).
 ##'
 ##' @param locate Logical, indicating if the configuration should be
 ##'   searched for.  If `TRUE` and `config` is not given,
