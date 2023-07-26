@@ -14,7 +14,9 @@ orderly_context <- function() {
   } else {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)$path
-    config <- root_open(root, FALSE, TRUE)$config$orderly
+    config <- root_open(root,
+                        locate = FALSE,
+                        require_orderly = TRUE)$config$orderly
     env <- orderly_environment("orderly2")
     src <- path
     parameters <- current_orderly_parameters(src, env)
