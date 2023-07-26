@@ -68,9 +68,17 @@ orderly_init <- function(path,
       cli::cli_abort("'path' exists but is not a directory")
     }
     if (!file.exists(file.path(path, ".outpack"))) {
-      ## TODO: we need to relax this, very soon.
+      ## We may need to relax this, but it's not really clear to me
+      ## how the user gets into this position; they have a bunch of
+      ## files there and they want to a root into it?
+      ##
+      ## One option is provide a boolean arg to proceed anyway in this
+      ## case, at the moment there's not a lot that can be done to
+      ## undo this situation.
       if (length(dir(path, all.files = TRUE, no.. = TRUE)) > 0) {
-        stop("'path' exists but is not empty, or an outpack archive")
+        cli::cli_abort(c(
+          "'path' exists but is not empty, or an outpack archive",
+          i = "Please have a chat with us if this is something you need to do"))
       }
     }
   }
