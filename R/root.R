@@ -127,3 +127,29 @@ orderly_root_open <- function(path, locate, call = NULL) {
 empty_config_contents <- function() {
   'minimum_orderly_version: "1.99.0"'
 }
+
+
+## There's quite a few options here:
+##
+## * find an existing outpack root that is not an orderly root
+##   - sometimes require that we upgrade (e.g., run) [require orderly t]
+##   - sometimes just work with it (e.g., search, extract, copy) [r o f]
+## * find an existing orderly root that is not an outpack root
+##   - always error, indicate what to do
+##
+## 
+new_root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
+  if (inherits(path, "outpack_root")) {
+    if (require_orderly && !inherits(path, "orderly_root")) {
+      browser()
+    }
+    return(path)
+  }
+  if (is.null(path)) {
+    path <- getwd()
+  }
+  assert_scalar_character(path)
+  if (locate) {
+    root_found <- find_file_descend(".outpack", path)
+  }
+}
