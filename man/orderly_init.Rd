@@ -4,25 +4,59 @@
 \alias{orderly_init}
 \title{Initialise an orderly repository}
 \usage{
-orderly_init(path, ...)
+orderly_init(
+  path,
+  path_archive = "archive",
+  use_file_store = FALSE,
+  require_complete_tree = FALSE,
+  logging_console = TRUE,
+  logging_threshold = "info"
+)
 }
 \arguments{
 \item{path}{The path to initialise the repository at.  If the
 repository is already initialised, this operation does nothing.}
 
-\item{...}{Additional arguments passed through to
-\link{outpack_init}, if (and only if) the outpack
-repository is not already created.}
+\item{path_archive}{Path to the archive directory, used to store
+human-readable copies of packets.  If \code{NULL}, no such copy is
+made, and \code{file_store} must be \code{TRUE}}
+
+\item{use_file_store}{Logical, indicating if we should use a
+content-addressable file-store as the source of truth for
+packets.  If \code{archive} is non-\code{NULL}, the file-store will be
+used as the source of truth and the duplicated files in archive
+exist only for convenience.}
+
+\item{require_complete_tree}{Logical, indicating if we require a
+complete tree of packets.  This currently affects
+\link{outpack_location_pull_packet}, by requiring that it
+always operates in recursive mode.  This is \code{FALSE} by default,
+but set to \code{TRUE} if you want your archive to behave well as a
+location; if \code{TRUE} you will always have all the packets that
+you hold metadata about.}
+
+\item{logging_console}{Logical, indicating if we should log to the
+console. If \code{TRUE}, then many operations will produce
+informational output; set to \code{FALSE} to prevent this.}
+
+\item{logging_threshold}{The degree of verbosity; one of \code{info},
+\code{debug} or \code{trace} in increasing order of verbosity.}
 }
 \value{
-An orderly root object, invisibly. Typically this is
-called only for its side effect.
+The full, normalised, path to the root,
+invisibly. Typically this is called only for its side effect.
 }
 \description{
-Initialise an empty orderly repository. An orderly repository is
-also an outpack repository, so most of the work here is done by
-\code{\link[=outpack_init]{outpack_init()}}, however, you should call this
-function!  You can also turn any outpack repository into an
-orderly one, adding appropriate bits of configuration into it,
-though this function.
+Initialise an empty orderly repository, or initialise a source
+copy of an orderly repository (see Details). An orderly repository
+is defined by the presence of a file \code{orderly_config.yml} at its
+root, along with a directory \verb{.outpack/} at the same level.
+}
+\details{
+It is expected that \code{orderly_config.yml} will be saved in version
+control, but that \code{.outpack} will be excluded from version
+control; this means that for every clone of your project you will
+need to call \code{orderly2::orderly_init()} to initialise the
+\code{.outpack} directory. If you forget to do this, an error will be
+thrown reminding you of what you need to do.
 }

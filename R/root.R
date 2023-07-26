@@ -1,9 +1,14 @@
-##' Initialise an empty orderly repository. An orderly repository is
-##' also an outpack repository, so most of the work here is done by
-##' [orderly2::outpack_init()], however, you should call this
-##' function!  You can also turn any outpack repository into an
-##' orderly one, adding appropriate bits of configuration into it,
-##' though this function.
+##' Initialise an empty orderly repository, or initialise a source
+##' copy of an orderly repository (see Details). An orderly repository
+##' is defined by the presence of a file `orderly_config.yml` at its
+##' root, along with a directory `.outpack/` at the same level.
+##'
+##' It is expected that `orderly_config.yml` will be saved in version
+##' control, but that `.outpack` will be excluded from version
+##' control; this means that for every clone of your project you will
+##' need to call `orderly2::orderly_init()` to initialise the
+##' `.outpack` directory. If you forget to do this, an error will be
+##' thrown reminding you of what you need to do.
 ##'
 ##' @title Initialise an orderly repository
 ##'
@@ -35,8 +40,8 @@
 ##' @param logging_threshold The degree of verbosity; one of `info`,
 ##'   `debug` or `trace` in increasing order of verbosity.
 ##'
-##' @return An orderly root object, invisibly. Typically this is
-##'   called only for its side effect.
+##' @return The full, normalised, path to the root,
+##'   invisibly. Typically this is called only for its side effect.
 ##'
 ##' @export
 orderly_init <- function(path,
@@ -79,7 +84,7 @@ orderly_init <- function(path,
     fs::dir_create(file.path(path_outpack, "location"))
     config_write(config, path)
     root <- outpack_root$new(path)
-    outpack_log_info(root, "init", path, "orderly2::outpack_init")
+    outpack_log_info(root, "init", path, "orderly2::orderly_init")
   }
 
   if (!has_orderly_config) {
@@ -94,15 +99,24 @@ orderly_root_open <- function(path, locate, call = NULL) {
   if (inherits(path, "orderly_root")) {
     return(path)
   }
-  if (!file.exists(file.path(path, ".outpack"))) {
-    cli::cli_abort(
-      c(sprintf("orderly directory '%s' not initialised", root),
-        x = "Did not find an '.outpack' directory within path",
-        i = 'Please run orderly2::orderly_init("{root}") to initialise',
-        i = "See ?orderly_init for more arguments to this function"),
-      call = call)
+  if (inherits(path, "outpack_root")) {
+    root <- path
+    path <- root$path
+  } else {
+    assert_scalar_character(path)
+    if (!file.exists(file.path(path, ".outpack"))) {
+      cli::cli_abort(
+        c(sprintf("orderly directory '%s' not initialised", root),
+          x = "Did not find an '.outpack' directory within path",
+          i = 'Please run orderly2::orderly_init("{root}") to initialise',
+          i = "See ?orderly_init for more arguments to this function"),
+        call = call)
+    }
+    root <- outpack_root_open(path, locate)
   }
-  root <- outpack_root_open(path, locate)
+  if (!file.exists(root$path, "orderly_config.yml")) {
+    stop("TODO: handle this case well too")
+  }
   root$config$orderly <- orderly_config(path)
   class(root) <- c("orderly_root", class(root))
   root
