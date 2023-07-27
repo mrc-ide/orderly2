@@ -73,6 +73,7 @@
 ##'   that an error be thrown if the destination file already exists.
 ##'
 ##' @inheritParams orderly_search
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing, invisibly. Primarily called for its side effect
 ##'   of copying files from a packet into the directory `dest`
