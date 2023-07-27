@@ -183,6 +183,12 @@ orderly "display name" with:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{extract = c(display = "custom.orderly.description.display is string")
 }\if{html}{\out{</div>}}
+
+If the path you need to extract has a dot in it (most likely a
+package name for a plugin, such as \code{custom.orderly.db}) you need
+to escape the dot with a backslash (so, \verb{custom.orderly\\.db}). You
+will probably need two slashes or use a raw string (in recent
+versions of R).
 }
 \section{Custom 'orderly' metadata}{
 

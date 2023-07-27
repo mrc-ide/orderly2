@@ -151,6 +151,12 @@
 ##' extract = c(display = "custom.orderly.description.display is string")
 ##' ```
 ##'
+##' If the path you need to extract has a dot in it (most likely a
+##' package name for a plugin, such as `custom.orderly.db`) you need
+##' to escape the dot with a backslash (so, `custom.orderly\.db`). You
+##' will probably need two slashes or use a raw string (in recent
+##' versions of R).
+##'
 ##' @section Custom 'orderly' metadata:
 ##'
 ##' Within `custom.orderly`, additional fields can be extracted. The
@@ -209,9 +215,11 @@ parse_extract <- function(extract, call = NULL) {
     extract <- c("name", "parameters")
   }
 
+  re_dot <- "(?<!\\\\)\\."
   re_type <- "^(.+)\\s+is+\\s+(.+)$"
 
-  extract_as_nms <- sub(re_type, "\\1", gsub(".", "_", extract, fixed = TRUE))
+  extract_as_nms <- sub(re_type, "\\1", gsub(re_dot, "_", extract, perl = TRUE))
+  extract_as_nms <- sub("\\.", ".", extract_as_nms, fixed = TRUE)
   if (is.null(names(extract))) {
     to <- extract_as_nms
   } else {
@@ -240,7 +248,8 @@ parse_extract <- function(extract, call = NULL) {
     }
   }
 
-  extract <- strsplit(extract, ".", fixed = TRUE)
+  extract <- strsplit(extract, re_dot, perl = TRUE)
+  extract <- lapply(extract, function(x) gsub("\\.", ".", x, fixed = TRUE))
 
   if ("id" %in% to) {
     cli::cli_abort(
