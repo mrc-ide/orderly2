@@ -13,7 +13,7 @@ test_that("Can initialise a new orderly root", {
   on.exit(unlink(tmp, recursive = TRUE))
   res <- orderly_init(tmp, logging_console = FALSE)
   expect_true(file.exists(tmp))
-  expect_identical(res, normalizePath(tmp, mustWork = TRUE))
+  expect_identical(normalise_path(res), normalise_path(tmp))
   root <- root_open(tmp, FALSE, TRUE)
   expect_s3_class(root, "outpack_root")
   expect_equal(root$config$orderly,
@@ -134,8 +134,7 @@ test_that("can reinitialise with specific arguments that match config", {
   res <- orderly_init(tmp, use_file_store = FALSE, path_archive = "archive",
                       logging_console = FALSE, require_complete_tree = FALSE,
                       logging_threshold = "info")
-  expect_equal(normalizePath(tmp, mustWork = TRUE),
-               normalizePath(res, mustWork = TRUE))
+  expect_equal(normalise_path(tmp), normalise_path(res))
 })
 
 
@@ -148,10 +147,12 @@ test_that("inform about weirdly nested roots: orderly in outpack", {
   err <- expect_error(
     withr::with_dir(p, root_open(".", TRUE, TRUE)),
     "Found incorrectly nested orderly and outpack directories")
+
+  path_msg <- normalise_path(root$path)
   expect_equal(
     err$body,
-    c(i = sprintf("outpack was found at '%s'", root$path),
-      i = sprintf("orderly was found at '%s/a/b'", root$path),
+    c(i = sprintf("outpack was found at '%s'", path_msg),
+      i = sprintf("orderly was found at '%s/a/b'", path_msg),
       x = "orderly is nested within outpack at 'a/b'",
       i = "How did you even do this? Please let us know!"))
 })

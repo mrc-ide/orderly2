@@ -240,17 +240,17 @@ outpack_file <- function(path) {
 
 ## We could rewrite this non-recurively, this just comes from orderly
 find_file_descend <- function(target, start = ".", limit = "/") {
-  root <- normalizePath(limit, mustWork = TRUE)
-  start <- normalizePath(start, mustWork = TRUE)
+  root <- normalise_path(limit)
+  start <- normalise_path(start)
 
   f <- function(path) {
     if (file.exists(file.path(path, target))) {
       return(path)
     }
-    if (normalizePath(path, mustWork = TRUE) == root) {
+    if (normalise_path(path) == root) {
       return(NULL)
     }
-    parent <- normalizePath(file.path(path, ".."))
+    parent <- normalise_path(file.path(path, ".."))
     if (parent == path) {
       return(NULL)
     }
@@ -258,7 +258,7 @@ find_file_descend <- function(target, start = ".", limit = "/") {
   }
   ret <- f(start)
   if (!(is.null(ret))) {
-    ret <- normalizePath(ret, mustWork = TRUE)
+    ret <- normalise_path(ret)
   }
   ret
 }
@@ -536,4 +536,9 @@ is_simple_scalar_atomic <- function(x) {
 
 is_simple_atomic <- function(x) {
   (is.character(x) || is.numeric(x) || is.logical(x)) && !anyNA(x)
+}
+
+
+normalise_path <- function(x) {
+  normalizePath(x, winslash = "/", mustWork = TRUE)
 }
