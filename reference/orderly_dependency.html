@@ -75,7 +75,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_dependency</span><span class="op">(</span><span class="va">name</span>, <span class="va">query</span>, <span class="va">use</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_dependency</span><span class="op">(</span><span class="va">name</span>, <span class="va">query</span>, <span class="va">files</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -90,11 +90,31 @@ the string <code>latest</code>, indicating the most recent version. You may
 want a more complex query here though.</p></dd>
 
 
-<dt>use</dt>
-<dd><p>Files to use from the packet found by <code>query</code>, usually
-as a named character vector with string interpolation in the
-names; see <a href="orderly_copy_files.html">orderly_copy_files</a>' <code>file</code> argument for
-details.</p></dd>
+<dt>files</dt>
+<dd><p>Files to copy from the other packet. This can be (1)
+a character vector, in which case files are copied over without
+changing their names, (2) a <strong>named</strong> character vector, in which
+case the name will be used as the destination name, or (3) a
+<a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> (including <code>tbl_df</code>, or <code>data.frame</code> objects)
+containing columns <code>from</code> and <code>to</code>, in which case the files
+<code>from</code> will be copied with names <code>to</code>.</p>
+<p>In all cases, if you want to import a directory of files from a
+packet, you must refer to the source with a trailing slash
+(e.g., <code>c(here = "there/")</code>), which will create the local
+directory <code>here/...</code> with files from the upstream packet
+directory <code>there/</code>. If you omit the slash then an error will be
+thrown suggesting that you add a slash if this is what you
+intended.</p>
+<p>You can use a limited form of string interpolation in the names of
+this argument; using <code>${variable}</code> will pick up values from
+<code>envir</code> and substitute them into your string.  This is similar
+to the interpolation you might be familiar with from
+<code><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue::glue</a></code> or similar, but much simpler with no concatenation
+or other fancy features supported.</p>
+<p>Note that there is an unfortunate, but (to us) avoidable
+inconsistency here; interpolation of values from your
+environment in the query is done by using <code>environment:x</code> and in
+the destination filename by doing <code>${x}</code>.</p></dd>
 
 </dl></div>
     <div id="value">
