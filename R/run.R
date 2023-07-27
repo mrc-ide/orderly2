@@ -189,8 +189,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 custom_metadata <- function(dat) {
   shared <- dat$shared_resources %||% list()
   role <- data_frame(
-    path = c(dat$resources, shared$here),
-    role = c(rep_along("resource", dat$resources),
+    path = c("orderly.R", "log.json", dat$resources, shared$here),
+    role = c("orderly",
+             "log",
+             rep_along("resource", dat$resources),
              rep_along("shared", shared$here)))
   artefacts <- lapply(dat$artefacts, function(x) {
     list(description = scalar(x$description),
