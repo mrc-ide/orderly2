@@ -24,7 +24,9 @@ test_that("can run simple task with explicit inputs and outputs", {
 
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "data.csv", role = "resource")))
+    list(list(path = "orderly.R", role = "orderly"),
+         list(path = "log.json", role = "log"),
+         list(path = "data.csv", role = "resource")))
   expect_equal(
     meta$custom$orderly$artefacts,
     list(list(description = "A graph of things",
@@ -56,7 +58,9 @@ test_that("can run simple task with implicit inputs and outputs", {
 
   meta <- orderly_metadata(id, root = path)
 
-  expect_equal(meta$custom$orderly$role, list())
+  expect_equal(meta$custom$orderly$role,
+               list(list(path = "orderly.R", role = "orderly"),
+                    list(path = "log.json", role = "log")))
   expect_equal(meta$custom$orderly$artefacts, list())
 })
 
@@ -196,7 +200,9 @@ test_that("can run with shared resources", {
                   list(here = "shared_data.csv", there = "data.csv"))
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "shared_data.csv", role = "shared")))
+    list(list(path = "orderly.R", role = "orderly"),
+         list(path = "log.json", role = "log"),
+         list(path = "shared_data.csv", role = "shared")))
 })
 
 
@@ -268,7 +274,9 @@ test_that("shared resources can be directories", {
     list(here = "shared_data/mtcars.csv", there = "data/mtcars.csv"))
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "shared_data/iris.csv", role = "shared"),
+    list(list(path = "orderly.R", role = "orderly"),
+         list(path = "log.json", role = "log"),
+         list(path = "shared_data/iris.csv", role = "shared"),
          list(path = "shared_data/mtcars.csv", role = "shared")))
   d <- readRDS(file.path(path, "archive", "shared-dir", id, "output.rds"))
   expect_equal(
@@ -392,8 +400,9 @@ test_that("can copy resource from directory, implicitly", {
   id <- orderly_run("resource-in-directory", root = path, envir = env)
 
   meta <- orderly_metadata(id, root = path)
-  ## TODO: should we assign these a role?
-  expect_length(meta$custom$orderly$role, 0)
+  expect_equal(meta$custom$orderly$role,
+               list(list(path = "orderly.R", role = "orderly"),
+                    list(path = "log.json", role = "log")))
   expect_setequal(
     meta$files$path,
     c("data.rds", "data/a.csv", "data/b.csv", "orderly.R", "log.json"))
@@ -426,7 +435,9 @@ test_that("can copy resource from directory, included by file", {
   meta <- orderly_metadata(id, root = path)
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "data/a.csv", role = "resource"),
+    list(list(path = "orderly.R", role = "orderly"),
+         list(path = "log.json", role = "log"),
+         list(path = "data/a.csv", role = "resource"),
          list(path = "data/b.csv", role = "resource")))
   expect_true(file.exists(
     file.path(path, "archive", "resource-in-directory", id, "data.rds")))
@@ -445,7 +456,9 @@ test_that("can copy resource from directory, included by file, strict mode", {
   meta <- orderly_metadata(id, root = path)
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "data/a.csv", role = "resource"),
+    list(list(path = "orderly.R", role = "orderly"),
+         list(path = "log.json", role = "log"),
+         list(path = "data/a.csv", role = "resource"),
          list(path = "data/b.csv", role = "resource")))
   expect_true(file.exists(
     file.path(path, "archive", "resource-in-directory", id, "data.rds")))
@@ -462,7 +475,9 @@ test_that("can copy resource from directory, included by directory", {
   meta <- orderly_metadata(id, root = path)
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "data/a.csv", role = "resource"),
+    list(list(path = "orderly.R", role = "orderly"),
+         list(path = "log.json", role = "log"),
+         list(path = "data/a.csv", role = "resource"),
          list(path = "data/b.csv", role = "resource")))
   expect_true(file.exists(
     file.path(path, "archive", "resource-in-directory", id, "data.rds")))
@@ -481,7 +496,9 @@ test_that("can copy resource from directory, included by directory, strictly", {
   meta <- orderly_metadata(id, root = path)
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "data/a.csv", role = "resource"),
+    list(list(path = "orderly.R", role = "orderly"),
+         list(path = "log.json", role = "log"),
+         list(path = "data/a.csv", role = "resource"),
          list(path = "data/b.csv", role = "resource")))
   expect_true(file.exists(
     file.path(path, "archive", "resource-in-directory", id, "data.rds")))
@@ -522,9 +539,13 @@ test_that("can pull resources programmatically", {
   meta2 <- orderly_metadata(id2, root = path)
 
   expect_equal(meta1$custom$orderly$role,
-               list(list(path = "a.csv", role = "resource")))
+               list(list(path = "orderly.R", role = "orderly"),
+                    list(path = "log.json", role = "log"),
+                    list(path = "a.csv", role = "resource")))
   expect_equal(meta2$custom$orderly$role,
-               list(list(path = "b.csv", role = "resource")))
+               list(list(path = "orderly.R", role = "orderly"),
+                    list(path = "log.json", role = "log"),
+                    list(path = "b.csv", role = "resource")))
   expect_setequal(meta1$files$path,
                   c("a.csv", "b.csv", "data.rds", "orderly.R", "log.json"))
   expect_setequal(meta2$files$path,
@@ -544,9 +565,13 @@ test_that("can pull resources programmatically, strictly", {
   meta2 <- meta <- orderly_metadata(id2, root = path)
 
   expect_equal(meta1$custom$orderly$role,
-               list(list(path = "a.csv", role = "resource")))
+               list(list(path = "orderly.R", role = "orderly"),
+                    list(path = "log.json", role = "log"),
+                    list(path = "a.csv", role = "resource")))
   expect_equal(meta2$custom$orderly$role,
-               list(list(path = "b.csv", role = "resource")))
+               list(list(path = "orderly.R", role = "orderly"),
+                    list(path = "log.json", role = "log"),
+                    list(path = "b.csv", role = "resource")))
   expect_setequal(meta1$files$path,
                   c("a.csv", "data.rds", "orderly.R", "log.json"))
   expect_setequal(meta2$files$path,
@@ -723,7 +748,9 @@ test_that("can use a resource from a directory", {
   id <- orderly_run("directories", root = path, envir = env)
   meta <- orderly_metadata(id, root = path)
   expect_equal(meta$custom$orderly$role,
-               list(list(path = "data/a.csv", role = "resource"),
+               list(list(path = "orderly.R", role = "orderly"),
+                    list(path = "log.json", role = "log"),
+                    list(path = "data/a.csv", role = "resource"),
                     list(path = "data/b.csv", role = "resource")))
   expect_equal(meta$custom$orderly$artefacts,
                list(list(description = "output files",
@@ -737,7 +764,9 @@ test_that("can use a resource from a directory", {
   id <- orderly_run("directories", root = path, envir = env)
   meta <- orderly_metadata(id, root = path)
   expect_equal(meta$custom$orderly$role,
-               list(list(path = "data/a.csv", role = "resource"),
+               list(list(path = "orderly.R", role = "orderly"),
+                    list(path = "log.json", role = "log"),
+                    list(path = "data/a.csv", role = "resource"),
                     list(path = "data/b.csv", role = "resource")))
   expect_equal(meta$custom$orderly$artefacts,
                list(list(description = "output files",
