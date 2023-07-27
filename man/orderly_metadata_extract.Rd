@@ -109,7 +109,8 @@ which is itself a list:
 \item artefacts: A \link{data.frame} with artefact information, containing
 columns \code{description} (a string) and \code{paths} (a list column of paths).
 \item shared: A \link{data.frame} of the copied shared resources with
-their original name (\code{there}) and name as copied into the packet (\code{here}).
+their original name (\code{there}) and name as copied into the packet
+(\code{here}).
 \item role: A \link{data.frame} of identified roles of files, with columns \code{path}
 and \code{role}.
 \item description: A list of information from

@@ -70,7 +70,8 @@
 ##'   * artefacts: A [data.frame] with artefact information, containing
 ##'     columns `description` (a string) and `paths` (a list column of paths).
 ##'   * shared: A [data.frame] of the copied shared resources with
-##'     their original name (`there`) and name as copied into the packet (`here`).
+##'     their original name (`there`) and name as copied into the packet
+##'     (`here`).
 ##'   * role: A [data.frame] of identified roles of files, with columns `path`
 ##'     and `role`.
 ##'   * description: A list of information from
