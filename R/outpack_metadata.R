@@ -174,6 +174,9 @@ outpack_metadata_load <- function(json) {
   if (!is.null(data$git)) {
     data$git$url <- list_to_character(data$git$url)
   }
+  if (!is.null(data$orderly)) {
+    data$orderly <- custom_metadata_deserialise(data$orderly)
+  }
 
   data
 }
