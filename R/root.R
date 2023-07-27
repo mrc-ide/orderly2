@@ -12,10 +12,12 @@
 ##'
 ##' You can safely call `orderly2::orderly_init()` on an
 ##' already-initialised directory, however, any arguments passed
-##' through must exactly match the configuration of the current
-##' root. Use [orderly2::outpack_config_set] to change the
-##' configuration. If configuration options match, then this nothing
-##' happens.
+##' through must exactly match the configuration of the current root,
+##' otherwise an error will be thrown. Please use
+##' [orderly2::outpack_config_set] to change the configuration, as
+##' this ensures that the change in configuration is possible. If
+##' configuration options are given but match those that the directory
+##' already uses, then nothing happens.
 ##'
 ##' If the repository that you call `orderly2::orderly_init()` on is
 ##' already initialised with an `.outpack` directory but not an
@@ -117,8 +119,8 @@ empty_config_contents <- function() {
 ## There's quite a few scenarios here:
 ##
 ## * find an existing outpack root that is not an orderly root
-##   - sometimes require that we upgrade (e.g., run) [require orderly t]
-##   - sometimes just work with it (e.g., search, extract, copy) [r o f]
+##   - sometimes require that we upgrade (e.g., run)
+##   - sometimes just work with it (e.g., search, extract, copy)
 ## * find an existing orderly root that is not an outpack root
 ##   - always error, indicate what to do
 ##
