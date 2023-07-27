@@ -63,7 +63,7 @@
 ##'
 ##' @param priority The priority of the location. This is used when
 ##'   deciding where to pull packets from
-##'   ([orderly2::outpack_location_pull_packet]), and will be used in
+##'   ([orderly2::orderly_location_pull_packet]), and will be used in
 ##'   the query interface. A priority of 0 corresponds to the same
 ##'   priority as local packets, while larger numbers have higher
 ##'   priority and negative numbers have lower priority.  Ties will be
@@ -73,7 +73,7 @@
 ##'
 ##' @return Nothing
 ##' @export
-outpack_location_add <- function(name, type, args, priority = 0, root = NULL,
+orderly_location_add <- function(name, type, args, priority = 0, root = NULL,
                                  locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
@@ -122,7 +122,7 @@ outpack_location_add <- function(name, type, args, priority = 0, root = NULL,
 ##'
 ##' @return Nothing
 ##' @export
-outpack_location_rename <- function(old, new, root = NULL, locate = TRUE) {
+orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
   assert_scalar_character(new)
@@ -154,7 +154,7 @@ outpack_location_rename <- function(old, new, root = NULL, locate = TRUE) {
 ##'
 ##' @return Nothing
 ##' @export
-outpack_location_remove <- function(name, root = NULL, locate = TRUE) {
+orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
 
@@ -205,19 +205,19 @@ outpack_location_remove <- function(name, root = NULL, locate = TRUE) {
 ##' @return A character vector of location names. The special name
 ##'   `local` will always be present.
 ##'
-##' @seealso [orderly2::outpack_location_pull_metadata], which can
+##' @seealso [orderly2::orderly_location_pull_metadata], which can
 ##'   update your outpack index with metadata from any of the
 ##'   locations listed here.
 ##'
 ##' @export
-outpack_location_list <- function(root = NULL, locate = TRUE) {
+orderly_location_list <- function(root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
   root$config$location$name
 }
 
 
-outpack_location_priority <- function(root = NULL) {
+orderly_location_priority <- function(root = NULL) {
   root <- root_open(root, locate = FALSE, require_orderly = FALSE)
   set_names(root$config$location$priority, root$config$location$name)
 }
@@ -230,7 +230,7 @@ outpack_location_priority <- function(root = NULL) {
 ##' @title Pull metadata from a location
 ##'
 ##' @param location The name of a location to pull from (see
-##'   [orderly2::outpack_location_list] for possible values).  If not
+##'   [orderly2::orderly_location_list] for possible values).  If not
 ##'   given, pulls from all locations.  The "local" and "orphan"
 ##'   locations are always up to date and pulling metadata from them
 ##'   does nothing.
@@ -240,7 +240,7 @@ outpack_location_priority <- function(root = NULL) {
 ##' @return Nothing
 ##'
 ##' @export
-outpack_location_pull_metadata <- function(location = NULL, root = NULL,
+orderly_location_pull_metadata <- function(location = NULL, root = NULL,
                                            locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
@@ -287,7 +287,7 @@ outpack_location_pull_metadata <- function(location = NULL, root = NULL,
 ##'
 ##' @return Invisibly, the ids of packets that were pulled
 ##' @export
-outpack_location_pull_packet <- function(id, location = NULL, recursive = NULL,
+orderly_location_pull_packet <- function(id, location = NULL, recursive = NULL,
                                          root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
@@ -362,7 +362,7 @@ outpack_location_pull_packet <- function(id, location = NULL, recursive = NULL,
 ##' @param packet_id One or more packets to push to the server
 ##'
 ##' @param location The name of a location to push to (see
-##' [orderly2::outpack_location_list] for possible values).
+##' [orderly2::orderly_location_list] for possible values).
 ##'
 ##' @inheritParams orderly_metadata
 ##'
@@ -372,7 +372,7 @@ outpack_location_pull_packet <- function(id, location = NULL, recursive = NULL,
 ##'   known on the other location).
 ##'
 ##' @export
-outpack_location_push <- function(packet_id, location, root = NULL,
+orderly_location_push <- function(packet_id, location, root = NULL,
                                   locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = TRUE,
                     call = environment())
@@ -400,13 +400,13 @@ location_driver <- function(location_id, root) {
   type <- root$config$location$type[[i]]
   args <- root$config$location$args[[i]]
   switch(type,
-         path = outpack_location_path$new(args$path),
-         http = outpack_location_http$new(args$url),
-         custom = outpack_location_custom(args))
+         path = orderly_location_path$new(args$path),
+         http = orderly_location_http$new(args$url),
+         custom = orderly_location_custom(args))
 }
 
 
-outpack_location_custom <- function(args) {
+orderly_location_custom <- function(args) {
   driver <- check_symbol_from_str(args$driver, "args$driver")
   driver <- getExportedValue(driver$namespace, driver$symbol)
   if (inherits(driver, "R6ClassGenerator")) {
@@ -495,9 +495,9 @@ location_pull_files_archive <- function(root, driver, packet_id) {
 location_resolve_valid <- function(location, root, include_local,
                                    allow_no_locations) {
   if (is.null(location)) {
-    location <- outpack_location_list(root)
+    location <- orderly_location_list(root)
   } else if (is.character(location)) {
-    err <- setdiff(location, outpack_location_list(root))
+    err <- setdiff(location, orderly_location_list(root))
     if (length(err) > 0) {
       stop(sprintf("Unknown location: %s", paste(squote(err), collapse = ", ")))
     }
@@ -507,7 +507,7 @@ location_resolve_valid <- function(location, root, include_local,
         "If 'location' is numeric it must be a scalar (but was length %d)",
         length(location)))
     }
-    priority <- outpack_location_priority(root)
+    priority <- orderly_location_priority(root)
     keep <- priority >= location
     if (!any(keep)) {
       stop(sprintf("No locations found with priority of at least %s", location))
@@ -670,7 +670,7 @@ location_check_exists <- function(root, name) {
 
 
 location_exists <- function(root, name) {
-  name %in% outpack_location_list(root)
+  name %in% orderly_location_list(root)
 }
 
 

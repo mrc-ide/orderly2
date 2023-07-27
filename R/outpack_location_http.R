@@ -1,5 +1,5 @@
-outpack_location_http <- R6::R6Class(
-  "outpack_location_http",
+orderly_location_http <- R6::R6Class(
+  "orderly_location_http",
 
   private = list(
     client = NULL

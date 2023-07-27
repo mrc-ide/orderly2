@@ -1,5 +1,5 @@
-outpack_location_path <- R6::R6Class(
-  "outpack_location_path",
+orderly_location_path <- R6::R6Class(
+  "orderly_location_path",
 
   private = list(
     root = NULL,

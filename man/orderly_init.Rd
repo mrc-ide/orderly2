@@ -29,7 +29,7 @@ exist only for convenience.}
 
 \item{require_complete_tree}{Logical, indicating if we require a
 complete tree of packets.  This currently affects
-\link{outpack_location_pull_packet}, by requiring that it
+\link{orderly_location_pull_packet}, by requiring that it
 always operates in recursive mode.  This is \code{FALSE} by default,
 but set to \code{TRUE} if you want your archive to behave well as a
 location; if \code{TRUE} you will always have all the packets that

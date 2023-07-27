@@ -125,7 +125,7 @@ orderly2::orderly_search_options`:
 \item \code{use_draft = TRUE} is \code{location = "local"}
 \item \code{use_draft = FALSE} is \code{location = c(...)} where you should provide
 all locations \emph{except} local
-(\code{setdiff(orderly2::outpack_location_list(), "local")})
+(\code{setdiff(orderly2::orderly_location_list(), "local")})
 \item \code{use_draft = "newer"} is \code{location = NULL}
 }
 

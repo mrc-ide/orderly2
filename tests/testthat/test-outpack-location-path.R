@@ -1,7 +1,7 @@
-test_that("can construct a outpack_location_path object", {
+test_that("can construct a orderly_location_path object", {
   root <- create_temporary_root()
-  loc <- outpack_location_path$new(root$path)
-  expect_s3_class(loc, "outpack_location_path")
+  loc <- orderly_location_path$new(root$path)
+  expect_s3_class(loc, "orderly_location_path")
   dat <- loc$list()
   expect_equal(nrow(dat), 0)
   expect_s3_class(dat, "data.frame")
@@ -9,31 +9,31 @@ test_that("can construct a outpack_location_path object", {
 })
 
 
-test_that("outpack_location_path requires existing directory", {
+test_that("orderly_location_path requires existing directory", {
   path <- temp_file()
   expect_error(
-    outpack_location_path$new(path),
+    orderly_location_path$new(path),
     "Directory does not exist:")
 })
 
 
-test_that("outpack_location_path requires exact root", {
+test_that("orderly_location_path requires exact root", {
   root <- create_temporary_root()
   subdir <- file.path(root$path, "subdir")
   dir.create(subdir)
   expect_error(
-    outpack_location_path$new(subdir),
+    orderly_location_path$new(subdir),
     "Did not find existing orderly (or outpack) root in",
     fixed = TRUE)
 
-  expect_silent(outpack_location_path$new(root$path))
+  expect_silent(orderly_location_path$new(root$path))
 })
 
 
-test_that("outpack_location_path returns list of packet ids", {
+test_that("orderly_location_path returns list of packet ids", {
   root <- create_temporary_root()
   path <- root$path
-  loc <- outpack_location_path$new(path)
+  loc <- orderly_location_path$new(path)
 
   ids <- vcapply(1:3, function(i) create_random_packet(root$path))
 
@@ -48,10 +48,10 @@ test_that("outpack_location_path returns list of packet ids", {
 })
 
 
-test_that("outpack_location_path can return metadata", {
+test_that("orderly_location_path can return metadata", {
   root <- create_temporary_root()
   path <- root$path
-  loc <- outpack_location_path$new(path)
+  loc <- orderly_location_path$new(path)
 
   ids <- vcapply(1:3, function(i) create_random_packet(path))
   str <- setNames(
@@ -68,7 +68,7 @@ test_that("requesting nonexistant metadata is an error", {
   root <- create_temporary_root()
   path <- root$path
 
-  loc <- outpack_location_path$new(path)
+  loc <- orderly_location_path$new(path)
   ids <- vcapply(1:3, function(i) create_random_packet(path))
 
   errs <- c("20220317-125935-ee5fd50e", "20220317-130038-48ffb8ba")
@@ -88,7 +88,7 @@ test_that("can locate files from the store", {
   root <- create_temporary_root(use_file_store = TRUE)
   path <- root$path
 
-  loc <- outpack_location_path$new(path)
+  loc <- orderly_location_path$new(path)
   ids <- vcapply(1:3, function(i) create_random_packet(path))
   idx <- root$index()
 
@@ -105,7 +105,7 @@ test_that("sensible error if file not found in store", {
   root <- create_temporary_root(use_file_store = TRUE)
   path <- root$path
 
-  loc <- outpack_location_path$new(path)
+  loc <- orderly_location_path$new(path)
   h <- "md5:c7be9a2c3cd8f71210d9097e128da316"
   dest <- temp_file()
   expect_error(
@@ -119,7 +119,7 @@ test_that("Can find file from archive", {
   root <- create_temporary_root(use_file_store = TRUE)
   path <- root$path
 
-  loc <- outpack_location_path$new(path)
+  loc <- orderly_location_path$new(path)
   ids <- vcapply(1:3, function(i) create_random_packet(path))
   idx <- root$index()
 
@@ -136,7 +136,7 @@ test_that("sensible error if file not found in archive", {
   root <- create_temporary_root(use_file_store = FALSE)
   path <- root$path
 
-  loc <- outpack_location_path$new(path)
+  loc <- orderly_location_path$new(path)
   h <- "md5:c7be9a2c3cd8f71210d9097e128da316"
   dest <- temp_file()
   expect_error(
@@ -151,7 +151,7 @@ test_that("can detect differences between locations when destination empty", {
   ids <- create_random_packet_chain(client, 4)
 
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  outpack_location_add("server", "path", list(path = server$path),
+  orderly_location_add("server", "path", list(path = server$path),
                        root = client)
 
   files <- lapply(ids, function(id) client$metadata(id)$files$hash)
@@ -185,10 +185,10 @@ test_that("Import complete tree via push into server", {
   ids <- create_random_packet_chain(client, 4)
 
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  outpack_location_add("server", "path", list(path = server$path),
+  orderly_location_add("server", "path", list(path = server$path),
                        root = client)
 
-  plan <- outpack_location_push(ids[[4]], "server", client)
+  plan <- orderly_location_push(ids[[4]], "server", client)
 
   idx_c <- client$index()
   idx_s <- server$index()
@@ -210,10 +210,10 @@ test_that("Import packets into root with archive as well as store", {
 
   server <- create_temporary_root(use_file_store = TRUE,
                                   path_archive = "archive")
-  outpack_location_add("server", "path", list(path = server$path),
+  orderly_location_add("server", "path", list(path = server$path),
                        root = client)
 
-  plan <- outpack_location_push(ids[[4]], "server", client)
+  plan <- orderly_location_push(ids[[4]], "server", client)
 
   expect_equal(
     sort(withr::with_dir(server$path, fs::dir_ls("archive", recurse = TRUE))),
@@ -230,7 +230,7 @@ test_that("Prevent pushing things that would corrupt the store", {
   ids <- create_random_packet_chain(client, 4)
 
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  outpack_location_add("server", "path", list(path = server$path),
+  orderly_location_add("server", "path", list(path = server$path),
                        root = client)
 
   id <- ids[[3]]
@@ -261,10 +261,10 @@ test_that("Can only push into a root with a file store", {
   client <- create_temporary_root()
   ids <- create_random_packet_chain(client, 2)
   server <- create_temporary_root()
-  outpack_location_add("server", "path", list(path = server$path),
+  orderly_location_add("server", "path", list(path = server$path),
                        root = client)
   expect_error(
-    outpack_location_push(ids[[2]], "server", client),
+    orderly_location_push(ids[[2]], "server", client),
     "Can't push files into this server, as it does not have a file store")
 })
 
@@ -273,10 +273,10 @@ test_that("pushing twice does nothing", {
   client <- create_temporary_root()
   ids <- create_random_packet_chain(client, 4)
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  outpack_location_add("server", "path", list(path = server$path),
+  orderly_location_add("server", "path", list(path = server$path),
                        root = client)
-  plan1 <- outpack_location_push(ids[[4]], "server", client)
-  plan2 <- outpack_location_push(ids[[4]], "server", client)
+  plan1 <- orderly_location_push(ids[[4]], "server", client)
+  plan2 <- orderly_location_push(ids[[4]], "server", client)
   expect_equal(plan2, list(packet_id = character(), files = character()))
 })
 
@@ -284,15 +284,15 @@ test_that("pushing twice does nothing", {
 test_that("push overlapping tree", {
   client <- create_temporary_root()
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  outpack_location_add("server", "path", list(path = server$path),
+  orderly_location_add("server", "path", list(path = server$path),
                        root = client)
 
   id_base <- create_random_packet(server)
-  outpack_location_pull_metadata(root = client) # TODO: should be automatic
-  outpack_location_pull_packet(id_base, "server", root = client)
+  orderly_location_pull_metadata(root = client) # TODO: should be automatic
+  orderly_location_pull_packet(id_base, "server", root = client)
 
   ids <- create_random_packet_chain(client, 3, id_base)
-  plan <- outpack_location_push(ids[[3]], "server", client)
+  plan <- orderly_location_push(ids[[3]], "server", client)
 
   expect_setequal(plan$packet_id, ids)
   expect_setequal(names(server$index()$metadata), c(id_base, ids))

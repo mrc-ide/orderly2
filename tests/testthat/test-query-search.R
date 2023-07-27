@@ -208,7 +208,7 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
   root$a <- create_temporary_root(use_file_store = TRUE)
   for (name in c("x", "y", "z")) {
     root[[name]] <- create_temporary_root(use_file_store = TRUE)
-    outpack_location_add(name, "path", list(path = root[[name]]$path),
+    orderly_location_add(name, "path", list(path = root[[name]]$path),
                          root = root$a)
   }
 
@@ -218,7 +218,7 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
       create_random_packet(root[[name]], "data", list(p = i))
     })
   }
-  outpack_location_pull_metadata(root = root$a)
+  orderly_location_pull_metadata(root = root$a)
 
   options_local <- orderly_search_options(location = c("x", "y"),
                                           allow_remote = FALSE)
@@ -235,7 +235,7 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
     character())
 
   for (i in ids$x) {
-    outpack_location_pull_packet(i, root = root$a)
+    orderly_location_pull_packet(i, root = root$a)
   }
 
   expect_equal(
@@ -254,14 +254,14 @@ test_that("scope and allow_local can be used together to filter query", {
   for (name in c("src", "dst")) {
     root[[name]] <- create_temporary_root(use_file_store = TRUE)
   }
-  outpack_location_add("src", "path", list(path = root$src$path),
+  orderly_location_add("src", "path", list(path = root$src$path),
                        root = root$dst)
 
   x1 <- create_random_packet(root$src, "x", list(p = 1))
   x2 <- create_random_packet(root$src, "x", list(p = 1))
   y1 <- create_random_packet(root$src, "y", list(p = 1))
   y2 <- create_random_packet(root$src, "y", list(p = 1))
-  outpack_location_pull_metadata(root = root$dst)
+  orderly_location_pull_metadata(root = root$dst)
 
   options_local <- orderly_search_options(allow_remote = FALSE)
   options_remote <- orderly_search_options(allow_remote = TRUE)
@@ -278,7 +278,7 @@ test_that("scope and allow_local can be used together to filter query", {
     NA_character_)
 
   for (i in c(x1, y1)) {
-    outpack_location_pull_packet(i, location = "src", root = root$dst)
+    orderly_location_pull_packet(i, location = "src", root = root$dst)
   }
 
   expect_equal(
@@ -867,7 +867,7 @@ test_that("allow search before query", {
   root <- list()
   root$a <- create_temporary_root(use_file_store = TRUE)
   root$b <- create_temporary_root(use_file_store = TRUE)
-  outpack_location_add("b", "path", list(path = root$b$path), root = root$a)
+  orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
   ids <- vcapply(1:3, function(i) {
     create_random_packet(root$b, "data", list(p = i))
   })

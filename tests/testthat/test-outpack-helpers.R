@@ -14,7 +14,7 @@ test_that("can copy files from outpack", {
 test_that("can copy files from location, using store", {
   here <- create_temporary_root(use_file_store = TRUE)
   there <- create_temporary_root(use_file_store = TRUE)
-  outpack_location_add("there", "path", list(path = there$path), root = here)
+  orderly_location_add("there", "path", list(path = there$path), root = here)
   id <- create_random_packet(there)
 
   tmp <- withr::local_tempdir()
@@ -22,7 +22,7 @@ test_that("can copy files from location, using store", {
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
                        root = here),
     "id '.+' not found in index")
-  outpack_location_pull_metadata(root = here)
+  orderly_location_pull_metadata(root = here)
 
   expect_error(
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
@@ -43,11 +43,11 @@ test_that("can copy files from location, using store", {
 test_that("can copy files from location, using archive", {
   here <- create_temporary_root(use_file_store = FALSE)
   there <- create_temporary_root(use_file_store = TRUE)
-  outpack_location_add("there", "path", list(path = there$path), root = here)
+  orderly_location_add("there", "path", list(path = there$path), root = here)
   id <- create_random_packet(there)
 
   tmp <- withr::local_tempdir()
-  outpack_location_pull_metadata(root = here)
+  orderly_location_pull_metadata(root = here)
   expect_error(
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
                        root = here),

@@ -11,7 +11,7 @@ test_that("can create new root", {
                        require_complete_tree = FALSE,
                        hash_algorithm = "sha256"))
   expect_false(file.exists(file.path(path, ".outpack", "files")))
-  expect_equal(outpack_location_list(root), "local")
+  expect_equal(orderly_location_list(root), "local")
 })
 
 
@@ -122,8 +122,8 @@ test_that("Can work out what packets are missing", {
     root[[name]] <- create_temporary_root()
   }
   ids <- create_random_packet_chain(root$a, 3)
-  outpack_location_add("a", "path", list(path = root$a$path), root = root$b)
-  outpack_location_pull_metadata(root = root$b)
+  orderly_location_add("a", "path", list(path = root$a$path), root = root$b)
+  orderly_location_pull_metadata(root = root$b)
 
   ## Nothing missing in this case:
   expect_equal(root_list_unknown_packets(ids, root$a),

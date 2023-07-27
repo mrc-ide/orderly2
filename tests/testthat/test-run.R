@@ -672,11 +672,11 @@ test_that("Can select location when querying dependencies for a report", {
     path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
     if (nm != "us") {
       ids[[nm]] <- orderly_run("data", root = path[[nm]])
-      outpack_location_add(nm, "path", list(path = path[[nm]]),
+      orderly_location_add(nm, "path", list(path = path[[nm]]),
                            root = path[["us"]])
-      outpack_location_pull_metadata(nm, root = path[["us"]])
+      orderly_location_pull_metadata(nm, root = path[["us"]])
       for (i in ids[[nm]]) {
-        outpack_location_pull_packet(i, root = path[["us"]])
+        orderly_location_pull_packet(i, root = path[["us"]])
       }
     }
   }
@@ -715,11 +715,11 @@ test_that("can select location when querying dependencies interactively", {
     path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
     if (nm != "us") {
       ids[[nm]] <- orderly_run("data", envir = envir1, root = path[[nm]])
-      outpack_location_add(nm, "path", list(path = path[[nm]]),
+      orderly_location_add(nm, "path", list(path = path[[nm]]),
                            root = path[["us"]])
-      outpack_location_pull_metadata(nm, root = path[["us"]])
+      orderly_location_pull_metadata(nm, root = path[["us"]])
       for (i in ids[[nm]]) {
-        outpack_location_pull_packet(i, root = path[["us"]])
+        orderly_location_pull_packet(i, root = path[["us"]])
       }
     }
   }
