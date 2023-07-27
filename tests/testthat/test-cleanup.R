@@ -17,7 +17,7 @@ test_that("can cleanup explicit things quite well", {
   expect_equal(status$role,
                cbind(orderly = set_names(c(FALSE, FALSE, TRUE), paths),
                      resource = c(TRUE, FALSE, FALSE),
-                     global_resource = FALSE,
+                     shared_resource = FALSE,
                      dependency = FALSE,
                      artefact = c(FALSE, TRUE, FALSE)))
   expect_equal(status$status,
@@ -67,27 +67,27 @@ test_that("can clean up unknown files if gitignored", {
 })
 
 
-test_that("can clean up globals", {
-  path <- test_prepare_orderly_example("global")
-  path_src <- file.path(path, "src", "global")
-  file.create(file.path(path_src, "global_data.csv"))
-  status <- orderly_cleanup_status("global", path)
+test_that("can clean up shared resources", {
+  path <- test_prepare_orderly_example("shared")
+  path_src <- file.path(path, "src", "shared")
+  file.create(file.path(path_src, "shared_data.csv"))
+  status <- orderly_cleanup_status("shared", path)
 
-  files <- c("global_data.csv", "orderly.R")
+  files <- c("orderly.R", "shared_data.csv")
   expect_setequal(rownames(status$role), files)
   expect_equal(
     status$role,
-    cbind(orderly = set_names(c(FALSE, TRUE), files),
+    cbind(orderly = set_names(c(TRUE, FALSE), files),
           resource = FALSE,
-          global_resource = c(TRUE, FALSE),
+          shared_resource = c(FALSE, TRUE),
           dependency = FALSE,
           artefact = FALSE))
   expect_equal(
     status$status,
-    cbind(source = set_names(c(FALSE, TRUE), files),
-          derived = c(TRUE, FALSE),
+    cbind(source = set_names(c(TRUE, FALSE), files),
+          derived = c(FALSE, TRUE),
           ignored = NA))
-  expect_equal(status$delete, "global_data.csv")
+  expect_equal(status$delete, "shared_data.csv")
 })
 
 
@@ -103,7 +103,7 @@ test_that("can clean up dependencies", {
     status$role,
     cbind(orderly = set_names(c(FALSE, TRUE, FALSE), files),
           resource = FALSE,
-          global_resource = FALSE,
+          shared_resource = FALSE,
           dependency = c(TRUE, FALSE, FALSE),
           artefact = FALSE))
   expect_equal(
@@ -130,7 +130,7 @@ test_that("can clean up directories", {
     status$role,
     cbind(orderly = set_names(files == "orderly.R", files),
           resource = c(TRUE, TRUE, FALSE, FALSE, FALSE),
-          global_resource = FALSE,
+          shared_resource = FALSE,
           dependency = FALSE,
           artefact = c(FALSE, FALSE, FALSE, TRUE, TRUE)))
   expect_equal(

@@ -86,6 +86,10 @@ The biggest change, but perhaps the least visible, is that orderly is now built 
 
 This takes control of all the metadata. As such there is a split between "`orderly_`" and "`outpack_`" functions in this package, for more information see the last section of `vignette("introduction")` and also `vignette("outpack")`.
 
+## Other, smaller changes
+
+**"Global" resouces have become "shared" resources**, and always live in `shared/` at the orderly root (i.e., this is no longer configurable). The reason for this is that we want reports to be able to be run fairly independently of the `orderly2` configuration (the only exception to this are plugins). In practice people did not really vary this.
+
 # What is missing compared with `orderly1`
 
 * the changelog feature (we will implement something to support this)

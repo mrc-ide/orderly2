@@ -183,98 +183,98 @@ test_that("Can run case with dependency where both reports are parameterised", {
 })
 
 
-test_that("can run with global resources", {
-  path <- test_prepare_orderly_example("global")
+test_that("can run with shared resources", {
+  path <- test_prepare_orderly_example("shared")
   env <- new.env()
-  id <- orderly_run("global", root = path, envir = env)
+  id <- orderly_run("shared", root = path, envir = env)
   expect_setequal(
-    dir(file.path(path, "archive", "global", id)),
-    c("global_data.csv", "mygraph.png", "orderly.R", "log.json"))
+    dir(file.path(path, "archive", "shared", id)),
+    c("shared_data.csv", "mygraph.png", "orderly.R", "log.json"))
   meta <- orderly_metadata(id, root = path)
-  expect_length(meta$custom$orderly$global, 1)
-  expect_mapequal(meta$custom$orderly$global[[1]],
-                  list(here = "global_data.csv", there = "data.csv"))
+  expect_length(meta$custom$orderly$shared, 1)
+  expect_mapequal(meta$custom$orderly$shared[[1]],
+                  list(here = "shared_data.csv", there = "data.csv"))
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "global_data.csv", role = "global")))
+    list(list(path = "shared_data.csv", role = "shared")))
 })
 
 
-test_that("can run manually with global resources", {
-  path <- test_prepare_orderly_example("global")
+test_that("can run manually with shared resources", {
+  path <- test_prepare_orderly_example("shared")
   env <- new.env()
-  path_src <- file.path(path, "src", "global")
+  path_src <- file.path(path, "src", "shared")
   withr::with_dir(path_src,
                   sys.source("orderly.R", env))
   expect_setequal(
     dir(path_src),
-    c("global_data.csv", "mygraph.png", "orderly.R"))
+    c("shared_data.csv", "mygraph.png", "orderly.R"))
 })
 
 
-test_that("can validate global resource arguments", {
+test_that("can validate shared resource arguments", {
   expect_error(
-    validate_global_resource(list()),
-    "orderly_global_resource requires at least one argument")
+    validate_shared_resource(list()),
+    "orderly_shared_resource requires at least one argument")
   expect_error(
-    validate_global_resource(list(input = c("a", "b"))),
-    "Invalid global resource 'input': entries must be strings")
+    validate_shared_resource(list(input = c("a", "b"))),
+    "Invalid shared resource 'input': entries must be strings")
   expect_error(
-    validate_global_resource(list(a = 1, b = TRUE, c = "str")),
-    "Invalid global resource 'a', 'b': entries must be strings")
+    validate_shared_resource(list(a = 1, b = TRUE, c = "str")),
+    "Invalid shared resource 'a', 'b': entries must be strings")
   expect_equal(
-    validate_global_resource(list(a = "A", b = "B")),
+    validate_shared_resource(list(a = "A", b = "B")),
     c(a = "A", b = "B"))
 })
 
 
-test_that("can't use global resources if not enabled", {
-  path <- test_prepare_orderly_example("global")
-  unlink(file.path(path, "global"), recursive = TRUE)
+test_that("can't use shared resources if not enabled", {
+  path <- test_prepare_orderly_example("shared")
+  unlink(file.path(path, "shared"), recursive = TRUE)
   env <- new.env()
-  path_src <- file.path(path, "src", "global")
+  path_src <- file.path(path, "src", "shared")
   err <- expect_error(
-    orderly_run("global", root = path, envir = env),
-    "The global resources directory 'global' does not exist at orderly's root")
+    orderly_run("shared", root = path, envir = env),
+    "The shared resources directory 'shared' does not exist at orderly's root")
   expect_error(
     withr::with_dir(path_src, sys.source("orderly.R", env)),
-    "The global resources directory 'global' does not exist at orderly's root")
+    "The shared resources directory 'shared' does not exist at orderly's root")
 })
 
 
-test_that("global resources can be directories", {
-  path <- test_prepare_orderly_example("global-dir")
-  write.csv(mtcars, file.path(path, "global/data/mtcars.csv"),
+test_that("shared resources can be directories", {
+  path <- test_prepare_orderly_example("shared-dir")
+  write.csv(mtcars, file.path(path, "shared/data/mtcars.csv"),
             row.names = FALSE)
-  write.csv(iris, file.path(path, "global/data/iris.csv"),
+  write.csv(iris, file.path(path, "shared/data/iris.csv"),
             row.names = FALSE)
 
   env <- new.env()
-  id <- orderly_run("global-dir", root = path, envir = env)
+  id <- orderly_run("shared-dir", root = path, envir = env)
 
   expect_setequal(
-    dir(file.path(path, "archive", "global-dir", id)),
-    c("global_data", "output.rds", "orderly.R", "log.json"))
+    dir(file.path(path, "archive", "shared-dir", id)),
+    c("shared_data", "output.rds", "orderly.R", "log.json"))
   expect_setequal(
-    dir(file.path(path, "archive", "global-dir", id, "global_data")),
+    dir(file.path(path, "archive", "shared-dir", id, "shared_data")),
     c("iris.csv", "mtcars.csv"))
   meta <- orderly_metadata(id, root = path)
-  expect_length(meta$custom$orderly$global, 2)
+  expect_length(meta$custom$orderly$shared, 2)
   expect_mapequal(
-    meta$custom$orderly$global[[1]],
-    list(here = "global_data/iris.csv", there = "data/iris.csv"))
+    meta$custom$orderly$shared[[1]],
+    list(here = "shared_data/iris.csv", there = "data/iris.csv"))
   expect_mapequal(
-    meta$custom$orderly$global[[2]],
-    list(here = "global_data/mtcars.csv", there = "data/mtcars.csv"))
+    meta$custom$orderly$shared[[2]],
+    list(here = "shared_data/mtcars.csv", there = "data/mtcars.csv"))
   expect_equal(
     meta$custom$orderly$role,
-    list(list(path = "global_data/iris.csv", role = "global"),
-         list(path = "global_data/mtcars.csv", role = "global")))
-  d <- readRDS(file.path(path, "archive", "global-dir", id, "output.rds"))
+    list(list(path = "shared_data/iris.csv", role = "shared"),
+         list(path = "shared_data/mtcars.csv", role = "shared")))
+  d <- readRDS(file.path(path, "archive", "shared-dir", id, "output.rds"))
   expect_equal(
     d,
-    list(iris = read.csv(file.path(path, "global/data/iris.csv")),
-         mtcars = read.csv(file.path(path, "global/data/mtcars.csv"))))
+    list(iris = read.csv(file.path(path, "shared/data/iris.csv")),
+         mtcars = read.csv(file.path(path, "shared/data/mtcars.csv"))))
 })
 
 

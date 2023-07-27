@@ -187,11 +187,11 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
 
 custom_metadata <- function(dat) {
-  global <- dat$global_resources %||% list()
+  shared <- dat$shared_resources %||% list()
   role <- data_frame(
-    path = c(dat$resources, global$here),
+    path = c(dat$resources, shared$here),
     role = c(rep_along("resource", dat$resources),
-             rep_along("global", global$here)))
+             rep_along("shared", shared$here)))
   artefacts <- lapply(dat$artefacts, function(x) {
     list(description = scalar(x$description),
          paths = x$files)
@@ -220,7 +220,7 @@ custom_metadata <- function(dat) {
   list(artefacts = artefacts,
        role = role,
        description = description,
-       global = global,
+       shared = shared,
        session = session,
        plugins = plugins)
 }

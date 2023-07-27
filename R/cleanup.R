@@ -87,17 +87,17 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   nms_resource <- info$resources
   nms_artefact <- unlist(lapply(info$artefacts, "[[", "files"))
   nms_dependency <- unlist(lapply(info$dependency, function(x) names(x$use)))
-  nms_global_resource <- names(info$global_resource)
+  nms_shared_resource <- names(info$shared_resource)
 
   role <- cbind(orderly = files == "orderly.R",
                 resource = matches_path(files, nms_resource),
-                global_resource = matches_path(files, nms_global_resource),
+                shared_resource = matches_path(files, nms_shared_resource),
                 dependency = matches_path(files, nms_dependency, FALSE),
                 artefact = matches_path(files, nms_artefact))
   rownames(role) <- files
 
   v_source <- c("orderly", "resource")
-  v_derived <- c("global_resource", "dependency", "artefact")
+  v_derived <- c("shared_resource", "dependency", "artefact")
 
   is_source <- row_any(role[, v_source, drop = FALSE])
   is_derived <- !is_source & row_any(role[, v_derived, drop = FALSE])

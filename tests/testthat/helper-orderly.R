@@ -9,14 +9,14 @@ test_prepare_orderly_example <- function(examples, ...) {
   orderly_init(tmp, logging_console = FALSE)
   config <- readLines(file.path(tmp, "orderly_config.yml"))
 
-  if (any(c("global", "global-dir") %in% examples)) {
-    fs::dir_create(file.path(tmp, "global"))
-    if ("global" %in% examples) {
+  if (any(c("shared", "shared-dir") %in% examples)) {
+    fs::dir_create(file.path(tmp, "shared"))
+    if ("shared" %in% examples) {
       fs::file_copy(test_path("examples/explicit/data.csv"),
-                    file.path(tmp, "global"))
+                    file.path(tmp, "shared"))
     }
-    if ("global-dir" %in% examples) {
-      fs::dir_create(file.path(tmp, "global", "data"))
+    if ("shared-dir" %in% examples) {
+      fs::dir_create(file.path(tmp, "shared", "data"))
     }
   }
 
