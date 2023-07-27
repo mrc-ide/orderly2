@@ -61,24 +61,14 @@
 ##' @param args Arguments to the location driver. The arguments here
 ##'   will vary depending on the type used, see Details.
 ##'
-##' @param priority The priority of the location. This is used when
-##'   deciding where to pull packets from
-##'   ([orderly2::orderly_location_pull_packet]), and will be used in
-##'   the query interface. A priority of 0 corresponds to the same
-##'   priority as local packets, while larger numbers have higher
-##'   priority and negative numbers have lower priority.  Ties will be
-##'   resolved in an arbitrary order.
-##'
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-orderly_location_add <- function(name, type, args, priority = 0, root = NULL,
-                                 locate = TRUE) {
+orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
   assert_scalar_character(name)
-  assert_scalar_numeric(priority)
 
   if (name %in% location_reserved_name) {
     stop(sprintf("Cannot add a location with reserved name '%s'",
@@ -88,7 +78,7 @@ orderly_location_add <- function(name, type, args, priority = 0, root = NULL,
   location_check_new_name(root, name)
   match_value(type, setdiff(location_types, location_reserved_name))
 
-  loc <- new_location_entry(name, priority, type, args)
+  loc <- new_location_entry(name, type, args)
   if (type == "path") {
     ## We won't be necessarily be able to do this _generally_ but
     ## here, let's confirm that we can read from the outpack archive
@@ -102,8 +92,6 @@ orderly_location_add <- function(name, type, args, priority = 0, root = NULL,
 
   config <- root$config
   config$location <- rbind(config$location, loc)
-  config$location <- config$location[
-    order(config$location$priority, decreasing = TRUE), ]
   rownames(config$location) <- NULL
   root$update_config(config)
   invisible()
@@ -177,9 +165,7 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
     if (!location_exists(root, "orphan")) {
       config$location <- rbind(
         config$location,
-        new_location_entry(orphan, -1, "orphan", NULL))
-      config$location <- config$location[
-        order(config$location$priority, decreasing = TRUE), ]
+        new_location_entry(orphan, "orphan", NULL))
       rownames(config$location) <- NULL
     }
 
@@ -216,12 +202,6 @@ orderly_location_list <- function(root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
   root$config$location$name
-}
-
-
-orderly_location_priority <- function(root = NULL) {
-  root <- root_open(root, locate = FALSE, require_orderly = FALSE)
-  set_names(root$config$location$priority, root$config$location$name)
 }
 
 
@@ -274,10 +254,8 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##'
 ##' @param location Control the location that the packet can be pulled
 ##'   from.  The default (`NULL`) will try and pull the packet from
-##'   anywhere it can be found, starting with locations that have the
-##'   highest priority.  Provide a string to limit the search to a
-##'   particular location, or provide a number to limit to locations
-##'   with at least this priority.
+##'   anywhere it can be found.  Provide a string or character vector
+##'   to limit the search to a particular location or locations.
 ##'
 ##' @param recursive If non-NULL, a logical, indicating if we should
 ##'   recursively pull all packets that are referenced by the packets
@@ -503,20 +481,8 @@ location_resolve_valid <- function(location, root, include_local,
     if (length(err) > 0) {
       stop(sprintf("Unknown location: %s", paste(squote(err), collapse = ", ")))
     }
-  } else if (is.numeric(location)) {
-    if (length(location) != 1) {
-      stop(sprintf(
-        "If 'location' is numeric it must be a scalar (but was length %d)",
-        length(location)))
-    }
-    priority <- orderly_location_priority(root)
-    keep <- priority >= location
-    if (!any(keep)) {
-      stop(sprintf("No locations found with priority of at least %s", location))
-    }
-    location <- names(priority)[keep]
   } else {
-    stop("Invalid input for 'location'; expected NULL, character or numeric")
+    stop("Invalid input for 'location'; expected NULL or a character vector")
   }
 
   ## In some cases we won't want local, make this easy to do:
@@ -538,15 +504,13 @@ location_resolve_valid <- function(location, root, include_local,
 
 
 location_build_pull_plan <- function(packet_id, location_id, root) {
-  ## For each packet we'll use the location with the highest priority
-  ## based on the list of locations
   index <- root$index()
 
   ## Things that are found in any location:
   candidates <- index$location[index$location$location %in% location_id,
                                c("packet", "location")]
 
-  ## Sort by priority
+  ## Sort by location
   candidates <- candidates[order(match(candidates$location, location_id)), ]
 
   plan <- data_frame(
@@ -567,7 +531,7 @@ location_build_pull_plan <- function(packet_id, location_id, root) {
     ## * we might also want to include the human readable name of the
     ##   packet here too (we can get that easily from the index)
     ## * we don't report back how the set of candidate locations was
-    ##   resolved (e.g., explicitly given, default, min priority)
+    ##   resolved (e.g., explicitly given, default)
     msg <- packet_id[is.na(plan$location_id)]
     src <- lookup_location_name(location_id, root)
     stop(sprintf("Failed to find %s at location %s: %s",
@@ -606,7 +570,7 @@ location_build_push_plan <- function(packet_id, location_id, root) {
 ## This validation probably will need generalising in future as we add
 ## new types. The trick is going to be making sure that we can support
 ## different location types in different target languages effectively.
-new_location_entry <- function(name, priority, type, args) {
+new_location_entry <- function(name, type, args) {
   match_value(type, location_types)
   required <- NULL
   if (type == "path") {
@@ -634,7 +598,6 @@ new_location_entry <- function(name, priority, type, args) {
   ## NOTE: make sure this matches the order in config_read
   data_frame(name = name,
              id = location_id,
-             priority = priority,
              type = type,
              args = I(list(args)))
 }

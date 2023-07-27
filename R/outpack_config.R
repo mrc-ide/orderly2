@@ -253,7 +253,7 @@ config_new <- function(path_archive, use_file_store, require_complete_tree,
     logging = list(
       console = logging_console,
       threshold = logging_threshold),
-    location = new_location_entry(local, 0, "local", NULL))
+    location = new_location_entry(local, "local", NULL))
 }
 
 
@@ -301,7 +301,6 @@ config_read <- function(root_path) {
   config$location <- data_frame(
     name = vcapply(config$location, "[[", "name"),
     id = vcapply(config$location, "[[", "id"),
-    priority = vnapply(config$location, "[[", "priority"),
     type = vcapply(config$location, "[[", "type"),
     args = I(lapply(config$location, "[[", "args")))
   if (is.null(config$logging)) {

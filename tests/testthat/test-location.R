@@ -510,34 +510,14 @@ test_that("Can pull a tree recursively", {
 })
 
 
-test_that("Can add locations with different priorities", {
-  root <- list()
-  for (name in c("a", "b", "c")) {
-    root[[name]] <- create_temporary_root()
-  }
-
-  orderly_location_add("b", "path", list(path = root$b$path), priority = 5,
-                       root = root$a)
-  orderly_location_add("c", "path", list(path = root$b$path), priority = 10,
-                       root = root$a)
-  expect_equal(root$a$config$location$name, c("c", "b", "local"))
-  expect_equal(root$a$config$location$priority, c(10, 5, 0))
-
-  expect_equal(orderly_location_list(root$a),
-               c("c", "b", "local"))
-})
-
-
 test_that("Can resolve locations", {
   root <- list()
-  for (name in c("a", "b", "c", "d", "dst")) {
+  for (name in c("dst", "a", "b", "c", "d")) {
     root[[name]] <- create_temporary_root()
-  }
-
-  priority <- c(a = -5, b = 20, c = 10, d = 15)
-  for (i in names(priority)) {
-    orderly_location_add(i, "path", list(path = root[[i]]$path),
-                         priority = priority[[i]], root = root$dst)
+    if (name != "dst") {
+      orderly_location_add(name, "path", list(path = root[[name]]$path),
+                           root = root$dst)
+    }
   }
 
   location_id <- set_names(
@@ -546,19 +526,10 @@ test_that("Can resolve locations", {
 
   expect_equal(
     location_resolve_valid(NULL, root$dst, FALSE, FALSE),
-    lookup_location_id(c("b", "d", "c", "a"), root$dst))
+    lookup_location_id(c("a", "b", "c", "d"), root$dst))
   expect_equal(
     location_resolve_valid(NULL, root$dst, TRUE, FALSE),
-    lookup_location_id(c("b", "d", "c", "local", "a"), root$dst))
-  expect_equal(
-    location_resolve_valid(15, root$dst, FALSE, FALSE),
-    lookup_location_id(c("b", "d"), root$dst))
-  expect_equal(
-    location_resolve_valid(0, root$dst, FALSE, FALSE),
-    lookup_location_id(c("b", "d", "c"), root$dst))
-  expect_equal(
-    location_resolve_valid(0, root$dst, TRUE, FALSE),
-    lookup_location_id(c("b", "d", "c", "local"), root$dst))
+    lookup_location_id(c("local", "a", "b", "c", "d"), root$dst))
   expect_equal(
     location_resolve_valid(c("a", "b", "local", "d"), root$dst, FALSE, FALSE),
     lookup_location_id(c("a", "b", "d"), root$dst))
@@ -568,15 +539,8 @@ test_that("Can resolve locations", {
 
   expect_error(
     location_resolve_valid(TRUE, root$dst, TRUE, FALSE),
-    "Invalid input for 'location'; expected NULL, character or numeric")
-  expect_error(
-    location_resolve_valid(c(1, 2), root$dst, TRUE, FALSE),
-    "If 'location' is numeric it must be a scalar (but was length 2)",
-    fixed = TRUE)
+    "Invalid input for 'location'; expected NULL or a character vector")
 
-  expect_error(
-    location_resolve_valid(50, root$dst, TRUE, FALSE),
-    "No locations found with priority of at least 50")
   expect_error(
     location_resolve_valid("other", root$dst, TRUE, FALSE),
     "Unknown location: 'other'")
@@ -605,8 +569,12 @@ test_that("informative error message when no locations configured", {
 ## actually provide.
 test_that("Can filter locations", {
   root <- list()
-  for (name in c("a", "b", "c", "d", "dst")) {
+  for (name in c("dst", "a", "b", "c", "d")) {
     root[[name]] <- create_temporary_root()
+    if (name != "dst") {
+      orderly_location_add(name, "path", list(path = root[[name]]$path),
+                           root = root$dst)
+    }
   }
 
   ids_a <- vcapply(1:3, function(i) create_random_packet(root$a$path))
@@ -625,11 +593,6 @@ test_that("Can filter locations", {
   ids_d <- c(ids_c,
              vcapply(1:3, function(i) create_random_packet(root$d$path)))
 
-  priority <- c(a = 20, b = 15, c = 10, d = 5)
-  for (i in names(priority)) {
-    orderly_location_add(i, "path", list(path = root[[i]]$path),
-                         priority = priority[[i]], root = root$dst)
-  }
   orderly_location_pull_metadata(root = root$dst)
 
   ids <- unique(c(ids_a, ids_b, ids_c, ids_d))
@@ -648,7 +611,7 @@ test_that("Can filter locations", {
     location_build_pull_plan(ids, locs(NULL), root = root$dst),
     expected(ids,
              c("a", "a", "a", "b", "b", "b", "c", "c", "c", "d", "d", "d")))
-  ## Invert priority order:
+  ## Invert order:
   expect_equal(
     location_build_pull_plan(ids, locs(c("d", "c", "b", "a")), root = root$dst),
     expected(ids,
@@ -671,9 +634,6 @@ test_that("Can filter locations", {
   err <- expect_error(
     location_build_pull_plan(ids, locs(c("a", "b", "c")), root = root$dst),
     "Failed to find packets at location 'a', 'b', 'c'")
-  expect_error(
-    location_build_pull_plan(ids, locs(10), root = root$dst),
-    err$message, fixed = TRUE)
 })
 
 

@@ -140,7 +140,6 @@ config_remove_logging <- function(path) {
     {
       "name": "local",
       "id": "%s",
-      "priority": 0,
       "type": "local",
       "args": []
     }

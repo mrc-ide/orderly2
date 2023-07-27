@@ -12,9 +12,7 @@ orderly_search_options(
 }
 \arguments{
 \item{location}{Optional vector of locations to pull from. We
-might in future expand this to allow wildcards, exceptions, or
-numeric values corresponding to the location priority (and then
-it's possible we'll change the name).}
+might in future expand this to allow wildcards or exceptions.}
 
 \item{allow_remote}{Logical, indicating if we should allow
 packets to be found that are not currently unpacked (i.e., are

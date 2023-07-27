@@ -4,14 +4,7 @@
 \alias{orderly_location_add}
 \title{Add a new location}
 \usage{
-orderly_location_add(
-  name,
-  type,
-  args,
-  priority = 0,
-  root = NULL,
-  locate = TRUE
-)
+orderly_location_add(name, type, args, root = NULL, locate = TRUE)
 }
 \arguments{
 \item{name}{The short name of the location to use.  Cannot be in
@@ -24,14 +17,6 @@ API).}
 
 \item{args}{Arguments to the location driver. The arguments here
 will vary depending on the type used, see Details.}
-
-\item{priority}{The priority of the location. This is used when
-deciding where to pull packets from
-(\link{orderly_location_pull_packet}), and will be used in
-the query interface. A priority of 0 corresponds to the same
-priority as local packets, while larger numbers have higher
-priority and negative numbers have lower priority.  Ties will be
-resolved in an arbitrary order.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working directory if

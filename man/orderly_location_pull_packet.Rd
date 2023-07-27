@@ -17,10 +17,8 @@ orderly_location_pull_packet(
 
 \item{location}{Control the location that the packet can be pulled
 from.  The default (\code{NULL}) will try and pull the packet from
-anywhere it can be found, starting with locations that have the
-highest priority.  Provide a string to limit the search to a
-particular location, or provide a number to limit to locations
-with at least this priority.}
+anywhere it can be found.  Provide a string or character vector
+to limit the search to a particular location or locations.}
 
 \item{recursive}{If non-NULL, a logical, indicating if we should
 recursively pull all packets that are referenced by the packets
