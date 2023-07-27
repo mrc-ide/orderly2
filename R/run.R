@@ -326,14 +326,14 @@ check_parameter_values <- function(given, defaults) {
 }
 
 
-check_parameters_interactive <- function(env, spec) {
+check_parameters_interactive <- function(envir, spec) {
   if (length(spec) == 0) {
     return()
   }
 
   is_required <- vlapply(spec, is.null)
 
-  msg <- setdiff(names(spec)[is_required], names(env))
+  msg <- setdiff(names(spec)[is_required], names(envir))
   if (length(msg) > 0L) {
     ## This will change, but we'll need some interactive prompting
     ## better done in another ticket. See
@@ -346,12 +346,12 @@ check_parameters_interactive <- function(env, spec) {
   }
 
   ## Set any missing values into the environment:
-  list2env(spec[setdiff(names(spec), names(env))], env)
+  list2env(spec[setdiff(names(spec), names(envir))], envir)
 
   ## We might need a slightly better error message here that indicates
   ## that we're running in a pecular mode so the value might just have
   ## been overwritten
-  found <- set_names(lapply(names(spec), function(v) env[[v]]), names(spec))
+  found <- set_names(lapply(names(spec), function(v) envir[[v]]), names(spec))
   check_parameter_values(found[!vlapply(found, is.null)], FALSE)
   invisible(found)
 }

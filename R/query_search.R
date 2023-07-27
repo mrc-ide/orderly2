@@ -115,12 +115,12 @@ as_orderly_search_options <- function(x, name = deparse(substitute(x))) {
 }
 
 
-orderly_query_eval <- function(query, parameters, environment, options, root) {
+orderly_query_eval <- function(query, parameters, envir, options, root) {
   assert_is(query, "orderly_query")
   assert_is(options, "orderly_search_options")
   assert_is(root, "outpack_root")
   validate_parameters(parameters)
-  assert_is(environment, "environment")
+  assert_is(envir, "environment")
   ## It's simple enough here to pre-compare the provided parameters
   ## with query$info$parameters, but we already have nicer error
   ## reporting at runtime that shows the context of where the
@@ -130,7 +130,7 @@ orderly_query_eval <- function(query, parameters, environment, options, root) {
   ## All the (possibly mutable) bits that define our query environment.
   query_env <- list(index = index,
                     parameters = parameters,
-                    environment = environment,
+                    envir = envir,
                     subquery = list2env(query$subquery))
 
   query_eval(query$value, query_env)
@@ -189,7 +189,7 @@ query_eval_subquery <- function(query, query_env) {
     ## they might be relevant?
     subquery_env <- list(index = query_env$index,
                          parameters = NULL,
-                         environment = query_env$environment,
+                         envir = query_env$envir,
                          subquery = subquery)
     result <- query_eval(subquery[[name]]$parsed, subquery_env)
     subquery[[name]]$result <- result
@@ -221,7 +221,7 @@ query_eval_lookup <- function(query, query_env) {
            query$query, query_env$parameters, "parameters",
            query$expr, query$context),
          environment = query_eval_lookup_get(
-           query$query, query_env$environment, "environment",
+           query$query, query_env$envir, "environment",
            query$expr, query$context),
          ## Normally unreachable
          stop("Unhandled lookup [outpack bug - please report]"))

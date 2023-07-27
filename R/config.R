@@ -8,7 +8,7 @@ orderly_config_read <- function(path) {
     assert_named(raw)
   }
 
-  raw <- resolve_env(raw, orderly_envir_read(path), "orderly_config.yml")
+  raw <- resolve_envvar(raw, orderly_envir_read(path), "orderly_config.yml")
 
   check <- list(
     minimum_orderly_version = orderly_config_validate_minimum_orderly_version,

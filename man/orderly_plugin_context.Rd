@@ -21,7 +21,7 @@ or similar. You may create files here.
 \item \code{config}: the configuration for this plugin, after processing
 with the plugin's \code{read} function (see
 \code{\link{orderly_plugin_register}})
-\item \code{env}: the environment that the packet is running in. Often this
+\item \code{envir}: the environment that the packet is running in. Often this
 will be the global environment, but do not assume this! You may
 read and write from this environment.
 \item \code{src}: the path to the packet source directory. This is

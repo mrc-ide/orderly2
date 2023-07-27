@@ -5,7 +5,7 @@ orderly_context <- function() {
     path <- p$path
     root <- p$root$path
     config <- p$orderly2$config
-    env <- p$orderly2$envir
+    envir <- p$orderly2$envir
     src <- p$orderly2$src
     parameters <- p$parameters
     name <- p$name
@@ -17,14 +17,14 @@ orderly_context <- function() {
     config <- root_open(root,
                         locate = FALSE,
                         require_orderly = TRUE)$config$orderly
-    env <- orderly_environment("orderly2")
+    envir <- orderly_environment("orderly2")
     src <- path
-    parameters <- current_orderly_parameters(src, env)
+    parameters <- current_orderly_parameters(src, envir)
     name <- basename(path)
     id <- NA_character_
     search_options <- .interactive$search_options
   }
-  list(is_active = is_active, path = path, config = config, env = env,
+  list(is_active = is_active, path = path, config = config, envir = envir,
        root = root, src = src, name = name, id = id, parameters = parameters,
        search_options = search_options, packet = p)
 }

@@ -130,8 +130,8 @@ log_console <- function(topic, detail, caller, log_level) {
 
 
 log_collector_json <- function() {
-  env <- new.env(parent = emptyenv())
-  env$data <- list()
+  envir <- new.env(parent = emptyenv())
+  envir$data <- list()
   list(
     append = function(topic, detail, caller, log_level) {
       el <- list(topic = topic,
@@ -139,10 +139,10 @@ log_collector_json <- function() {
                  caller = caller,
                  log_level = log_level,
                  time = as.numeric(Sys.time()))
-      env$data <- c(env$data, list(el))
+      envir$data <- c(envir$data, list(el))
     },
     get = function() {
-      log_serialise(env$data)
+      log_serialise(envir$data)
     }
   )
 }

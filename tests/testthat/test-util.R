@@ -31,52 +31,53 @@ test_that("assert_simple_scalar_atomic rejects non-atomic entries", {
 
 
 test_that("can resolve environment variables", {
-  env <- c(V1 = "a", V2 = "b")
+  variables <- c(V1 = "a", V2 = "b")
   expect_equal(
-    resolve_env(list(A = "$V1", B = "$V2", C = "c"), env, "x"),
+    resolve_envvar(list(A = "$V1", B = "$V2", C = "c"), variables, "x"),
     list(A = "a", B = "b", C = "c"))
   expect_equal(
-    resolve_env(list(list(A = "$V1", B = "$V2", C = "c")), env, "x"),
+    resolve_envvar(list(list(A = "$V1", B = "$V2", C = "c")), variables, "x"),
     list(list(A = "a", B = "b", C = "c")))
   expect_equal(
-    resolve_env(list(list(A = list(a = "$V1"),
-                          B = list(b = "$V2"),
-                          C = list(c = "c"))), env, "x"),
+    resolve_envvar(list(list(A = list(a = "$V1"),
+                             B = list(b = "$V2"),
+                             C = list(c = "c"))), variables, "x"),
     list(list(A = list(a = "a"), B = list(b = "b"), C = list(c = "c"))))
 })
 
 
 test_that("can return meaningful errors if lookup fails", {
-  env <- c(V1 = "a", V2 = "b")
+  variables <- c(V1 = "a", V2 = "b")
   expect_error(
-    resolve_env(list(A = "$V3", B = "$V2", C = "c"), env, "x"),
+    resolve_envvar(list(A = "$V3", B = "$V2", C = "c"), variables, "x"),
     "Environment variable 'V3' is not set\n\t(used in x$A)",
     fixed = TRUE)
   expect_error(
-    resolve_env(list(list(A = "$V3", B = "$V2", C = "c")), env, "x"),
+    resolve_envvar(list(list(A = "$V3", B = "$V2", C = "c")), variables, "x"),
     "Environment variable 'V3' is not set\n\t(used in x[[1]]$A)",
     fixed = TRUE)
   expect_error(
-    resolve_env(list(list(A = list(a = "$V1"),
-                          B = list(b = "$V3"),
-                          C = list(c = "c"))), env, "x"),
+    resolve_envvar(list(list(A = list(a = "$V1"),
+                             B = list(b = "$V3"),
+                             C = list(c = "c"))), variables, "x"),
     "Environment variable 'V3' is not set\n\t(used in x[[1]]$B$b)",
     fixed = TRUE)
 })
 
 
 test_that("can ignore errors and substitute in NA values", {
-  env <- c(V1 = "a", V2 = "b")
+  variables <- c(V1 = "a", V2 = "b")
   expect_equal(
-    resolve_env(list(A = "$V3", B = "$V2", C = "c"), env, "x", FALSE),
+    resolve_envvar(list(A = "$V3", B = "$V2", C = "c"), variables, "x", FALSE),
     list(A = NA_character_, B = "b", C = "c"))
   expect_equal(
-    resolve_env(list(list(A = "$V3", B = "$V2", C = "c")), env, "x", FALSE),
+    resolve_envvar(list(list(A = "$V3", B = "$V2", C = "c")),
+                   variables, "x", FALSE),
     list(list(A = NA_character_, B = "b", C = "c")))
   expect_equal(
-    resolve_env(list(list(A = list(a = "$V1"),
-                          B = list(b = "$V3"),
-                          C = list(c = "c"))), env, "x", FALSE),
+    resolve_envvar(list(list(A = list(a = "$V1"),
+                             B = list(b = "$V3"),
+                             C = list(c = "c"))), variables, "x", FALSE),
     list(list(A = list(a = "a"),
               B = list(b = NA_character_),
               C = list(c = "c"))))
@@ -99,8 +100,8 @@ test_that("sys_getenv", {
                        NA_character_)
     })
 
-  ## On windows if env variable is empty then windows will return NA from call
-  ## to Sys.getenv
+  ## On windows if environment variable is empty then windows will
+  ## return NA from call to Sys.getenv
   if (is_windows()) {
     expected_err <- "Environment variable 'SOME_VAR' is not set.*used in loc"
   } else {
@@ -193,33 +194,34 @@ test_that("can check two vars are of same type", {
 
 
 test_that("can perform simple string interpolation", {
-  env <- list2env(list(a = 1, b = "banana", c = "carrot"),
-                  parent = emptyenv())
+  envir <- list2env(list(a = 1, b = "banana", c = "carrot"),
+                    parent = emptyenv())
 
-  expect_equal(string_interpolate_simple("hello", env), "hello")
-  expect_equal(string_interpolate_simple("${hello", env), "${hello")
-  expect_equal(string_interpolate_simple("a ${b} c", env),
+  expect_equal(string_interpolate_simple("hello", envir), "hello")
+  expect_equal(string_interpolate_simple("${hello", envir), "${hello")
+  expect_equal(string_interpolate_simple("a ${b} c", envir),
                "a banana c")
-  expect_equal(string_interpolate_simple("a ${b} ${c}", env),
+  expect_equal(string_interpolate_simple("a ${b} ${c}", envir),
                "a banana carrot")
-  expect_equal(string_interpolate_simple("a ${b} ${ b }", env),
+  expect_equal(string_interpolate_simple("a ${b} ${ b }", envir),
                "a banana banana")
 
   expect_equal(string_interpolate_simple(
-    c("${a}/${b}", "${a}/${c}"), env),
+    c("${a}/${b}", "${a}/${c}"), envir),
     c("1/banana", "1/carrot"))
   expect_equal(string_interpolate_simple(
-    I(c("${a}/${b}", "${a}/${c}")), env),
+    I(c("${a}/${b}", "${a}/${c}")), envir),
     I(c("${a}/${b}", "${a}/${c}")))
 })
 
 
 test_that("prevent problematic string interpolations", {
-  env <- list2env(list(a = NULL, b = "${a}", c = letters, d = "${d}", f = args),
-                  parent = emptyenv())
+  envir <- list2env(
+    list(a = NULL, b = "${a}", c = letters, d = "${d}", f = args),
+    parent = emptyenv())
 
   err <- expect_error(
-    string_interpolate_simple("a/${b}/c", env),
+    string_interpolate_simple("a/${b}/c", envir),
     "Can't perform recursive string interpolation")
   expect_equal(
     err$body,
@@ -228,7 +230,7 @@ test_that("prevent problematic string interpolations", {
       i = "Don't use '${...}' within the values you are substituting to"))
 
   err <- expect_error(
-    string_interpolate_simple("a/${b}/${d}", env),
+    string_interpolate_simple("a/${b}/${d}", envir),
     "Can't perform recursive string interpolation")
   expect_equal(
     err$body,
@@ -238,7 +240,7 @@ test_that("prevent problematic string interpolations", {
       i = "Don't use '${...}' within the values you are substituting to"))
 
   err <- expect_error(
-    string_interpolate_simple("a/${a}", env),
+    string_interpolate_simple("a/${a}", envir),
     "Failed to convert string interpolation variable to string")
   expect_equal(
     err$body,
@@ -247,12 +249,12 @@ test_that("prevent problematic string interpolations", {
       i = "All values in ${...} must refer to strings"))
 
   err <- expect_error(
-    string_interpolate_simple("a/${x}", env),
+    string_interpolate_simple("a/${x}", envir),
     "Failed to find value for 'x'")
   expect_equal(err$body, c("i" = "Was interpolating string 'a/${x}'"))
 
   err <- expect_error(
-    string_interpolate_simple("a/${f}", env),
+    string_interpolate_simple("a/${f}", envir),
     "Failed to convert 'f' to character")
   msg <- tryCatch(as.character(args), error = identity)
   expect_equal(err$body,

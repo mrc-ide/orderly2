@@ -72,19 +72,19 @@ test_that("Can select multiple dependencies at once", {
 
 
 test_that("can validate file renaming inputs", {
-  env <- list2env(list(a = "aaa", b = "bbb"), parent = emptyenv())
+  envir <- list2env(list(a = "aaa", b = "bbb"), parent = emptyenv())
   expect_equal(
-    validate_file_from_to("a", env),
+    validate_file_from_to("a", envir),
     data_frame(from = "a", to = "a"))
   expect_equal(
-    validate_file_from_to(c("a", B = "b"), env),
+    validate_file_from_to(c("a", B = "b"), envir),
     data_frame(from = c("a", "b"), to = c("a", "B")))
   expect_equal(
-    validate_file_from_to(c("${a}/a" = "a"), env),
+    validate_file_from_to(c("${a}/a" = "a"), envir),
     data_frame(from = "a", to = "aaa/a"))
 
   err <- expect_error(
-    validate_file_from_to(1, env, "files"),
+    validate_file_from_to(1, envir, "files"),
     "Unexpected object type for 'files'")
   expect_equal(
     err$body,
@@ -92,11 +92,11 @@ test_that("can validate file renaming inputs", {
       i = "Expected a (named) character vector"))
 
   expect_error(
-    validate_file_from_to(c("a", "a"), env, "files"),
+    validate_file_from_to(c("a", "a"), envir, "files"),
     "Every destination filename (in 'files') must be unique",
     fixed = TRUE)
   expect_error(
-    validate_file_from_to(c("a" = "x", "a" = "y"), env, "files"),
+    validate_file_from_to(c("a" = "x", "a" = "y"), envir, "files"),
     "Every destination filename (in 'files') must be unique",
     fixed = TRUE)
 })

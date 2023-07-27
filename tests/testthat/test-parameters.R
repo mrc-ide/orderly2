@@ -69,25 +69,25 @@ test_that("combine default and given parameters", {
 
 
 test_that("do nothing when no spec given", {
-  env <- new.env()
-  expect_null(check_parameters_interactive(env, NULL))
-  expect_equal(ls(env), character())
+  envir <- new.env()
+  expect_null(check_parameters_interactive(envir, NULL))
+  expect_equal(ls(envir), character())
 })
 
 
 test_that("set defaults into environment if missing", {
-  env <- new.env()
-  check_parameters_interactive(env, list(a = 1, b = 2))
-  expect_setequal(names(env), c("a", "b"))
-  expect_equal(env$a, 1)
-  expect_equal(env$b, 2)
+  envir <- new.env()
+  check_parameters_interactive(envir, list(a = 1, b = 2))
+  expect_setequal(names(envir), c("a", "b"))
+  expect_equal(envir$a, 1)
+  expect_equal(envir$b, 2)
 })
 
 
 test_that("require non-default parameters are present in environment", {
-  env <- list2env(list(b = 3, c = 4), parent = new.env())
+  envir <- list2env(list(b = 3, c = 4), parent = new.env())
   expect_error(
-    check_parameters_interactive(env, list(a = NULL, b = NULL, c = NULL)),
+    check_parameters_interactive(envir, list(a = NULL, b = NULL, c = NULL)),
     "Missing parameters: 'a'")
 })
 

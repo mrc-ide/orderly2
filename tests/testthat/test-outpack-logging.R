@@ -38,7 +38,7 @@ test_that("can log basic packet running", {
   path_src <- create_temporary_simple_src()
 
   inputs <- c("data.csv", "script.R")
-  env <- new.env()
+  envir <- new.env()
 
   msg <- capture_messages(
     p <- outpack_packet_start(path_src, "example", root = root))
@@ -49,7 +49,7 @@ test_that("can log basic packet running", {
   expect_match(msg[[3]], "^\\[ start")
 
   res <- evaluate_promise(
-    outpack_packet_run(p, "script.R", env))
+    outpack_packet_run(p, "script.R", envir))
   expect_equal(res$messages,
                c("[ script     ]  script.R\n", "[ result     ]  success\n"))
 

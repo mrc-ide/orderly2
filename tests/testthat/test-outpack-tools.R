@@ -152,13 +152,13 @@ test_that("fill in types for git data when missing", {
 
 test_that("can extract orderly metadata", {
   path <- test_prepare_orderly_example(c("parameters", "description"))
-  env <- new.env()
+  envir <- new.env()
   ids1 <- vcapply(1:3, function(i) {
-    orderly_run("parameters", root = path, envir = env,
+    orderly_run("parameters", root = path, envir = envir,
                 parameters = list(a = i, b = 20, c = 30))
   })
   ids2 <- vcapply(1:2, function(i) {
-    orderly_run("description", root = path, envir = env)
+    orderly_run("description", root = path, envir = envir)
   })
 
   expect_equal(
@@ -179,8 +179,8 @@ test_that("can extract orderly metadata", {
 test_that("can extract orderly custom metadata", {
   ## This is example in the docs
   path <- test_prepare_orderly_example("description")
-  env <- new.env()
-  id <- orderly_run("description", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("description", root = path, envir = envir)
   d <- orderly_metadata_extract(
     'name == "description"',
     extract = c(display = "custom.orderly.description.display is string"),
@@ -191,9 +191,9 @@ test_that("can extract orderly custom metadata", {
 
 test_that("can extract session metadata", {
   path <- test_prepare_orderly_example("parameters")
-  env <- new.env()
+  envir <- new.env()
   ids <- vcapply(1:3, function(i) {
-    orderly_run("parameters", root = path, envir = env,
+    orderly_run("parameters", root = path, envir = envir,
                 parameters = list(a = i, b = 20, c = 30))
   })
   meta <- lapply(ids, orderly_metadata, root = path)

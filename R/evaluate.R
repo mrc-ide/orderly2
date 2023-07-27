@@ -47,8 +47,8 @@ source_and_capture <- function(path, envir, echo) {
     unlink(tmp)
   })
 
-  env <- new.env(parent = emptyenv())
-  env$warnings <- collector()
+  local <- new.env(parent = emptyenv())
+  local$warnings <- collector()
 
   res <- tryCatch(
     withr::with_output_sink(
@@ -58,20 +58,20 @@ source_and_capture <- function(path, envir, echo) {
         withCallingHandlers(
           source_echo(path, envir),
           warning = function(e) {
-            env$warnings$add(e)
+            local$warnings$add(e)
             tryInvokeRestart("muffleWarning")
           },
           error = function(e) {
             try(stop(e))
-            env$error <- e
-            env$traceback <- utils::limitedLabels(sys.calls())
+            local$error <- e
+            local$traceback <- utils::limitedLabels(sys.calls())
           }))),
     error = identity)
 
-  list(success = is.null(env$error),
-       error = env$error,
-       traceback = env$traceback,
-       warnings = env$warnings$get(),
+  list(success = is.null(local$error),
+       error = local$error,
+       traceback = local$traceback,
+       warnings = local$warnings$get(),
        output = readLines(tmp))
 }
 
