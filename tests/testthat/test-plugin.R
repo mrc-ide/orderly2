@@ -17,7 +17,7 @@ test_that("Can run simple example with plugin", {
   ## Probably the most general solution involves plugins being able to
   ## provide deserialisers that can apply any required simplification?
   expect_equal(
-    meta$custom$orderly$plugins$example.random,
+    meta$custom$example.random,
     list(list(as = "dat", mean = mean(cmp), variance = var(cmp))))
   expect_equal(readRDS(file.path(path, "archive", "plugin", id, "data.rds")),
                cmp)

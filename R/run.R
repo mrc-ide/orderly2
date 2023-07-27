@@ -164,8 +164,6 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                             logging_threshold = logging_threshold,
                             root = root)
   withCallingHandlers({
-    ## TODO: Consider moving 'config' here to 'plugins' and only
-    ## moving that.
     outpack_packet_file_mark(p, "orderly.R", "immutable")
     p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
                        strict = dat$strict, inputs_info = inputs_info,
@@ -199,15 +197,6 @@ custom_metadata <- function(dat) {
          paths = x$files)
   })
 
-  if (is.null(dat$plugins)) {
-    plugins <- NULL
-  } else {
-    plugins <- list()
-    for (nm in names(dat$plugins)) {
-      plugins[[nm]] <- dat$config$plugins[[nm]]$serialise(dat$plugins[[nm]])
-    }
-  }
-
   if (is.null(dat$description$custom)) {
     custom <- NULL
   } else {
@@ -223,8 +212,7 @@ custom_metadata <- function(dat) {
        role = role,
        description = description,
        shared = shared,
-       session = session,
-       plugins = plugins)
+       session = session)
 }
 
 
@@ -423,9 +411,18 @@ orderly_packet_cleanup_success <- function(p) {
   } else {
     check_files_relaxed(path, p$orderly2$inputs_info)
   }
-  custom_metadata_json <- to_json(custom_metadata(p$orderly2), NULL)
-  schema <- custom_metadata_schema(p$orderly2$config)
-  outpack_packet_add_custom(p, "orderly", custom_metadata_json, schema)
+
+  outpack_packet_add_custom(p, "orderly",
+                            to_json(custom_metadata(p$orderly2), NULL),
+                            custom_metadata_schema())
+  for (nm in names(p$plugins)) {
+    ## TODO: Potentially a problem because we can't search on
+    ## orderly.db etc with the extraction, so we might need to protect
+    ## this, or rewrite.
+    plugin_cfg <- p$orderly2$config$plugins[[nm]]
+    plugin_json <- plugin_cfg$serialise(p$plugins[[nm]])
+    outpack_packet_add_custom(p, nm, plugin_json, plugin_cfg$schema)
+  }
 
   outpack_packet_end(p)
   unlink(path, recursive = TRUE)
