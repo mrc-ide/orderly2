@@ -55,8 +55,8 @@ orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
     pars <- static_orderly_parameters(list(...))
-    env <- parent.frame()
-    check_parameters_interactive(env, pars)
+    envir <- parent.frame()
+    check_parameters_interactive(envir, pars)
   }
 
   invisible()
@@ -74,10 +74,10 @@ static_orderly_parameters <- function(args) {
 }
 
 
-current_orderly_parameters <- function(src, env) {
+current_orderly_parameters <- function(src, envir) {
   dat <- orderly_read(src)
   pars <- static_orderly_parameters(dat$parameters)
-  values <- check_parameters_interactive(env, pars)
+  values <- check_parameters_interactive(envir, pars)
   values
 }
 
@@ -256,12 +256,12 @@ orderly_dependency <- function(name, query, files) {
   if (ctx$is_active) {
     outpack_packet_use_dependency(ctx$packet, query, files,
                                   search_options = search_options,
-                                  envir = ctx$env,
+                                  envir = ctx$envir,
                                   overwrite = TRUE)
   } else {
     orderly_copy_files(query, files = files, dest = ctx$path, overwrite = TRUE,
                        parameters = ctx$parameters, options = search_options,
-                       envir = ctx$env, root = ctx$root)
+                       envir = ctx$envir, root = ctx$root)
   }
 
   invisible()

@@ -72,12 +72,12 @@ append_lines <- function(path, lines) {
 
 
 reset_interactive <- function() {
-  clear_env(.interactive)
+  clear_envir(.interactive)
 }
 
 
-clear_env <- function(env) {
-  rm(list = ls(env), envir = env)
+clear_envir <- function(envir) {
+  rm(list = ls(envir), envir = envir)
 }
 
 

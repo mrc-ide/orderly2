@@ -178,7 +178,7 @@ query <- function(sql, as) {
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname)
   on.exit(DBI::dbDisconnect(con))
   d <- DBI::dbGetQuery(con, sql)
-  ctx$env[[as]] <- d
+  ctx$envir[[as]] <- d
   invisible()
 }
 ```
@@ -186,9 +186,9 @@ query <- function(sql, as) {
 The arguments here are whatever you want the user to provide -- nothing here is special to `orderly2`. The important function here to call is `orderly2::orderly_plugin_context` which returns information that you can use to make the plugin work. This is explained in `?orderly2::orderly_plugin_context`, but in this example we use two elements:
 
 * `config`: the configuration fo this plugin (i.e., the return value from our function `db_config`)
-* `env`: the (R) environment that the current packet is using
+* `envir`: the (R) environment that the current packet is using
 
-We modify the packet environment by writing to `ctx$env`. Finally, we return metadata to save into the final packet metadata, but here we return `NULL`, so this is always empty.  Later, we'll show why and how to change this.
+We modify the packet environment by writing to `ctx$envir`. Finally, we return metadata to save into the final packet metadata, but here we return `NULL`, so this is always empty.  Later, we'll show why and how to change this.
 
 The last bit of package code is to register the plugin, we do this by calling `orderly2::orderly_plugin_register` within `.onLoad()` which is a special R function called when a package is loaded. This means that whenever your packages is loaded (regardless of whether it is attached) it will register the plugin.
 
@@ -275,7 +275,7 @@ query <- function(sql, as) {
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname)
   on.exit(DBI::dbDisconnect(con))
   d <- DBI::dbGetQuery(con, sql)
-  ctx$env[[as]] <- d
+  ctx$envir[[as]] <- d
   info <- list(sql = sql, as = as, rows = nrow(d), cols = names(d))
   orderly2::orderly_plugin_add_metadata("example.db", "query", info)
   invisible()

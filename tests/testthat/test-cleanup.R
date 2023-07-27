@@ -1,9 +1,9 @@
 test_that("can cleanup explicit things quite well", {
   path <- test_prepare_orderly_example("explicit")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "explicit")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env))
+                  sys.source("orderly.R", envir))
   status <- withr::with_dir(path_src, orderly_cleanup_status())
 
   expect_s3_class(status, "orderly_cleanup_status")
@@ -34,7 +34,7 @@ test_that("can cleanup explicit things quite well", {
 test_that("can clean up unknown files if gitignored", {
   skip_if_older_gert()
   path <- test_prepare_orderly_example("explicit")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "explicit")
   helper_add_git(path)
 
@@ -117,10 +117,10 @@ test_that("can clean up dependencies", {
 
 test_that("can clean up directories", {
   path <- test_prepare_orderly_example("directories")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "directories")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env))
+                  sys.source("orderly.R", envir))
   status <- orderly_cleanup_status("directories", path)
 
   files <- c("data/a.csv", "data/b.csv", "orderly.R",

@@ -189,7 +189,7 @@ orderly_metadata_extract <- function(..., extract = NULL, root = NULL,
 
   meta <- lapply(ids, root$metadata, full = TRUE)
 
-  env <- environment()
+  envir <- environment()
   ret <- data_frame(id = ids)
   for (i in seq_len(nrow(extract))) {
     from_i <- extract$from[[i]]
@@ -197,7 +197,7 @@ orderly_metadata_extract <- function(..., extract = NULL, root = NULL,
     value_i <- lapply(meta, function(x) {
       tryCatch(x[[from_i]], error = function(e) NULL)
     })
-    ret[[extract$to[[i]]]] <- extract_convert(ids, value_i, from_i, is_i, env)
+    ret[[extract$to[[i]]]] <- extract_convert(ids, value_i, from_i, is_i, envir)
   }
 
   ret

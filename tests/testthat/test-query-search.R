@@ -125,17 +125,17 @@ test_that("Can filter based on given values", {
            "  - while evaluating this:x\n",
            "  - within           latest(parameter:a == this:x)"),
     fixed = TRUE)
-  env <- list2env(list(a = sum), parent = emptyenv())
+  envir <- list2env(list(a = sum), parent = emptyenv())
   expect_error(
     orderly_search(quote(latest(parameter:a == environment:x)),
-                  envir = env, root = root),
+                  envir = envir, root = root),
     paste0("Did not find 'x' within given environment (containing 'a')\n",
            "  - while evaluating environment:x\n",
            "  - within           latest(parameter:a == environment:x)"),
     fixed = TRUE)
   expect_error(
     orderly_search(quote(latest(parameter:a == environment:a)),
-                  envir = env, root = root),
+                  envir = envir, root = root),
     paste0("The value of 'a' from environment is not suitable as a lookup\n",
            "  - while evaluating environment:a\n",
            "  - within           latest(parameter:a == environment:a)"),
@@ -149,16 +149,16 @@ test_that("can use variables from the environment when searching", {
   x1 <- vcapply(1:3, function(i) create_random_packet(root, "x", list(a = 1)))
   x2 <- vcapply(1:3, function(i) create_random_packet(root, "x", list(a = 2)))
 
-  env <- new.env()
-  env$x <- 1
+  envir <- new.env()
+  envir$x <- 1
   expect_equal(
     orderly_search(quote(latest(parameter:a == environment:x)),
-                   envir = env, root = root),
+                   envir = envir, root = root),
     x1[[3]])
 
   expect_error(
     orderly_search(quote(latest(parameter:a == environment:other)),
-                   envir = env, root = root),
+                   envir = envir, root = root),
     "Did not find 'other' within given environment (containing 'x')",
     fixed = TRUE)
 })

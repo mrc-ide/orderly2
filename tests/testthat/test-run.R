@@ -1,7 +1,7 @@
 test_that("can run simple task with explicit inputs and outputs", {
   path <- test_prepare_orderly_example("explicit")
-  env <- new.env()
-  id <- orderly_run("explicit", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("explicit", root = path, envir = envir)
   expect_type(id, "character")
   expect_length(id, 1)
   expect_match(id, "^[0-9]{8}-[0-9]{6}-[[:xdigit:]]{8}$")
@@ -36,8 +36,8 @@ test_that("can run simple task with explicit inputs and outputs", {
 
 test_that("can run simple task with implicit inputs and outputs", {
   path <- test_prepare_orderly_example("implicit")
-  env <- new.env()
-  id <- orderly_run("implicit", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("implicit", root = path, envir = envir)
   expect_type(id, "character")
   expect_length(id, 1)
   expect_match(id, "^[0-9]{8}-[0-9]{6}-[[:xdigit:]]{8}$")
@@ -67,7 +67,7 @@ test_that("can run simple task with implicit inputs and outputs", {
 
 test_that("error if declared artefacts are not produced", {
   path <- test_prepare_orderly_example("explicit")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "explicit", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(
@@ -75,17 +75,17 @@ test_that("error if declared artefacts are not produced", {
     code),
     path_src)
   expect_error(
-    orderly_run("explicit", root = path, envir = env),
+    orderly_run("explicit", root = path, envir = envir),
     "Script did not produce expected artefacts: 'output.csv'")
 })
 
 
 test_that("Can run explicit case without orderly", {
   path <- test_prepare_orderly_example("explicit")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "explicit")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env))
+                  sys.source("orderly.R", envir))
   expect_setequal(dir(path_src),
                   c("data.csv", "orderly.R", "mygraph.png"))
 })
@@ -93,8 +93,8 @@ test_that("Can run explicit case without orderly", {
 
 test_that("cope with computed values in static functions", {
   path <- test_prepare_orderly_example("computed-resource")
-  env <- new.env()
-  id <- orderly_run("computed-resource", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("computed-resource", root = path, envir = envir)
   expect_setequal(
     dir(file.path(path, "archive", "computed-resource", id)),
     c("data.csv", "mygraph.png", "orderly.R", "log.json"))
@@ -103,9 +103,9 @@ test_that("cope with computed values in static functions", {
 
 test_that("run a packet with parameters", {
   path <- test_prepare_orderly_example("parameters")
-  env <- new.env()
+  envir <- new.env()
   id <- orderly_run("parameters", parameters = list(a = 10, b = 20, c = 30),
-                    envir = env, root = path)
+                    envir = envir, root = path)
   path_rds <- file.path(path, "archive", "parameters", id, "data.rds")
   expect_true(file.exists(path_rds))
   expect_equal(readRDS(path_rds), list(a = 10, b = 20, c = 30))
@@ -114,9 +114,9 @@ test_that("run a packet with parameters", {
 
 test_that("fall back on parameter defaults", {
   path <- test_prepare_orderly_example("parameters")
-  env <- new.env()
+  envir <- new.env()
   id <- orderly_run("parameters", parameters = list(a = 10, c = 30),
-                    envir = env, root = path)
+                    envir = envir, root = path)
 
   path_rds <- file.path(path, "archive", "parameters", id, "data.rds")
   expect_true(file.exists(path_rds))
@@ -126,10 +126,10 @@ test_that("fall back on parameter defaults", {
 
 test_that("can run orderly with parameters, without orderly", {
   path <- test_prepare_orderly_example("parameters")
-  env <- list2env(list(a = 10, c = 30), parent = new.env())
+  envir <- list2env(list(a = 10, c = 30), parent = new.env())
   path_src <- file.path(path, "src", "parameters")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env))
+                  sys.source("orderly.R", envir))
 
   path_rds <- file.path(path_src, "data.rds")
   expect_true(file.exists(path_rds))
@@ -139,10 +139,10 @@ test_that("can run orderly with parameters, without orderly", {
 
 test_that("Can run simple case with dependency", {
   path <- test_prepare_orderly_example(c("data", "depends"))
-  env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
-  env2 <- new.env()
-  id2 <- orderly_run("depends", root = path, envir = env2)
+  envir1 <- new.env()
+  id1 <- orderly_run("data", root = path, envir = envir1)
+  envir2 <- new.env()
+  id2 <- orderly_run("depends", root = path, envir = envir2)
 
   path1 <- file.path(path, "archive", "data", id1)
   path2 <- file.path(path, "archive", "depends", id2)
@@ -155,12 +155,12 @@ test_that("Can run simple case with dependency", {
 
 test_that("Can run dependencies case without orderly", {
   path <- test_prepare_orderly_example(c("data", "depends"))
-  env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
-  env2 <- new.env()
+  envir1 <- new.env()
+  id1 <- orderly_run("data", root = path, envir = envir1)
+  envir2 <- new.env()
   path_src <- file.path(path, "src", "depends")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env2))
+                  sys.source("orderly.R", envir2))
   expect_setequal(dir(path_src), c("orderly.R", "input.rds", "graph.png"))
   expect_equal(
     unname(tools::md5sum(file.path(path_src, "input.rds"))),
@@ -170,11 +170,11 @@ test_that("Can run dependencies case without orderly", {
 
 test_that("Can run case with dependency where both reports are parameterised", {
   path <- test_prepare_orderly_example(c("parameters", "depends-params"))
-  env1 <- new.env()
-  id1 <- orderly_run("parameters", root = path, envir = env1,
+  envir1 <- new.env()
+  id1 <- orderly_run("parameters", root = path, envir = envir1,
                      parameters = list(a = 10, b = 20, c = 30))
-  env2 <- new.env()
-  id2 <- orderly_run("depends-params", root = path, envir = env2,
+  envir2 <- new.env()
+  id2 <- orderly_run("depends-params", root = path, envir = envir2,
                      parameters = list(a = 1))
 
   path1 <- file.path(path, "archive", "parameters", id1)
@@ -189,8 +189,8 @@ test_that("Can run case with dependency where both reports are parameterised", {
 
 test_that("can run with shared resources", {
   path <- test_prepare_orderly_example("shared")
-  env <- new.env()
-  id <- orderly_run("shared", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("shared", root = path, envir = envir)
   expect_setequal(
     dir(file.path(path, "archive", "shared", id)),
     c("shared_data.csv", "mygraph.png", "orderly.R", "log.json"))
@@ -208,10 +208,10 @@ test_that("can run with shared resources", {
 
 test_that("can run manually with shared resources", {
   path <- test_prepare_orderly_example("shared")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "shared")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env))
+                  sys.source("orderly.R", envir))
   expect_setequal(
     dir(path_src),
     c("shared_data.csv", "mygraph.png", "orderly.R"))
@@ -237,13 +237,13 @@ test_that("can validate shared resource arguments", {
 test_that("can't use shared resources if not enabled", {
   path <- test_prepare_orderly_example("shared")
   unlink(file.path(path, "shared"), recursive = TRUE)
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "shared")
   err <- expect_error(
-    orderly_run("shared", root = path, envir = env),
+    orderly_run("shared", root = path, envir = envir),
     "The shared resources directory 'shared' does not exist at orderly's root")
   expect_error(
-    withr::with_dir(path_src, sys.source("orderly.R", env)),
+    withr::with_dir(path_src, sys.source("orderly.R", envir)),
     "The shared resources directory 'shared' does not exist at orderly's root")
 })
 
@@ -255,8 +255,8 @@ test_that("shared resources can be directories", {
   write.csv(iris, file.path(path, "shared/data/iris.csv"),
             row.names = FALSE)
 
-  env <- new.env()
-  id <- orderly_run("shared-dir", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("shared-dir", root = path, envir = envir)
 
   expect_setequal(
     dir(file.path(path, "archive", "shared-dir", id)),
@@ -288,8 +288,8 @@ test_that("shared resources can be directories", {
 
 test_that("can add description metadata", {
   path <- test_prepare_orderly_example("description")
-  env <- new.env()
-  id <- orderly_run("description", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("description", root = path, envir = envir)
 
   meta <- orderly_metadata(id, root = path)
   expect_equal(
@@ -302,12 +302,12 @@ test_that("can add description metadata", {
 
 test_that("can't use description twice in one packet", {
   path <- test_prepare_orderly_example("description")
-  env <- new.env()
+  envir <- new.env()
   path_orderly <- file.path(path, "src", "description", "orderly.R")
   code <- readLines(path_orderly)
   writeLines(c(code, "orderly2::orderly_description()"), path_orderly)
   expect_error(
-    orderly_run("description", root = path, envir = env),
+    orderly_run("description", root = path, envir = envir),
     "Only one call to 'orderly2::orderly_description' is allowed",
     fixed = TRUE)
 })
@@ -315,13 +315,13 @@ test_that("can't use description twice in one packet", {
 
 test_that("can't use description twice by being sneaky", {
   path <- test_prepare_orderly_example("description")
-  env <- new.env()
+  envir <- new.env()
   path_orderly <- file.path(path, "src", "description", "orderly.R")
   code <- readLines(path_orderly)
   writeLines(c(code, "for (i in 1:2) orderly2::orderly_description()"),
              path_orderly)
   expect_error(
-    orderly_run("description", root = path, envir = env),
+    orderly_run("description", root = path, envir = envir),
     "Only one call to 'orderly2::orderly_description' is allowed",
     fixed = TRUE)
 })
@@ -396,8 +396,8 @@ test_that("disallow multiple calls to strict mode", {
 
 test_that("can copy resource from directory, implicitly", {
   path <- test_prepare_orderly_example("resource-in-directory")
-  env <- new.env()
-  id <- orderly_run("resource-in-directory", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("resource-in-directory", root = path, envir = envir)
 
   meta <- orderly_metadata(id, root = path)
   expect_equal(meta$custom$orderly$role,
@@ -413,12 +413,12 @@ test_that("can copy resource from directory, implicitly", {
 
 test_that("fail to copy resource from directory, implicitly, strictly", {
   path <- test_prepare_orderly_example("resource-in-directory")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src, "orderly2::orderly_strict_mode()")
   err <- suppressWarnings(tryCatch(read.csv("data/a.csv"), error = identity))
   expect_error(suppressWarnings(
-    orderly_run("resource-in-directory", root = path, envir = env)),
+    orderly_run("resource-in-directory", root = path, envir = envir)),
     err$message,
     fixed = TRUE)
 })
@@ -426,12 +426,12 @@ test_that("fail to copy resource from directory, implicitly, strictly", {
 
 test_that("can copy resource from directory, included by file", {
   path <- test_prepare_orderly_example("resource-in-directory")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src,
                 c('orderly2::orderly_resource("data/a.csv")',
                   'orderly2::orderly_resource("data/b.csv")'))
-  id <- orderly_run("resource-in-directory", root = path, envir = env)
+  id <- orderly_run("resource-in-directory", root = path, envir = envir)
   meta <- orderly_metadata(id, root = path)
   expect_equal(
     meta$custom$orderly$role,
@@ -446,13 +446,13 @@ test_that("can copy resource from directory, included by file", {
 
 test_that("can copy resource from directory, included by file, strict mode", {
   path <- test_prepare_orderly_example("resource-in-directory")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src,
                 c("orderly2::orderly_strict_mode()",
                   'orderly2::orderly_resource("data/a.csv")',
                   'orderly2::orderly_resource("data/b.csv")'))
-  id <- orderly_run("resource-in-directory", root = path, envir = env)
+  id <- orderly_run("resource-in-directory", root = path, envir = envir)
   meta <- orderly_metadata(id, root = path)
   expect_equal(
     meta$custom$orderly$role,
@@ -467,10 +467,10 @@ test_that("can copy resource from directory, included by file, strict mode", {
 
 test_that("can copy resource from directory, included by directory", {
   path <- test_prepare_orderly_example("resource-in-directory")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src, 'orderly2::orderly_resource("data")')
-  id <- orderly_run("resource-in-directory", root = path, envir = env)
+  id <- orderly_run("resource-in-directory", root = path, envir = envir)
 
   meta <- orderly_metadata(id, root = path)
   expect_equal(
@@ -486,12 +486,12 @@ test_that("can copy resource from directory, included by directory", {
 
 test_that("can copy resource from directory, included by directory, strictly", {
   path <- test_prepare_orderly_example("resource-in-directory")
-  env <- new.env()
+  envir <- new.env()
   path_src <- file.path(path, "src", "resource-in-directory", "orderly.R")
   prepend_lines(path_src,
                 c("orderly2::orderly_strict_mode()",
                   'orderly2::orderly_resource("data")'))
-  id <- orderly_run("resource-in-directory", root = path, envir = env)
+  id <- orderly_run("resource-in-directory", root = path, envir = envir)
 
   meta <- orderly_metadata(id, root = path)
   expect_equal(
@@ -582,8 +582,8 @@ test_that("can pull resources programmatically, strictly", {
 test_that("can fetch information about the context", {
   path <- test_prepare_orderly_example(c("data", "depends"))
 
-  env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
+  envir1 <- new.env()
+  id1 <- orderly_run("data", root = path, envir = envir1)
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly2::orderly_run_info(), "info.rds")'),
@@ -592,8 +592,8 @@ test_that("can fetch information about the context", {
   ## While there's an error here, our current strategy for sinking
   ## output totally eats the error reporting, and we need a better way
   ## of getting that back out...
-  env2 <- new.env()
-  id2 <- orderly_run("depends", root = path, envir = env2)
+  envir2 <- new.env()
+  id2 <- orderly_run("depends", root = path, envir = envir2)
 
   path2 <- file.path(path, "archive", "depends", id2)
   d <- readRDS(file.path(path2, "info.rds"))
@@ -609,17 +609,17 @@ test_that("can fetch information about the context", {
 
 test_that("can fetch information interactively", {
   path <- test_prepare_orderly_example(c("data", "depends"))
-  env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
+  envir1 <- new.env()
+  id1 <- orderly_run("data", root = path, envir = envir1)
   path_src <- file.path(path, "src", "depends", "orderly.R")
   code <- readLines(path_src)
   writeLines(c(code, 'saveRDS(orderly2::orderly_run_info(), "info.rds")'),
              path_src)
 
-  env2 <- new.env()
+  envir2 <- new.env()
   path_src <- file.path(path, "src", "depends")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env2))
+                  sys.source("orderly.R", envir2))
 
   path2 <- file.path(path, "src", "depends")
   d <- readRDS(file.path(path2, "info.rds"))
@@ -707,14 +707,14 @@ test_that("Can select location when querying dependencies for a report", {
 test_that("can select location when querying dependencies interactively", {
   withr::defer(reset_interactive())
 
-  env1 <- new.env()
+  envir1 <- new.env()
 
   path <- character()
   ids <- character()
   for (nm in c("us", "prod", "dev")) {
     path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
     if (nm != "us") {
-      ids[[nm]] <- orderly_run("data", envir = env1, root = path[[nm]])
+      ids[[nm]] <- orderly_run("data", envir = envir1, root = path[[nm]])
       outpack_location_add(nm, "path", list(path = path[[nm]]),
                            root = path[["us"]])
       outpack_location_pull_metadata(nm, root = path[["us"]])
@@ -724,15 +724,15 @@ test_that("can select location when querying dependencies interactively", {
     }
   }
   ## Run extra local copy - this is the most recent.
-  ids[["us"]] <- orderly_run("data", envir = env1, root = path[["us"]])
+  ids[["us"]] <- orderly_run("data", envir = envir1, root = path[["us"]])
 
   orderly_interactive_set_search_options(list(location = "prod"))
   expect_equal(.interactive$search_options, list(location = "prod"))
 
-  env2 <- new.env()
+  envir2 <- new.env()
   path_src <- file.path(path[["us"]], "src", "depends")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env2))
+                  sys.source("orderly.R", envir2))
 
   ## Correct file was pulled in:
   expect_equal(
@@ -744,8 +744,8 @@ test_that("can select location when querying dependencies interactively", {
 
 test_that("can use a resource from a directory", {
   path <- test_prepare_orderly_example("directories")
-  env <- new.env()
-  id <- orderly_run("directories", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("directories", root = path, envir = envir)
   meta <- orderly_metadata(id, root = path)
   expect_equal(meta$custom$orderly$role,
                list(list(path = "orderly.R", role = "orderly"),
@@ -760,8 +760,8 @@ test_that("can use a resource from a directory", {
 
 test_that("can use a resource from a directory", {
   path <- test_prepare_orderly_example("directories")
-  env <- new.env()
-  id <- orderly_run("directories", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("directories", root = path, envir = envir)
   meta <- orderly_metadata(id, root = path)
   expect_equal(meta$custom$orderly$role,
                list(list(path = "orderly.R", role = "orderly"),
@@ -779,8 +779,8 @@ test_that("can use a resource from a directory", {
 
 test_that("can depend on a directory artefact", {
   path <- test_prepare_orderly_example("directories")
-  env1 <- new.env()
-  id1 <- orderly_run("directories", root = path, envir = env1)
+  envir1 <- new.env()
+  id1 <- orderly_run("directories", root = path, envir = envir1)
 
   path_src <- file.path(path, "src", "use")
   fs::dir_create(path_src)
@@ -790,8 +790,8 @@ test_that("can depend on a directory artefact", {
     'd <- c(readRDS("d/a.rds", "d/b.rds"))',
     'saveRDS(d, "d.rds")'),
     file.path(path_src, "orderly.R"))
-  env2 <- new.env()
-  id2 <- orderly_run("use", root = path, envir = env2)
+  envir2 <- new.env()
+  id2 <- orderly_run("use", root = path, envir = envir2)
   meta <- orderly_metadata(id2, root = path)
   expect_equal(meta$depends$packet, id1)
   expect_equal(meta$depends$files[[1]],
@@ -805,20 +805,20 @@ test_that("run without logging config works", {
   ## logging section and still run something:
   path <- test_prepare_orderly_example("data")
   config_remove_logging(path)
-  env <- new.env()
+  envir <- new.env()
   res <- testthat::evaluate_promise(
-    orderly_run("data", root = path, envir = env))
+    orderly_run("data", root = path, envir = envir))
   expect_match(res$messages, "\\[ name\\s+\\]  data", all = FALSE)
 })
 
 
 test_that("can compute dependencies", {
   path <- test_prepare_orderly_example("parameters")
-  env1 <- new.env()
+  envir1 <- new.env()
   id1 <- orderly_run("parameters", list(a = 1, b = 2, c = 3),
-                     root = path, envir = env1)
+                     root = path, envir = envir1)
   id2 <- orderly_run("parameters", list(a = 3, b = 2, c = 1),
-                     root = path, envir = env1)
+                     root = path, envir = envir1)
 
   path_src <- file.path(path, "src", "use")
   fs::dir_create(path_src)
@@ -830,42 +830,42 @@ test_that("can compute dependencies", {
     'orderly2::orderly_artefact("data", "d.rds")')
 
   writeLines(code, file.path(path_src, "orderly.R"))
-  env2 <- new.env()
+  envir2 <- new.env()
   expect_error(
-    orderly_run("use", root = path, envir = env2),
+    orderly_run("use", root = path, envir = envir2),
     "Did not find 'x' within given environment")
 
-  env2$x <- 1
-  id <- orderly_run("use", root = path, envir = env2)
+  envir2$x <- 1
+  id <- orderly_run("use", root = path, envir = envir2)
   expect_equal(orderly_metadata(id, root = path)$depends[[1]], id1)
 
-  env2$x <- 2
+  envir2$x <- 2
   expect_error(
-    orderly_run("use", root = path, envir = env2),
+    orderly_run("use", root = path, envir = envir2),
     "Failed to find packet for query")
 
-  env2$x <- 3
-  id <- orderly_run("use", root = path, envir = env2)
+  envir2$x <- 3
+  id <- orderly_run("use", root = path, envir = envir2)
   meta <- orderly_metadata(id, root = path)
   expect_equal(meta$depends$packet, id2)
   expect_equal(meta$depends$query,
                'latest(parameter:a == 3 && name == "parameters")')
 
   writeLines(c("x <- 1", code), file.path(path_src, "orderly.R"))
-  id <- orderly_run("use", root = path, envir = env2)
+  id <- orderly_run("use", root = path, envir = envir2)
   expect_equal(orderly_metadata(id, root = path)$depends$packet, id1)
 
-  rm(list = "x", envir = env2)
-  id <- orderly_run("use", root = path, envir = env2)
+  rm(list = "x", envir = envir2)
+  id <- orderly_run("use", root = path, envir = envir2)
   expect_equal(orderly_metadata(id, root = path)$depends$packet, id1)
 })
 
 
 test_that("nice error if running nonexistant report", {
   path <- test_prepare_orderly_example(c("implicit", "explicit"))
-  env <- new.env()
+  envir <- new.env()
   err <- expect_error(
-    orderly_run("xplicit", root = path, envir = env),
+    orderly_run("xplicit", root = path, envir = envir),
     "Did not find orderly report 'xplicit'")
   expect_equal(err$body[1:2],
                c(x = "The path 'src/xplicit' does not exist",
@@ -941,8 +941,8 @@ test_that("validation of orderly directories", {
 
 test_that("can rename dependencies programmatically", {
   path <- test_prepare_orderly_example("data")
-  env1 <- new.env()
-  id1 <- orderly_run("data", root = path, envir = env1)
+  envir1 <- new.env()
+  id1 <- orderly_run("data", root = path, envir = envir1)
 
   path_src <- file.path(path, "src", "use")
   fs::dir_create(path_src)
@@ -955,8 +955,8 @@ test_that("can rename dependencies programmatically", {
     'd <- readRDS(file.path(p, "data.rds"))',
     'saveRDS(d, "d.rds")'),
     file.path(path_src, "orderly.R"))
-  env2 <- new.env()
-  id2 <- orderly_run("use", root = path, envir = env2)
+  envir2 <- new.env()
+  id2 <- orderly_run("use", root = path, envir = envir2)
   meta <- orderly_metadata(id2, root = path)
   expect_equal(meta$depends$packet, id1)
   expect_equal(meta$depends$files[[1]],

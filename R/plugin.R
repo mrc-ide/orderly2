@@ -123,7 +123,7 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
 ##'   with the plugin's `read` function (see
 ##'   [`orderly2::orderly_plugin_register`])
 ##'
-##' * `env`: the environment that the packet is running in. Often this
+##' * `envir`: the environment that the packet is running in. Often this
 ##'   will be the global environment, but do not assume this! You may
 ##'   read and write from this environment.
 ##'
@@ -150,7 +150,7 @@ orderly_plugin_context <- function(name) {
   ctx$packet <- NULL
   ## Correct environment in the interactive case:
   if (!ctx$is_active) {
-    ctx$env <- orderly_environment(name)
+    ctx$envir <- orderly_environment(name)
   }
   ctx
 }

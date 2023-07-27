@@ -20,8 +20,8 @@
 ##'
 ##' @export
 orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
-  subquery_env <- make_subquery_env(subquery)
-  expr_parsed <- query_parse(expr, expr, subquery_env)
+  subquery_envir <- make_subquery_envir(subquery)
+  expr_parsed <- query_parse(expr, expr, subquery_envir)
   if (!is.null(name)) {
     assert_scalar_character(name)
     name_call <- call("==", quote(name), name)
@@ -35,14 +35,14 @@ orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
     expr_parsed <- query_parse_add_scope(expr_parsed, scope)
   }
 
-  lookup <- query_collect_lookup(expr_parsed, subquery_env)
+  lookup <- query_collect_lookup(expr_parsed, subquery_envir)
   info <- list(
-    single = is_expr_single_value(expr_parsed, subquery_env),
+    single = is_expr_single_value(expr_parsed, subquery_envir),
     parameters = lookup$this,
     environment = lookup$environment)
 
   ret <- list(value = expr_parsed,
-              subquery = as.list(subquery_env),
+              subquery = as.list(subquery_envir),
               info = info)
   class(ret) <- "orderly_query"
   ret
@@ -70,7 +70,7 @@ as_orderly_query <- function(expr, ...) {
 }
 
 
-query_parse <- function(expr, context, subquery_env) {
+query_parse <- function(expr, context, subquery_envir) {
   if (is.character(expr)) {
     if (length(expr) == 1 && grepl(re_id, expr)) {
       ## If we're given a single id, we construct a simple query with it
@@ -95,7 +95,7 @@ query_parse <- function(expr, context, subquery_env) {
     context <- expr
   }
 
-  query_parse_expr(expr, context, subquery_env)
+  query_parse_expr(expr, context, subquery_envir)
 }
 
 
@@ -115,7 +115,7 @@ query_component <- function(type, expr, context, args, ...) {
 }
 
 
-query_parse_expr <- function(expr, context, subquery_env) {
+query_parse_expr <- function(expr, context, subquery_envir) {
   type <- query_parse_check_call(expr, context)
   fn <- switch(type,
                empty = query_parse_empty,
@@ -127,37 +127,37 @@ query_parse_expr <- function(expr, context, subquery_env) {
                dependency = query_parse_dependency,
                ## normally unreachable
                stop("Unhandled expression [outpack bug - please report]"))
-  fn(expr, context, subquery_env)
+  fn(expr, context, subquery_envir)
 }
 
 
-query_parse_empty <- function(expr, context, subquery_env) {
+query_parse_empty <- function(expr, context, subquery_envir) {
   query_component("empty", expr, context, list())
 }
 
 
-query_parse_test <- function(expr, context, subquery_env) {
+query_parse_test <- function(expr, context, subquery_envir) {
   args <- lapply(expr[-1], query_parse_value, context)
   name <- deparse(expr[[1]])
   query_component("test", expr, context, args, name = name)
 }
 
 
-query_parse_group <- function(expr, context, subquery_env) {
-  args <- lapply(expr[-1], query_parse_expr, context, subquery_env)
+query_parse_group <- function(expr, context, subquery_envir) {
+  args <- lapply(expr[-1], query_parse_expr, context, subquery_envir)
   name <- deparse(expr[[1]])
   query_component("group", expr, context, args, name = name)
 }
 
 
-query_parse_latest <- function(expr, context, subquery_env) {
-  args <- lapply(expr[-1], query_parse_expr, context, subquery_env)
+query_parse_latest <- function(expr, context, subquery_envir) {
+  args <- lapply(expr[-1], query_parse_expr, context, subquery_envir)
   query_component("latest", expr, context, args)
 }
 
 
-query_parse_single <- function(expr, context, subquery_env) {
-  args <- lapply(expr[-1], query_parse_expr, context, subquery_env)
+query_parse_single <- function(expr, context, subquery_envir) {
+  args <- lapply(expr[-1], query_parse_expr, context, subquery_envir)
   query_component("single", expr, context, args)
 }
 
@@ -209,13 +209,13 @@ is_named_subquery <- function(subquery) {
 }
 
 
-query_parse_subquery <- function(expr, context, subquery_env) {
+query_parse_subquery <- function(expr, context, subquery_envir) {
   subquery <- expr[-1]
   if (is_named_subquery(subquery)) {
     query_name <- deparse(subquery[[1]])
-    if (is.null(subquery_env[[query_name]])) {
+    if (is.null(subquery_envir[[query_name]])) {
       named_subqueries <-
-        names(which(vlapply(as.list(subquery_env), function(x) !x$anonymous)))
+        names(which(vlapply(as.list(subquery_envir), function(x) !x$anonymous)))
       if (length(named_subqueries) > 0) {
         available_queries <- sprintf(
           "Available subqueries are %s.",
@@ -229,18 +229,18 @@ query_parse_subquery <- function(expr, context, subquery_env) {
         expr, context)
     }
   } else {
-    query_name <- add_subquery(NULL, subquery[[1]], context, subquery_env)
+    query_name <- add_subquery(NULL, subquery[[1]], context, subquery_envir)
   }
   query_component("subquery", expr, context, args = list(name = query_name))
 }
 
 
-query_parse_dependency <- function(expr, context, subquery_env) {
+query_parse_dependency <- function(expr, context, subquery_envir) {
   name <- deparse(expr[[1]])
   args <- as.list(expr[-1])
   if (length(args) == 2) {
     if (is.numeric(args[[2]]) && args[[2]] > 0) {
-      args[[2]] <- query_parse_value(args[[2]], context, subquery_env)
+      args[[2]] <- query_parse_value(args[[2]], context, subquery_envir)
     } else {
       query_parse_error(
         sprintf(paste(
@@ -251,12 +251,12 @@ query_parse_dependency <- function(expr, context, subquery_env) {
         expr, context)
     }
   } else {
-    args[[2]] <- query_parse_value(Inf, context, subquery_env)
+    args[[2]] <- query_parse_value(Inf, context, subquery_envir)
   }
   args[[2]]$name <- names(args[2]) %||% "depth"
   if (is.call(args[[1]])) {
-    args[[1]] <- query_parse_expr(args[[1]], context, subquery_env)
-    if (!is_expr_single_value(args[[1]], subquery_env)) {
+    args[[1]] <- query_parse_expr(args[[1]], context, subquery_envir)
+    if (!is_expr_single_value(args[[1]], subquery_envir)) {
       query_parse_error(
         sprintf(paste(
           "%s must be called on an expression guaranteed to return",
@@ -265,7 +265,7 @@ query_parse_dependency <- function(expr, context, subquery_env) {
         expr, context)
     }
   } else {
-    args[[1]] <- query_parse_value(args[[1]], context, subquery_env)
+    args[[1]] <- query_parse_value(args[[1]], context, subquery_envir)
   }
   query_component("dependency", expr, context, args, name = name)
 }
@@ -276,10 +276,10 @@ query_parse_dependency <- function(expr, context, subquery_env) {
 ##   * it is a function call to single
 ##   * it is an ID lookup
 ##   * it is a subquery whose expression is validates one of these conditions
-is_expr_single_value <- function(parsed_expr, subquery_env) {
+is_expr_single_value <- function(parsed_expr, subquery_envir) {
   if (parsed_expr$type == "subquery") {
-    parsed_expr_sub <- subquery_env[[parsed_expr$args$name]]$parsed
-    return(is_expr_single_value(parsed_expr_sub, subquery_env))
+    parsed_expr_sub <- subquery_envir[[parsed_expr$args$name]]$parsed
+    return(is_expr_single_value(parsed_expr_sub, subquery_envir))
   }
   parsed_expr$type %in% c("latest", "single") ||
     (parsed_expr$type == "test" && (is_id_lookup(parsed_expr$args[[1]]) ||
@@ -397,7 +397,7 @@ query_parse_check_call <- function(expr, context) {
 }
 
 
-query_parse_value <- function(expr, context, subquery_env) {
+query_parse_value <- function(expr, context, subquery_envir) {
   if (is.numeric(expr) || is.character(expr)) {
     list(type = "literal", value = expr)
   } else if (is_logical(expr)) {
@@ -430,27 +430,27 @@ query_parse_value <- function(expr, context, subquery_env) {
 ## between subqueries, though some work will possibly needed to make
 ## this obvious to the users - I think this is hard to accidentally
 ## trigger though.
-make_subquery_env <- function(subquery) {
+make_subquery_envir <- function(subquery) {
   if (!is.null(subquery)) {
     assert_named(subquery, unique = TRUE)
   }
-  subquery_env <- new.env()
+  subquery_envir <- new.env()
   for (nm in names(subquery)) {
-    add_subquery(nm, subquery[[nm]], NULL, subquery_env)
+    add_subquery(nm, subquery[[nm]], NULL, subquery_envir)
   }
-  subquery_env
+  subquery_envir
 }
 
 
-add_subquery <- function(name, expr, context, subquery_env) {
+add_subquery <- function(name, expr, context, subquery_envir) {
   anonymous <- is.null(name)
   if (anonymous) {
     name <- openssl::md5(deparse_query(expr, NULL, NULL))
   }
-  subquery_env[[name]] <- list(
+  subquery_envir[[name]] <- list(
     name = name,
     expr = expr,
-    parsed = query_parse(expr, context, subquery_env),
+    parsed = query_parse(expr, context, subquery_envir),
     anonymous = anonymous,
     evaluated = FALSE,
     result = NULL)
@@ -458,17 +458,17 @@ add_subquery <- function(name, expr, context, subquery_env) {
 }
 
 
-query_collect_lookup <- function(expr_parsed, subquery_env) {
-  env <- new.env(parent = emptyenv())
+query_collect_lookup <- function(expr_parsed, subquery_envir) {
+  envir <- new.env(parent = emptyenv())
   collect <- c("this", "environment")
   for (nm in collect) {
-    env[[nm]] <- character()
+    envir[[nm]] <- character()
   }
   f <- function(x) {
     if (is.recursive(x) && x$type == "lookup" && x$name %in% collect) {
-      env[[x$name]] <- c(env[[x$name]], x$query)
+      envir[[x$name]] <- c(envir[[x$name]], x$query)
     } else if (x$type == "subquery") {
-      sub <- subquery_env[[x$args$name]]
+      sub <- subquery_envir[[x$args$name]]
       if (!is.null(sub)) {
         f(sub$parsed)
       }
@@ -479,5 +479,5 @@ query_collect_lookup <- function(expr_parsed, subquery_env) {
     }
   }
   f(expr_parsed)
-  set_names(lapply(collect, function(nm) unique(env[[nm]])), collect)
+  set_names(lapply(collect, function(nm) unique(envir[[nm]])), collect)
 }

@@ -1,14 +1,14 @@
 test_that("Can run simple example with plugin", {
   path <- test_prepare_orderly_example("plugin")
 
-  env <- new.env()
+  envir <- new.env()
   set.seed(1)
-  id <- orderly_run("plugin", root = path, envir = env)
+  id <- orderly_run("plugin", root = path, envir = envir)
 
   set.seed(1)
   cmp <- rnorm(10)
 
-  expect_identical(env$dat, cmp)
+  expect_identical(envir$dat, cmp)
 
   meta <- orderly_metadata(id, root = path)
 
@@ -27,16 +27,16 @@ test_that("Can run simple example with plugin", {
 test_that("can run interactive example with plugin", {
   path <- test_prepare_orderly_example("plugin")
 
-  env <- new.env()
+  envir <- new.env()
   set.seed(1)
   path_src <- file.path(path, "src", "plugin")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", env))
+                  sys.source("orderly.R", envir))
 
   set.seed(1)
   cmp <- rnorm(10)
 
-  expect_identical(env$dat, cmp)
+  expect_identical(envir$dat, cmp)
   expect_setequal(dir(path_src), c("data.rds", "orderly.R"))
   expect_equal(readRDS(file.path(path_src, "data.rds")), cmp)
 })
@@ -91,9 +91,9 @@ test_that("error if packet uses non-configured plugin", {
   path <- test_prepare_orderly_example("plugin")
   writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
 
-  env <- new.env()
+  envir <- new.env()
   expect_error(
-    orderly_run("plugin", root = path, envir = env),
+    orderly_run("plugin", root = path, envir = envir),
     "Plugin 'example.random' not enabled in 'orderly_config.yml'",
     fixed = TRUE)
 })
@@ -115,9 +115,9 @@ test_that("run cleanup on exit", {
   mock_cleanup <- mockery::mock()
   .plugins$example.random$cleanup <- mock_cleanup
 
-  env <- new.env()
+  envir <- new.env()
   set.seed(1)
-  id <- orderly_run("plugin", root = path, envir = env)
+  id <- orderly_run("plugin", root = path, envir = envir)
 
   mockery::expect_called(mock_cleanup, 1)
   expect_equal(

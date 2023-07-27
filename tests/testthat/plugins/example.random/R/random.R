@@ -1,7 +1,7 @@
 numbers <- function(as, n) {
   ctx <- orderly2::orderly_plugin_context("example.random")
   x <- ctx$config$generator(n)
-  ctx$env[[as]] <- x
+  ctx$envir[[as]] <- x
   info <- list(as = as, mean = mean(x), variance = var(x))
   orderly2::orderly_plugin_add_metadata("example.random", "numbers", info)
   invisible()

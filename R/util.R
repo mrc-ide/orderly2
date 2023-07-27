@@ -81,9 +81,10 @@ replace_ragged <- function(x, i, values) {
 }
 
 
-resolve_env <- function(x, env, used_in, error = TRUE) {
-  if (!is.null(env)) {
-    withr::local_envvar(env)
+## Not R environments, but system environment variables
+resolve_envvar <- function(x, variables, used_in, error = TRUE) {
+  if (!is.null(variables)) {
+    withr::local_envvar(variables)
   }
 
   make_name <- function(x, parent) {
@@ -318,14 +319,14 @@ last <- function(x) {
 
 
 collector <- function() {
-  env <- new.env(parent = emptyenv())
-  env$data <- list()
+  envir <- new.env(parent = emptyenv())
+  envir$data <- list()
   list(
     add = function(x) {
-      env$data <- c(env$data, list(x))
+      envir$data <- c(envir$data, list(x))
     },
     get = function() {
-      env$data
+      envir$data
     }
   )
 }

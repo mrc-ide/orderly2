@@ -1,7 +1,7 @@
 test_that("can detect orderly directory", {
   path <- test_prepare_orderly_example("explicit")
-  env <- new.env()
-  id <- orderly_run("explicit", root = path, envir = env)
+  envir <- new.env()
+  id <- orderly_run("explicit", root = path, envir = envir)
 
   expect_error(
     detect_orderly_interactive_path(path),
