@@ -161,7 +161,7 @@ information for the database:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum_orderly_version</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.99.0</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plugins</span><span class="kw">:</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">example.db</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/Rtmp7rgmte/file1a53510dd303</span></span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/RtmpFO1ala/file1a884ecb56a6</span></span></code></pre></div>
 <p>Our plugin is called <code>example.db</code> and is listed within the
 <code>plugins</code> section, along with its configuration; in this case
 indicating the path where the SQLite file can be loaded from.</p>
@@ -247,7 +247,7 @@ does the query; in our example above this is
 <span>  <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">RSQLite</span><span class="fu">::</span><span class="fu"><a href="https://rsqlite.r-dbi.org/reference/SQLite.html" class="external-link">SQLite</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">dbname</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span></span>
-<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">env</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
+<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">envir</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>The arguments here are whatever you want the user to provide –
@@ -261,13 +261,13 @@ example we use two elements:</p>
 <code>config</code>: the configuration fo this plugin (i.e., the
 return value from our function <code>db_config</code>)</li>
 <li>
-<code>env</code>: the (R) environment that the current packet is
+<code>envir</code>: the (R) environment that the current packet is
 using</li>
 </ul>
-<p>We modify the packet environment by writing to <code>ctx$env</code>.
-Finally, we return metadata to save into the final packet metadata, but
-here we return <code>NULL</code>, so this is always empty. Later, we’ll
-show why and how to change this.</p>
+<p>We modify the packet environment by writing to
+<code>ctx$envir</code>. Finally, we return metadata to save into the
+final packet metadata, but here we return <code>NULL</code>, so this is
+always empty. Later, we’ll show why and how to change this.</p>
 <p>The last bit of package code is to register the plugin, we do this by
 calling <code><a href="../reference/orderly_plugin_register.html">orderly2::orderly_plugin_register</a></code> within
 <code>.onLoad()</code> which is a special R function called when a
@@ -298,7 +298,7 @@ configuration.</p>
 <span>  <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">RSQLite</span><span class="fu">::</span><span class="fu"><a href="https://rsqlite.r-dbi.org/reference/SQLite.html" class="external-link">SQLite</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">dbname</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span></span>
-<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">env</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
+<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">envir</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
@@ -318,7 +318,7 @@ configuration.</p>
 <span>  <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">RSQLite</span><span class="fu">::</span><span class="fu"><a href="https://rsqlite.r-dbi.org/reference/SQLite.html" class="external-link">SQLite</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">dbname</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span></span>
-<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">env</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
+<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">envir</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
@@ -343,16 +343,16 @@ reliably experience.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"example"</span>, root <span class="op">=</span> <span class="va">path_root</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [ name       ]  example</span></span></code></pre>
-<pre><code><span><span class="co">## [ id         ]  20230727-142626-a0beda6f</span></span></code></pre>
-<pre><code><span><span class="co">## [ start      ]  2023-07-27 14:26:26</span></span></code></pre>
+<pre><code><span><span class="co">## [ id         ]  20230727-144026-cf3a65db</span></span></code></pre>
+<pre><code><span><span class="co">## [ start      ]  2023-07-27 14:40:26</span></span></code></pre>
 <pre><code><span><span class="co">## [ script     ]  orderly.R</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; example.db::query(sql = "SELECT * FROM mtcars WHERE cyl == 4", as = "dat")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("Summary of data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(summary(dat), "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## [ result     ]  success</span></span></code></pre>
-<pre><code><span><span class="co">## [ end        ]  2023-07-27 14:26:26</span></span></code></pre>
-<pre><code><span><span class="co">## [ elapsed    ]  0.1291258 secs</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20230727-142626-a0beda6f"</span></span></code></pre>
+<pre><code><span><span class="co">## [ end        ]  2023-07-27 14:40:26</span></span></code></pre>
+<pre><code><span><span class="co">## [ elapsed    ]  0.1134429 secs</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20230727-144026-cf3a65db"</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -417,7 +417,7 @@ to save:</p>
 <span>  <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">RSQLite</span><span class="fu">::</span><span class="fu"><a href="https://rsqlite.r-dbi.org/reference/SQLite.html" class="external-link">SQLite</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">dbname</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span></span>
-<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">env</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
+<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">envir</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
 <span>  <span class="va">info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sql <span class="op">=</span> <span class="va">sql</span>, as <span class="op">=</span> <span class="va">as</span>, rows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span>, cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_plugin_add_metadata.html">orderly_plugin_add_metadata</a></span><span class="op">(</span><span class="st">"example.db"</span>, <span class="st">"query"</span>, <span class="va">info</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -491,7 +491,7 @@ by running <code>options(outpack.schema_validate = TRUE)</code>).</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">example</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230727-142626-a0beda6f</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230727-144026-cf3a65db</span></span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
 <span><span class="co">## │           ├── log.json</span></span>
 <span><span class="co">## │           └── <span style="color: #00BB00;">orderly.R</span></span></span>
@@ -527,7 +527,7 @@ above:</p>
 <span>  <span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">RSQLite</span><span class="fu">::</span><span class="fu"><a href="https://rsqlite.r-dbi.org/reference/SQLite.html" class="external-link">SQLite</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">dbname</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbDisconnect.html" class="external-link">dbDisconnect</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">sql</span><span class="op">)</span></span>
-<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">env</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
+<span>  <span class="va">ctx</span><span class="op">$</span><span class="va">envir</span><span class="op">[[</span><span class="va">as</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
 <span>  <span class="va">info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sql <span class="op">=</span> <span class="va">sql</span>, as <span class="op">=</span> <span class="va">as</span>, rows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span>, cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_plugin_add_metadata.html">orderly_plugin_add_metadata</a></span><span class="op">(</span><span class="st">"example.db"</span>, <span class="st">"query"</span>, <span class="va">info</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="op">)</span></span>
