@@ -418,8 +418,3 @@ prevent_multiple_calls <- function(packet, name) {
     stop(sprintf("Only one call to 'orderly2::orderly_%s' is allowed", name))
   }
 }
-
-
-custom_metadata_deserialise <- function(data) {
-  browser()
-}
