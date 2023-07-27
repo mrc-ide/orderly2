@@ -455,7 +455,7 @@ validate_orderly_directory <- function(name, root, call) {
         name)
     }
     err <- c(err, x = detail)
-    near <- near_match(name, orderly_list_src(root$path))
+    near <- near_match(name, orderly_list_src(root, FALSE))
     if (length(near) > 0) {
       hint <- sprintf("Did you mean %s",
                       paste(squote(near), collapse = ", "))
