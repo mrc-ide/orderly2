@@ -416,9 +416,6 @@ orderly_packet_cleanup_success <- function(p) {
                             to_json(custom_metadata(p$orderly2), NULL),
                             custom_metadata_schema())
   for (nm in names(p$plugins)) {
-    ## TODO: Potentially a problem because we can't search on
-    ## orderly.db etc with the extraction, so we might need to protect
-    ## this, or rewrite.
     plugin_cfg <- p$orderly2$config$plugins[[nm]]
     plugin_json <- plugin_cfg$serialise(p$plugins[[nm]])
     outpack_packet_add_custom(p, nm, plugin_json, plugin_cfg$schema)
