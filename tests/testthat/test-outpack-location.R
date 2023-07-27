@@ -71,13 +71,12 @@ test_that("Can rename a location", {
   outpack_location_add("b", "path", list(path = root$b$path), root = root$a)
   expect_setequal(outpack_location_list(root = root$a), c("local", "b"))
 
-  ids <- root_open(root$a, FALSE, FALSE)$config$location$id
+  ids <- orderly_config(root$a)$location$id
 
   outpack_location_rename("b", "c", root = root$a)
   expect_setequal(outpack_location_list(root = root$a), c("local", "c"))
 
-  expect_setequal(root_open(root$a, FALSE, FALSE)$config$location$id,
-                  ids)
+  expect_setequal(orderly_config(root$a)$location$id, ids)
 })
 
 
@@ -139,7 +138,7 @@ test_that("Can remove a location", {
   expect_setequal(outpack_location_list(root = root$a),
                   c("local", "orphan"))
 
-  config <- root_open(root$a, FALSE, FALSE)$config
+  config <- orderly_config(root$a)
   orphan_id <- config$location$id[config$location$name == "orphan"]
   expect_equal(root$a$index()$location$location, c(orphan_id))
 })
@@ -165,7 +164,7 @@ test_that("Removing a location orphans packets only from that location", {
 
   # id1 should now be found in both b and c
   index <- root$a$index()
-  config <- root_open(root$a, FALSE, FALSE)$config
+  config <- orderly_config(root$a)
   b_id <- config$location$id[config$location$name == "b"]
   c_id <- config$location$id[config$location$name == "c"]
   expect_equal(index$location$location[index$location$packet == id1],
@@ -180,7 +179,7 @@ test_that("Removing a location orphans packets only from that location", {
                   c("local", "orphan", "c"))
 
   # id1 should now only be found in c
-  config <- root_open(root$a, FALSE, FALSE)$config
+  config <- orderly_config(root$a)
   index <- root$a$index()
   expect_equal(index$location$location[index$location$packet == id1], c_id)
 

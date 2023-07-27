@@ -23,3 +23,4 @@
 \.*gcov$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^TODO\.md$

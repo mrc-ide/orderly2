@@ -1,9 +1,4 @@
-orderly_config <- function(path) {
-  orderly_config_yml_read(path)
-}
-
-
-orderly_config_yml_read <- function(path) {
+orderly_config_read <- function(path) {
   filename <- file.path(path, "orderly_config.yml")
   assert_file_exists(basename(filename), workdir = path,
                      name = "Orderly configuration")

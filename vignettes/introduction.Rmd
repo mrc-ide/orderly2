@@ -364,7 +364,7 @@ You absolutely should version control some files:
 - `orderly_config.yml` - this high level configuration is suitable for sharing
 - Any shared resource directory (configured in `orderly_config.yml`) should probably be version controlled
 
-Your source repository will end up in multiple people's machines, each of which are configured differently. The configuration option set via `orderly2::outpack_config_set` are designed to be (potentially) different for different users, so this configuration needs to be not version controlled. It also means that reports/packets can't directly refer to values set here.  This includes the directory used to save archive packets at (if enabled) and the names of locations (equivalent to git remotes).
+Your source repository will end up in multiple people's machines, each of which are configured differently. The configuration option set via `orderly2::orderly_config_set` are designed to be (potentially) different for different users, so this configuration needs to be not version controlled. It also means that reports/packets can't directly refer to values set here.  This includes the directory used to save archive packets at (if enabled) and the names of locations (equivalent to git remotes).
 
 You may find it useful to include scripts that help users set up common locations, but like with git, different users may use different names for the same remote (e.g., one user may have a location called `data` while for another it is called `data-incoming`, depending on their perspective about the use of the location).
 
@@ -385,7 +385,7 @@ As can be perhaps inferred from the filenames, the files `.outpack/metadata/<pac
 The default orderly configuration is to store the final files in a directory called `archive/`, but alternatively (or additionally) you can use a [content- addressable](https://en.wikipedia.org/wiki/Content-addressable_storage) file store. With this enabled, the `.outpack` directory looks like:
 
 ```{r, echo = FALSE}
-orderly2::outpack_config_set(core.use_file_store = TRUE, root = path)
+orderly2::orderly_config_set(core.use_file_store = TRUE, root = path)
 dir_tree(path, ".outpack", all = TRUE)
 ```
 

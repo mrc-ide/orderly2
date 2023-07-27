@@ -21,11 +21,11 @@
 ##'   named options here (e.g., `list(core.require_complete_tree =
 ##'   TRUE)`).  This interface is typically easier to program against.
 ##'
-##' @inheritParams outpack_location_list
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-outpack_config_set <- function(..., options = list(...), root = NULL,
+orderly_config_set <- function(..., options = list(...), root = NULL,
                                locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
@@ -61,6 +61,50 @@ outpack_config_set <- function(..., options = list(...), root = NULL,
   }
 
   invisible()
+}
+
+
+##' Read the current orderly configuration, stored within the outpack
+##' root, along with any orderly-specific extensions.
+##'
+##' @title Read configuration
+##'
+##' @inheritParams orderly_metadata
+##'
+##' @return A list of configuration options:
+##'
+##' * `core`: The most important options about the outpack store, containing:
+##'   - `path_archive`: The path to the human-readable packet archive,
+##'     or `NULL` if disabled (set in [orderly2::orderly_config_set] as
+##'     `core.path_archive`)
+##'   - `use_file_store`: Indicates if a content-addressable file store
+##'     is enabled (`core.use_file_store`)
+##'   - `require_complete_tree`: Indicates if this outpack store requires
+##'     all dependenies to be fully available (`core.require_complete_tree`)
+##'   - `hash_algorithm`: The hash algorithm used (currently not modifiable)
+##'
+##' * `logging`: Control over logging
+##'   - `threshold`: Level of verbosity, set via `logging.threshold`
+##'   - `console`: Indicates if logging to the console is enabled by default,
+##'     set via `logging.console`
+##'
+##' * `location`: Information about locations; see
+##'   [orderly2::outpack_location_add],
+##'   [orderly2::outpack_location_rename] and
+##'   [orderly2::outpack_location_remove] to interact with this
+##'   configuration, or [orderly2::outpack_location_list] to more
+##'   simply list available locations. Returns as a [data.frame] with
+##'   columns `name`, `id`, `priority`, `type` and `args`, with `args`
+##'   being a list column.
+##'
+##' * `orderly`: A list of orderly-specific configuration, currently
+##'   this is unstable.
+##'
+##' @export
+orderly_config <- function(root = NULL, locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
+  root$config
 }
 
 

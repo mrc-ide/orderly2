@@ -21,11 +21,15 @@
                 "use_file_store": {
                     "type": "boolean"
                 },
+                "require_complete_tree": {
+                    "type": "boolean"
+                },
                 "hash_algorithm": {
                     "enum": ["md5", "sha1", "sha256", "sha384", "sha512"]
                 }
             },
-            "required": ["path_archive", "use_file_store", "hash_algorithm"]
+            "required": ["path_archive", "use_file_store", "hash_algorithm"],
+            "additionalProperties": false
         },
 
         "logging": {

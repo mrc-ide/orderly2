@@ -23,9 +23,9 @@ test_that("Can initialise a new orderly root", {
 
 test_that("initialisation leaves things unchanged", {
   path <- test_prepare_orderly_example("plugin")
-  cmp <- root_open(path, FALSE, TRUE)$config
+  cmp <- orderly_config(path)
   res <- orderly_init(path)
-  expect_equal(root_open(path, FALSE, TRUE)$config, cmp)
+  expect_equal(orderly_config(path), cmp)
 })
 
 
@@ -115,7 +115,7 @@ test_that("can't reinitialise an outpack root with different arguments", {
   expect_equal(
     err$body,
     c(x = "use_file_store: was 'FALSE' but was given 'TRUE'",
-      i = "Use 'orderly2::outpack_config_set()' to change configuration"))
+      i = "Use 'orderly2::orderly_config_set()' to change configuration"))
 
   err <- expect_error(
     orderly_init(tmp, use_file_store = TRUE, path_archive = "other"),
@@ -124,7 +124,7 @@ test_that("can't reinitialise an outpack root with different arguments", {
     err$body,
     c(x = "path_archive: was 'archive' but was given 'other'",
       x = "use_file_store: was 'FALSE' but was given 'TRUE'",
-      i = "Use 'orderly2::outpack_config_set()' to change configuration"))
+      i = "Use 'orderly2::orderly_config_set()' to change configuration"))
 })
 
 
