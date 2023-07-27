@@ -80,7 +80,7 @@
 ##' @export
 orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
                                envir = parent.frame(), options = NULL,
-                               root = NULL) {
+                               root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
 

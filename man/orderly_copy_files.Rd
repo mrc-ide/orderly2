@@ -11,7 +11,8 @@ orderly_copy_files(
   overwrite = TRUE,
   envir = parent.frame(),
   options = NULL,
-  root = NULL
+  root = NULL,
+  locate = TRUE
 )
 }
 \arguments{
