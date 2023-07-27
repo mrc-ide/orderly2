@@ -3,12 +3,12 @@ test_that("index can include only unpacked packets", {
   for (name in c("src", "dst")) {
     root[[name]] <- create_temporary_root()
   }
-  outpack_location_add("src", "path", list(path = root$src$path),
+  orderly_location_add("src", "path", list(path = root$src$path),
                        root = root$dst)
 
   x1 <- create_random_packet(root$src, "x")
   x2 <- create_random_packet(root$src, "x")
-  outpack_location_pull_metadata(root = root$dst)
+  orderly_location_pull_metadata(root = root$dst)
 
   opts_all <- orderly_search_options(allow_remote = TRUE)
   opts_unpacked <- orderly_search_options(allow_remote = FALSE)
@@ -19,7 +19,7 @@ test_that("index can include only unpacked packets", {
   expect_equal(index_unpacked$index$id, character(0))
 
   for (i in c(x1, x2)) {
-    outpack_location_pull_packet(i, location = "src", root = root$dst)
+    orderly_location_pull_packet(i, location = "src", root = root$dst)
   }
 
   index <- new_query_index(root$dst, opts_all)
@@ -77,7 +77,7 @@ test_that("can apply a location filter to index", {
   root$a <- create_temporary_root(use_file_store = TRUE)
   for (name in c("x", "y", "z")) {
     root[[name]] <- create_temporary_root(use_file_store = TRUE)
-    outpack_location_add(name, "path", list(path = root[[name]]$path),
+    orderly_location_add(name, "path", list(path = root[[name]]$path),
                          root = root$a)
   }
 
@@ -87,7 +87,7 @@ test_that("can apply a location filter to index", {
       create_random_packet(root[[name]], "data", list(p = i))
     })
   }
-  outpack_location_pull_metadata(root = root$a)
+  orderly_location_pull_metadata(root = root$a)
 
   idx_with_location <- function(location) {
     options <- orderly_search_options(location = location, allow_remote = TRUE)

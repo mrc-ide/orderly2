@@ -79,10 +79,10 @@ test_that("Can add file_store", {
 
   id <- create_random_packet_chain(root$src, 3)
 
-  outpack_location_add("src", "path", list(path = root$src$path),
+  orderly_location_add("src", "path", list(path = root$src$path),
                        root = root$dst$path)
-  outpack_location_pull_metadata(root = root$dst$path)
-  outpack_location_pull_packet(id[["c"]], root = root$dst$path)
+  orderly_location_pull_metadata(root = root$dst$path)
+  orderly_location_pull_packet(id[["c"]], root = root$dst$path)
 
   expect_equal(root$dst$index()$unpacked, id[["c"]])
   orderly_config_set(core.use_file_store = TRUE, root = root$dst)
@@ -296,10 +296,10 @@ test_that("Enabling recursive pulls forces pulling missing packets", {
   expect_false(root$dst$config$core$require_complete_tree)
 
   id <- create_random_packet_chain(root$src, 3)
-  outpack_location_add("src", "path", list(path = root$src$path),
+  orderly_location_add("src", "path", list(path = root$src$path),
                        root = root$dst$path)
-  outpack_location_pull_metadata(root = root$dst$path)
-  outpack_location_pull_packet(id[["c"]], root = root$dst$path)
+  orderly_location_pull_metadata(root = root$dst$path)
+  orderly_location_pull_packet(id[["c"]], root = root$dst$path)
   expect_equal(root$dst$index()$unpacked, id[["c"]])
 
   orderly_config_set(core.require_complete_tree = TRUE, root = root$dst$path)

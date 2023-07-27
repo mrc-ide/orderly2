@@ -89,10 +89,10 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
 ##'     set via `logging.console`
 ##'
 ##' * `location`: Information about locations; see
-##'   [orderly2::outpack_location_add],
-##'   [orderly2::outpack_location_rename] and
-##'   [orderly2::outpack_location_remove] to interact with this
-##'   configuration, or [orderly2::outpack_location_list] to more
+##'   [orderly2::orderly_location_add],
+##'   [orderly2::orderly_location_rename] and
+##'   [orderly2::orderly_location_remove] to interact with this
+##'   configuration, or [orderly2::orderly_location_list] to more
 ##'   simply list available locations. Returns as a [data.frame] with
 ##'   columns `name`, `id`, `priority`, `type` and `args`, with `args`
 ##'   being a list column.
@@ -118,7 +118,7 @@ config_set_require_complete_tree <- function(value, root) {
 
   if (value) {
     id <- root$index()$unpacked
-    outpack_location_pull_packet(id, recursive = TRUE, root = root)
+    orderly_location_pull_packet(id, recursive = TRUE, root = root)
   }
 
   config$core$require_complete_tree <- value

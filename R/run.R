@@ -64,7 +64,7 @@
 ##' * `use_draft = TRUE` is `location = "local"`
 ##' * `use_draft = FALSE` is `location = c(...)` where you should provide
 ##'   all locations *except* local
-##'   (`setdiff(orderly2::outpack_location_list(), "local")`)
+##'   (`setdiff(orderly2::orderly_location_list(), "local")`)
 ##' * `use_draft = "newer"` is `location = NULL`
 ##'
 ##' (this last option was the one most people preferred so is the new

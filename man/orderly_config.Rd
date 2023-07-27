@@ -40,10 +40,10 @@ all dependenies to be fully available (\code{core.require_complete_tree})
 set via \code{logging.console}
 }
 \item \code{location}: Information about locations; see
-\link{outpack_location_add},
-\link{outpack_location_rename} and
-\link{outpack_location_remove} to interact with this
-configuration, or \link{outpack_location_list} to more
+\link{orderly_location_add},
+\link{orderly_location_rename} and
+\link{orderly_location_remove} to interact with this
+configuration, or \link{orderly_location_list} to more
 simply list available locations. Returns as a \link{data.frame} with
 columns \code{name}, \code{id}, \code{priority}, \code{type} and \code{args}, with \code{args}
 being a list column.

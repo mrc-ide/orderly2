@@ -293,7 +293,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
     packet$root$config$core$require_complete_tree &&
     !(id %in% packet$root$index()$unpacked)
   if (needs_pull) {
-    outpack_location_pull_packet(id, search_options$location,
+    orderly_location_pull_packet(id, search_options$location,
                                  root = packet$root)
   }
 

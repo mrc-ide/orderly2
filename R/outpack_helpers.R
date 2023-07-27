@@ -22,7 +22,7 @@
 ##'   it's not unpacked but also not known to be present in some other
 ##'   remote) then this will fail because it's impossible to resolve
 ##'   the files. Consider refreshing the metadata with
-##'   [orderly2::outpack_location_pull_metadata] to refresh this.
+##'   [orderly2::orderly_location_pull_metadata] to refresh this.
 ##' * if the `id` is not unpacked *and* no local copy of the files
 ##'   referred to can be found, we error by default (but see the next
 ##'   option). However, sometimes the file you refer to might also be
@@ -32,7 +32,7 @@
 ##' * if the `id` is not unpacked, there is no local copy of the file
 ##'   and if `allow_remote` is `TRUE` we will try and request the file
 ##'   from whatever remote would be selected by
-##'   [orderly2::outpack_location_pull_packet] for this packet.
+##'   [orderly2::orderly_location_pull_packet] for this packet.
 ##'
 ##' Note that empty directories might be created on failure.
 ##'

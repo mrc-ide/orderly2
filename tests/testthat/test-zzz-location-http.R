@@ -4,8 +4,8 @@ describe("server integration tests", {
   server <- outpack_server(path)
   url <- "http://localhost:8000"
 
-  client_http <- outpack_location_http$new(url)
-  client_path <- outpack_location_path$new(path)
+  client_http <- orderly_location_http$new(url)
+  client_path <- orderly_location_path$new(path)
 
   it("returns sensible list data when empty", {
     expect_identical(client_http$list(),
@@ -65,11 +65,11 @@ describe("http location integration tests", {
   it("can pull metadata", {
     root_downstream <- create_temporary_root(use_file_store = TRUE)
     expect_null(names(root_downstream$index()$metadata))
-    outpack_location_add("upstream", "http", list(url = url),
+    orderly_location_add("upstream", "http", list(url = url),
                          root = root_downstream)
-    expect_equal(outpack_location_list(root = root_downstream),
+    expect_equal(orderly_location_list(root = root_downstream),
                  c("local", "upstream"))
-    outpack_location_pull_metadata("upstream", root = root_downstream)
+    orderly_location_pull_metadata("upstream", root = root_downstream)
 
     idx <- root_downstream$index()
     expect_equal(names(idx$metadata), ids)
@@ -78,14 +78,14 @@ describe("http location integration tests", {
   it("can locate files from the store", {
     hash <- root$files$list()[[1]]
     dest <- temp_file()
-    loc <- outpack_location_http$new(url)
+    loc <- orderly_location_http$new(url)
     res <- loc$fetch_file(hash, dest)
     expect_identical(res, dest)
     expect_identical(hash_file(res), hash)
   })
 
   test_that("sensible error if file not found in store", {
-    loc <- outpack_location_http$new(url)
+    loc <- orderly_location_http$new(url)
     h <- "md5:c7be9a2c3cd8f71210d9097e128da316"
     dest <- temp_file()
     expect_error(
