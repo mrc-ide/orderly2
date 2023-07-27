@@ -214,7 +214,7 @@ locations are pulled from.</p>
 orderly2::orderly_search_options`:</p><ul><li><p><code>use_draft = TRUE</code> is <code>location = "local"</code></p></li>
 <li><p><code>use_draft = FALSE</code> is <code>location = c(...)</code> where you should provide
 all locations <em>except</em> local
-(<code>setdiff(orderly2::outpack_location_list(), "local")</code>)</p></li>
+(<code>setdiff(orderly2::orderly_location_list(), "local")</code>)</p></li>
 <li><p><code>use_draft = "newer"</code> is <code>location = NULL</code></p></li>
 </ul><p>(this last option was the one most people preferred so is the new
 default behaviour). In addition, you could resolve dependencies

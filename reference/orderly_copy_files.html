@@ -197,7 +197,7 @@ failure):</p><ul><li><p>if <code>id</code> is not known in the metadata store (n
 it's not unpacked but also not known to be present in some other
 remote) then this will fail because it's impossible to resolve
 the files. Consider refreshing the metadata with
-<a href="outpack_location_pull_metadata.html">outpack_location_pull_metadata</a> to refresh this.</p></li>
+<a href="orderly_location_pull_metadata.html">orderly_location_pull_metadata</a> to refresh this.</p></li>
 <li><p>if the <code>id</code> is not unpacked <em>and</em> no local copy of the files
 referred to can be found, we error by default (but see the next
 option). However, sometimes the file you refer to might also be
@@ -207,7 +207,7 @@ some other packet version you have locally.</p></li>
 <li><p>if the <code>id</code> is not unpacked, there is no local copy of the file
 and if <code>allow_remote</code> is <code>TRUE</code> we will try and request the file
 from whatever remote would be selected by
-<a href="outpack_location_pull_packet.html">outpack_location_pull_packet</a> for this packet.</p></li>
+<a href="orderly_location_pull_packet.html">orderly_location_pull_packet</a> for this packet.</p></li>
 </ul><p>Note that empty directories might be created on failure.</p>
     </div>
 

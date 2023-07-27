@@ -67,6 +67,27 @@
     <loc>/reference/orderly_list_src.html</loc>
   </url>
   <url>
+    <loc>/reference/orderly_location_add.html</loc>
+  </url>
+  <url>
+    <loc>/reference/orderly_location_list.html</loc>
+  </url>
+  <url>
+    <loc>/reference/orderly_location_pull_metadata.html</loc>
+  </url>
+  <url>
+    <loc>/reference/orderly_location_pull_packet.html</loc>
+  </url>
+  <url>
+    <loc>/reference/orderly_location_push.html</loc>
+  </url>
+  <url>
+    <loc>/reference/orderly_location_remove.html</loc>
+  </url>
+  <url>
+    <loc>/reference/orderly_location_rename.html</loc>
+  </url>
+  <url>
     <loc>/reference/orderly_log_read.html</loc>
   </url>
   <url>
@@ -116,27 +137,6 @@
   </url>
   <url>
     <loc>/reference/orderly_strict_mode.html</loc>
-  </url>
-  <url>
-    <loc>/reference/outpack_location_add.html</loc>
-  </url>
-  <url>
-    <loc>/reference/outpack_location_list.html</loc>
-  </url>
-  <url>
-    <loc>/reference/outpack_location_pull_metadata.html</loc>
-  </url>
-  <url>
-    <loc>/reference/outpack_location_pull_packet.html</loc>
-  </url>
-  <url>
-    <loc>/reference/outpack_location_push.html</loc>
-  </url>
-  <url>
-    <loc>/reference/outpack_location_remove.html</loc>
-  </url>
-  <url>
-    <loc>/reference/outpack_location_rename.html</loc>
   </url>
   <url>
     <loc>/reference/query_index.html</loc>
