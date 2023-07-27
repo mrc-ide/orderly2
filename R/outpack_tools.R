@@ -66,7 +66,21 @@
 ##'   (this is unstandardised, and even the orderly version may change)
 ##' * custom: additional metadata added by its respective engine.  For
 ##'   packets run by `orderly2`, there will be a `orderly` field here,
-##'   which is itself a list (see below)
+##'   which is itself a list:
+##'   * artefacts: A [data.frame] with artefact information, containing
+##'     columns `description` (a string) and `paths` (a list column of paths).
+##'   * shared: A [data.frame] of the copied shared resources with
+##'     their original name (`there`) and name as copied into the packet (`here`).
+##'   * role: A [data.frame] of identified roles of files, with columns `path`
+##'     and `role`.
+##'   * description: A list of information from
+##'     [orderly2::orderly_description] with human-readable descriptions and
+##'     tags.
+##'   * session: A list of information about the session as run,
+##'     with a list `platform` containing information about the platform
+##'     (R version as `version`, operating system as `os` and system name
+##'     as `system`) and `packages` containing columns `package` ,
+##'     `version` and `attached`.
 ##'
 ##' The nesting here makes providing a universally useful data format
 ##' difficult; if considering files we have a `data.frame` with a
