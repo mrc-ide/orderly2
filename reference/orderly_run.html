@@ -130,9 +130,11 @@ not added any fine-grained logging.</p></dd>
 
 
 <dt>root</dt>
-<dd><p>The path to an orderly root directory, or <code>NULL</code>
-(the default) to search for one from the current working
-directory if <code>locate</code> is <code>TRUE</code>.</p></dd>
+<dd><p>The path to the root directory, or <code>NULL</code> (the
+default) to search for one from the current working directory if
+<code>locate</code> is <code>TRUE</code>. This function <strong>does</strong> require that the
+directory is configured for orderly, and not just outpack (see
+<a href="orderly_init.html">orderly_init</a> for details).</p></dd>
 
 
 <dt>locate</dt>

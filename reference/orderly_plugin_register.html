@@ -87,7 +87,13 @@ in breaking ways) soon.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_plugin_register</span><span class="op">(</span><span class="va">name</span>, <span class="va">config</span>, <span class="va">serialise</span>, cleanup <span class="op">=</span> <span class="cn">NULL</span>, schema <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_plugin_register</span><span class="op">(</span></span>
+<span>  <span class="va">name</span>,</span>
+<span>  <span class="va">config</span>,</span>
+<span>  serialise <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cleanup <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  schema <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -114,7 +120,9 @@ list of all entries pushed in via
 <code><a href="orderly_plugin_add_metadata.html">orderly_plugin_add_metadata()</a></code>; this is a named
 list with names corresponding to the <code>field</code> argument to
 <code>orderly_plugin_add_metadata</code> and each list element being an
-unnamed list with values corresponding to <code>data</code>.</p></dd>
+unnamed list with values corresponding to <code>data</code>. If <code>NULL</code>,
+then no serialisation is done, and no metadata from your plugin
+will be added.</p></dd>
 
 
 <dt>cleanup</dt>

@@ -90,7 +90,8 @@ outpack, for example.</p>
 <span>  allow_remote <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  root <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  root <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  locate <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -157,8 +158,19 @@ changing in programmatic use.</p></dd>
 
 
 <dt>root</dt>
-<dd><p>The outpack root. Will be searched for from the
-current directory if not given.</p></dd>
+<dd><p>The path to the root directory, or <code>NULL</code> (the
+default) to search for one from the current working directory if
+<code>locate</code> is <code>TRUE</code>. This function does not require that the
+directory is configured for orderly, and can be any <code>outpack</code>
+root (see <a href="orderly_init.html">orderly_init</a> for details).</p></dd>
+
+
+<dt>locate</dt>
+<dd><p>Logical, indicating if the root should be searched
+for.  If <code>TRUE</code>, then we looks in the directory given for <code>root</code>
+(or the working directory if <code>NULL</code>) and then up through its
+parents until it finds an <code>.outpack</code> directory or
+<code>orderly_config.yml</code></p></dd>
 
 </dl></div>
     <div id="value">

@@ -75,14 +75,25 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">outpack_location_list</span><span class="op">(</span>root <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">outpack_location_list</span><span class="op">(</span>root <span class="op">=</span> <span class="cn">NULL</span>, locate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>root</dt>
-<dd><p>The outpack root. Will be searched for from the
-current directory if not given.</p></dd>
+<dd><p>The path to the root directory, or <code>NULL</code> (the
+default) to search for one from the current working directory if
+<code>locate</code> is <code>TRUE</code>. This function does not require that the
+directory is configured for orderly, and can be any <code>outpack</code>
+root (see <a href="orderly_init.html">orderly_init</a> for details).</p></dd>
+
+
+<dt>locate</dt>
+<dd><p>Logical, indicating if the root should be searched
+for.  If <code>TRUE</code>, then we looks in the directory given for <code>root</code>
+(or the working directory if <code>NULL</code>) and then up through its
+parents until it finds an <code>.outpack</code> directory or
+<code>orderly_config.yml</code></p></dd>
 
 </dl></div>
     <div id="value">
