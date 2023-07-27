@@ -14,7 +14,7 @@ orderly_read_r <- function(path) {
                 orderly_parameters = static_orderly_parameters,
                 orderly_resource = static_orderly_resource,
                 orderly_description = static_orderly_description,
-                orderly_global_resource = static_orderly_global_resource,
+                orderly_shared_resource = static_orderly_shared_resource,
                 orderly_artefact = static_orderly_artefact,
                 orderly_dependency = static_orderly_dependency)
 
@@ -87,8 +87,8 @@ orderly_read_r <- function(path) {
   if (length(dat$dependency) > 0) {
     ret$dependency <- drop_null(dat$dependency, empty = NULL)
   }
-  if (length(dat$global_resource) > 0) {
-    ret$global_resource <- unlist(dat$global_resource, FALSE, TRUE)
+  if (length(dat$shared_resource) > 0) {
+    ret$shared_resource <- unlist(dat$shared_resource, FALSE, TRUE)
   }
 
   ret

@@ -23,7 +23,7 @@
                 }
             }
         },
-        "global": {
+        "shared": {
             "type": "array",
             "items": {
                 "type": "object",
@@ -49,7 +49,7 @@
                     },
                     "role": {
                         "comment": "refactor this; we don't need most!",
-                        "enum": ["orderly_yml", "resource", "script", "source", "dependency", "global", "readme"]
+                        "enum": ["orderly_yml", "resource", "script", "source", "dependency", "shared", "readme"]
                     }
                 }
             }
@@ -116,5 +116,5 @@
         }
     },
     "additionalProperties": false,
-    "required": ["artefacts", "global", "role", "description", "session"]
+    "required": ["artefacts", "shared", "role", "description", "session"]
 }
