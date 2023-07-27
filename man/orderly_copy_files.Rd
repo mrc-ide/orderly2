@@ -5,19 +5,19 @@
 \title{Copy files from a packet}
 \usage{
 orderly_copy_files(
-  id,
+  ...,
   files,
   dest,
-  allow_remote = FALSE,
   overwrite = TRUE,
   envir = parent.frame(),
+  options = NULL,
   root = NULL,
   locate = TRUE
 )
 }
 \arguments{
-\item{id}{Id of the packet to copy from (will become a query, see
-mrc-4418)}
+\item{...}{Arguments passed through to \link{orderly_query},
+perhaps just a query expression}
 
 \item{files}{Files to copy from the other packet. This can be (1)
 a character vector, in which case files are copied over without
@@ -49,23 +49,19 @@ the destination filename by doing \verb{$\{x\}}.}
 
 \item{dest}{The directory to copy into}
 
-\item{allow_remote}{Logical, indicating if we should attempt to
-retrieve the file from any remote location if it cannot be found
-locally. If the file is large, this may take some time depending
-on the speed of the connection. If you use a file store, note
-that this does add the downloaded file into your file store,
-though associated with no packet so that it is subject to
-garbage collection (once we write support for that).}
-
 \item{overwrite}{Overwrite files at the destination; this is
 typically what you want, but set to \code{FALSE} if you would prefer
 that an error be thrown if the destination file already exists.}
 
-\item{envir}{An environment into which string interpolation may
-happen (see the \code{files} argument for details on the string
-interpolation).  The default here is to use the calling
-environment, which is typically reasonable, but may need
-changing in programmatic use.}
+\item{envir}{Optionally, an environment to substitute into the
+query (using the \verb{environment:} prefix). The default here is to
+use the calling environment, but you can explicitly pass this in
+if you want to control where this lookup happens.}
+
+\item{options}{Optionally, a \link{orderly_search_options}
+object for controlling how the search is performed, and which
+packets should be considered in scope. If not provided, default
+options are used (i.e., \code{orderly2::orderly_search_options()})}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working directory if
@@ -88,9 +84,20 @@ Copy files from a packet to anywhere. Similar to
 \link{orderly_dependency} except that this is not used in an
 active packet context. You can use this function to pull files
 from an outpack root to a directory outside of the control of
-outpack, for example.
+outpack, for example. Note that all arguments need must be
+provided by name, not position, with the exception of the id or
+query.
 }
 \details{
+You can call this function with an id as a string, in which case
+we do not search for the packet and proceed regardless of whether
+or not this id is present.  If called with any other arguments
+(e.g., a string that does not match the id format, or a named
+argument \code{name}, \code{subquery} or \code{parameters}) then we interpret the
+arguments as a query and \link{orderly_search} to find the
+id. It is an error if this query does not return exactly one
+packet id, so you probably want to use \code{latest()}.
+
 There are different ways that this might fail (or recover from
 failure):
 \itemize{

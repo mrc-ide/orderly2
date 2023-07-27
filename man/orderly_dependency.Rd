@@ -4,7 +4,7 @@
 \alias{orderly_dependency}
 \title{Declare a dependency}
 \usage{
-orderly_dependency(name, query, use)
+orderly_dependency(name, query, files)
 }
 \arguments{
 \item{name}{The name of the packet to depend on}
@@ -13,10 +13,33 @@ orderly_dependency(name, query, use)
 the string \code{latest}, indicating the most recent version. You may
 want a more complex query here though.}
 
-\item{use}{Files to use from the packet found by \code{query}, usually
-as a named character vector with string interpolation in the
-names; see \link{orderly_copy_files}' \code{file} argument for
-details.}
+\item{files}{Files to copy from the other packet. This can be (1)
+a character vector, in which case files are copied over without
+changing their names, (2) a \strong{named} character vector, in which
+case the name will be used as the destination name, or (3) a
+\link{data.frame} (including \code{tbl_df}, or \code{data.frame} objects)
+containing columns \code{from} and \code{to}, in which case the files
+\code{from} will be copied with names \code{to}.
+
+In all cases, if you want to import a directory of files from a
+packet, you must refer to the source with a trailing slash
+(e.g., \code{c(here = "there/")}), which will create the local
+directory \code{here/...} with files from the upstream packet
+directory \verb{there/}. If you omit the slash then an error will be
+thrown suggesting that you add a slash if this is what you
+intended.
+
+You can use a limited form of string interpolation in the names of
+this argument; using \verb{$\{variable\}} will pick up values from
+\code{envir} and substitute them into your string.  This is similar
+to the interpolation you might be familiar with from
+\code{glue::glue} or similar, but much simpler with no concatenation
+or other fancy features supported.
+
+Note that there is an unfortunate, but (to us) avoidable
+inconsistency here; interpolation of values from your
+environment in the query is done by using \code{environment:x} and in
+the destination filename by doing \verb{$\{x\}}.}
 }
 \value{
 Undefined

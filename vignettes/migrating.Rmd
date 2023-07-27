@@ -44,7 +44,7 @@ would end up within an `orderly.R` script that looks like:
 ```r
 orderly2::orderly_parameters(n_min = 10)
 orderly2::orderly_dependency("raw_data", "latest", 
-                             use = c("raw_data.csv" = "data.csv"))
+                             files = c("raw_data.csv" = "data.csv"))
 orderly2::orderly_resource("metadata.csv")
 orderly2::orderly_artefact("Processed data", "data.rds")
 source("functions.R")

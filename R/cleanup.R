@@ -86,7 +86,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   }
   nms_resource <- info$resources
   nms_artefact <- unlist(lapply(info$artefacts, "[[", "files"))
-  nms_dependency <- unlist(lapply(info$dependency, function(x) names(x$use)))
+  nms_dependency <- unlist(lapply(info$dependency, function(x) names(x$files)))
   nms_shared_resource <- names(info$shared_resource)
 
   role <- cbind(orderly = files == "orderly.R",

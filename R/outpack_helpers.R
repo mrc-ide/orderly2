@@ -2,7 +2,18 @@
 ##' [orderly2::orderly_dependency] except that this is not used in an
 ##' active packet context. You can use this function to pull files
 ##' from an outpack root to a directory outside of the control of
-##' outpack, for example.
+##' outpack, for example. Note that all arguments need must be
+##' provided by name, not position, with the exception of the id or
+##' query.
+##'
+##' You can call this function with an id as a string, in which case
+##' we do not search for the packet and proceed regardless of whether
+##' or not this id is present.  If called with any other arguments
+##' (e.g., a string that does not match the id format, or a named
+##' argument `name`, `subquery` or `parameters`) then we interpret the
+##' arguments as a query and [orderly2::orderly_search] to find the
+##' id. It is an error if this query does not return exactly one
+##' packet id, so you probably want to use `latest()`.
 ##'
 ##' There are different ways that this might fail (or recover from
 ##' failure):
@@ -26,9 +37,6 @@
 ##' Note that empty directories might be created on failure.
 ##'
 ##' @title Copy files from a packet
-##'
-##' @param id Id of the packet to copy from (will become a query, see
-##'   mrc-4418)
 ##'
 ##' @param files Files to copy from the other packet. This can be (1)
 ##'   a character vector, in which case files are copied over without
@@ -60,46 +68,58 @@
 ##'
 ##' @param dest The directory to copy into
 ##'
-##' @param allow_remote Logical, indicating if we should attempt to
-##'   retrieve the file from any remote location if it cannot be found
-##'   locally. If the file is large, this may take some time depending
-##'   on the speed of the connection. If you use a file store, note
-##'   that this does add the downloaded file into your file store,
-##'   though associated with no packet so that it is subject to
-##'   garbage collection (once we write support for that).
-##'
 ##' @param overwrite Overwrite files at the destination; this is
 ##'   typically what you want, but set to `FALSE` if you would prefer
 ##'   that an error be thrown if the destination file already exists.
 ##'
-##' @param envir An environment into which string interpolation may
-##'   happen (see the `files` argument for details on the string
-##'   interpolation).  The default here is to use the calling
-##'   environment, which is typically reasonable, but may need
-##'   changing in programmatic use.
-##'
+##' @inheritParams orderly_search
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing, invisibly. Primarily called for its side effect
 ##'   of copying files from a packet into the directory `dest`
 ##'
 ##' @export
-orderly_copy_files <- function(id, files, dest, allow_remote = FALSE,
-                               overwrite = TRUE, envir = parent.frame(),
+orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
+                               envir = parent.frame(), options = NULL,
                                root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
 
+  ## Validate files and dest early; it gives a better error where this
+  ## was not provided with names.
   files <- validate_file_from_to(files, envir)
+  assert_scalar_character(dest)
+
+  if (dots_is_literal_id(...)) {
+    id <- ..1
+    if (length(id) != 1) {
+      cli::cli_abort(sprintf(
+        "Expected a length 1 value for first argument if id (not %d)",
+        length(id)))
+    }
+  } else {
+    id <- orderly_search(..., options = options, envir = envir, root = root)
+    if (length(id) > 1) {
+      cli::cli_abort(c(
+        sprintf("Query returned %d results, expected a single result",
+                length(id)),
+        i = "Did you forget latest()?"))
+    }
+    if (length(id) == 0 || is.na(id)) {
+      cli::cli_abort("Query returned 0 results")
+    }
+  }
+
   plan <- plan_copy_files(root, id, files$from, files$to)
 
   tryCatch(
     file_export(root, id, plan$there, plan$here, dest, overwrite),
     not_found_error = function(e) {
-      if (!allow_remote) {
+      if (!as_orderly_search_options(options)$allow_remote) {
         stop(paste0(
           "Unable to copy files, as they are not available locally\n",
-          "To fetch from a location, try again with 'allow_remote = TRUE'\n",
+          "To fetch from a location, try again with",
+          "  'options = list(allow_remote = TRUE)'\n",
           "Original error:\n", e$message),
           call. = FALSE)
       }
