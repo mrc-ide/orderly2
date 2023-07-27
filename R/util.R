@@ -404,15 +404,15 @@ collapseq <- function(x) {
 ##
 ## I've gone with a shell-expansion like ${var} syntax here. If this
 ## is not suitable, users can always do their own substitutions.
-string_interpolate_simple <- function(x, environment, call = NULL) {
+string_interpolate_simple <- function(x, envir, call = NULL) {
   if (inherits(x, "AsIs") || !any(grepl("${", x, fixed = TRUE))) {
     return(x)
   }
-  vcapply(x, string_interpolate_simple1, environment, call, USE.NAMES = FALSE)
+  vcapply(x, string_interpolate_simple1, envir, call, USE.NAMES = FALSE)
 }
 
 
-string_interpolate_simple1 <- function(x, environment, call) {
+string_interpolate_simple1 <- function(x, envir, call) {
   re <- "\\$\\{\\s*(.*?)\\s*\\}"
 
   m <- gregexec(re, x)[[1L]]
@@ -428,7 +428,7 @@ string_interpolate_simple1 <- function(x, environment, call) {
 
   to_value <- lapply(to, function(el) {
     value <- tryCatch(
-      get(el, environment),
+      get(el, envir),
       error = function(e) {
         cli::cli_abort(
           c(sprintf("Failed to find value for '%s'", el),

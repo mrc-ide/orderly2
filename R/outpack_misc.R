@@ -78,7 +78,7 @@ validate_parameters <- function(parameters) {
 }
 
 
-validate_file_from_to <- function(x, environment,
+validate_file_from_to <- function(x, envir,
                                   name = deparse(substitute(x)),
                                   call = NULL) {
   ## Later, we can expand this to support a data.frame too perhaps?
@@ -96,7 +96,7 @@ validate_file_from_to <- function(x, environment,
       call = call)
   }
 
-  to_value <- string_interpolate_simple(to, environment, call)
+  to_value <- string_interpolate_simple(to, envir, call)
 
   if (any(duplicated(to_value))) {
     dups <- unique(to_value[duplicated(to_value)])
