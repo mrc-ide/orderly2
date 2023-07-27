@@ -8,7 +8,8 @@ outpack_location_pull_packet(
   id,
   location = NULL,
   recursive = NULL,
-  root = NULL
+  root = NULL,
+  locate = TRUE
 )
 }
 \arguments{
@@ -27,8 +28,17 @@ specified in \code{id}.  This might copy a lot of data!  If \code{NULL},
 we default to the value given by the the configuration option
 \code{require_complete_tree}.}
 
-\item{root}{The outpack root. Will be searched for from the
-current directory if not given.}
+\item{root}{The path to the root directory, or \code{NULL} (the
+default) to search for one from the current working directory if
+\code{locate} is \code{TRUE}. This function does not require that the
+directory is configured for orderly, and can be any \code{outpack}
+root (see \link{orderly_init} for details).}
+
+\item{locate}{Logical, indicating if the root should be searched
+for.  If \code{TRUE}, then we looks in the directory given for \code{root}
+(or the working directory if \code{NULL}) and then up through its
+parents until it finds an \code{.outpack} directory or
+\code{orderly_config.yml}}
 }
 \value{
 Invisibly, the ids of packets that were pulled

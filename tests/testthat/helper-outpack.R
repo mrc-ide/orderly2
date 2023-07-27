@@ -91,7 +91,8 @@ create_random_dependent_packet <- function(root, name, dependency_ids) {
 create_temporary_root <- function(...) {
   path <- tempfile()
   withr::defer_parent(unlink(path, recursive = TRUE))
-  outpack_init(path, ..., logging_console = FALSE)
+  orderly_init(path, ..., logging_console = FALSE)
+  root_open(path, locate = FALSE, require_orderly = FALSE)
 }
 
 
@@ -146,7 +147,7 @@ config_remove_logging <- function(path) {
   ]
 }'
   writeLines(
-    sprintf(fmt, local_location_id(outpack_root_open(path))),
+    sprintf(fmt, local_location_id(root_open(path, FALSE, FALSE))),
     file.path(path, ".outpack", "config.json"))
 }
 
@@ -162,4 +163,13 @@ helper_add_git <- function(path) {
   url <- "https://example.com/git"
   gert::git_remote_add(url, repo = path)
   list(user = user, url = url)
+}
+
+
+## This matches the old semantics of outpack_root, and is used to
+## create a root that does not have the orderly bits.
+outpack_init_no_orderly <- function(...) {
+  path <- orderly_init(...)
+  fs::file_delete(file.path(path, "orderly_config.yml"))
+  outpack_root$new(path)
 }

@@ -1,8 +1,7 @@
 outpack_insert_packet <- function(path, json, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+  assert_is(root, "outpack_root")
   meta <- outpack_metadata_load(json)
   outpack_log_debug(root, "insert", meta$id, "orderly2:::outpack_insert_packet")
-
   assert_is_directory(path)
 
   local_id <- local_location_id(root)

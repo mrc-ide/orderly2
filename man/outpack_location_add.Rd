@@ -4,7 +4,14 @@
 \alias{outpack_location_add}
 \title{Add a new location}
 \usage{
-outpack_location_add(name, type, args, priority = 0, root = NULL)
+outpack_location_add(
+  name,
+  type,
+  args,
+  priority = 0,
+  root = NULL,
+  locate = TRUE
+)
 }
 \arguments{
 \item{name}{The short name of the location to use.  Cannot be in
@@ -26,8 +33,17 @@ priority as local packets, while larger numbers have higher
 priority and negative numbers have lower priority.  Ties will be
 resolved in an arbitrary order.}
 
-\item{root}{The outpack root. Will be searched for from the
-current directory if not given.}
+\item{root}{The path to the root directory, or \code{NULL} (the
+default) to search for one from the current working directory if
+\code{locate} is \code{TRUE}. This function does not require that the
+directory is configured for orderly, and can be any \code{outpack}
+root (see \link{orderly_init} for details).}
+
+\item{locate}{Logical, indicating if the root should be searched
+for.  If \code{TRUE}, then we looks in the directory given for \code{root}
+(or the working directory if \code{NULL}) and then up through its
+parents until it finds an \code{.outpack} directory or
+\code{orderly_config.yml}}
 }
 \value{
 Nothing

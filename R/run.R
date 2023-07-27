@@ -107,9 +107,11 @@
 ##' @param search_options Optional control over locations, when used with
 ##'   [orderly2::orderly_dependency]; see Details.
 ##'
-##' @param root The path to an orderly root directory, or `NULL`
-##'   (the default) to search for one from the current working
-##'   directory if `locate` is `TRUE`.
+##' @param root The path to the root directory, or `NULL` (the
+##'   default) to search for one from the current working directory if
+##'   `locate` is `TRUE`. This function **does** require that the
+##'   directory is configured for orderly, and not just outpack (see
+##'   [orderly2::orderly_init] for details).
 ##'
 ##' @param locate Logical, indicating if the configuration should be
 ##'   searched for.  If `TRUE` and `config` is not given,
@@ -122,7 +124,7 @@
 orderly_run <- function(name, parameters = NULL, envir = NULL,
                         logging_console = NULL, logging_threshold = NULL,
                         search_options = NULL, root = NULL, locate = TRUE) {
-  root <- orderly_root(root, locate)
+  root <- root_open(root, locate, require_orderly = TRUE, call = environment())
   validate_orderly_directory(name, root, environment())
 
   envir <- envir %||% .GlobalEnv
@@ -158,12 +160,14 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   }
 
   p <- outpack_packet_start(path, name, parameters = parameters,
-                                     id = id, logging_console = logging_console,
-                                     logging_threshold = logging_threshold,
-                                     root = root$outpack)
+                            id = id, logging_console = logging_console,
+                            logging_threshold = logging_threshold,
+                            root = root)
   withCallingHandlers({
+    ## TODO: Consider moving 'config' here to 'plugins' and only
+    ## moving that.
     outpack_packet_file_mark(p, "orderly.R", "immutable")
-    p$orderly2 <- list(config = root$config, envir = envir, src = src,
+    p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
                        strict = dat$strict, inputs_info = inputs_info,
                        search_options = search_options)
     current[[path]] <- p

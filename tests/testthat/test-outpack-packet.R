@@ -119,7 +119,7 @@ test_that("Can handle dependencies", {
   outpack_packet_run(p2, "script.R")
   outpack_packet_end(p2)
 
-  meta <- outpack_root_open(path)$metadata(id2)
+  meta <- orderly_metadata(id2, root = path)
   path_metadata <- file.path(path, ".outpack", "metadata", id2)
   expect_true(file.exists(path_metadata))
   outpack_schema("metadata")$validate(path_metadata)
@@ -228,7 +228,7 @@ test_that("Can use dependency from outpack without file store", {
   outpack_packet_run(p2, "script.R")
   outpack_packet_end(p2)
 
-  meta <- outpack_root_open(path)$metadata(id2)
+  meta <- orderly_metadata(id2, root = path)
   expect_equal(
     meta$depends,
     data_frame(

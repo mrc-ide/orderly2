@@ -10,7 +10,7 @@
 ##'
 ##' * `core.require_complete_tree`
 ##'
-##' See [orderly2::outpack_init] for description of these options.
+##' See [orderly2::orderly_init] for description of these options.
 ##'
 ##' @title Set configuration options
 ##'
@@ -25,8 +25,10 @@
 ##'
 ##' @return Nothing
 ##' @export
-outpack_config_set <- function(..., options = list(...), root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+outpack_config_set <- function(..., options = list(...), root = NULL,
+                               locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
   if (!missing(options) && ...length() > 0) {
     stop("If 'options' is given, no dot arguments are allowed")
   }
@@ -229,6 +231,8 @@ config_serialise <- function(config, path) {
   config$location <- lapply(seq_len(nrow(config$location)), function(i) {
     prepare_location(config$location[i, ])
   })
+
+  config$orderly <- NULL
 
   to_json(config, "config")
 }

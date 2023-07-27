@@ -69,12 +69,14 @@
 ##'   priority and negative numbers have lower priority.  Ties will be
 ##'   resolved in an arbitrary order.
 ##'
-##' @inheritParams outpack_location_list
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-outpack_location_add <- function(name, type, args, priority = 0, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+outpack_location_add <- function(name, type, args, priority = 0, root = NULL,
+                                 locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
   assert_scalar_character(name)
   assert_scalar_numeric(priority)
 
@@ -93,7 +95,7 @@ outpack_location_add <- function(name, type, args, priority = 0, root = NULL) {
     ## at the requested path; this will just fail but without
     ## providing the user with anything actionable yet.
     assert_scalar_character(loc$args[[1]]$path, name = "args$path")
-    outpack_root_open(loc$args[[1]]$path, locate = FALSE)
+    root_open(loc$args[[1]]$path, locate = FALSE, require_orderly = FALSE)
   }
 
   config <- root$config
@@ -116,12 +118,13 @@ outpack_location_add <- function(name, type, args, priority = 0, root = NULL) {
 ##' @param new The desired short name of the location.
 ##' Cannot be one of `local` or `orphan`
 ##'
-##' @inheritParams outpack_location_list
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-outpack_location_rename <- function(old, new, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+outpack_location_rename <- function(old, new, root = NULL, locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
   assert_scalar_character(new)
 
   if (old %in% location_reserved_name) {
@@ -147,12 +150,13 @@ outpack_location_rename <- function(old, new, root = NULL) {
 ##' @param name The short name of the location.
 ##' Cannot remove `local` or `orphan`
 ##'
-##' @inheritParams outpack_location_list
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-outpack_location_remove <- function(name, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+outpack_location_remove <- function(name, root = NULL, locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
 
   if (name %in% location_reserved_name) {
     stop(sprintf("Cannot remove default location '%s'",
@@ -196,8 +200,7 @@ outpack_location_remove <- function(name, root = NULL) {
 ##'
 ##' @title List known pack locations
 ##'
-##' @param root The outpack root. Will be searched for from the
-##'   current directory if not given.
+##' @inheritParams orderly_metadata
 ##'
 ##' @return A character vector of location names. The special name
 ##'   `local` will always be present.
@@ -207,13 +210,15 @@ outpack_location_remove <- function(name, root = NULL) {
 ##'   locations listed here.
 ##'
 ##' @export
-outpack_location_list <- function(root = NULL) {
-  outpack_root_open(root, locate = TRUE)$config$location$name
+outpack_location_list <- function(root = NULL, locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
+  root$config$location$name
 }
 
 
 outpack_location_priority <- function(root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+  root <- root_open(root, locate = FALSE, require_orderly = FALSE)
   set_names(root$config$location$priority, root$config$location$name)
 }
 
@@ -230,13 +235,15 @@ outpack_location_priority <- function(root = NULL) {
 ##'   locations are always up to date and pulling metadata from them
 ##'   does nothing.
 ##'
-##' @inheritParams outpack_location_list
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##'
 ##' @export
-outpack_location_pull_metadata <- function(location = NULL, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+outpack_location_pull_metadata <- function(location = NULL, root = NULL,
+                                           locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
   location_id <- location_resolve_valid(location, root,
                                         include_local = FALSE,
                                         allow_no_locations = TRUE)
@@ -276,13 +283,14 @@ outpack_location_pull_metadata <- function(location = NULL, root = NULL) {
 ##'   we default to the value given by the the configuration option
 ##'   `require_complete_tree`.
 ##'
-##' @inheritParams outpack_location_list
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Invisibly, the ids of packets that were pulled
 ##' @export
 outpack_location_pull_packet <- function(id, location = NULL, recursive = NULL,
-                                         root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+                                         root = NULL, locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
+                    call = environment())
   assert_character(id)
   index <- root$index()
 
@@ -356,7 +364,7 @@ outpack_location_pull_packet <- function(id, location = NULL, recursive = NULL,
 ##' @param location The name of a location to push to (see
 ##' [orderly2::outpack_location_list] for possible values).
 ##'
-##' @inheritParams outpack_location_list
+##' @inheritParams orderly_metadata
 ##'
 ##' @return Invisibly, details on the information that was actually
 ##'   moved (which might be more or less than what was requested,
@@ -364,8 +372,10 @@ outpack_location_pull_packet <- function(id, location = NULL, recursive = NULL,
 ##'   known on the other location).
 ##'
 ##' @export
-outpack_location_push <- function(packet_id, location, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+outpack_location_push <- function(packet_id, location, root = NULL,
+                                  locate = TRUE) {
+  root <- root_open(root, locate = locate, require_orderly = TRUE,
+                    call = environment())
   location_id <- location_resolve_valid(location, root,
                                         include_local = FALSE,
                                         allow_no_locations = FALSE)

@@ -68,8 +68,8 @@ test_that("can move files into place", {
 test_that("can create a filename within the store", {
   obj <- file_store$new(temp_file())
   p <- obj$tmp()
-  expect_equal(normalizePath(dirname(p)),
-               normalizePath(file.path(obj$path, "tmp")))
+  expect_equal(normalise_path(dirname(p)),
+               normalise_path(file.path(obj$path, "tmp")))
   expect_false(file.exists(p))
   expect_true(file.exists(file.path(obj$path, "tmp")))
 })

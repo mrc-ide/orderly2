@@ -57,7 +57,8 @@ test_that("Require that (for now) locations must be paths", {
   fs::dir_create(other)
   expect_error(
     outpack_location_add("other", "path", list(path = other), root = root),
-    "'.+' does not look like an outpack root")
+    "Did not find existing orderly (or outpack) root in",
+    fixed = TRUE)
 })
 
 
@@ -70,12 +71,12 @@ test_that("Can rename a location", {
   outpack_location_add("b", "path", list(path = root$b$path), root = root$a)
   expect_setequal(outpack_location_list(root = root$a), c("local", "b"))
 
-  ids <- outpack_root_open(root$a, locate = TRUE)$config$location$id
+  ids <- root_open(root$a, FALSE, FALSE)$config$location$id
 
   outpack_location_rename("b", "c", root = root$a)
   expect_setequal(outpack_location_list(root = root$a), c("local", "c"))
 
-  expect_setequal(outpack_root_open(root$a, locate = TRUE)$config$location$id,
+  expect_setequal(root_open(root$a, FALSE, FALSE)$config$location$id,
                   ids)
 })
 
@@ -138,7 +139,7 @@ test_that("Can remove a location", {
   expect_setequal(outpack_location_list(root = root$a),
                   c("local", "orphan"))
 
-  config <- outpack_root_open(root$a, locate = TRUE)$config
+  config <- root_open(root$a, FALSE, FALSE)$config
   orphan_id <- config$location$id[config$location$name == "orphan"]
   expect_equal(root$a$index()$location$location, c(orphan_id))
 })
@@ -164,7 +165,7 @@ test_that("Removing a location orphans packets only from that location", {
 
   # id1 should now be found in both b and c
   index <- root$a$index()
-  config <- outpack_root_open(root$a, locate = TRUE)$config
+  config <- root_open(root$a, FALSE, FALSE)$config
   b_id <- config$location$id[config$location$name == "b"]
   c_id <- config$location$id[config$location$name == "c"]
   expect_equal(index$location$location[index$location$packet == id1],
@@ -179,7 +180,7 @@ test_that("Removing a location orphans packets only from that location", {
                   c("local", "orphan", "c"))
 
   # id1 should now only be found in c
-  config <- outpack_root_open(root$a, locate = TRUE)$config
+  config <- root_open(root$a, FALSE, FALSE)$config
   index <- root$a$index()
   expect_equal(index$location$location[index$location$packet == id1], c_id)
 
@@ -523,7 +524,6 @@ test_that("Can add locations with different priorities", {
   expect_equal(root$a$config$location$name, c("c", "b", "local"))
   expect_equal(root$a$config$location$priority, c(10, 5, 0))
 
-  outpack_root_open(root$a$path)
   expect_equal(outpack_location_list(root$a),
                c("c", "b", "local"))
 })

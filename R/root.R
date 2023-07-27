@@ -1,87 +1,235 @@
-##' Initialise an empty orderly repository. An orderly repository is
-##' also an outpack repository, so most of the work here is done by
-##' [orderly2::outpack_init()], however, you should call this
-##' function!  You can also turn any outpack repository into an
-##' orderly one, adding appropriate bits of configuration into it,
-##' though this function.
+##' Initialise an empty orderly repository, or initialise a source
+##' copy of an orderly repository (see Details). An orderly repository
+##' is defined by the presence of a file `orderly_config.yml` at its
+##' root, along with a directory `.outpack/` at the same level.
+##'
+##' It is expected that `orderly_config.yml` will be saved in version
+##' control, but that `.outpack` will be excluded from version
+##' control; this means that for every clone of your project you will
+##' need to call `orderly2::orderly_init()` to initialise the
+##' `.outpack` directory. If you forget to do this, an error will be
+##' thrown reminding you of what you need to do.
+##'
+##' You can safely call `orderly2::orderly_init()` on an
+##' already-initialised directory, however, any arguments passed
+##' through must exactly match the configuration of the current root,
+##' otherwise an error will be thrown. Please use
+##' [orderly2::outpack_config_set] to change the configuration, as
+##' this ensures that the change in configuration is possible. If
+##' configuration options are given but match those that the directory
+##' already uses, then nothing happens.
+##'
+##' If the repository that you call `orderly2::orderly_init()` on is
+##' already initialised with an `.outpack` directory but not an
+##' `orderly_config.yml` file, then we will write that file too.
 ##'
 ##' @title Initialise an orderly repository
 ##'
 ##' @param path The path to initialise the repository at.  If the
 ##'   repository is already initialised, this operation does nothing.
 ##'
-##' @param ... Additional arguments passed through to
-##'   [orderly2::outpack_init], if (and only if) the outpack
-##'   repository is not already created.
+##' @param path_archive Path to the archive directory, used to store
+##'   human-readable copies of packets.  If `NULL`, no such copy is
+##'   made, and `file_store` must be `TRUE`
 ##'
-##' @return An orderly root object, invisibly. Typically this is
-##'   called only for its side effect.
+##' @param use_file_store Logical, indicating if we should use a
+##'   content-addressable file-store as the source of truth for
+##'   packets.  If `archive` is non-`NULL`, the file-store will be
+##'   used as the source of truth and the duplicated files in archive
+##'   exist only for convenience.
+##'
+##' @param require_complete_tree Logical, indicating if we require a
+##'   complete tree of packets.  This currently affects
+##'   [orderly2::outpack_location_pull_packet], by requiring that it
+##'   always operates in recursive mode.  This is `FALSE` by default,
+##'   but set to `TRUE` if you want your archive to behave well as a
+##'   location; if `TRUE` you will always have all the packets that
+##'   you hold metadata about.
+##'
+##' @param logging_console Logical, indicating if we should log to the
+##'   console. If `TRUE`, then many operations will produce
+##'   informational output; set to `FALSE` to prevent this.
+##'
+##' @param logging_threshold The degree of verbosity; one of `info`,
+##'   `debug` or `trace` in increasing order of verbosity.
+##'
+##' @return The full, normalised, path to the root,
+##'   invisibly. Typically this is called only for its side effect.
 ##'
 ##' @export
-orderly_init <- function(path, ...) {
+orderly_init <- function(path,
+                         path_archive = "archive",
+                         use_file_store = FALSE,
+                         require_complete_tree = FALSE,
+                         logging_console = TRUE,
+                         logging_threshold = "info") {
   assert_scalar_character(path)
-  if (file.exists(file.path(path, "orderly_config.yml"))) {
-    return(orderly_root(path, locate = FALSE))
-  }
-  if (file.exists(path)) {
+  has_orderly_config <- file.exists(file.path(path, "orderly_config.yml"))
+  if (!has_orderly_config && file.exists(path)) {
     if (!is_directory(path)) {
-      stop("'path' exists but is not a directory")
+      cli::cli_abort("'path' exists but is not a directory")
     }
     if (!file.exists(file.path(path, ".outpack"))) {
+      ## We may need to relax this, but it's not really clear to me
+      ## how the user gets into this position; they have a bunch of
+      ## files there and they want to a root into it?
+      ##
+      ## One option is provide a boolean arg to proceed anyway in this
+      ## case, at the moment there's not a lot that can be done to
+      ## undo this situation.
       if (length(dir(path, all.files = TRUE, no.. = TRUE)) > 0) {
-        stop("'path' exists but is not empty, or an outpack archive")
+        cli::cli_abort(c(
+          "'path' exists but is not empty, or an outpack archive",
+          i = "Please have a chat with us if this is something you need to do"))
       }
     }
   }
 
-  if (file.exists(file.path(path, ".outpack"))) {
-    root <- outpack_root_open(path, FALSE)
+  config <- config_new(path_archive, use_file_store, require_complete_tree,
+                       logging_console, logging_threshold)
+
+  path_outpack <- file.path(path, ".outpack")
+  if (file.exists(path_outpack)) {
+    root <- root_open(path, locate = FALSE, require_orderly = FALSE)
+    root_validate_same_configuration(match.call(), config, root, environment())
   } else {
-    root <- outpack_init(path, ...)
+    fs::dir_create(path_outpack)
+    fs::dir_create(file.path(path_outpack, "metadata"))
+    fs::dir_create(file.path(path_outpack, "location"))
+    config_write(config, path)
+    root <- outpack_root$new(path)
+    outpack_log_info(root, "init", path, "orderly2::orderly_init")
   }
-  writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
-  invisible(orderly_root(root, locate = FALSE))
+
+  if (!has_orderly_config) {
+    writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
+  }
+
+  root <- root_open(path, locate = FALSE, require_orderly = TRUE,
+                    call = environment())
+  invisible(root$path)
 }
-
-
-## In orderly, there's quite a bit more to read here, coping with the
-## configuration (orderly_config.yml) which also marks the root.
-##
-## In orderly, the key fields in the configuration are:
-##
-## Things that will be removed
-##
-## * destination - orderly's internal db, now ignored
-## * tags - removed as unused
-##
-## Things that will be entirely reworked
-##
-## * remote - configuration of remotes, will get a full change as this
-##   has lots of issues as is, and because this interacts with
-##   outpack's 'location' support
-## * changelog - will get overhauled because it's not clear that it works
-##   well at the moment
-##
-## Things that will probably come in without too much change:
-##
-## * fields - custom fields
-## * vault - vault configuration
-## * global_resources - might be the first bit to come back in?
-## * database - lower priority, as only VIMC and everything else must work first
-## * minimum_orderly_version - the required version
-orderly_root <- function(root, locate) {
-  root <- outpack_root_open(root, locate)
-  ## NOTE: it's can't be changed yet, but core.path_archive cannot be
-  ## "draft" for this to work well.
-  path <- root$path
-  config <- orderly_config(path)
-  ret <- list(outpack = root, config = config, path = path)
-  class(ret) <- "orderly_root"
-  ret
-}
-
 
 
 empty_config_contents <- function() {
   'minimum_orderly_version: "1.99.0"'
+}
+
+
+## There's quite a few scenarios here:
+##
+## * find an existing outpack root that is not an orderly root
+##   - sometimes require that we upgrade (e.g., run)
+##   - sometimes just work with it (e.g., search, extract, copy)
+## * find an existing orderly root that is not an outpack root
+##   - always error, indicate what to do
+##
+## * also check that the outpack and orderly path are compatibible
+##   (this is actually quite hard to get right, but should be done
+##   before anything is created I think)
+root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
+  if (inherits(path, "outpack_root")) {
+    if (!require_orderly || !is.null(path$config$orderly)) {
+      return(path)
+    }
+    ## This is going to error, but the error later will do.
+    path <- path$path
+    locate <- FALSE
+  }
+  if (is.null(path)) {
+    path <- getwd()
+  }
+  assert_scalar_character(path)
+  assert_is_directory(path)
+  if (locate) {
+    path_outpack <- find_file_descend(".outpack", path)
+    path_orderly <- find_file_descend("orderly_config.yml", path)
+    has_outpack <- !is.null(path_outpack)
+    has_orderly <- !is.null(path_orderly)
+    if (has_outpack && has_orderly && path_outpack != path_orderly) {
+      if (fs::path_has_parent(path_outpack, path_orderly)) {
+        order <- c(orderly = path_orderly, outpack = path_outpack)
+      } else {
+        order <- c(outpack = path_outpack, orderly = path_orderly)
+      }
+      cli::cli_abort(c(
+        "Found incorrectly nested orderly and outpack directories",
+        i = "{names(order)[[1]]} was found at '{order[[1]]}'",
+        i = "{names(order)[[2]]} was found at '{order[[2]]}'",
+        x = paste("{names(order)[[2]]} is nested within {names(order)[[1]]}",
+                  "at {fs::path_rel(order[[2]], order[[1]])}"),
+        i = "How did you even do this? Please let us know!"))
+    }
+    path_open <- path_outpack
+  } else {
+    has_outpack <- file.exists(file.path(path, ".outpack"))
+    has_orderly <- file.exists(file.path(path, "orderly_config.yml"))
+    path_open <- path
+  }
+  if (!has_outpack && !has_orderly) {
+    cli::cli_abort(
+      c(sprintf(
+        "Did not find existing orderly (or outpack) root in '%s'", path),
+        i = paste("Expected to find file 'orderly_config.yml' or directory",
+                  "'.outpack/'"),
+        i = if (locate) "Looked in parents of this path without success"),
+      call = call)
+  }
+  if (has_orderly && !has_outpack) {
+    cli::cli_abort(
+      c(sprintf("orderly directory '%s' not initialised", path),
+        x = "Did not find an '.outpack' directory within path",
+        i = 'Please run orderly2::orderly_init("{path}") to initialise',
+        i = "See ?orderly_init for more arguments to this function"),
+      call = call)
+  }
+
+  root <- outpack_root$new(path_open)
+
+  if (has_orderly) {
+    root$config$orderly <- orderly_config(root$path)
+  } else if (require_orderly) {
+    cli::cli_abort(
+      c("Did not find 'orderly_config.yml' in '{path}'",
+        x = paste("Your directory has an '.outpack/' path, so is a valid",
+                  "outpack root, but does not contain 'orderly_config.yml' so",
+                  "cannot be used as an orderly root"),
+        i = 'Please run orderly2::orderly_init("{path}") to initialise',
+        i = "See ?orderly_init for more arguments to this function"))
+  }
+
+  root
+}
+
+
+## This is pretty unpleasant, but does the trick.
+root_validate_same_configuration <- function(args, config, root, call) {
+  argmap <- list(
+    path_archive = c("core", "path_archive"),
+    use_file_store = c("core", "use_file_store"),
+    require_complete_tree = c("core", "require_complete_tree"),
+    logging_console = c("logging", "console"),
+    logging_threshold = c("logging", "threshold"))
+  check <- intersect(names(argmap), names(args))
+  if (length(check) > 0) {
+    cmp <- lapply(check, function(nm) {
+      current <- root$config[[argmap[[nm]]]]
+      given <- config[[argmap[[nm]]]]
+      changed <- current != given
+      list(changed = changed, name = nm, current = current, given = given)
+    })
+    err <- vlapply(cmp, "[[", "changed")
+    if (any(err)) {
+      err_str <- sprintf(
+        "%s: was '%s' but was given '%s'",
+        vcapply(cmp[err], "[[", "name"),
+        vcapply(cmp[err], function(x) as.character(x$current)),
+        vcapply(cmp[err], function(x) as.character(x$given)))
+      cli::cli_abort(
+        c("Trying to change configuration when re-initialising",
+          set_names(err_str, rep("x", length(err_str))),
+          i = "Use 'orderly2::outpack_config_set()' to change configuration"),
+        call = call)
+    }
+  }
 }

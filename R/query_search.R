@@ -23,8 +23,7 @@
 ##'   packets should be considered in scope. If not provided, default
 ##'   options are used (i.e., `orderly2::orderly_search_options()`)
 ##'
-##' @param root The outpack root. Will be searched for from the
-##'   current directory if not given.
+##' @inheritParams orderly_metadata
 ##'
 ##' @return A character vector of matching ids. In the case of no
 ##'   match from a query returning a single value (e.g., `latest(...)`
@@ -34,7 +33,7 @@
 ##' @export
 orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
                            options = NULL, root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+  root <- root_open(root, locate = TRUE, require_orderly = FALSE)
   query <- as_orderly_query(...)
   options <- as_orderly_search_options(options)
   orderly_query_eval(query, parameters, envir, options, root)

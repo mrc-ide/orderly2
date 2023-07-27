@@ -4,15 +4,23 @@
 \alias{orderly_metadata}
 \title{Read outpack metadata}
 \usage{
-orderly_metadata(id, root = NULL)
+orderly_metadata(id, root = NULL, locate = FALSE)
 }
 \arguments{
 \item{id}{The id to fetch metadata for. An error will be thrown if
 this id is not known}
 
-\item{root}{The outpack root, typically the path to the root. The
-default value of \code{NULL} looks for the root from the current
-directory which is typically correct.}
+\item{root}{The path to the root directory, or \code{NULL} (the
+default) to search for one from the current working directory if
+\code{locate} is \code{TRUE}. This function does not require that the
+directory is configured for orderly, and can be any \code{outpack}
+root (see \link{orderly_init} for details).}
+
+\item{locate}{Logical, indicating if the root should be searched
+for.  If \code{TRUE}, then we looks in the directory given for \code{root}
+(or the working directory if \code{NULL}) and then up through its
+parents until it finds an \code{.outpack} directory or
+\code{orderly_config.yml}}
 }
 \value{
 A list of metadata. See the outpack schema for details

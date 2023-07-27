@@ -13,9 +13,11 @@ orderly_cleanup_status(name = NULL, root = NULL, locate = TRUE)
 \item{name}{Name of the report directory to clean (i.e., we look
 at \verb{src/<name>} relative to your orderly root}
 
-\item{root}{The path to an orderly root directory, or \code{NULL}
-(the default) to search for one from the current working
-directory if \code{locate} is \code{TRUE}.}
+\item{root}{The path to the root directory, or \code{NULL} (the
+default) to search for one from the current working directory if
+\code{locate} is \code{TRUE}. This function \strong{does} require that the
+directory is configured for orderly, and not just outpack (see
+\link{orderly_init} for details).}
 
 \item{locate}{Logical, indicating if the configuration should be
 searched for.  If \code{TRUE} and \code{config} is not given,

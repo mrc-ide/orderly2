@@ -84,7 +84,7 @@ query_index <- R6::R6Class(
 ## help with the pulling metadata issue (as we could then control only
 ## pulling once in a session).
 new_query_index <- function(root, options) {
-  root <- outpack_root_open(root, locate = TRUE)
+  root <- root_open(root, locate = FALSE, require_orderly = FALSE)
 
   if (options$pull_metadata) {
     outpack_location_pull_metadata(options$location, root)

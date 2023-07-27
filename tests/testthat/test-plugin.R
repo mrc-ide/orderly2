@@ -10,8 +10,7 @@ test_that("Can run simple example with plugin", {
 
   expect_identical(env$dat, cmp)
 
-  root <- orderly_root(path, locate = FALSE)
-  meta <- root$outpack$metadata(id, full = TRUE)
+  meta <- orderly_metadata(id, root = path)
 
   ## Our nice vectors have become lists here, due to the general pain
   ## of deserialising json, into R but at least it's all there.

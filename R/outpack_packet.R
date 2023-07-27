@@ -27,8 +27,7 @@
 ##'   of `NULL` uses the root value, otherwise use `info`, `debug` or
 ##'   `trace` (in increasing order of verbosity).
 ##'
-##' @param root The outpack root. Will be searched for from the
-##'   current directory if not given.
+##' @inheritParams outpack_metadata
 ##'
 ##' @return Invisibly, a copy of the packet data; this can be passed
 ##'   as the `packet` argument.
@@ -38,7 +37,7 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
                                  logging_console = NULL,
                                  logging_threshold = NULL,
                                  root = NULL) {
-  root <- outpack_root_open(root, locate = TRUE)
+  root <- root_open(root, locate = FALSE, require_orderly = FALSE)
 
   assert_scalar_character(name)
   assert_is_directory(path)

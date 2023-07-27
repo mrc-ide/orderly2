@@ -15,70 +15,50 @@ test_that("can create new root", {
 })
 
 
-test_that("Re-initialising root errors", {
-  root <- create_temporary_root()
-  expect_error(outpack_init(root$path),
-               "outpack already initialised at")
-})
-
-
-test_that("Can control root config on initialisation", {
-  root <- create_temporary_root(path_archive = NULL, use_file_store = TRUE,
-                                require_complete_tree = TRUE)
-  expect_mapequal(root$config$core,
-                  list(path_archive = NULL,
-                       use_file_store = TRUE,
-                       require_complete_tree = TRUE,
-                       hash_algorithm = "sha256"))
-  expect_true(file.exists(file.path(root$path, ".outpack", "files")))
-})
-
-
-test_that("Must include some packet storage", {
-  path <- temp_file()
-  expect_error(
-    outpack_init(path, path_archive = NULL, use_file_store = FALSE),
-    "If 'path_archive' is NULL, then 'use_file_store' must be TRUE")
-  expect_false(file.exists(path))
-})
-
-
 test_that("Can locate an outpack root", {
   root <- create_temporary_root()
   path <- root$path
   p <- file.path(path, "a", "b", "c")
   fs::dir_create(p)
   expect_equal(
-    outpack_root_open(p)$path,
-    outpack_root_open(path)$path)
+    root_open(p, locate = TRUE, require_orderly = FALSE)$path,
+    root_open(path, locate = FALSE, require_orderly = FALSE)$path)
   expect_equal(
-    withr::with_dir(p, outpack_root_open(".")$path),
-    outpack_root_open(path)$path)
+    withr::with_dir(
+      p,
+      root_open(".", locate = TRUE, require_orderly = FALSE)$path),
+    root_open(path, locate = FALSE, require_orderly = FALSE)$path)
   expect_identical(
-    outpack_root_open(root), root)
+    root_open(root, locate = FALSE, require_orderly = FALSE), root)
 })
 
 
-test_that("outpack_root_open errors if it reaches toplevel", {
+test_that("root_open errors if it reaches toplevel", {
   path <- temp_file()
   fs::dir_create(path)
   expect_error(
-    outpack_root_open(path),
-    "Did not find existing outpack root from directory '.+'")
+    root_open(path, locate = TRUE, require_orderly = FALSE),
+    "Did not find existing orderly (or outpack) root in",
+    fixed = TRUE)
 })
 
 
-test_that("outpack_root_open does not recurse if locate = FALSE", {
+test_that("root_open does not recurse if locate = FALSE", {
   root <- create_temporary_root()
   path <- root$path
-  expect_identical(outpack_root_open(root, locate = FALSE), root)
-  expect_equal(outpack_root_open(path, locate = FALSE)$path, path)
+  expect_identical(
+    root_open(root, locate = FALSE, require_orderly = FALSE),
+    root)
+  expect_equal(
+    root_open(path, locate = FALSE, require_orderly = FALSE)$path,
+    path)
 
   p <- file.path(path, "a", "b", "c")
   fs::dir_create(p)
   expect_error(
-    outpack_root_open(p, locate = FALSE),
-    "'.+/a/b/c' does not look like an outpack root")
+    root_open(p, locate = FALSE, require_orderly = FALSE),
+    "Did not find existing orderly (or outpack) root in",
+    fixed = TRUE)
 })
 
 
@@ -131,7 +111,7 @@ test_that("can find appropriate root if in working directory with path NULL", {
   root <- create_temporary_root()
   res <- withr::with_dir(
     root$path,
-    outpack_root_open(NULL, TRUE))
+    root_open(NULL, locate = TRUE, require_orderly = FALSE))
   expect_equal(res$path, root$path)
 })
 

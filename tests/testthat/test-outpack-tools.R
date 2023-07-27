@@ -117,7 +117,7 @@ test_that("can extract git metadata", {
   outpack_packet_run(p, "script.R")
   outpack_packet_end(p)
 
-  meta <- outpack_root_open(root$path)$metadata(id, TRUE)
+  meta <- orderly_metadata(id, root = root$path)
 
   d <- orderly_metadata_extract('name == "example"',
                                 extract = "git",
@@ -181,7 +181,6 @@ test_that("can extract orderly custom metadata", {
   path <- test_prepare_orderly_example("description")
   env <- new.env()
   id <- orderly_run("description", root = path, envir = env)
-  root <- orderly_root(path, FALSE)
   d <- orderly_metadata_extract(
     'name == "description"',
     extract = c(display = "custom.orderly.description.display is string"),
