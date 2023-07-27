@@ -52,9 +52,6 @@
     <loc>/reference/orderly_description.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_global_resource.html</loc>
-  </url>
-  <url>
     <loc>/reference/orderly_init.html</loc>
   </url>
   <url>
@@ -104,6 +101,9 @@
   </url>
   <url>
     <loc>/reference/orderly_search_options.html</loc>
+  </url>
+  <url>
+    <loc>/reference/orderly_shared_resource.html</loc>
   </url>
   <url>
     <loc>/reference/orderly_strict_mode.html</loc>

@@ -225,6 +225,16 @@ this package, for more information see the last section of
 <code><a href="../articles/introduction.html">vignette("introduction")</a></code> and also
 <code>vignette("outpack")</code>.</p>
 </div>
+<div class="section level3">
+<h3 id="other-smaller-changes">Other, smaller changes<a class="anchor" aria-label="anchor" href="#other-smaller-changes"></a>
+</h3>
+<p><strong>“Global” resouces have become “shared” resources</strong>,
+and always live in <code>shared/</code> at the orderly root (i.e., this
+is no longer configurable). The reason for this is that we want reports
+to be able to be run fairly independently of the <code>orderly2</code>
+configuration (the only exception to this are plugins). In practice
+people did not really vary this.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="what-is-missing-compared-with-orderly1">What is missing compared with <code>orderly1</code><a class="anchor" aria-label="anchor" href="#what-is-missing-compared-with-orderly1"></a>
