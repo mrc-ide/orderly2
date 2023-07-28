@@ -65,9 +65,8 @@ gitignore_content_src <- function(name, root) {
   ignore <- unique(c(ignore_deps, ignore_artefacts, ignore_shared))
   ignore <- setdiff(ignore, dat$resources)
 
-  if (any(grepl("${", ignore, fixed = TRUE))) {
-    stop("writeme")
-  }
+  ## We're not clever enough to work with loops over dependencies yet,
+  ## but if we were we'd want to swap out ("\\$\\{.*?\\}" for "*"
 
   ignore
 }
