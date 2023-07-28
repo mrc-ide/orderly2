@@ -97,9 +97,9 @@ describe("http location integration tests", {
   it("can push into server", {
     root_downstream <- create_temporary_root(use_file_store = TRUE)
     ids_downstream <- create_random_packet_chain(root_downstream, 3)
-    outpack_location_add("upstream", "http", list(url = url),
+    orderly_location_add("upstream", "http", list(url = url),
                          root = root_downstream)
-    plan <- outpack_location_push(ids_downstream[[3]], "upstream",
+    plan <- orderly_location_push(ids_downstream[[3]], "upstream",
                                   root = root_downstream)
     expect_setequal(plan$packet_id, ids_downstream)
     idx <- root$index()
@@ -122,7 +122,7 @@ describe("http location integration tests", {
                         "Hash of packet does not match")
 
     ## Then on the method, should return same error here:
-    loc <- outpack_location_http$new(url)
+    loc <- orderly_location_http$new(url)
     mock_get_metadata_hash <- mockery::mock(hash_bad)
     mockery::stub(loc$push_metadata, "get_metadata_hash",
                   mock_get_metadata_hash)
@@ -132,7 +132,7 @@ describe("http location integration tests", {
   })
 
   it("throws sensible error if file hash does not match expected", {
-    loc <- outpack_location_http$new(url)
+    loc <- orderly_location_http$new(url)
 
     tmp <- withr::local_tempfile()
     writeLines("correct", tmp)
