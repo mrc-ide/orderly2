@@ -290,3 +290,27 @@ test_that("can add a source .gitignore", {
     readLines(file.path(path, "src", "data", ".gitignore")),
     gitignore_update_contents(character(), ignore))
 })
+
+
+test_that("can compute ignore for dependencies", {
+  path <- test_prepare_orderly_example("depends")
+  expect_equal(
+    gitignore_content_src("depends", root_open(path, FALSE, FALSE)),
+    c("input.rds", "graph.png"))
+})
+
+
+test_that("can compute ignore for dependencies", {
+  path <- test_prepare_orderly_example("shared")
+  expect_setequal(
+    gitignore_content_src("shared", root_open(path, FALSE, FALSE)),
+    c("mygraph.png", "shared_data.csv"))
+})
+
+
+test_that("don't ignore resources that are artefacts", {
+  path <- test_prepare_orderly_example("reexport")
+  expect_equal(
+    gitignore_content_src("reexport", root_open(path, FALSE, FALSE)),
+    "mygraph.png")
+})

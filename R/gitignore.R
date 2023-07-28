@@ -58,19 +58,18 @@ gitignore_content_root <- function(root) {
 
 gitignore_content_src <- function(name, root) {
   dat <- orderly_read_r(file.path(root$path, "src", name, "orderly.R"))
-  ignore <- unlist(lapply(dat$artefacts, "[[", "files"))
 
-  if (!is.null(dat$shared)) {
-    stop("writeme")
-  }
-  if (!is.null(dat$depends)) {
-    stop("writeme")
-  }
-  if (grepl("${", ignore, fixed = TRUE)) {
+  ignore_deps <- unlist(lapply(dat$dependency, function(x) names(x$files)))
+  ignore_artefacts <- unlist(lapply(dat$artefacts, "[[", "files"))
+  ignore_shared <- names(dat$shared_resource)
+  ignore <- unique(c(ignore_deps, ignore_artefacts, ignore_shared))
+  ignore <- setdiff(ignore, dat$resources)
+
+  if (any(grepl("${", ignore, fixed = TRUE))) {
     stop("writeme")
   }
 
-  unique(ignore)
+  ignore
 }
 
 
