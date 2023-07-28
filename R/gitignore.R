@@ -30,14 +30,21 @@ orderly_gitignore_update <- function(name, prompt = "if_manually_created",
   assert_scalar_character(name)
   if (name == "(root)") {
     path <- ".gitignore"
-    value <- gitignore_content_root()
+    value <- gitignore_content_root(root)
   } else {
     validate_orderly_directory(name, root, environment())
     path <- file.path("src", name, ".gitignore")
-    value <- gitignore_content_src()
+    value <- gitignore_content_src(name, root)
   }
 
-  gitignore_update_file(root$path, path, value, prompt)
+  ## TODO: this should also check that things are not added to git and
+  ## point at advice for fixing this, but that might also be best
+  ## elsewhere...
+
+  if (gitignore_update_file(root$path, path, value, prompt)) {
+    cli::cli_alert_success("Wrote '{path}'")
+  }
+  invisible(TRUE)
 }
 
 
@@ -45,12 +52,25 @@ gitignore_content_root <- function(root) {
   c(".outpack",
     "orderly_envir.yml",
     "draft",
-    root$config$core$archive)
+    root$config$core$path_archive)
 }
 
 
 gitignore_content_src <- function(name, root) {
-  browser()
+  dat <- orderly_read_r(file.path(root$path, "src", name, "orderly.R"))
+  ignore <- unlist(lapply(dat$artefacts, "[[", "files"))
+
+  if (!is.null(dat$shared)) {
+    stop("writeme")
+  }
+  if (!is.null(dat$depends)) {
+    stop("writeme")
+  }
+  if (grepl("${", ignore, fixed = TRUE)) {
+    stop("writeme")
+  }
+
+  unique(ignore)
 }
 
 

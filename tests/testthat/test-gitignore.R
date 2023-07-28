@@ -263,3 +263,30 @@ test_that("prompting shows difference and asks user for input", {
   expect_equal(mockery::mock_args(mock_ask),
                rep(list(list("OK to apply these changes?")), 2))
 })
+
+
+test_that("can add a basic root gitignore", {
+  path <- test_prepare_orderly_example("data")
+  ignore <- c(".outpack", "orderly_envir.yml", "draft", "archive")
+  expect_equal(gitignore_content_root(root_open(path, FALSE, FALSE)), ignore)
+  expect_message(
+    expect_true(orderly_gitignore_update("(root)", "never", path)),
+    "Wrote '.gitignore'")
+  expect_equal(
+    readLines(file.path(path, ".gitignore")),
+    gitignore_update_contents(character(), ignore))
+})
+
+
+test_that("can add a source .gitignore", {
+  path <- test_prepare_orderly_example("data")
+  ignore <- c("data.rds")
+  expect_equal(gitignore_content_src("data", root_open(path, FALSE, FALSE)),
+               ignore)
+  expect_message(
+    expect_true(orderly_gitignore_update("data", "never", path)),
+    "Wrote 'src/data/.gitignore'")
+  expect_equal(
+    readLines(file.path(path, "src", "data", ".gitignore")),
+    gitignore_update_contents(character(), ignore))
+})
