@@ -95,6 +95,7 @@ describe("http location integration tests", {
   })
 
   it("can push into server", {
+    skip_on_os("windows") # mrc-4442
     root_downstream <- create_temporary_root(use_file_store = TRUE)
     ids_downstream <- create_random_packet_chain(root_downstream, 3)
     orderly_location_add("upstream", "http", list(url = url),
@@ -132,6 +133,7 @@ describe("http location integration tests", {
   })
 
   it("throws sensible error if file hash does not match expected", {
+    skip_on_os("windows") # mrc-4442
     loc <- orderly_location_http$new(url)
 
     tmp <- withr::local_tempfile()
