@@ -19,3 +19,13 @@ test_that("ignore paths without orderly.R", {
   unlink(file.path(path, "src", v[1], "orderly.R"))
   expect_equal(orderly_list_src(path), v[-1])
 })
+
+
+test_that("no candidates returns empty character vector", {
+  path <- test_prepare_orderly_example(character())
+  unlink(file.path(path, "src"), recursive = TRUE)
+  expect_setequal(dir(path, all.files = TRUE, no.. = TRUE),
+                  c(".outpack", "orderly_config.yml"))
+  expect_equal(withr::with_dir(path, orderly_list_src()), character())
+  expect_equal(orderly_list_src(path), character())
+})
