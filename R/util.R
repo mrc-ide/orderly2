@@ -202,6 +202,11 @@ list_to_character <- function(x, named = TRUE) {
 }
 
 
+list_to_numeric <- function(x, named = TRUE) {
+  vnapply(x, identity, USE.NAMES = named)
+}
+
+
 sys_getenv <- function(x, used_in, error = TRUE, default = NULL) {
   v <- Sys.getenv(x, NA_character_)
   if (is.na(v) || !nzchar(v)) {
@@ -575,4 +580,9 @@ format_rlang_trace <- function(x, colours = TRUE) {
     str <- cli::ansi_strip(str)
   }
   str
+}
+
+
+prompt_ask_yes_no <- function(prompt) {
+  utils::menu(c("no", "yes"), FALSE, title = prompt) == 2 # nocov
 }
