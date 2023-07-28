@@ -1,8 +1,28 @@
 ##' Update a gitignore, which is useful to prevent accidentally
 ##' comitting files to source control that are generated. This
 ##' includes artefacts, shared resources and dependencies (within a
-##' report directory) or at the global level all he contents of the
-##' `.outpack` directory,
+##' report directory) or at the global level all the contents of the
+##' `.outpack` directory, the draft folder and the archive directory.
+##'
+##' If this function fails with a message `Can't edit '.gitignore',
+##' markers are corrupted`, then look for the special markers within
+##' the `.gitignore` file.  It should look like
+##'
+##' ```
+##' # ---VVV--- added by orderly ---VVV----------------
+##' # Don't manually edit content between these markers
+##' ... patterns
+##' # ---^^^--- added by orderly ---^^^----------------
+##' ```
+##'
+##' We can't edit the file if:
+##'
+##' * any of these lines appears more than once in the file
+##' * there is anything between the first two lines
+##' * they are not in this order
+##'
+##' If you get the error message, search and remove these lines and
+##' rerun.
 ##'
 ##' @title Update a gitignore file
 ##'
@@ -80,7 +100,7 @@ gitignore_markers <- c(
 
 ## Value for prompt could be if markers are not added, never, always
 ## (or if the file does not exist)
-gitignore_update_contents <- function(content_old, value) {
+gitignore_update_contents <- function(content_old, value, path, root) {
   if (!any(gitignore_markers %in% content_old)) {
     if (length(content_old) > 0) {
       content_old <- c(content_old, "")
@@ -88,14 +108,17 @@ gitignore_update_contents <- function(content_old, value) {
     return(c(content_old, gitignore_markers[1:2], value, gitignore_markers[3]))
   }
 
-  i <- lapply(gitignore_markers, function(x) match(x, content_old))
-  if (!all(lengths(i) == 1)) {
-    stop("nope 1")
+  i <- lapply(gitignore_markers, function(x) which(x == content_old))
+  err <- !all(lengths(i) == 1)
+  if (!err) {
+    i <- list_to_numeric(i)
+    err <- i[[2]] != i[[1]] + 1 || i[[3]] <= i[[2]]
   }
-  i <- list_to_numeric(i)
-  ok <- i[[2]] == i[[1]] + 1 && i[[3]] > i[[2]]
-  if (!ok) {
-    stop("nope 2")
+  if (err) {
+    cli::cli_abort(c(
+      "Can't edit '{path}', markers are corrupted",
+      i = "(within orderly root '{root}')",
+      i = "Please see ?orderly_gitignore_update for more details"))
   }
 
   c(content_old[seq_len(i[[1]] - 1)],
@@ -109,7 +132,7 @@ gitignore_update_file <- function(root, path, value, prompt) {
   path_full <- file.path(root, path)
   gitignore_exists <- file.exists(path_full)
   content_old <- if (gitignore_exists) readLines(path_full) else character()
-  content_new <- gitignore_update_contents(content_old, value)
+  content_new <- gitignore_update_contents(content_old, value, path, root)
   if (identical(content_old, content_new)) {
     return(FALSE)
   }

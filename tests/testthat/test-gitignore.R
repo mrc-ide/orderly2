@@ -1,6 +1,6 @@
 test_that("can update empty contents", {
   expect_equal(
-    gitignore_update_contents(character(), c("a", "b")),
+    gitignore_update_contents(character(), c("a", "b"), ".gitignore", "root"),
     c("# ---VVV--- added by orderly ---VVV----------------",
       "# Don't manually edit content between these markers",
       "a",
@@ -11,7 +11,7 @@ test_that("can update empty contents", {
 
 test_that("can update contents without orderly", {
   expect_equal(
-    gitignore_update_contents(c("x", "y"), c("a", "b")),
+    gitignore_update_contents(c("x", "y"), c("a", "b"), ".gitignore", "root"),
     c("x",
       "y",
       "",
@@ -33,7 +33,7 @@ test_that("can update existing contents", {
              "b",
              "# ---^^^--- added by orderly ---^^^----------------")
   expect_equal(
-    gitignore_update_contents(start, c("c", "d", "e")),
+    gitignore_update_contents(start, c("c", "d", "e"), ".gitignore", "root"),
     c("x",
       "y",
       "",
@@ -57,7 +57,7 @@ test_that("can update existing contents", {
              "# ---^^^--- added by orderly ---^^^----------------",
              "z")
   expect_equal(
-    gitignore_update_contents(start, c("c", "d", "e")),
+    gitignore_update_contents(start, c("c", "d", "e"), ".gitignore", "root"),
     c("x",
       "y",
       "",
@@ -71,14 +71,32 @@ test_that("can update existing contents", {
 })
 
 
+test_that("can alert user on corrupt contents", {
+  path <- ".gitignore"
+  root <- "root"
+  str <- gitignore_update_contents(c("x", "y"), c("c", "d", "e"), path, root)
+  new <- c("f", "g")
+  err <- expect_error(
+    gitignore_update_contents(c(str, str), new, path, root),
+    "Can't edit '.gitignore', markers are corrupted")
+  expect_equal(err$body,
+               c(i = "(within orderly root 'root')",
+                 i = "Please see ?orderly_gitignore_update for more details"))
+  err <- expect_error(
+    gitignore_update_contents(rev(str), new, path, root),
+    "Can't edit '.gitignore', markers are corrupted")
+})
+
+
 test_that("can create gitignore where nonexistant", {
   path_full <- withr::local_tempfile()
   root <- dirname(path_full)
   path <- basename(path_full)
   expect_true(gitignore_update_file(root, path, c("a", "b"), "never"))
   expect_false(gitignore_update_file(root, path, c("a", "b"), "never"))
-  expect_equal(readLines(path_full),
-               gitignore_update_contents(character(), c("a", "b")))
+  expect_equal(
+    readLines(path_full),
+    gitignore_update_contents(character(), c("a", "b"), path, root))
 })
 
 
@@ -89,8 +107,9 @@ test_that("can create gitignore where empty", {
   file.create(path_full)
   expect_true(gitignore_update_file(root, path, c("a", "b"), "never"))
   expect_false(gitignore_update_file(root, path, c("a", "b"), "never"))
-  expect_equal(readLines(path_full),
-               gitignore_update_contents(character(), c("a", "b")))
+  expect_equal(
+    readLines(path_full),
+    gitignore_update_contents(character(), c("a", "b"), path, root))
 })
 
 
@@ -102,8 +121,9 @@ test_that("can update file with existing contents", {
 
   expect_true(gitignore_update_file(root, path, c("a", "b"), "never"))
   expect_false(gitignore_update_file(root, path, c("a", "b"), "never"))
-  expect_equal(readLines(path_full),
-               gitignore_update_contents(c("x", "y"), c("a", "b")))
+  expect_equal(
+    readLines(path_full),
+    gitignore_update_contents(c("x", "y"), c("a", "b"), path, root))
 })
 
 
@@ -136,7 +156,7 @@ test_that("can prompt to update when creating a new file", {
   mockery::expect_called(mock_prompt_update, 2)
   mockery::expect_called(mock_writelines, 4)
 
-  contents <- gitignore_update_contents(character(), c("x", "y"))
+  contents <- gitignore_update_contents(character(), c("x", "y"), path, root)
   expect_equal(mockery::mock_args(mock_prompt_update),
                rep(list(list(character(), contents, path, root)), 2))
   expect_equal(mockery::mock_args(mock_writelines),
@@ -174,7 +194,7 @@ test_that("can prompt to update when adding to a file without markers", {
   mockery::expect_called(mock_prompt_update, 2)
   mockery::expect_called(mock_writelines, 4)
 
-  contents <- gitignore_update_contents(c("a", "b"), c("x", "y"))
+  contents <- gitignore_update_contents(c("a", "b"), c("x", "y"), path, root)
   expect_equal(mockery::mock_args(mock_prompt_update),
                rep(list(list(c("a", "b"), contents, path, root)), 2))
   expect_equal(mockery::mock_args(mock_writelines),
@@ -193,7 +213,7 @@ test_that("can prompt to update when adding to a file with markers", {
   path_full <- withr::local_tempfile()
   root <- dirname(path_full)
   path <- basename(path_full)
-  old <- gitignore_update_contents(c("a", "b"), c("x1", "y1"))
+  old <- gitignore_update_contents(c("a", "b"), c("x1", "y1"), path, root)
   writeLines(old, path_full)
   new <- c("x2", "y", "z2")
 
@@ -213,7 +233,7 @@ test_that("can prompt to update when adding to a file with markers", {
   mockery::expect_called(mock_prompt_update, 1)
   mockery::expect_called(mock_writelines, 4)
 
-  contents <- gitignore_update_contents(old, new)
+  contents <- gitignore_update_contents(old, new, path, root)
   expect_equal(mockery::mock_args(mock_prompt_update),
                list(list(old, contents, path, root)))
   expect_equal(mockery::mock_args(mock_writelines),
@@ -274,7 +294,7 @@ test_that("can add a basic root gitignore", {
     "Wrote '.gitignore'")
   expect_equal(
     readLines(file.path(path, ".gitignore")),
-    gitignore_update_contents(character(), ignore))
+    gitignore_update_contents(character(), ignore, path, root))
 })
 
 
@@ -288,7 +308,7 @@ test_that("can add a source .gitignore", {
     "Wrote 'src/data/.gitignore'")
   expect_equal(
     readLines(file.path(path, "src", "data", ".gitignore")),
-    gitignore_update_contents(character(), ignore))
+    gitignore_update_contents(character(), ignore, path, root))
 })
 
 
