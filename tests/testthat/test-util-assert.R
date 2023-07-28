@@ -12,13 +12,6 @@ test_that("assert_character", {
 })
 
 
-test_that("assert_numeric", {
-  expect_silent(assert_numeric(1))
-  expect_error(assert_numeric("one"), "must be numeric")
-  expect_error(assert_numeric(TRUE), "must be numeric")
-})
-
-
 test_that("assert_logical", {
   expect_silent(assert_logical(TRUE))
   expect_error(assert_logical(1), "must be logical")
