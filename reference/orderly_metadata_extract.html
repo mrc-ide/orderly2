@@ -177,7 +177,22 @@ strings/character vector (can have zero, one or more elements).</p></li>
 (this is unstandardised, and even the orderly version may change)</p></li>
 <li><p>custom: additional metadata added by its respective engine.  For
 packets run by <code>orderly2</code>, there will be a <code>orderly</code> field here,
-which is itself a list (see below)</p></li>
+which is itself a list:</p><ul><li><p>artefacts: A <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> with artefact information, containing
+columns <code>description</code> (a string) and <code>paths</code> (a list column of paths).</p></li>
+<li><p>shared: A <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> of the copied shared resources with
+their original name (<code>there</code>) and name as copied into the packet
+(<code>here</code>).</p></li>
+<li><p>role: A <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> of identified roles of files, with columns <code>path</code>
+and <code>role</code>.</p></li>
+<li><p>description: A list of information from
+<a href="orderly_description.html">orderly_description</a> with human-readable descriptions and
+tags.</p></li>
+<li><p>session: A list of information about the session as run,
+with a list <code>platform</code> containing information about the platform
+(R version as <code>version</code>, operating system as <code>os</code> and system name
+as <code>system</code>) and <code>packages</code> containing columns <code>package</code> ,
+<code>version</code> and <code>attached</code>.</p></li>
+</ul></li>
 </ul><p>The nesting here makes providing a universally useful data format
 difficult; if considering files we have a <code>data.frame</code> with a
 <code>files</code> column, which is a list of <code>data.frame</code>s; similar
@@ -229,6 +244,11 @@ the hash information aligned.</p>
 <p>You can index fairly deeply; it should be possible to get the
 orderly "display name" with:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>extract <span class="ot">=</span> <span class="fu">c</span>(<span class="at">display =</span> <span class="st">"custom.orderly.description.display is string"</span>)</span></code></pre><p></p></div>
+<p>If the path you need to extract has a dot in it (most likely a
+package name for a plugin, such as <code>custom.orderly.db</code>) you need
+to escape the dot with a backslash (so, <code>custom.orderly\.db</code>). You
+will probably need two slashes or use a raw string (in recent
+versions of R).</p>
     </div>
     <div id="custom-orderly-metadata">
     <h2>Custom 'orderly' metadata</h2>
