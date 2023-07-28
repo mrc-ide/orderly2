@@ -327,3 +327,21 @@ test_that("sensible error if character vectors have inconsistent length", {
     extract_convert(c("a", "b"), value[1:2], c("x", "i"), "string", NULL),
     c("a", NA_character_))
 })
+
+
+test_that("can extract plugin metadata", {
+  path <- test_prepare_orderly_example("plugin")
+  env <- new.env()
+  set.seed(1)
+  ids <- vcapply(1:3, function(i) {
+    orderly_run("plugin", root = path, envir = env)
+  })
+  meta <- lapply(ids, orderly_metadata, root = path)
+
+  d <- orderly_metadata_extract(NULL, extract = "custom.example\\.random",
+                                  root = path)
+  expect_setequal(names(d), c("id", "custom_example.random"))
+  ## mrc-4437 - this will change later
+  expect_equal(d[["custom_example.random"]][[1]],
+               meta[[1]]$custom[["example.random"]])
+})

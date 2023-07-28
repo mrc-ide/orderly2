@@ -109,9 +109,6 @@
                 }
             },
             "required": ["platform", "packages"]
-        },
-
-        "plugins": {
         }
     },
     "additionalProperties": false,

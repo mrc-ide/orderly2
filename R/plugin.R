@@ -183,8 +183,7 @@ orderly_plugin_add_metadata <- function(name, field, data) {
   p <- get_active_packet()
   if (!is.null(p)) {
     check_plugin_enabled(name, p$orderly2$config)
-    p$orderly2$plugins[[name]][[field]] <-
-      c(p$orderly2$plugins[[name]][[field]], list(data))
+    p$plugins[[name]][[field]] <- c(p$plugins[[name]][[field]], list(data))
   }
 }
 

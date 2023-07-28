@@ -174,6 +174,9 @@ outpack_metadata_load <- function(json) {
   if (!is.null(data$git)) {
     data$git$url <- list_to_character(data$git$url)
   }
+  if (!is.null(data$custom$orderly)) {
+    data$custom$orderly <- custom_metadata_deserialise(data$custom$orderly)
+  }
 
   data
 }
@@ -206,4 +209,22 @@ get_metadata_hash <- function(packet_id, root) {
   hash <- index$hash[i]
   stopifnot(length(hash) == 1)
   hash
+}
+
+
+## see run.R for the inverse of this
+custom_metadata_deserialise <- function(data) {
+  data$artefacts <- data_frame(
+    description = vcapply(data$artefacts, "[[", "description"),
+    paths = I(lapply(data$artefacts, "[[", "paths")))
+  data$role <- data_frame(
+    path = vcapply(data$role, "[[", "path"),
+    role = vcapply(data$role, "[[", "role"))
+  data$shared <- data_frame(here = vcapply(data$shared, "[[", "here"),
+                            there = vcapply(data$shared, "[[", "there"))
+  data$session$packages <- data_frame(
+    package = vcapply(data$session$packages, "[[", "package"),
+    version = numeric_version(vcapply(data$session$packages, "[[", "version")),
+    attached = vlapply(data$session$packages, "[[", "attached"))
+  data
 }

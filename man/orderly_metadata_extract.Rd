@@ -104,7 +104,24 @@ strings/character vector (can have zero, one or more elements).
 (this is unstandardised, and even the orderly version may change)
 \item custom: additional metadata added by its respective engine.  For
 packets run by \code{orderly2}, there will be a \code{orderly} field here,
-which is itself a list (see below)
+which is itself a list:
+\itemize{
+\item artefacts: A \link{data.frame} with artefact information, containing
+columns \code{description} (a string) and \code{paths} (a list column of paths).
+\item shared: A \link{data.frame} of the copied shared resources with
+their original name (\code{there}) and name as copied into the packet
+(\code{here}).
+\item role: A \link{data.frame} of identified roles of files, with columns \code{path}
+and \code{role}.
+\item description: A list of information from
+\link{orderly_description} with human-readable descriptions and
+tags.
+\item session: A list of information about the session as run,
+with a list \code{platform} containing information about the platform
+(R version as \code{version}, operating system as \code{os} and system name
+as \code{system}) and \code{packages} containing columns \code{package} ,
+\code{version} and \code{attached}.
+}
 }
 
 The nesting here makes providing a universally useful data format
@@ -183,6 +200,12 @@ orderly "display name" with:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{extract = c(display = "custom.orderly.description.display is string")
 }\if{html}{\out{</div>}}
+
+If the path you need to extract has a dot in it (most likely a
+package name for a plugin, such as \code{custom.orderly.db}) you need
+to escape the dot with a backslash (so, \verb{custom.orderly\\.db}). You
+will probably need two slashes or use a raw string (in recent
+versions of R).
 }
 \section{Custom 'orderly' metadata}{
 
