@@ -96,6 +96,8 @@ orderly_location_add <- function(name, type, args, priority = 0, root = NULL,
     ## providing the user with anything actionable yet.
     assert_scalar_character(loc$args[[1]]$path, name = "args$path")
     root_open(loc$args[[1]]$path, locate = FALSE, require_orderly = FALSE)
+  } else if (type == "http") {
+    assert_scalar_character(loc$args[[1]]$url, name = "args$url")
   }
 
   config <- root$config

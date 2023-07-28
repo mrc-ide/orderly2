@@ -84,7 +84,7 @@ describe("http location integration tests", {
     expect_identical(hash_file(res), hash)
   })
 
-  test_that("sensible error if file not found in store", {
+  it("throws sensible error if file not found in store", {
     loc <- orderly_location_http$new(url)
     h <- "md5:c7be9a2c3cd8f71210d9097e128da316"
     dest <- temp_file()
@@ -92,5 +92,62 @@ describe("http location integration tests", {
       loc$fetch_file(h, dest),
       "Hash 'md5:c7be9a2c3cd8f71210d9097e128da316' not found at location")
     expect_false(file.exists(dest))
+  })
+
+  it("can push into server", {
+    skip_on_os("windows") # mrc-4442
+    root_downstream <- create_temporary_root(use_file_store = TRUE)
+    ids_downstream <- create_random_packet_chain(root_downstream, 3)
+    orderly_location_add("upstream", "http", list(url = url),
+                         root = root_downstream)
+    plan <- orderly_location_push(ids_downstream[[3]], "upstream",
+                                  root = root_downstream)
+    expect_setequal(plan$packet_id, ids_downstream)
+    idx <- root$index()
+    expect_true(all(ids_downstream %in% names(idx$metadata)))
+    expect_true(all(root_downstream$files$list() %in% root$files$list()))
+  })
+
+  it("throws sensible error if metadata hash does not match expected", {
+    root_tmp <- create_temporary_root(use_file_store = TRUE)
+    id_tmp <- create_random_packet(root_tmp)
+
+    hash_bad <- hash_data("", "sha256")
+    meta <- read_string(
+      file.path(root_tmp$path, ".outpack", "metadata", id_tmp))
+
+    ## Trigger the error directly:
+    cl <- outpack_http_client$new(url)
+    err <- expect_error(cl$post(sprintf("/packet/%s", hash_bad), meta,
+                                httr::content_type("text/plain")),
+                        "Hash of packet does not match")
+
+    ## Then on the method, should return same error here:
+    loc <- orderly_location_http$new(url)
+    mock_get_metadata_hash <- mockery::mock(hash_bad)
+    mockery::stub(loc$push_metadata, "get_metadata_hash",
+                  mock_get_metadata_hash)
+    expect_error(loc$push_metadata(id_tmp, root_tmp),
+                 err$message,
+                 fixed = TRUE)
+  })
+
+  it("throws sensible error if file hash does not match expected", {
+    skip_on_os("windows") # mrc-4442
+    loc <- orderly_location_http$new(url)
+
+    tmp <- withr::local_tempfile()
+    writeLines("correct", tmp)
+    hash_correct <- hash_file(tmp, "sha256")
+    writeLines("corrupt", tmp)
+    hash_corrupt <- hash_file(tmp, "sha256")
+
+    ## This error back is not incredible, as it's not clear what is
+    ## expected, but that's something we can imporove on the rust
+    ## front. This should never get surfaced to the user though.
+    expect_error(
+      loc$push_file(tmp, hash_correct),
+      sprintf("Hash %s does not match file contents. Expected %s",
+              hash_correct, hash_corrupt))
   })
 })

@@ -52,5 +52,34 @@ orderly_location_http <- R6::R6Class(
           }
           stop(e)
         })
+    },
+
+    list_unknown_packets = function(ids) {
+      body <- to_json(list(ids = ids, unpacked = scalar(TRUE)), NULL)
+      content <- httr::content_type("application/json")
+      res <- private$client$post("/packets/missing", body, content)
+      list_to_character(res$data)
+    },
+
+    list_unknown_files = function(hashes) {
+      body <- to_json(list(hashes = hashes), NULL)
+      res <- private$client$post("/files/missing", body,
+                                 httr::content_type("application/json"))
+      list_to_character(res$data)
+    },
+
+    push_file = function(src, hash) {
+      body <- httr::upload_file(src, "application/octet-stream")
+      res <- private$client$post(sprintf("/file/%s", hash), body)
+      invisible(NULL)
+    },
+
+    push_metadata = function(packet_id, root) {
+      hash <- get_metadata_hash(packet_id, root)
+      path <- file.path(root$path, ".outpack", "metadata", packet_id)
+      meta <- read_string(path)
+      res <- private$client$post(sprintf("/packet/%s", hash), meta,
+                                 httr::content_type("text/plain"))
+      invisible(NULL)
     }
   ))

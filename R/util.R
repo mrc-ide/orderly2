@@ -228,9 +228,10 @@ system_file <- function(...) {
 
 
 ## Designed for use reading json files as a single string and dropping
-## and trailing whitespace
+## and trailing whitespace. The warn = FALSE arg prevents an annoying
+## warning about a lack of a trailing newline.
 read_string <- function(path) {
-  trimws(paste(readLines(path), collapse = "\n"))
+  trimws(paste(readLines(path, warn = FALSE), collapse = "\n"))
 }
 
 

@@ -14,6 +14,10 @@ outpack_http_client <- R6::R6Class(
 
     get = function(path, ...) {
       http_client_request(httr::GET, self$url, path, ...)
+    },
+
+    post = function(path, body, ...) {
+      http_client_request(httr::POST, self$url, path, body = body, ...)
     }
   ))
 
