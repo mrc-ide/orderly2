@@ -21,6 +21,9 @@ plain_output <- function(x) lang_output(x, "plain")
 orderly_file <- function(...) {
   system.file(..., package = "orderly2", mustWork = TRUE)
 }
+
+knitr::opts_chunk$set(
+  collapse = TRUE)
 ```
 
 This vignette provides a how-to style introduction to `orderly2`, an overview of key ingredients to writing orderly reports, and a summary of key features and ideas. It may be useful to look at `vignette("orderly2")` for a more roundabout discussion of what `orderly2` is trying to achieve, or `vignette("migrating")` if you are familiar with version 1 of orderly as this explains concepts in terms of differences from the previous version.
@@ -394,9 +397,4 @@ The files under `.outpack/files/` should never be modified or deleted. This appr
 
 # Relationship between `orderly` and `outpack`
 
-The `orderly2` package is built on a metadata and file storage system called `outpack`. There are two function prefixes present in the package (this may change if we feel that this causes more surprise than ideal);
-
-* `orderly_*` these functions do orderly-specific things. They are used to create (or in the creation of) a new orderly-based packet.
-* `outpack_*` these functions interact with a store of packets, regardless of how they were generated. Some of these provide the low-level support on which `orderly2` is built.
-
-See `vignette("outpack")` for information about the ideas in outpack.
+The `orderly2` package is built on a metadata and file storage system called `outpack`; we will be implementing support for working with these metadata archives in other languages (see [`outpack_server`](https://github.com/mrc-ide/outpack_server) for our server implementation in Rust and [`outpack-py`](https://github.com/mrc-ide/outpack-py) in Python).  The metadata is discussed in more detail in `vignette("metadata")` and we will document the general ideas more fully at [`mrc-ide/outpack`](https://github.com/mrc-ide/outpack)

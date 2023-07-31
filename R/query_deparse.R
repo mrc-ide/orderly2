@@ -16,17 +16,17 @@
 #'   the environment has gone.
 #'
 #' @return Query expression as a string
-#' @export
+#' @noRd
 #'
 #' @examples
-#' orderly2::orderly_query_format(quote(name == "example"))
-#' orderly2::orderly_query_format(
+#' orderly_query_format(quote(name == "example"))
+#' orderly_query_format(
 #'   quote(usedby({A})),
 #'   subquery = list(A = quote(latest(name == "a"))))
 #'
-#' orderly2::orderly_query_format(
+#' orderly_query_format(
 #'   quote(parameter:x == environment:x))
-#' orderly2::orderly_query_format(
+#' orderly_query_format(
 #'   quote(parameter:x == environment:x), envir = list2env(list(x = 1)))
 #'
 #' format(orderly2::orderly_query("latest", name = "a"))

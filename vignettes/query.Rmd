@@ -7,6 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r}
+knitr::opts_chunk$set(
+  collapse = TRUE)
+```
+
 Orderly includes a query DSL (domain specific language), extending the one used by version 1 of orderly (see [`orderly1::orderly_search()`](https://www.vaccineimpact.org/orderly/reference/orderly_search.html)).
 
 Queries are used in identifying ids to pull in as dependencies, so rather than providing an identifier, you might want to depend on

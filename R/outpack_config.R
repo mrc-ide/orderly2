@@ -80,7 +80,7 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
 ##'   - `use_file_store`: Indicates if a content-addressable file store
 ##'     is enabled (`core.use_file_store`)
 ##'   - `require_complete_tree`: Indicates if this outpack store requires
-##'     all dependenies to be fully available (`core.require_complete_tree`)
+##'     all dependencies to be fully available (`core.require_complete_tree`)
 ##'   - `hash_algorithm`: The hash algorithm used (currently not modifiable)
 ##'
 ##' * `logging`: Control over logging

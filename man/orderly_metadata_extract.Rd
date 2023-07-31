@@ -174,7 +174,7 @@ is non-integer, your call to \code{orderly_metadata_extract} will fail
 with an error, and if a packet lacks a value of \code{x}, a missing
 value of the appropriate type will be added.
 
-Note that this does not do any coersion to number, it will error
+Note that this does not do any coercion to number, it will error
 if a non-NULL non-numeric value is found.  Valid types for use
 with \verb{is <type>} are \code{boolean}, \code{number} and \code{string} (note that
 these differ slightly from R's names because we want to emphasise

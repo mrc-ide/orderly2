@@ -30,7 +30,7 @@ or \code{NULL} if disabled (set in \link{orderly_config_set} as
 \item \code{use_file_store}: Indicates if a content-addressable file store
 is enabled (\code{core.use_file_store})
 \item \code{require_complete_tree}: Indicates if this outpack store requires
-all dependenies to be fully available (\code{core.require_complete_tree})
+all dependencies to be fully available (\code{core.require_complete_tree})
 \item \code{hash_algorithm}: The hash algorithm used (currently not modifiable)
 }
 \item \code{logging}: Control over logging

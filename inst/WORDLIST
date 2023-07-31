@@ -1,3 +1,6 @@
+AWS
+CodeFactor
+DateTimeClasses
 Dockerfiles
 HPC
 IDEs
@@ -6,17 +9,24 @@ OOP
 OrderlyWeb
 R's
 Rstudio's
+SQLite
+SharePoint
+WIP
 YAML
 arg
+backends
 booleans
 cleanup
 codecov
 com
 composable
 csv
+db
 deduplicates
 deparseable
+deserialise
 deserialised
+deserialises
 deserialising
 etc
 github
@@ -29,6 +39,7 @@ jsonvalidate
 knitr
 md
 mrc
+nestedness
 nextflow
 orderly's
 outpack
@@ -37,6 +48,8 @@ packit
 parameterised
 plugin's
 plugins
+rOpenSci
+ropensci
 sha
 sortability
 src
@@ -44,3 +57,5 @@ standalone
 stderr
 stdout
 toJSON's
+yaml
+yml

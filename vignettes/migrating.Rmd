@@ -88,7 +88,7 @@ This takes control of all the metadata. As such there is a split between "`order
 
 ## Other, smaller changes
 
-**"Global" resouces have become "shared" resources**, and always live in `shared/` at the orderly root (i.e., this is no longer configurable). The reason for this is that we want reports to be able to be run fairly independently of the `orderly2` configuration (the only exception to this are plugins). In practice people did not really vary this.
+**"Global" resources have become "shared" resources**, and always live in `shared/` at the orderly root (i.e., this is no longer configurable). The reason for this is that we want reports to be able to be run fairly independently of the `orderly2` configuration (the only exception to this are plugins). In practice people did not really vary this.
 
 # What is missing compared with `orderly1`
 
