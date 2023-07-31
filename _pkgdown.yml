@@ -1,0 +1,78 @@
+url: https://mrc-ide.github.io/orderly2
+
+template:
+  bootstrap: 5
+
+articles:
+  - title: Introduction
+    navbar: Introduction
+    contents:
+      - orderly2
+      - introduction
+
+  - title: Advanced topics
+    navbar: Advanced topics
+    contents:
+      - migrating
+      - metadata
+      - query
+      - plugins
+
+reference:
+  - title: Run a report
+    contents:
+      - orderly_run
+      - orderly_list_src
+  - title: From within a running report
+    desc: >-
+      These are the functions that get called from your `orderly.R` file
+    contents:
+      - orderly_strict_mode
+      - orderly_parameters
+      - orderly_description
+      - orderly_resource
+      - orderly_shared_resource
+      - orderly_dependency
+      - orderly_artefact
+      - orderly_run_info
+  - title: Read packet metadata
+    contents:
+      - orderly_metadata
+      - orderly_metadata_read
+      - orderly_metadata_extract
+      - orderly_log_read
+  - title: Search
+    contents:
+      - orderly_query
+      - orderly_search_options
+      - orderly_search
+  - title: Initialise and configure
+    contents:
+      - orderly_init
+      - orderly_config
+      - orderly_config_set
+  - title: Interact with locations
+  - subtitle: Use locations
+    contents:
+      - orderly_location_pull_metadata
+      - orderly_location_pull_packet
+      - orderly_location_push
+  - subtitle: Manage locations
+    contents:
+      - orderly_location_add
+      - orderly_location_list
+      - orderly_location_remove
+      - orderly_location_rename
+  - title: Help for developing
+    contents:
+      - orderly_cleanup
+      - orderly_cleanup_status
+      - orderly_interactive_set_search_options
+  - title: Create plugins
+    contents:
+      - orderly_plugin_add_metadata
+      - orderly_plugin_context
+      - orderly_plugin_register
+  - title: Everything else
+    contents:
+      - orderly_copy_files

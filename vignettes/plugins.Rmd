@@ -1,8 +1,8 @@
 ---
-title: "Orderly plugins"
+title: "Creating plugins"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Orderly plugins}
+  %\VignetteIndexEntry{Creating plugins}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,6 +16,7 @@ json_output <- function(x) lang_output(x, "json")
 yaml_output <- function(x) lang_output(x, "yaml")
 plain_output <- function(x) lang_output(x, "plain")
 knitr::opts_chunk$set(
+  collapse = TRUE,
   error = FALSE)
 ```
 
@@ -35,7 +36,7 @@ To use a plugin for an individual report, functions from the plugin should be us
 
 Finally, we can save information back into the final `orderly2` metadata about what the plugin did.
 
-With the yaml-less design of `orderly2` (see `vignette("migrating")` if you are familar with `orderly1`), the line between a plugin and just package code is fairly blurred, but reasons for writing a plugin are typically that you want to make something easier in reports, and you want that action reflected in the orderly metadata.
+With the yaml-less design of `orderly2` (see `vignette("migrating")` if you are familiar with `orderly1`), the line between a plugin and just package code is fairly blurred, but reasons for writing a plugin are typically that you want to make something easier in reports, and you want that action reflected in the orderly metadata.
 
 ## An example
 
@@ -185,7 +186,7 @@ query <- function(sql, as) {
 
 The arguments here are whatever you want the user to provide -- nothing here is special to `orderly2`. The important function here to call is `orderly2::orderly_plugin_context` which returns information that you can use to make the plugin work. This is explained in `?orderly2::orderly_plugin_context`, but in this example we use two elements:
 
-* `config`: the configuration fo this plugin (i.e., the return value from our function `db_config`)
+* `config`: the configuration for this plugin (i.e., the return value from our function `db_config`)
 * `envir`: the (R) environment that the current packet is using
 
 We modify the packet environment by writing to `ctx$envir`. Finally, we return metadata to save into the final packet metadata, but here we return `NULL`, so this is always empty.  Later, we'll show why and how to change this.

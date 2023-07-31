@@ -11,6 +11,9 @@ roxygen:
 	@mkdir -p man
 	${RSCRIPT} -e "devtools::document()"
 
+pkgdown:
+	${RSCRIPT} -e "pkgdown::build_site()"
+
 install:
 	R CMD INSTALL .
 
