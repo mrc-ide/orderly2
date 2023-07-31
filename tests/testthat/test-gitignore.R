@@ -258,6 +258,7 @@ test_that("prompting does not make changes to a file if not change requested", {
 
 test_that("prompting shows difference and asks user for input", {
   skip_if_not_installed("mockery")
+  rlang::local_interactive(TRUE)
   mock_ask <- mockery::mock(TRUE, FALSE)
   mockery::stub(prompt_update, "prompt_ask_yes_no", mock_ask)
   old <- c("a", "b", "c", "d")
@@ -282,6 +283,33 @@ test_that("prompting shows difference and asks user for input", {
   mockery::expect_called(mock_ask, 2)
   expect_equal(mockery::mock_args(mock_ask),
                rep(list(list("OK to apply these changes?")), 2))
+})
+
+
+test_that("prompt_update assumes no when running non-interactively", {
+  skip_if_not_installed("mockery")
+  rlang::local_interactive(FALSE)
+  mock_ask <- mockery::mock(FALSE)
+  mockery::stub(prompt_update, "prompt_ask_yes_no", mock_ask)
+
+  old <- c("a", "b", "c", "d")
+  new <- c("b", "x", "c", "d", "y")
+  path <- "path.txt"
+  root <- "/path/to/root"
+  res <- testthat::evaluate_promise(prompt_update(old, new, path, root))
+
+  expect_equal(res$result, FALSE)
+  expect_match(res$messages[[1]],
+               "I am going to make changes to the file 'path.txt'\n$")
+  expect_match(res$messages[[2]],
+               "\\(within orderly root '/path/to/root'\\)\n$")
+  expect_match(res$messages[[3]],
+               "Proposed changes:\n$")
+  expect_match(res$messages[[4]], "-a\n")
+  expect_equal(res$messages[[5]], "! Non-interactive session, assuming no\n")
+  expect_equal(res$messages[[6]], "Not making any changes to the file\n")
+
+  mockery::expect_called(mock_ask, 0)
 })
 
 

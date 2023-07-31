@@ -30,8 +30,9 @@
 ##'   string "(root)"
 ##'
 ##' @param prompt Conditions under which you will be prompted before
-##'   writing anything to a file (in a non-interactive session, we
-##'   error instead). Options here are
+##'   writing anything to `.gitignore` (in a non-interactive session,
+##'   if we need to prompt, assume the response was "no" instead).
+##'   Options here are:
 ##'
 ##'   * `if_manually_created`": (the default), which prompts if a
 ##'     .gitignore file exists with content that does not include
@@ -48,6 +49,9 @@ orderly_gitignore_update <- function(name, prompt = "if_manually_created",
                                      root = NULL, locate = TRUE) {
   root <- root_open(root, locate, require_orderly = TRUE, call = environment())
   assert_scalar_character(name)
+  match_value(prompt,
+              c("if_manually_created", "if_new_file", "always", "never"))
+
   if (name == "(root)") {
     path <- ".gitignore"
     value <- gitignore_content_root(root)
@@ -57,9 +61,8 @@ orderly_gitignore_update <- function(name, prompt = "if_manually_created",
     value <- gitignore_content_src(name, root)
   }
 
-  ## TODO: this should also check that things are not added to git and
-  ## point at advice for fixing this, but that might also be best
-  ## elsewhere...
+  ## TODO (mrc-4447): check that none of these are _already_ in git,
+  ## and offer help towards fixing this.
 
   if (gitignore_update_file(root$path, path, value, prompt)) {
     cli::cli_alert_success("Wrote '{path}'")
@@ -137,15 +140,14 @@ gitignore_update_file <- function(root, path, value, prompt) {
     return(FALSE)
   }
 
+  manually_created <- gitignore_exists &&
+    !any(gitignore_markers %in% content_old)
   prompt <- switch(
     prompt,
-    if_manually_created = gitignore_exists &&
-      !any(gitignore_markers %in% content_old),
+    if_manually_created = manually_created,
     if_new_file = !gitignore_exists,
-    always = TRUE,
     never = FALSE,
-    stop("Invalid value for 'prompt'"))
-
+    TRUE) # prompt here is always, but ensure exhaustive match
   if (prompt && !prompt_update(content_old, content_new, path, root)) {
     return(FALSE)
   }
@@ -161,7 +163,12 @@ prompt_update <- function(old, new, path, root) {
   cli::cli_alert_info("Proposed changes:")
   str <- suppressWarnings(format(cli::diff_chr(old, new)))
   message(paste0(str, "\n", collapse = ""))
-  continue <- prompt_ask_yes_no("OK to apply these changes?")
+  if (rlang::is_interactive()) {
+    continue <- prompt_ask_yes_no("OK to apply these changes?")
+  } else {
+    cli::cli_alert_warning("Non-interactive session, assuming no")
+    continue <- FALSE
+  }
   if (!continue) {
     message("Not making any changes to the file")
   }

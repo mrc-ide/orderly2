@@ -16,8 +16,9 @@ orderly_gitignore_update(
 string "(root)"}
 
 \item{prompt}{Conditions under which you will be prompted before
-writing anything to a file (in a non-interactive session, we
-error instead). Options here are
+writing anything to \code{.gitignore} (in a non-interactive session,
+if we need to prompt, assume the response was "no" instead).
+Options here are:
 \itemize{
 \item \code{if_manually_created}": (the default), which prompts if a
 .gitignore file exists with content that does not include
