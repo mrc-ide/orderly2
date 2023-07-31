@@ -159,7 +159,7 @@ test_that("can prompt to update when creating a new file", {
   contents <- gitignore_update_contents(character(), c("x", "y"), path, root)
   expect_equal(mockery::mock_args(mock_prompt_update),
                rep(list(list(character(), contents, path, root)), 2))
-  testthat::skip_on_windows() # normalisation here is hard
+  testthat::skip_on_os("windows") # normalisation here is hard
   expect_equal(mockery::mock_args(mock_writelines),
                rep(list(list(contents, path_full)), 4))
 })
