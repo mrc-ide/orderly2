@@ -161,7 +161,7 @@ helper_add_git <- function(path) {
   branch <- gert::git_branch(repo = path)
   url <- "https://example.com/git"
   gert::git_remote_add(url, repo = path)
-  list(user = user, url = url)
+  list(user = user, branch = branch, sha = sha, url = url)
 }
 
 
@@ -174,6 +174,13 @@ outpack_init_no_orderly <- function(...) {
 }
 
 
-outpack_packet_run <- function(...) {
-  testthat::skip("implement me")
+outpack_packet_run <- function(packet, script, envir = NULL) {
+  if (is.null(envir)) {
+    envir <- new.env(parent = .GlobalEnv)
+  }
+  packet <- check_current_packet(packet)
+  assert_relative_path(script, no_dots = TRUE)
+  assert_file_exists(script, workdir = packet$path, name = "Script")
+  withr::with_dir(packet$path,
+                  source_echo(script, envir = envir, echo = FALSE))
 }

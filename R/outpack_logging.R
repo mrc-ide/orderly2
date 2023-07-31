@@ -110,12 +110,6 @@ outpack_packet_logger <- function(path, root, console, threshold) {
 
 
 log_console <- function(topic, detail, caller, log_level) {
-  ## Filter out some log types; these will never want echoing to the
-  ## console via this function and I imagine that this list will
-  ## grow...
-  if (caller == "orderly2::outpack_packet_run" && topic == "output") {
-    return()
-  }
   if (length(detail) > 1) {
     topic <- c(topic, rep_len("...", length(detail) - 1))
   }

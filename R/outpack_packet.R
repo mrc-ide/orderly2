@@ -1,7 +1,6 @@
 ##' Start a packet build (`outpack_packet_start`), end one
 ##' (`outpack_packet_cancel`, `outpack_packet_end`) and interact with
-##' one (`outpack_packet_use_dependency`,
-##' `outpack_packet_run`)
+##' one (`outpack_packet_use_dependency`).
 ##'
 ##' @title Start, interact with, and end a packet build
 ##'
