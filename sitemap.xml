@@ -1,144 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/404.html</loc>
   </url>
   <url>
-    <loc>/LICENSE-text.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/introduction.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/articles/introduction.html</loc>
   </url>
   <url>
-    <loc>/articles/metadata.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/articles/metadata.html</loc>
   </url>
   <url>
-    <loc>/articles/migrating.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/articles/migrating.html</loc>
   </url>
   <url>
-    <loc>/articles/orderly2.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/articles/orderly2.html</loc>
   </url>
   <url>
-    <loc>/articles/plugins.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/articles/plugins.html</loc>
   </url>
   <url>
-    <loc>/articles/query.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/articles/query.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/index.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_artefact.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_artefact.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_cleanup.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_cleanup.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_config.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_config.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_config_set.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_config_set.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_copy_files.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_copy_files.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_dependency.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_dependency.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_description.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_description.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_init.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_init.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_interactive_set_search_options.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_interactive_set_search_options.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_list_src.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_list_src.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_location_add.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_location_add.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_location_list.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_location_list.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_location_pull_metadata.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_location_pull_metadata.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_location_pull_packet.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_location_pull_packet.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_location_push.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_location_push.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_location_remove.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_location_remove.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_location_rename.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_location_rename.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_log_read.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_log_read.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_metadata.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_metadata.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_metadata_extract.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_metadata_extract.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_metadata_read.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_metadata_read.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_parameters.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_parameters.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_plugin_add_metadata.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_plugin_add_metadata.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_plugin_context.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_plugin_context.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_plugin_register.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_plugin_register.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_query.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_query.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_query_format.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_resource.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_resource.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_run.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_run.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_run_info.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_run_info.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_search.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_search.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_search_options.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_search_options.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_shared_resource.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_shared_resource.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/orderly_strict_mode.html</loc>
   </url>
   <url>
-    <loc>/reference/orderly_strict_mode.html</loc>
-  </url>
-  <url>
-    <loc>/reference/query_index.html</loc>
+    <loc>https://mrc-ide.github.io/orderly2/reference/query_index.html</loc>
   </url>
 </urlset>
