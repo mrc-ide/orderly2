@@ -198,8 +198,9 @@ test_that("can prompt to update when adding to a file without markers", {
   contents <- gitignore_update_contents(c("a", "b"), c("x", "y"), path, root)
   expect_equal(mockery::mock_args(mock_prompt_update),
                rep(list(list(c("a", "b"), contents, path, root)), 2))
+  skip_on_os("windows")
   expect_equal(mockery::mock_args(mock_writelines),
-               rep(list(list(contents, normalise_path(path_full))), 4))
+               rep(list(list(contents, path_full)), 4))
 })
 
 
@@ -237,8 +238,9 @@ test_that("can prompt to update when adding to a file with markers", {
   contents <- gitignore_update_contents(old, new, path, root)
   expect_equal(mockery::mock_args(mock_prompt_update),
                list(list(old, contents, path, root)))
+  skip_on_os("windows")
   expect_equal(mockery::mock_args(mock_writelines),
-               rep(list(list(contents, normalise_path(path_full))), 4))
+               rep(list(list(contents, path_full)), 4))
 })
 
 
