@@ -416,7 +416,7 @@ test_that("detect and avoid modified files in source repository", {
   ## Corrupt the file in the first id by truncating it:
   file.create(file.path(root$src$path, "archive", "data", id[[1]], "a.rds"))
   expect_message(
-    orderly_location_pull_packet(id[[1]], "src", root = root$dst),
+    orderly_location_pull_packet(id[[1]], root = root$dst),
     sprintf("Rejecting file 'a.rds' in 'data/%s'", id[[1]]))
 
   expect_equal(
@@ -438,10 +438,10 @@ test_that("Do not unpack a packet twice", {
   orderly_location_add("src", "path", list(path = root$src$path),
                        root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
-  orderly_location_pull_packet(id, "src", root = root$dst)
+  orderly_location_pull_packet(id, root = root$dst)
 
   expect_equal(
-    orderly_location_pull_packet(id, "src", root = root$dst),
+    orderly_location_pull_packet(id, root = root$dst),
     character(0))
 })
 
@@ -456,7 +456,7 @@ test_that("Sensible error if packet not known", {
   orderly_location_add("src", "path", list(path = root$src$path),
                        root = root$dst)
   expect_error(
-    orderly_location_pull_packet(id, "src", root = root$dst),
+    orderly_location_pull_packet(id, root = root$dst),
     "Failed to find packet at location 'src': '.+'")
 })
 
@@ -495,8 +495,7 @@ test_that("Can pull a tree recursively", {
                        root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   expect_equal(
-    orderly_location_pull_packet(id$c, "src", recursive = TRUE,
-                                 root = root$dst),
+    orderly_location_pull_packet(id$c, recursive = TRUE, root = root$dst),
     c(id$a, id$b, id$c))
 
   index <- root$dst$index()
@@ -504,8 +503,7 @@ test_that("Can pull a tree recursively", {
                root$src$index()$unpacked)
 
   expect_equal(
-    orderly_location_pull_packet(id$c, "src", recursive = TRUE,
-                                 root = root$dst),
+    orderly_location_pull_packet(id$c, recursive = TRUE, root = root$dst),
     character(0))
 })
 

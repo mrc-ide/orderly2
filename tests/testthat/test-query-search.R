@@ -278,7 +278,7 @@ test_that("scope and allow_local can be used together to filter query", {
     NA_character_)
 
   for (i in c(x1, y1)) {
-    orderly_location_pull_packet(i, location = "src", root = root$dst)
+    orderly_location_pull_packet(i, root = root$dst)
   }
 
   expect_equal(

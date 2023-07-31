@@ -294,7 +294,7 @@ test_that("Can add additional data", {
   outpack_packet_add_custom(p, "potato", custom)
   outpack_packet_end(p)
 
-  meta <- outpack_metadata(p$id, root = root)
+  meta <- orderly_metadata(p$id, root = root)
   expect_equal(meta$custom, list(potato = list(a = 1, b = 2)))
 })
 

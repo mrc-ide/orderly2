@@ -235,9 +235,10 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 }
 
 
-##' Pull a packet (all files) from a location into this archive. This
-##' will make files available for use as dependencies (e.g., with
-##' [orderly2::orderly_dependency])
+##' Pull one or more packets (including all their files) into this
+##' archive from one or more of your locations. This will make files
+##' available for use as dependencies (e.g., with
+##' [orderly2::orderly_dependency]).
 ##'
 ##' The behaviour of this function will vary depending on whether or
 ##' not the destination outpack repository (i.e., `root`) uses a file
@@ -250,12 +251,17 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##'
 ##' @title Pull a single packet from a location
 ##'
-##' @param id The id of the packet(s) to pull
+##' @param ... Arguments passed through to
+##'   [orderly2::orderly_search]. In the special case where the first
+##'   argument is a character vector of ids *and* there are no named
+##'   dot arguments, then we interpret this argument as a vector of
+##'   ids directly. Be careful here, your query may pull a lot of data
+##'   - in particular, passing `NULL` will match everything that every
+##'   remote has!
 ##'
-##' @param location Control the location that the packet can be pulled
-##'   from.  The default (`NULL`) will try and pull the packet from
-##'   anywhere it can be found.  Provide a string or character vector
-##'   to limit the search to a particular location or locations.
+##' @param search_options Options passed to
+##'   [orderly2::orderly_search]. Only the `location` option here is
+##'   preseved, as `allow_remote` must be `TRUE`
 ##'
 ##' @param recursive If non-NULL, a logical, indicating if we should
 ##'   recursively pull all packets that are referenced by the packets
@@ -267,11 +273,29 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##'
 ##' @return Invisibly, the ids of packets that were pulled
 ##' @export
-orderly_location_pull_packet <- function(id, location = NULL, recursive = NULL,
+orderly_location_pull_packet <- function(..., recursive = NULL,
                                          root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  assert_character(id)
+  if (dots_is_literal_id(...)) {
+    ids <- ..1
+    options <- orderly_search_options(allow_remote = TRUE)
+  } else {
+    options <- list(...)$options
+    if (is.null(options)) {
+      options <- orderly_search_options(allow_remote = TRUE)
+    } else if (!options$allow_remote) {
+      ## we can't easily modify this arg in place, though with rlang
+      ## this might be possible - see examples in
+      ## https://rlang.r-lib.org/reference/list2.html, and in
+      ## particular the '!!!' splicing operator.
+      cli::cli_abort(
+        "If specifying 'options' in '...', 'allow_remote' must be TRUE",
+        i = "If FALSE, then we can't find a packet you don't already have :)")
+    }
+    ids <- orderly_search(..., options = options, root = root)
+  }
+
   index <- root$index()
 
   recursive <- recursive %||% root$config$core$require_complete_tree
@@ -281,20 +305,28 @@ orderly_location_pull_packet <- function(id, location = NULL, recursive = NULL,
   }
 
   if (recursive) {
-    id <- find_all_dependencies(id, index$metadata)
+    ids <- find_all_dependencies(ids, index$metadata)
   }
 
   ## Later, it might be better if we did not skip over unpacked
   ## packets, but instead validate and/or repair them (see mrc-3052)
-  id <- setdiff(id, index$unpacked)
-  if (length(id) == 0) {
-    return(id)
+  ids <- setdiff(ids, index$unpacked)
+  if (length(ids) == 0) {
+    return(invisible(ids))
   }
 
-  location_id <- location_resolve_valid(location, root,
+  ## I think that this whole section here could be simplified a lot,
+  ## because we just need to get the full list of files over the
+  ## packets; i.e., the reverse situation of the push logic; do that
+  ## in a separate PR.
+  ##
+  ## We could come up with a few heuristics about where to get files
+  ## from - see plan_copy_files too for another shot at this that can
+  ## then be tidied up.
+  location_id <- location_resolve_valid(options$locations, root,
                                         include_local = FALSE,
                                         allow_no_locations = FALSE)
-  plan <- location_build_pull_plan(id, location_id, root)
+  plan <- location_build_pull_plan(ids, location_id, root)
   local_id <- local_location_id(root)
 
   ## At this point we should really be providing logging about how
@@ -326,7 +358,7 @@ orderly_location_pull_packet <- function(id, location = NULL, recursive = NULL,
     mark_packet_known(plan$packet[i], local_id, hash, Sys.time(), root)
   }
 
-  invisible(id)
+  invisible(ids)
 }
 
 
