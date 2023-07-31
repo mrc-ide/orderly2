@@ -273,27 +273,20 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##'
 ##' @return Invisibly, the ids of packets that were pulled
 ##' @export
-orderly_location_pull_packet <- function(..., recursive = NULL,
+orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
                                          root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
+  options <- as_orderly_search_options(options, list(allow_remote = TRUE))
+  if (!options$allow_remote) {
+    cli::cli_abort(
+      "If specifying 'options', 'allow_remote' must be TRUE",
+      i = "If FALSE, then we can't find a packet you don't already have :)")
+  }
   if (dots_is_literal_id(...)) {
     ids <- ..1
-    options <- orderly_search_options(allow_remote = TRUE)
   } else {
-    options <- list(...)$options
-    if (is.null(options)) {
-      options <- orderly_search_options(allow_remote = TRUE)
-    } else if (!options$allow_remote) {
-      ## we can't easily modify this arg in place, though with rlang
-      ## this might be possible - see examples in
-      ## https://rlang.r-lib.org/reference/list2.html, and in
-      ## particular the '!!!' splicing operator.
-      cli::cli_abort(
-        "If specifying 'options' in '...', 'allow_remote' must be TRUE",
-        i = "If FALSE, then we can't find a packet you don't already have :)")
-    }
-    ids <- orderly_search(..., root = root)
+    ids <- orderly_search(..., options = options, root = root)
   }
 
   index <- root$index()

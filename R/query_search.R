@@ -87,15 +87,19 @@ orderly_search_options <- function(location = NULL,
 }
 
 
-as_orderly_search_options <- function(x, name = deparse(substitute(x))) {
+as_orderly_search_options <- function(x, defaults = list(),
+                                      name = deparse(substitute(x))) {
   if (!is.name(name)) {
     name <- "options"
   }
-  if (is.null(x)) {
-    return(orderly_search_options())
-  }
   if (inherits(x, "orderly_search_options")) {
     return(x)
+  }
+  if (is.null(x)) {
+    if (length(defaults) == 0) {
+      return(orderly_search_options())
+    }
+    x <- list()
   }
   if (!is.list(x)) {
     stop(sprintf(
@@ -108,6 +112,11 @@ as_orderly_search_options <- function(x, name = deparse(substitute(x))) {
     stop(sprintf("Invalid option passed to 'orderly_search_options': %s",
                  paste(squote(err), collapse = ", ")),
          call. = FALSE)
+  }
+  for (i in names(defaults)) {
+    if (is.null(x[[i]])) {
+      x[[i]] <- defaults[[i]]
+    }
   }
   do.call(orderly_search_options, x)
 }

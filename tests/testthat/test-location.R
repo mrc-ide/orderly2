@@ -766,3 +766,20 @@ test_that("can pull packets as a result of a query", {
     root = root$dst$path)
   expect_setequal(ids_moved, ids[1:2])
 })
+
+
+test_that("pull packet sets allow_remote to TRUE if not given", {
+  root <- list()
+  for (name in c("src", "dst")) {
+    root[[name]] <- create_temporary_root()
+  }
+
+  id <- create_random_packet(root$src)
+  orderly_location_add("src", "path", list(path = root$src$path),
+                       root = root$dst)
+  orderly_location_pull_metadata(root = root$dst)
+  expect_error(
+    orderly_location_pull_packet(NULL, options = list(allow_remote = FALSE),
+                                 root = root$dst),
+    "If specifying 'options', 'allow_remote' must be TRUE")
+})
