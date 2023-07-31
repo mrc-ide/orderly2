@@ -197,7 +197,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
   if (length(local$warnings$get()) > 0) {
     str_warnings <- vcapply(local$warnings$get(), conditionMessage)
-    outpack_log_info(no_console(p), "warning", I(str_warnings), caller)
+    outpack_log_info(p, "warning", I(str_warnings), caller, console = FALSE)
   }
 
   if (success) {
@@ -210,9 +210,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   } else {
     e <- local$error
     str_error <- format_rlang_error(e, backtrace = FALSE, colours = FALSE)
-    outpack_log_info(no_console(p), "error", str_error, caller)
+    outpack_log_info(p, "error", str_error, caller, console = FALSE)
     str_trace <- format_rlang_trace(e$trace, colours = FALSE)
-    outpack_log_info(no_console(p), "trace", str_trace, caller)
+    outpack_log_info(p, "trace", str_trace, caller, console = FALSE)
     orderly_packet_cleanup_failure(p)
     cli::cli_abort("Failed to run report", parent = e)
   }

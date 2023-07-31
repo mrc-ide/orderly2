@@ -28,9 +28,12 @@
 ##' @param caller The name of the calling function; include the
 ##'   package name here.
 ##'
+##' @param console Override the console log option
+##'
 ##' @return Nothing, this is called for its side effects
 ##' @noRd
-outpack_log <- function(object, log_level, topic, detail, caller) {
+outpack_log <- function(object, log_level, topic, detail, caller,
+                        console = NULL) {
   if (inherits(object, "outpack_packet") || inherits(object, "outpack_root")) {
     logger <- object$logger
   } else {
@@ -42,7 +45,7 @@ outpack_log <- function(object, log_level, topic, detail, caller) {
   assert_character(detail)
 
   if (log_show(log_level, logger)) {
-    if (logger$console) {
+    if (console %||% logger$console) {
       log_console(topic, detail, caller, log_level)
     }
     if (!is.null(logger$json)) {
@@ -52,18 +55,18 @@ outpack_log <- function(object, log_level, topic, detail, caller) {
 }
 
 
-outpack_log_info <- function(object, topic, detail, caller) {
-  outpack_log(object, "info", topic, detail, caller)
+outpack_log_info <- function(object, topic, detail, caller, console = NULL) {
+  outpack_log(object, "info", topic, detail, caller, console)
 }
 
 
-outpack_log_debug <- function(object, topic, detail, caller) {
-  outpack_log(object, "debug", topic, detail, caller)
+outpack_log_debug <- function(object, topic, detail, caller, console = NULL) {
+  outpack_log(object, "debug", topic, detail, caller, console)
 }
 
 
-outpack_log_trace <- function(object, topic, detail, caller) {
-  outpack_log(object, "trace", topic, detail, caller)
+outpack_log_trace <- function(object, topic, detail, caller, console = NULL) {
+  outpack_log(object, "trace", topic, detail, caller, console)
 }
 
 
@@ -168,14 +171,4 @@ log_level_check <- function(level, name = deparse(substitute(level))) {
 log_show <- function(log_level, logger) {
   match(log_level_check(log_level), log_levels) <=
     match(logger$threshold, log_levels)
-}
-
-
-no_console <- function(x) {
-  if (inherits(x, "outpack_packet") || inherits(x, "outpack_root")) {
-    logger <- x$logger
-    logger$console <- FALSE
-    x <- structure(list(logger = logger), class = class(x))
-  }
-  x
 }

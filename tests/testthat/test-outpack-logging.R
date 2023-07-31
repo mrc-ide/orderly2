@@ -163,3 +163,14 @@ test_that("Can read logs", {
     logs,
     log_read(file.path(root$path, "archive", "data", id, "log.json")))
 })
+
+
+test_that("can avoid logging to console", {
+  object <- structure(
+    list(logger = list(console = TRUE, threshold = "info")),
+    class = "outpack_root")
+  expect_message(
+    outpack_log_info(object, "hello", "info", "test"),
+    "[ hello      ]  info", fixed = TRUE)
+  expect_silent(outpack_log_info(object, "hello", "info", "test", FALSE))
+})
