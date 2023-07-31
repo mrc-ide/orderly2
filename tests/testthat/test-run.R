@@ -634,7 +634,8 @@ test_that("cope with failed run", {
   append_lines(file.path(path, "src", "explicit", "orderly.R"),
                'readRDS("somepath.rds")')
   err <- expect_error(suppressWarnings(
-    orderly_run("explicit", root = path, envir = envir, logging_console = FALSE)))
+    orderly_run("explicit", root = path, envir = envir,
+                logging_console = FALSE)))
 
   p <- file.path(path, "draft", "explicit")
   id <- tail(dir(p), 1)
