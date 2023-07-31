@@ -523,27 +523,6 @@ test_that("Files cannot be immutable and ignored", {
 })
 
 
-test_that("can detect device imbalance", {
-  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
-  path_src <- create_temporary_simple_src()
-  path_script <- file.path(path_src, "script.R")
-  code <- readLines(path_script)
-  writeLines(code[!grepl("^dev.off", code)], path_script)
-
-  stack <- dev.list()
-
-  p <- outpack_packet_start(path_src, "example", root = root)
-
-  err <- expect_error(outpack_packet_run(p, "script.R"),
-                      "Script left 1 device open",
-                      class = "outpack_packet_run_error")
-  expect_null(err$error)
-  expect_type(err$output, "character")
-  ## Handler has fixed the stack for us:
-  expect_equal(stack, dev.list())
-})
-
-
 test_that("Validate a packet is incomplete", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path_src <- create_temporary_simple_src()

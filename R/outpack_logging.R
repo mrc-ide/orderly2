@@ -175,3 +175,13 @@ log_show <- function(log_level, logger) {
   match(log_level_check(log_level), log_levels) <=
     match(logger$threshold, log_levels)
 }
+
+
+no_console <- function(x) {
+  if (inherits(x, "outpack_packet") || inherits(x, "outpack_root")) {
+    logger <- x$logger
+    logger$console <- FALSE
+    x <- structure(list(logger = logger), class = class(x))
+  }
+  x
+}

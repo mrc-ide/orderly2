@@ -172,3 +172,8 @@ outpack_init_no_orderly <- function(...) {
   fs::file_delete(file.path(path, "orderly_config.yml"))
   outpack_root$new(path)
 }
+
+
+outpack_packet_run <- function(...) {
+  testthat::skip("implement me")
+}

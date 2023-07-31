@@ -544,3 +544,35 @@ is_simple_atomic <- function(x) {
 normalise_path <- function(x) {
   normalizePath(x, winslash = "/", mustWork = TRUE)
 }
+
+
+split_newlines <- function(x) {
+  strsplit(x, "\n", fixed = TRUE)[[1]]
+}
+
+
+format_rlang_error <- function(e, backtrace = FALSE, colours = TRUE) {
+  if (!colours) {
+    withr::local_options(cli.num_colors = 0)
+  }
+  str <- split_newlines(format(e, backtrace = FALSE))
+  if (grepl("<.*error.*>", str[[1]])) {
+    str <- str[-1]
+  }
+  str
+}
+
+
+format_rlang_trace <- function(x, colours = TRUE) {
+  if (!colours) {
+    withr::local_options(cli.num_colors = 0)
+  }
+  str <- format(x)
+  if (!colours) {
+    ## We still get some junk left over, to do with the source
+    ## references. This strips them out, which we want if saving into
+    ## the logs
+    str <- cli::ansi_strip(str)
+  }
+  str
+}

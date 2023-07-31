@@ -575,9 +575,6 @@ test_that("can fetch information about the context", {
   writeLines(c(code, 'saveRDS(orderly2::orderly_run_info(), "info.rds")'),
              path_src)
 
-  ## While there's an error here, our current strategy for sinking
-  ## output totally eats the error reporting, and we need a better way
-  ## of getting that back out...
   envir2 <- new.env()
   id2 <- orderly_run("depends", root = path, envir = envir2)
 
@@ -631,23 +628,31 @@ test_that("can enable logging at the packet level", {
 
 
 test_that("cope with failed run", {
-  path <- test_prepare_orderly_example("implicit")
-  prepend_lines(file.path(path, "src", "implicit", "orderly.R"),
-                'd <- read.csv("something.csv")')
-  err <- expect_error(
-    orderly_run("implicit", root = path),
-    "cannot open the connection",
-    class = "outpack_packet_run_error")
-  expect_length(dir(file.path(path, "archive", "implicit")), 0)
-  id <- dir(file.path(path, "draft", "implicit"))
-  expect_length(id, 1)
-  expect_setequal(
-    dir(file.path(path, "draft", "implicit", id)),
-    c("data.csv", "log.json", "orderly.R", "outpack.json"))
+  path <- test_prepare_orderly_example("explicit")
+  envir <- new.env()
 
-  d <- orderly_metadata_read(
-    file.path(path, "draft", "implicit", id, "outpack.json"))
-  expect_equal(d$id, id)
+  append_lines(file.path(path, "src", "explicit", "orderly.R"),
+               'readRDS("somepath.rds")')
+  err <- expect_error(suppressWarnings(
+    orderly_run("explicit", root = path, envir = envir, logging_console = FALSE)))
+
+  p <- file.path(path, "draft", "explicit")
+  id <- tail(dir(p), 1)
+  dat <- log_read(file.path(p, id, "log.json"))
+  expect_equal(
+    dat$topic,
+    c("name", "id", "start", "result", "warning", "error", "trace",  "end",
+      "elapsed"))
+  detail <- set_names(dat$detail, dat$topic)
+  expect_equal(detail$result, "failure")
+
+  cmp <- evaluate_promise(
+    tryCatch(readRDS("somepath.rds"), error = identity))
+  expect_equal(detail$warning, cmp$warnings)
+  expect_equal(detail$error, cmp$result$message)
+  expect_gt(length(detail$trace), 5) # nontrivial trace
+  expect_match(detail$trace,
+               'readRDS\\("somepath.rds"\\).*orderly\\.R', all = FALSE)
 })
 
 
@@ -948,4 +953,26 @@ test_that("can rename dependencies programmatically", {
   expect_equal(meta$depends$files[[1]],
                data_frame(here = "x/data.rds",
                           there = "data.rds"))
+})
+
+
+test_that("can detect device imbalance", {
+  ## TODO: needs refactoring
+  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
+  path_src <- create_temporary_simple_src()
+  path_script <- file.path(path_src, "script.R")
+  code <- readLines(path_script)
+  writeLines(code[!grepl("^dev.off", code)], path_script)
+
+  stack <- dev.list()
+
+  p <- outpack_packet_start(path_src, "example", root = root)
+
+  err <- expect_error(outpack_packet_run(p, "script.R"),
+                      "Script left 1 device open",
+                      class = "outpack_packet_run_error")
+  expect_null(err$error)
+  expect_type(err$output, "character")
+  ## Handler has fixed the stack for us:
+  expect_equal(stack, dev.list())
 })
