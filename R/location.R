@@ -259,9 +259,9 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##'   - in particular, passing `NULL` will match everything that every
 ##'   remote has!
 ##'
-##' @param search_options Options passed to
-##'   [orderly2::orderly_search]. Only the `location` option here is
-##'   preseved, as `allow_remote` must be `TRUE`
+##' @param options Options passed to [orderly2::orderly_search].
+##'   The option `allow_remote` must be `TRUE` as otherwise no packet could
+##'   possibly be pulled, so an error is thrown if this is FALSE.
 ##'
 ##' @param recursive If non-NULL, a logical, indicating if we should
 ##'   recursively pull all packets that are referenced by the packets

@@ -23,6 +23,10 @@ ids directly. Be careful here, your query may pull a lot of data
 remote has!
 }}
 
+\item{options}{Options passed to \link{orderly_search}.
+The option \code{allow_remote} must be \code{TRUE} as otherwise no packet could
+possibly be pulled, so an error is thrown if this is FALSE.}
+
 \item{recursive}{If non-NULL, a logical, indicating if we should
 recursively pull all packets that are referenced by the packets
 specified in \code{id}.  This might copy a lot of data!  If \code{NULL},
@@ -40,10 +44,6 @@ for.  If \code{TRUE}, then we looks in the directory given for \code{root}
 (or the working directory if \code{NULL}) and then up through its
 parents until it finds an \code{.outpack} directory or
 \code{orderly_config.yml}}
-
-\item{search_options}{Options passed to
-\link{orderly_search}. Only the \code{location} option here is
-preseved, as \code{allow_remote} must be \code{TRUE}}
 }
 \value{
 Invisibly, the ids of packets that were pulled
