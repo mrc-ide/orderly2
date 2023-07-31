@@ -294,9 +294,7 @@ test_that("Can add additional data", {
   outpack_packet_add_custom(p, "potato", custom)
   outpack_packet_end(p)
 
-  ## See mrc-3091 - this should be made easier
-  path_metadata <- file.path(root$path, ".outpack", "metadata", p$id)
-  meta <- outpack_metadata_load(path_metadata)
+  meta <- outpack_metadata(p$id, root = root)
   expect_equal(meta$custom, list(potato = list(a = 1, b = 2)))
 })
 
