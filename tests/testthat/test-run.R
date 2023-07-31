@@ -958,92 +958,19 @@ test_that("can rename dependencies programmatically", {
 
 
 test_that("can detect device imbalance", {
-  skip("salvage?")
-  ## TODO: needs refactoring
-  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
-  path_src <- create_temporary_simple_src()
-  path_script <- file.path(path_src, "script.R")
-  code <- readLines(path_script)
-  writeLines(code[!grepl("^dev.off", code)], path_script)
+  path <- test_prepare_orderly_example("explicit")
+
+  path_src <- file.path(path, "src", "explicit", "orderly.R")
+  code <- readLines(path_src)
+  writeLines(code[!grepl("^dev.off", code)], path_src)
 
   stack <- dev.list()
 
-  p <- outpack_packet_start(path_src, "example", root = root)
-
-  err <- expect_error(outpack_packet_run(p, "script.R"),
-                      "Script left 1 device open",
-                      class = "outpack_packet_run_error")
-  expect_null(err$error)
-  expect_type(err$output, "character")
-  ## Handler has fixed the stack for us:
-  expect_equal(stack, dev.list())
-})
-
-
-test_that("cope with errors in scripts", {
-  skip("salvage?")
-  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
-
-  path_src <- withr::local_tempdir()
-  writeLines('f <- function(x) {
-  if (x == 0) {
-    stop("x became negative")
-  } else {
-    f(x - 1)
-  }
-}
-f(5)',
-  file.path(path_src, "script.R"))
-  p <- outpack_packet_start(path_src, "example", root = root)
+  envir <- new.env()
   err <- expect_error(
-    outpack_packet_run(p, "script.R"),
-    "Script failed with error: x became negative",
-    class = "outpack_packet_run_error")
-  outpack_packet_end(p, FALSE)
-  setequal(
-    names(err),
-    c("success", "message", "error", "traceback", "output", "warnings",
-      "trace")) # last trace added by testthat!
-
-  expect_false(err$success)
-  expect_equal(err$message, "Script failed with error: x became negative")
-  expect_type(err$traceback, "character")
-  expect_true(length(err$traceback) > 5)
-  expect_match(err$output,
-               "Error in f(x - 1) : x became negative",
-               fixed = TRUE, all = FALSE)
-
-  expect_true(file.exists(file.path(path_src, "log.json")))
-  d <- log_read(file.path(path_src, "log.json"))
-
-  i_traceback <- which(d$topic == "traceback")
-  expect_length(i_traceback, 1)
-  expect_equal(d$detail[[i_traceback]], err$traceback)
-})
-
-
-test_that("save warnings in logs", {
-  skip("salvage?")
-  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
-
-  path_src <- withr::local_tempdir()
-  writeLines('f <- function(x) {
-  if (x == 0) {
-    TRUE
-  } else {
-    warning(sprintf("x too large: %s", x))
-    f(x - 1)
-  }
-}
-saveRDS(f(5), "result.rds")',
-  file.path(path_src, "script.R"))
-  p <- outpack_packet_start(path_src, "example", root = root)
-  res <- outpack_packet_run(p, "script.R")
-  expect_length(res$warnings, 5)
-  outpack_packet_end(p)
-  d <- log_read(file.path(root$path, "archive", "example", p$id, "log.json"))
-  i_warning <- which(d$topic == "warning")
-  expect_length(i_warning, 1)
-  expect_equal(d$detail[[i_warning]],
-               sprintf("x too large: %d", 5:1))
+    orderly_run("explicit", root = path, envir = envir),
+    "Script failed to balance a global resource stack")
+  expect_equal(err$body,
+               c(x = "Script left 1 device open"))
+  expect_equal(stack, dev.list())
 })
