@@ -293,7 +293,7 @@ orderly_location_pull_packet <- function(..., recursive = NULL,
         "If specifying 'options' in '...', 'allow_remote' must be TRUE",
         i = "If FALSE, then we can't find a packet you don't already have :)")
     }
-    ids <- orderly_search(..., options = options, root = root)
+    ids <- orderly_search(..., root = root)
   }
 
   index <- root$index()

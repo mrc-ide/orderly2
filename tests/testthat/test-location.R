@@ -212,7 +212,6 @@ test_that("can pull metadata from a file base location", {
   root_upstream <- create_temporary_root(use_file_store = TRUE)
 
   ids <- vcapply(1:3, function(i) create_random_packet(root_upstream$path))
-
   root_downstream <- create_temporary_root(use_file_store = TRUE)
 
   orderly_location_add("upstream", "path", list(path = root_upstream$path),
@@ -747,4 +746,23 @@ test_that("can add a custom outpack location", {
   mockery::expect_called(mock_orderly_location_custom, 1)
   expect_equal(mockery::mock_args(mock_orderly_location_custom)[[1]],
                list(list(driver = "foo::bar", a = 1, b = 2)))
+})
+
+
+test_that("can pull packets as a result of a query", {
+  root <- list()
+  for (name in c("src", "dst")) {
+    root[[name]] <- create_temporary_root(use_file_store = TRUE)
+  }
+  ids <- vcapply(1:3, function(i) {
+    create_random_packet(root$src$path, parameters = list(i = i))
+  })
+  orderly_location_add("src", "path", list(path = root$src$path),
+                       root = root$dst$path)
+  ids_moved <- orderly_location_pull_packet(
+    "parameter:i < 3",
+    name = "data",
+    options = list(pull_metadata = TRUE, allow_remote = TRUE),
+    root = root$dst$path)
+  expect_setequal(ids_moved, ids[1:2])
 })
