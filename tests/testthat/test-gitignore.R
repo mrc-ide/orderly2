@@ -160,7 +160,7 @@ test_that("can prompt to update when creating a new file", {
   expect_equal(mockery::mock_args(mock_prompt_update),
                rep(list(list(character(), contents, path, root)), 2))
   expect_equal(mockery::mock_args(mock_writelines),
-               rep(list(list(contents, path_full)), 4))
+               rep(list(list(contents, normalise_path(path_full))), 4))
 })
 
 
@@ -198,7 +198,7 @@ test_that("can prompt to update when adding to a file without markers", {
   expect_equal(mockery::mock_args(mock_prompt_update),
                rep(list(list(c("a", "b"), contents, path, root)), 2))
   expect_equal(mockery::mock_args(mock_writelines),
-               rep(list(list(contents, path_full)), 4))
+               rep(list(list(contents, normalise_path(path_full))), 4))
 })
 
 
@@ -237,7 +237,7 @@ test_that("can prompt to update when adding to a file with markers", {
   expect_equal(mockery::mock_args(mock_prompt_update),
                list(list(old, contents, path, root)))
   expect_equal(mockery::mock_args(mock_writelines),
-               rep(list(list(contents, path_full)), 4))
+               rep(list(list(contents, normalise_path(path_full))), 4))
 })
 
 
