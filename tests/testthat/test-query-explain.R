@@ -40,7 +40,7 @@ test_that("Can explain a query", {
   expect_match(out$messages[[1]],
                "Evaluated query: 'latest(A)' and found 0 packets",
                fixed = TRUE)
-  expect_match(out$messages, "A (parameter:x > 10): 0 packets",
+  expect_match(out$messages[[2]], "A (parameter:x > 10): 0 packets",
                fixed = TRUE)
 
   x <- orderly_query_explain(
