@@ -41,7 +41,7 @@ orderly_query_explain <- function(..., parameters = NULL,
   ## and find more near misses, but this will be a follow-on PR. The
   ## idea is that we will identify the offending bit like:
   ##
-  ##   parameter:x == value
+  ## > parameter:x == value
   ##
   ## Then we evaluate the rest of the query - all the bits without
   ## this chunk to get the context. Then look to see how we can
