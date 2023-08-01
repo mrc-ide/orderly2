@@ -46,6 +46,7 @@ reference:
       - orderly_query
       - orderly_search_options
       - orderly_search
+      - orderly_query_explain
   - title: Initialise and configure
     contents:
       - orderly_init

@@ -576,3 +576,10 @@ format_rlang_trace <- function(x, colours = TRUE) {
   }
   str
 }
+
+
+pairs <- function(a) {
+  i <- which(upper.tri(diag(length(a))), TRUE)
+  Map(c, a[i[, 1]], a[i[, 2]], USE.NAMES = FALSE)
+
+}
