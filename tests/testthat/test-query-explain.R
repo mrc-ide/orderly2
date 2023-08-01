@@ -16,6 +16,9 @@ test_that("can simplify a query", {
          parts = list(A = quote(name == "a"),
                       B = quote(parameter:x == 1),
                       C = quote(parameter:y == 2))))
+  expect_equal(
+    query_simplify(orderly_query("latest((parameter:a == 1))")),
+    list(outer = c("latest", "("), parts = list(A = quote(parameter:a == 1))))
 })
 
 
