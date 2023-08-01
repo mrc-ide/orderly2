@@ -43,5 +43,7 @@ result.
 }
 \description{
 Explain how a query has or has not matched. This is experimental
-and the output will change.
+and the output will change. At the moment, it can tell you why a
+query matches, or if fails to match based on one of a number of
+\code{&&}-ed together clauses.
 }
