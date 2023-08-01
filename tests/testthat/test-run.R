@@ -236,16 +236,16 @@ test_that("can run manually with shared resources", {
 
 test_that("can validate shared resource arguments", {
   expect_error(
-    validate_shared_resource(list()),
-    "orderly_shared_resource requires at least one argument")
+    validate_shared_resource(list(), NULL),
+    "'orderly_shared_resource' requires at least one argument")
   expect_error(
-    validate_shared_resource(list(input = c("a", "b"))),
+    validate_shared_resource(list(input = c("a", "b")), NULL),
     "Invalid shared resource 'input': entries must be strings")
   expect_error(
-    validate_shared_resource(list(a = 1, b = TRUE, c = "str")),
+    validate_shared_resource(list(a = 1, b = TRUE, c = "str"), NULL),
     "Invalid shared resource 'a', 'b': entries must be strings")
   expect_equal(
-    validate_shared_resource(list(a = "A", b = "B")),
+    validate_shared_resource(list(a = "A", b = "B"), NULL),
     c(a = "A", b = "B"))
 })
 
