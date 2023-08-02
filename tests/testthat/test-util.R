@@ -269,3 +269,13 @@ test_that("fall back if gert does not support ignored files", {
   expect_equal(gert_git_ignore_path_is_ignored(), identity)
   expect_null(gert_git_ignore_path_is_ignored())
 })
+
+
+test_that("pairs generates pairs", {
+  expect_equal(pairs(c("a", "b")), list(c("a", "b")))
+  expect_equal(pairs(c("a", "b", "c")),
+               list(c("a", "b"), c("a", "c"), c("b", "c")))
+  expect_equal(pairs(c("a", "b", "c", "d")),
+               list(c("a", "b"), c("a", "c"), c("b", "c"),
+                    c("a", "d"), c("b", "d"), c("c", "d")))
+})
