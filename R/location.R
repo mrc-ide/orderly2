@@ -377,13 +377,13 @@ orderly_location_push <- function(packet_id, location, root = NULL,
                                   locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = TRUE,
                     call = environment())
-  location_id <- location_resolve_valid(location, root,
-                                        include_local = FALSE,
-                                        allow_no_locations = FALSE)
-  plan <- location_build_push_plan(packet_id, location_id, root)
+  location_name <- location_resolve_valid(location, root,
+                                          include_local = FALSE,
+                                          allow_no_locations = FALSE)
+  plan <- location_build_push_plan(packet_id, location_name, root)
 
   if (length(plan$files) > 0 || length(plan$packet_id) > 0) {
-    driver <- location_driver(location_id, root)
+    driver <- location_driver(location_name, root)
     for (hash in plan$files) {
       driver$push_file(find_file_by_hash(root, hash), hash)
     }
@@ -396,8 +396,8 @@ orderly_location_push <- function(packet_id, location, root = NULL,
 }
 
 
-location_driver <- function(location_id, root) {
-  i <- match(location_id, root$config$location$id)
+location_driver <- function(location_name, root) {
+  i <- match(location_name, root$config$location$name)
   type <- root$config$location$type[[i]]
   args <- root$config$location$args[[i]]
   switch(type,
@@ -417,9 +417,9 @@ orderly_location_custom <- function(args) {
 }
 
 
-location_pull_metadata <- function(location_id, root) {
+location_pull_metadata <- function(location_name, root) {
   index <- root$index()
-  driver <- location_driver(location_id, root)
+  driver <- location_driver(location_name, root)
 
   known_there <- driver$list()
 
@@ -435,11 +435,11 @@ location_pull_metadata <- function(location_id, root) {
     }
   }
 
-  known_here <- index$location$packet[index$location$location == location_id]
+  known_here <- index$location$packet[index$location$location == location_name]
   new_loc <- known_there[!(known_there$packet %in% known_here), ]
 
   for (i in seq_len(nrow(new_loc))) {
-    mark_packet_known(new_loc$packet[[i]], location_id, new_loc$hash[[i]],
+    mark_packet_known(new_loc$packet[[i]], location_name, new_loc$hash[[i]],
                       new_loc$time[[i]], root)
   }
 
@@ -563,8 +563,8 @@ location_build_pull_plan <- function(packet_id, location_name, root) {
 }
 
 
-location_build_push_plan <- function(packet_id, location_id, root) {
-  driver <- location_driver(location_id, root)
+location_build_push_plan <- function(packet_id, location_name, root) {
+  driver <- location_driver(location_name, root)
 
   packet_id <- sort(find_all_dependencies(packet_id, root$index()$metadata))
   packet_id_msg <- driver$list_unknown_packets(packet_id)
@@ -613,10 +613,9 @@ new_location_entry <- function(name, type, args) {
     check_symbol_from_str(args$driver, "args$driver")
   }
 
-  location_id <- name
   ## NOTE: make sure this matches the order in config_read
   data_frame(name = name,
-             id = location_id,
+             id = name,
              type = type,
              args = I(list(args)))
 }
