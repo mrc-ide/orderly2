@@ -99,13 +99,6 @@ test_that("error if packet uses non-configured plugin", {
 })
 
 
-test_that("error if environment not found", {
-  expect_error(
-    orderly_environment("unknown.package"),
-    "Could not determine calling environment safely - please report")
-})
-
-
 test_that("run cleanup on exit", {
   skip_if_not_installed("mockery")
   clear_plugins()

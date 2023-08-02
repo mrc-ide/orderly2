@@ -155,10 +155,6 @@ orderly_plugin_context <- function(name, envir) {
   ctx$config <- ctx$config$plugins[[name]]$config
   ## No direct access to the full packet
   ctx$packet <- NULL
-  ## Correct environment in the interactive case:
-  if (!ctx$is_active) {
-    ctx$envir <- orderly_environment(name)
-  }
   ctx
 }
 
