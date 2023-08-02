@@ -28,9 +28,12 @@
 ##' @param caller The name of the calling function; include the
 ##'   package name here.
 ##'
+##' @param console Override the console log option
+##'
 ##' @return Nothing, this is called for its side effects
 ##' @noRd
-outpack_log <- function(object, log_level, topic, detail, caller) {
+outpack_log <- function(object, log_level, topic, detail, caller,
+                        console = NULL) {
   if (inherits(object, "outpack_packet") || inherits(object, "outpack_root")) {
     logger <- object$logger
   } else {
@@ -42,7 +45,7 @@ outpack_log <- function(object, log_level, topic, detail, caller) {
   assert_character(detail)
 
   if (log_show(log_level, logger)) {
-    if (logger$console) {
+    if (console %||% logger$console) {
       log_console(topic, detail, caller, log_level)
     }
     if (!is.null(logger$json)) {
@@ -52,18 +55,18 @@ outpack_log <- function(object, log_level, topic, detail, caller) {
 }
 
 
-outpack_log_info <- function(object, topic, detail, caller) {
-  outpack_log(object, "info", topic, detail, caller)
+outpack_log_info <- function(object, topic, detail, caller, console = NULL) {
+  outpack_log(object, "info", topic, detail, caller, console)
 }
 
 
-outpack_log_debug <- function(object, topic, detail, caller) {
-  outpack_log(object, "debug", topic, detail, caller)
+outpack_log_debug <- function(object, topic, detail, caller, console = NULL) {
+  outpack_log(object, "debug", topic, detail, caller, console)
 }
 
 
-outpack_log_trace <- function(object, topic, detail, caller) {
-  outpack_log(object, "trace", topic, detail, caller)
+outpack_log_trace <- function(object, topic, detail, caller, console = NULL) {
+  outpack_log(object, "trace", topic, detail, caller, console)
 }
 
 
@@ -110,12 +113,6 @@ outpack_packet_logger <- function(path, root, console, threshold) {
 
 
 log_console <- function(topic, detail, caller, log_level) {
-  ## Filter out some log types; these will never want echoing to the
-  ## console via this function and I imagine that this list will
-  ## grow...
-  if (caller == "orderly2::outpack_packet_run" && topic == "output") {
-    return()
-  }
   if (length(detail) > 1) {
     topic <- c(topic, rep_len("...", length(detail) - 1))
   }

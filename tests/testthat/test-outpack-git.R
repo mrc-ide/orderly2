@@ -36,14 +36,7 @@ test_that("store git information into packet, if under git's control", {
   path_src <- create_temporary_simple_src()
 
   ## Note that the git repo is in the src, not in the outpack root
-  gert::git_init(path_src)
-  gert::git_add(".", repo = path_src)
-  user <- "author <author@example.com>"
-  sha <- gert::git_commit("initial", author = user, committer = user,
-                          repo = path_src)
-  branch <- gert::git_branch(repo = path_src)
-  url <- "https://example.com/git"
-  gert::git_remote_add(url, repo = path_src)
+  git_info <- helper_add_git(path_src)
 
   p <- outpack_packet_start(path_src, "example", root = root)
   id <- p$id
@@ -52,7 +45,9 @@ test_that("store git information into packet, if under git's control", {
 
   meta <- orderly_metadata(id, root = root$path)
   expect_mapequal(meta$git,
-                  list(branch = branch, sha = sha, url = url))
+                  list(branch = git_info$branch,
+                       sha = git_info$sha,
+                       url = git_info$url))
 })
 
 

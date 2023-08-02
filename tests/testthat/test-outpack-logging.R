@@ -38,8 +38,6 @@ test_that("can log basic packet running", {
   path_src <- create_temporary_simple_src()
 
   inputs <- c("data.csv", "script.R")
-  envir <- new.env()
-
   msg <- capture_messages(
     p <- outpack_packet_start(path_src, "example", root = root))
 
@@ -48,12 +46,7 @@ test_that("can log basic packet running", {
   expect_equal(msg[[2]], sprintf("[ id         ]  %s\n", p$id))
   expect_match(msg[[3]], "^\\[ start")
 
-  res <- evaluate_promise(
-    outpack_packet_run(p, "script.R", envir))
-  expect_equal(res$messages,
-               c("[ script     ]  script.R\n", "[ result     ]  success\n"))
-
-  expect_match(res$output, "read.csv('data.csv')", fixed = TRUE)
+  outpack_packet_run(p, "script.R")
 
   msg <- capture_messages(outpack_packet_end(p))
 
@@ -64,21 +57,17 @@ test_that("can log basic packet running", {
   expect_true(file.exists(file.path(path_src, "log.json")))
   dat <- log_read(file.path(path_src, "log.json"))
 
-  expect_equal(nrow(dat), 8)
+  expect_equal(nrow(dat), 5)
   expect_equal(
     dat$topic,
-    c("name", "id", "start", "script", "result", "output", "end", "elapsed"))
+    c("name", "id", "start", "end", "elapsed"))
   expect_equal(
     dat$caller,
     paste0("orderly2::outpack_packet_",
-           rep(c("start", "run", "end"), c(3, 3, 2))))
-  expect_equal(dat$log_level, rep("info", 8))
+           rep(c("start", "end"), c(3, 2))))
+  expect_equal(dat$log_level, rep("info", 5))
   expect_s3_class(dat$time, "POSIXct")
   expect_true(is.list(dat$detail))
-  expect_match(
-    dat$detail[[6]][[1]],
-    "read.csv('data.csv')",
-    fixed = TRUE)
 })
 
 
@@ -173,4 +162,15 @@ test_that("Can read logs", {
   expect_identical(
     logs,
     log_read(file.path(root$path, "archive", "data", id, "log.json")))
+})
+
+
+test_that("can avoid logging to console", {
+  object <- structure(
+    list(logger = list(console = TRUE, threshold = "info")),
+    class = "outpack_root")
+  expect_message(
+    outpack_log_info(object, "hello", "info", "test"),
+    "[ hello      ]  info", fixed = TRUE)
+  expect_silent(outpack_log_info(object, "hello", "info", "test", FALSE))
 })

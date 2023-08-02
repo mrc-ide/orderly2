@@ -21,6 +21,7 @@ Imports:
     gert,
     jsonlite,
     openssl,
+    rlang,
     withr,
     yaml
 Suggests:

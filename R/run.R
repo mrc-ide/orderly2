@@ -132,17 +132,14 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 
   src <- file.path(root$path, "src", name)
   dat <- orderly_read(src)
-
   parameters <- check_parameters(parameters, dat$parameters,
                                  environment())
-
   orderly_validate(dat, src)
 
   id <- outpack_id()
-
-  stopifnot(fs::is_absolute_path(root$path))
   path <- file.path(root$path, "draft", name, id)
   fs::dir_create(path)
+
   ## Slightly peculiar formulation here; we're going to use 'path' as
   ## the key for storing the active packet and look it up later with
   ## getwd(); this means we definitely will match. Quite possibly path
@@ -155,31 +152,71 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     inputs_info <- NULL
     fs::file_copy(file.path(src, "orderly.R"), path)
   } else {
-    inputs_info <-
-      copy_resources_implicit(src, path, dat$resources, dat$artefacts)
+    inputs_info <- copy_resources_implicit(src, path, dat$resources,
+                                           dat$artefacts)
   }
-
   p <- outpack_packet_start(path, name, parameters = parameters,
                             id = id, logging_console = logging_console,
                             logging_threshold = logging_threshold,
                             root = root)
-  withCallingHandlers({
-    outpack_packet_file_mark(p, "orderly.R", "immutable")
-    p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
-                       strict = dat$strict, inputs_info = inputs_info,
-                       search_options = search_options)
-    current[[path]] <- p
-    on.exit(current[[path]] <- NULL, add = TRUE, after = TRUE)
+  outpack_packet_file_mark(p, "orderly.R", "immutable")
+  p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
+                     strict = dat$strict, inputs_info = inputs_info,
+                     search_options = search_options)
+  current[[path]] <- p
+  on.exit(current[[path]] <- NULL, add = TRUE, after = TRUE)
+  if (!is.null(parameters)) {
+    list2env(parameters, envir)
+  }
 
-    if (!is.null(parameters)) {
-      list2env(parameters, envir)
-    }
+  info <- session_global_state()
+  top <- rlang::current_env() # not quite right, but better than nothing
+  local <- new.env(parent = emptyenv())
+  local$warnings <- collector()
+  res <- rlang::try_fetch(
+    withr::with_dir(path,
+                    source_echo("orderly.R", envir, p$logger$console)),
+    warning = function(e) {
+      local$warnings$add(e)
+      rlang::zap()
+    },
+    error = function(e) {
+      if (is.null(e$trace)) {
+        e$trace <- rlang::trace_back(top)
+      }
+      local$error <- e
+      NULL
+    })
 
-    result <- outpack_packet_run(p, "orderly.R", envir)
+  info_end <- withr::with_dir(path, check_session_global_state(info))
+  success <- is.null(local$error) && info_end$success
+
+  caller <- "orderly2::orderly_run"
+  outpack_log_info(p, "result", if (success) "success" else "failure",
+                   caller)
+
+  if (length(local$warnings$get()) > 0) {
+    str_warnings <- vcapply(local$warnings$get(), conditionMessage)
+    outpack_log_info(p, "warning", I(str_warnings), caller, console = FALSE)
+  }
+
+  if (success) {
     orderly_packet_cleanup_success(p)
-  }, error = function(e) {
+  } else if (is.null(local$error)) {
+    detail <- info_end$message
+    cli::cli_abort(
+      c("Script failed to balance a global resource stack",
+        set_names(detail, rep("x", length(detail)))))
+  } else {
+    e <- local$error
+    str_error <- format_rlang_error(e, backtrace = FALSE, colours = FALSE)
+    outpack_log_info(p, "error", str_error, caller, console = FALSE)
+    str_trace <- format_rlang_trace(e$trace, colours = FALSE)
+    outpack_log_info(p, "trace", str_trace, caller, console = FALSE)
     orderly_packet_cleanup_failure(p)
-  })
+    cli::cli_abort("Failed to run report", parent = e)
+  }
+
   id
 }
 
