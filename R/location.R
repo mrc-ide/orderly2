@@ -336,8 +336,8 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
   for (i in seq_len(nrow(plan))) {
     ## See mrc-4351 (assumption is this was validated on insert).
     hash <- index$location$hash[index$location$packet == plan$packet[i] &
-                                index$location$location == plan$location_id[i]]
-    driver <- location_driver(plan$location_id[i], root)
+                                index$location$location == plan$location[i]]
+    driver <- location_driver(plan$location[i], root)
     if (root$config$core$use_file_store) {
       location_pull_files_store(root, driver, plan$packet[i])
     }
@@ -524,22 +524,21 @@ location_resolve_valid <- function(location, root, include_local,
 }
 
 
-location_build_pull_plan <- function(packet_id, location_id, root) {
+location_build_pull_plan <- function(packet_id, location_name, root) {
   index <- root$index()
 
   ## Things that are found in any location:
-  candidates <- index$location[index$location$location %in% location_id,
+  candidates <- index$location[index$location$location %in% location_name,
                                c("packet", "location")]
 
   ## Sort by location
-  candidates <- candidates[order(match(candidates$location, location_id)), ]
+  candidates <- candidates[order(match(candidates$location, location_name)), ]
 
   plan <- data_frame(
     packet = packet_id,
-    location_id = candidates$location[match(packet_id, candidates$packet)])
-  plan$location_name <- lookup_location_name(plan$location_id, root)
+    location = candidates$location[match(packet_id, candidates$packet)])
 
-  if (anyNA(plan$location_id)) {
+  if (anyNA(plan$location)) {
     ## This is going to want eventual improvement before we face
     ## users.  The issues here are that:
     ## * id or location might be vectors (and potentially) quite long
@@ -553,11 +552,10 @@ location_build_pull_plan <- function(packet_id, location_id, root) {
     ##   packet here too (we can get that easily from the index)
     ## * we don't report back how the set of candidate locations was
     ##   resolved (e.g., explicitly given, default)
-    msg <- packet_id[is.na(plan$location_id)]
-    src <- lookup_location_name(location_id, root)
+    msg <- packet_id[is.na(plan$location)]
     stop(sprintf("Failed to find %s at location %s: %s",
                  ngettext(length(msg), "packet", "packets"),
-                 paste(squote(src), collapse = ", "),
+                 paste(squote(location_name), collapse = ", "),
                  paste(squote(msg), collapse = ", ")))
   }
 

@@ -595,8 +595,7 @@ test_that("Can filter locations", {
   ids <- unique(c(ids_a, ids_b, ids_c, ids_d))
   expected <- function(ids, location_name) {
     data_frame(packet = ids,
-               location_id = lookup_location_id(location_name, root$dst),
-               location_name = location_name)
+               location = location_name)
   }
   locs <- function(location) {
     location_resolve_valid(location, root$dst,
