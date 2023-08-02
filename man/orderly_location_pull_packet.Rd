@@ -5,20 +5,27 @@
 \title{Pull a single packet from a location}
 \usage{
 orderly_location_pull_packet(
-  id,
-  location = NULL,
+  ...,
+  options = NULL,
   recursive = NULL,
   root = NULL,
   locate = TRUE
 )
 }
 \arguments{
-\item{id}{The id of the packet(s) to pull}
+\item{...}{Arguments passed through to
+\link{orderly_search}. In the special case where the first
+argument is a character vector of ids \emph{and} there are no named
+dot arguments, then we interpret this argument as a vector of
+ids directly. Be careful here, your query may pull a lot of data
+\itemize{
+\item in particular, passing \code{NULL} will match everything that every
+remote has!
+}}
 
-\item{location}{Control the location that the packet can be pulled
-from.  The default (\code{NULL}) will try and pull the packet from
-anywhere it can be found.  Provide a string or character vector
-to limit the search to a particular location or locations.}
+\item{options}{Options passed to \link{orderly_search}.
+The option \code{allow_remote} must be \code{TRUE} as otherwise no packet could
+possibly be pulled, so an error is thrown if this is FALSE.}
 
 \item{recursive}{If non-NULL, a logical, indicating if we should
 recursively pull all packets that are referenced by the packets
@@ -42,9 +49,10 @@ parents until it finds an \code{.outpack} directory or
 Invisibly, the ids of packets that were pulled
 }
 \description{
-Pull a packet (all files) from a location into this archive. This
-will make files available for use as dependencies (e.g., with
-\link{orderly_dependency})
+Pull one or more packets (including all their files) into this
+archive from one or more of your locations. This will make files
+available for use as dependencies (e.g., with
+\link{orderly_dependency}).
 }
 \details{
 The behaviour of this function will vary depending on whether or

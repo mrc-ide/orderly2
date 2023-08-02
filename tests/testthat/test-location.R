@@ -212,7 +212,6 @@ test_that("can pull metadata from a file base location", {
   root_upstream <- create_temporary_root(use_file_store = TRUE)
 
   ids <- vcapply(1:3, function(i) create_random_packet(root_upstream$path))
-
   root_downstream <- create_temporary_root(use_file_store = TRUE)
 
   orderly_location_add("upstream", "path", list(path = root_upstream$path),
@@ -416,7 +415,7 @@ test_that("detect and avoid modified files in source repository", {
   ## Corrupt the file in the first id by truncating it:
   file.create(file.path(root$src$path, "archive", "data", id[[1]], "a.rds"))
   expect_message(
-    orderly_location_pull_packet(id[[1]], "src", root = root$dst),
+    orderly_location_pull_packet(id[[1]], root = root$dst),
     sprintf("Rejecting file 'a.rds' in 'data/%s'", id[[1]]))
 
   expect_equal(
@@ -438,10 +437,10 @@ test_that("Do not unpack a packet twice", {
   orderly_location_add("src", "path", list(path = root$src$path),
                        root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
-  orderly_location_pull_packet(id, "src", root = root$dst)
+  orderly_location_pull_packet(id, root = root$dst)
 
   expect_equal(
-    orderly_location_pull_packet(id, "src", root = root$dst),
+    orderly_location_pull_packet(id, root = root$dst),
     character(0))
 })
 
@@ -456,7 +455,7 @@ test_that("Sensible error if packet not known", {
   orderly_location_add("src", "path", list(path = root$src$path),
                        root = root$dst)
   expect_error(
-    orderly_location_pull_packet(id, "src", root = root$dst),
+    orderly_location_pull_packet(id, root = root$dst),
     "Failed to find packet at location 'src': '.+'")
 })
 
@@ -495,8 +494,7 @@ test_that("Can pull a tree recursively", {
                        root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   expect_equal(
-    orderly_location_pull_packet(id$c, "src", recursive = TRUE,
-                                 root = root$dst),
+    orderly_location_pull_packet(id$c, recursive = TRUE, root = root$dst),
     c(id$a, id$b, id$c))
 
   index <- root$dst$index()
@@ -504,8 +502,7 @@ test_that("Can pull a tree recursively", {
                root$src$index()$unpacked)
 
   expect_equal(
-    orderly_location_pull_packet(id$c, "src", recursive = TRUE,
-                                 root = root$dst),
+    orderly_location_pull_packet(id$c, recursive = TRUE, root = root$dst),
     character(0))
 })
 
@@ -749,4 +746,40 @@ test_that("can add a custom outpack location", {
   mockery::expect_called(mock_orderly_location_custom, 1)
   expect_equal(mockery::mock_args(mock_orderly_location_custom)[[1]],
                list(list(driver = "foo::bar", a = 1, b = 2)))
+})
+
+
+test_that("can pull packets as a result of a query", {
+  root <- list()
+  for (name in c("src", "dst")) {
+    root[[name]] <- create_temporary_root(use_file_store = TRUE)
+  }
+  ids <- vcapply(1:3, function(i) {
+    create_random_packet(root$src$path, parameters = list(i = i))
+  })
+  orderly_location_add("src", "path", list(path = root$src$path),
+                       root = root$dst$path)
+  ids_moved <- orderly_location_pull_packet(
+    "parameter:i < 3",
+    name = "data",
+    options = list(pull_metadata = TRUE, allow_remote = TRUE),
+    root = root$dst$path)
+  expect_setequal(ids_moved, ids[1:2])
+})
+
+
+test_that("pull packet sets allow_remote to TRUE if not given", {
+  root <- list()
+  for (name in c("src", "dst")) {
+    root[[name]] <- create_temporary_root()
+  }
+
+  id <- create_random_packet(root$src)
+  orderly_location_add("src", "path", list(path = root$src$path),
+                       root = root$dst)
+  orderly_location_pull_metadata(root = root$dst)
+  expect_error(
+    orderly_location_pull_packet(NULL, options = list(allow_remote = FALSE),
+                                 root = root$dst),
+    "If specifying 'options', 'allow_remote' must be TRUE")
 })

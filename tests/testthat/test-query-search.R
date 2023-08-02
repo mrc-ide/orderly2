@@ -29,6 +29,15 @@ test_that("can convert into search options", {
                modifyList(orderly_search_options(), list(location = "x")))
   expect_equal(as_orderly_search_options(unclass(opts)),
                opts)
+  expect_equal(as_orderly_search_options(NULL, list(allow_remote = TRUE)),
+               orderly_search_options(allow_remote = TRUE))
+  expect_equal(as_orderly_search_options(list(location = "a"),
+                                         list(allow_remote = TRUE)),
+               orderly_search_options(location = "a", allow_remote = TRUE))
+  expect_equal(as_orderly_search_options(list(allow_remote = FALSE,
+                                              location = "a"),
+                                         list(allow_remote = TRUE)),
+               orderly_search_options(allow_remote = FALSE, location = "a"))
 })
 
 
@@ -278,7 +287,7 @@ test_that("scope and allow_local can be used together to filter query", {
     NA_character_)
 
   for (i in c(x1, y1)) {
-    orderly_location_pull_packet(i, location = "src", root = root$dst)
+    orderly_location_pull_packet(i, root = root$dst)
   }
 
   expect_equal(

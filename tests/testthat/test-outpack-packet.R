@@ -294,9 +294,7 @@ test_that("Can add additional data", {
   outpack_packet_add_custom(p, "potato", custom)
   outpack_packet_end(p)
 
-  ## See mrc-3091 - this should be made easier
-  path_metadata <- file.path(root$path, ".outpack", "metadata", p$id)
-  meta <- outpack_metadata_load(path_metadata)
+  meta <- orderly_metadata(p$id, root = root)
   expect_equal(meta$custom, list(potato = list(a = 1, b = 2)))
 })
 
@@ -737,7 +735,7 @@ test_that("can pull in dependency when not found, if requested", {
   path_src_a <- withr::local_tempdir()
   query <- quote(latest(name == "data" && parameter:p > 2))
 
-  p_a <- outpack_packet_start(path_src_a, "example", root = root$a)
+  p_a <- outpack_packet_start(path_src_a, "example", root = root$a$path)
   expect_error(
     outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds")),
     paste0("Failed to find packet for query:\n    ",
@@ -758,7 +756,7 @@ test_that("can pull in dependency when not found, if requested", {
   expect_equal(p_a$depends[[1]]$packet, ids[[3]])
 
   path_src_b <- withr::local_tempdir()
-  p_b <- outpack_packet_start(path_src_b, "example", root = root$b)
+  p_b <- outpack_packet_start(path_src_b, "example", root = root$b$path)
   outpack_packet_use_dependency(p_b, query, c("data.rds" = "data.rds"),
                                 search_options = list(pull_metadata = TRUE,
                                                       allow_remote = TRUE))

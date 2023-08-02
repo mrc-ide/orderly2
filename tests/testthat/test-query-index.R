@@ -19,7 +19,7 @@ test_that("index can include only unpacked packets", {
   expect_equal(index_unpacked$index$id, character(0))
 
   for (i in c(x1, x2)) {
-    orderly_location_pull_packet(i, location = "src", root = root$dst)
+    orderly_location_pull_packet(i, root = root$dst)
   }
 
   index <- new_query_index(root$dst, opts_all)
