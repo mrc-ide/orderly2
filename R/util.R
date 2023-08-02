@@ -202,6 +202,11 @@ list_to_character <- function(x, named = TRUE) {
 }
 
 
+list_to_numeric <- function(x, named = TRUE) {
+  vnapply(x, identity, USE.NAMES = named)
+}
+
+
 sys_getenv <- function(x, used_in, error = TRUE, default = NULL) {
   v <- Sys.getenv(x, NA_character_)
   if (is.na(v) || !nzchar(v)) {

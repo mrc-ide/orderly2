@@ -67,6 +67,7 @@ reference:
     contents:
       - orderly_cleanup
       - orderly_cleanup_status
+      - orderly_gitignore_update
       - orderly_interactive_set_search_options
   - title: Create plugins
     contents:
