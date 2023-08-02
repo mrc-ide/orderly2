@@ -32,9 +32,7 @@ test_that("Can run a basic packet", {
   expect_true(file.exists(path_metadata))
   outpack_schema("metadata")$validate(path_metadata)
 
-  location_id <- root$config$location$id
-
-  path_location <- file.path(path, ".outpack", "location", location_id, id)
+  path_location <- file.path(path, ".outpack", "location", "local", id)
   expect_true(file.exists(path_location))
   outpack_schema("location")$validate(path_location)
 
