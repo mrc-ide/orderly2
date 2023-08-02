@@ -101,10 +101,10 @@ outpack_root <- R6::R6Class(
   ))
 
 
-read_location <- function(location_id, root_path, prev) {
-  path <- file.path(root_path, ".outpack", "location", location_id)
+read_location <- function(location_name, root_path, prev) {
+  path <- file.path(root_path, ".outpack", "location", location_name)
   packets <- dir(path, re_id)
-  is_new <- !(packets %in% prev$packet[prev$location == location_id])
+  is_new <- !(packets %in% prev$packet[prev$location == location_name])
   if (!any(is_new)) {
     return(NULL)
   }
@@ -113,22 +113,22 @@ read_location <- function(location_id, root_path, prev) {
   data_frame(packet = vcapply(dat, "[[", "packet"),
              time = num_to_time(vnapply(dat, "[[", "time")),
              hash = vcapply(dat, "[[", "hash"),
-             location = location_id)
+             location = location_name)
 }
 
 
 read_locations <- function(root, prev) {
-  location_id <- root$config$location$id
+  location_name <- root$config$location$name
   if (is.null(prev)) {
     prev <- data_frame(packet = character(),
                        time = empty_time(),
                        hash = character(),
                        location = character())
   }
-  new <- do.call(rbind, lapply(location_id, read_location, root$path, prev))
+  new <- do.call(rbind, lapply(location_name, read_location, root$path, prev))
   ret <- rbind(prev, new)
   ## Always sort by location, then id
-  ret <- ret[order(match(ret$location, location_id), ret$packet), ]
+  ret <- ret[order(match(ret$location, location_name), ret$packet), ]
   ## Avoids weird computed rownames - always uses 1:n
   rownames(ret) <- NULL
   ret
@@ -168,12 +168,11 @@ index_update <- function(root, prev, skip_cache) {
   }
 
   data <- prev
-  local_id <- local_location_id(root)
 
   ## TODO: Add some logging through here.
   data$location <- read_locations(root, data$location)
   data$metadata <- read_metadata(root, data$metadata)
-  data$unpacked <- data$location$packet[data$location$location == local_id]
+  data$unpacked <- data$location$packet[data$location$location == local]
 
   if (!identical(data, prev)) {
     fs::dir_create(dirname(path_index))
