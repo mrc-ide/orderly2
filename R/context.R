@@ -1,4 +1,4 @@
-orderly_context <- function() {
+orderly_context <- function(envir) {
   p <- get_active_packet()
   is_active <- !is.null(p)
   if (is_active) {
@@ -17,7 +17,6 @@ orderly_context <- function() {
     config <- root_open(root,
                         locate = FALSE,
                         require_orderly = TRUE)$config$orderly
-    envir <- orderly_environment("orderly2")
     src <- path
     parameters <- current_orderly_parameters(src, envir)
     name <- basename(path)
@@ -94,7 +93,7 @@ orderly_environment <- function(name) {
 ##'     - `as`: the filename used locally
 ##' @export
 orderly_run_info <- function() {
-  ctx <- orderly_context()
+  ctx <- orderly_context(rlang::caller_env())
 
   id <- ctx$packet$id %||% NA_character_
   name <- ctx$name

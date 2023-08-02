@@ -1,5 +1,5 @@
 numbers <- function(as, n) {
-  ctx <- orderly2::orderly_plugin_context("example.random")
+  ctx <- orderly2::orderly_plugin_context("example.random", parent.frame())
   x <- ctx$config$generator(n)
   ctx$envir[[as]] <- x
   info <- list(as = as, mean = mean(x), variance = var(x))

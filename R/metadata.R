@@ -249,7 +249,7 @@ orderly_dependency <- function(name, query, files) {
   assert_scalar_character(name)
   assert_scalar_character(query)
 
-  ctx <- orderly_context()
+  ctx <- orderly_context(rlang::caller_env())
   subquery <- NULL
   query <- orderly_query(query, name = name, subquery = subquery)
   search_options <- as_orderly_search_options(ctx$search_options)
@@ -303,7 +303,7 @@ static_orderly_dependency <- function(args) {
 ##' @export
 orderly_shared_resource <- function(...) {
   files <- validate_shared_resource(list(...))
-  ctx <- orderly_context()
+  ctx <- orderly_context(rlang::caller_env())
 
   files <- copy_shared_resource(ctx$root, ctx$path, ctx$config, files)
   if (ctx$is_active) {
