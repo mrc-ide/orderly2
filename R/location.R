@@ -626,16 +626,6 @@ lookup_location_id <- function(name, root) {
 }
 
 
-local_location_id <- function(root) {
-  lookup_location_id(local, root)
-}
-
-
-lookup_location_name <- function(id, root) {
-  root$config$location$name[match(id, root$config$location$id)]
-}
-
-
 location_check_new_name <- function(root, name) {
   if (location_exists(root, name)) {
     stop(sprintf("A location with name '%s' already exists",
