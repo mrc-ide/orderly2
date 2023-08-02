@@ -223,11 +223,11 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
                                            locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  location_id <- location_resolve_valid(location, root,
-                                        include_local = FALSE,
-                                        allow_no_locations = TRUE)
-  for (id in location_id) {
-    location_pull_metadata(id, root)
+  location_name <- location_resolve_valid(location, root,
+                                          include_local = FALSE,
+                                          allow_no_locations = TRUE)
+  for (name in location_name) {
+    location_pull_metadata(name, root)
   }
 }
 
@@ -313,11 +313,10 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
   ## We could come up with a few heuristics about where to get files
   ## from - see plan_copy_files too for another shot at this that can
   ## then be tidied up.
-  location_id <- location_resolve_valid(options$locations, root,
-                                        include_local = FALSE,
-                                        allow_no_locations = FALSE)
-  plan <- location_build_pull_plan(ids, location_id, root)
-  local_id <- local_location_id(root)
+  location_name <- location_resolve_valid(options$locations, root,
+                                          include_local = FALSE,
+                                          allow_no_locations = FALSE)
+  plan <- location_build_pull_plan(ids, location_name, root)
 
   ## At this point we should really be providing logging about how
   ## many packets, files, etc are being copied.  I've done this as a
@@ -345,7 +344,7 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
     if (!is.null(root$config$core$path_archive)) {
       location_pull_files_archive(root, driver, plan$packet[i])
     }
-    mark_packet_known(plan$packet[i], local_id, hash, Sys.time(), root)
+    mark_packet_known(plan$packet[i], local, hash, Sys.time(), root)
   }
 
   invisible(ids)
@@ -521,7 +520,7 @@ location_resolve_valid <- function(location, root, include_local,
     stop("No suitable location found")
   }
 
-  lookup_location_id(location, root)
+  location
 }
 
 
