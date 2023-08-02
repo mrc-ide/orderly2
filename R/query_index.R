@@ -93,10 +93,10 @@ new_query_index <- function(root, options) {
   metadata <- idx$metadata
 
   if (!is.null(options$location)) {
-    location_id <- location_resolve_valid(options$location, root,
-                                          include_local = TRUE,
-                                          allow_no_locations = FALSE)
-    include <- idx$location$packet[idx$location$location %in% location_id]
+    location <- location_resolve_valid(options$location, root,
+                                       include_local = TRUE,
+                                       allow_no_locations = FALSE)
+    include <- idx$location$packet[idx$location$location %in% location]
     metadata <- metadata[names(metadata) %in% include]
   }
   if (!options$allow_remote) {
