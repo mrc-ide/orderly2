@@ -581,8 +581,3 @@ format_rlang_trace <- function(x, colours = TRUE) {
   }
   str
 }
-
-
-prompt_ask_yes_no <- function(prompt) {
-  utils::menu(c("no", "yes"), FALSE, title = prompt) == 2 # nocov
-}

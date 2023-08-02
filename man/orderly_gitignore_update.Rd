@@ -4,29 +4,11 @@
 \alias{orderly_gitignore_update}
 \title{Update a gitignore file}
 \usage{
-orderly_gitignore_update(
-  name,
-  prompt = "if_manually_created",
-  root = NULL,
-  locate = TRUE
-)
+orderly_gitignore_update(name, root = NULL, locate = TRUE)
 }
 \arguments{
 \item{name}{The name of the gitignore file to update, or the
 string "(root)"}
-
-\item{prompt}{Conditions under which you will be prompted before
-writing anything to \code{.gitignore} (in a non-interactive session,
-if we need to prompt, assume the response was "no" instead).
-Options here are:
-\itemize{
-\item \code{if_manually_created}": (the default), which prompts if a
-.gitignore file exists with content that does not include
-special orderly2 markers
-\item \code{if_new_file}: if we would create a new file
-\item \code{always}: on any change to contents
-\item \code{never}: never prompt, just write the changes
-}}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working directory if
