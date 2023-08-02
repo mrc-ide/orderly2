@@ -615,7 +615,6 @@ new_location_entry <- function(name, type, args) {
 
   ## NOTE: make sure this matches the order in config_read
   data_frame(name = name,
-             id = name,
              type = type,
              args = I(list(args)))
 }

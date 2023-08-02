@@ -300,7 +300,6 @@ config_read <- function(root_path) {
   ## NOTE: make sure that this matches the order in new_location_entry
   config$location <- data_frame(
     name = vcapply(config$location, "[[", "name"),
-    id = vcapply(config$location, "[[", "id"),
     type = vcapply(config$location, "[[", "type"),
     args = I(lapply(config$location, "[[", "args")))
   if (is.null(config$logging)) {

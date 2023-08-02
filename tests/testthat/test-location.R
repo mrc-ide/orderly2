@@ -71,12 +71,9 @@ test_that("Can rename a location", {
   orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "b"))
 
-  ids <- orderly_config(root$a)$location$id
-
   orderly_location_rename("b", "c", root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "c"))
-
-  expect_setequal(orderly_config(root$a)$location$id, ids)
+  expect_setequal(orderly_config(root$a)$location$name, c("local", "c"))
 })
 
 
@@ -139,8 +136,8 @@ test_that("Can remove a location", {
                   c("local", "orphan"))
 
   config <- orderly_config(root$a)
-  orphan_id <- config$location$id[config$location$name == "orphan"]
-  expect_equal(root$a$index()$location$location, c(orphan_id))
+  orphan_id <- "orphan"
+  expect_equal(root$a$index()$location$location, orphan_id)
 })
 
 
@@ -164,14 +161,11 @@ test_that("Removing a location orphans packets only from that location", {
 
   # id1 should now be found in both b and c
   index <- root$a$index()
-  config <- orderly_config(root$a)
-  b_id <- config$location$id[config$location$name == "b"]
-  c_id <- config$location$id[config$location$name == "c"]
   expect_equal(index$location$location[index$location$packet == id1],
-               c(b_id, c_id))
+               c("b", "c"))
 
   # id2 should just be found in b
-  expect_equal(index$location$location[index$location$packet == id2], b_id)
+  expect_equal(index$location$location[index$location$packet == id2], "b")
 
   # remove location b
   orderly_location_remove("b", root = root$a)
@@ -179,14 +173,11 @@ test_that("Removing a location orphans packets only from that location", {
                   c("local", "orphan", "c"))
 
   # id1 should now only be found in c
-  config <- orderly_config(root$a)
   index <- root$a$index()
-  expect_equal(index$location$location[index$location$packet == id1], c_id)
+  expect_equal(index$location$location[index$location$packet == id1], "c")
 
   # id2 should be orphaned
-  orphan_id <- config$location$id[config$location$name == "orphan"]
-  expect_equal(index$location$location[index$location$packet == id2], orphan_id)
-
+  expect_equal(index$location$location[index$location$packet == id2], "orphan")
 })
 
 
@@ -735,7 +726,7 @@ test_that("can add a custom outpack location", {
   mock_orderly_location_custom <- mockery::mock("value")
   mockery::stub(location_driver, "orderly_location_custom",
                 mock_orderly_location_custom)
-  expect_equal(location_driver(loc$id, root), "value")
+  expect_equal(location_driver(loc$name, root), "value")
   mockery::expect_called(mock_orderly_location_custom, 1)
   expect_equal(mockery::mock_args(mock_orderly_location_custom)[[1]],
                list(list(driver = "foo::bar", a = 1, b = 2)))
