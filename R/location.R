@@ -125,8 +125,7 @@ orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
   location_check_exists(root, old)
 
   config <- root$config
-  id <- lookup_location_id(old, root)
-  config$location$name[config$location$id == id] <- new
+  config$location$name[config$location$name == old] <- new
   root$update_config(config)
   invisible()
 }
@@ -156,9 +155,8 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
 
   index <- root$index()
   config <- root$config
-  id <- lookup_location_id(name, root)
-  known_here <- index$location$packet[index$location$location == id]
-  known_elsewhere <- index$location$packet[index$location$location != id]
+  known_here <- index$location$packet[index$location$location == name]
+  known_elsewhere <- index$location$packet[index$location$location != name]
   only_here <- setdiff(known_here, known_elsewhere)
 
   if (length(only_here) > 0) {
@@ -169,11 +167,10 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
       rownames(config$location) <- NULL
     }
 
-    orphan_id <- config$location$id[match("orphan", config$location$name)]
-    mark_packets_orphaned(id, only_here, orphan_id, root)
+    mark_packets_orphaned(name, only_here, root)
   }
 
-  location_path <- file.path(root$path, ".outpack", "location", id)
+  location_path <- file.path(root$path, ".outpack", "location", name)
   if (fs::dir_exists(location_path)) {
     fs::dir_delete(location_path)
   }
@@ -664,10 +661,9 @@ location_exists <- function(root, name) {
 }
 
 
-mark_packets_orphaned <- function(location_id, packet_id, orphan_id, root) {
-  location <- file.path(root$path, ".outpack", "location", location_id,
-                        packet_id)
-  dest <- file.path(root$path, ".outpack", "location", orphan_id, packet_id)
+mark_packets_orphaned <- function(location, packet_id, root) {
+  src <- file.path(root$path, ".outpack", "location", location, packet_id)
+  dest <- file.path(root$path, ".outpack", "location", "orphan", packet_id)
   fs::dir_create(dirname(dest))
-  fs::file_move(location, dest)
+  fs::file_move(src, dest)
 }
