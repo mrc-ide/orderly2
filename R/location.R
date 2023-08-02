@@ -619,7 +619,7 @@ new_location_entry <- function(name, type, args) {
     check_symbol_from_str(args$driver, "args$driver")
   }
 
-  location_id <- paste(as.character(openssl::rand_bytes(4)), collapse = "")
+  location_id <- name
   ## NOTE: make sure this matches the order in config_read
   data_frame(name = name,
              id = location_id,
