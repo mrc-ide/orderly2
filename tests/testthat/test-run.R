@@ -974,3 +974,15 @@ test_that("can detect device imbalance", {
                c(x = "Script left 1 device open"))
   expect_equal(stack, dev.list())
 })
+
+
+test_that("can use quote for queries queries", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  id1 <- c(orderly_run("data", envir = new.env(), root = path),
+           orderly_run("data", envir = new.env(), root = path))
+  path_src <- file.path(path, "src", "depends", "orderly.R")
+  src <- readLines(path_src)
+  writeLines(sub('"latest"', 'quote(latest())', src, fixed = TRUE), path_src)
+  id2 <- orderly_run("depends", root = path)
+  expect_equal(orderly_metadata(id2, root = path)$depends$packet, id1[[2]])
+})
