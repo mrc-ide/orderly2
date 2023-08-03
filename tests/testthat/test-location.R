@@ -71,12 +71,9 @@ test_that("Can rename a location", {
   orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "b"))
 
-  ids <- orderly_config(root$a)$location$id
-
   orderly_location_rename("b", "c", root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "c"))
-
-  expect_setequal(orderly_config(root$a)$location$id, ids)
+  expect_setequal(orderly_config(root$a)$location$name, c("local", "c"))
 })
 
 
@@ -139,8 +136,8 @@ test_that("Can remove a location", {
                   c("local", "orphan"))
 
   config <- orderly_config(root$a)
-  orphan_id <- config$location$id[config$location$name == "orphan"]
-  expect_equal(root$a$index()$location$location, c(orphan_id))
+  orphan_id <- "orphan"
+  expect_equal(root$a$index()$location$location, orphan_id)
 })
 
 
@@ -164,14 +161,11 @@ test_that("Removing a location orphans packets only from that location", {
 
   # id1 should now be found in both b and c
   index <- root$a$index()
-  config <- orderly_config(root$a)
-  b_id <- config$location$id[config$location$name == "b"]
-  c_id <- config$location$id[config$location$name == "c"]
   expect_equal(index$location$location[index$location$packet == id1],
-               c(b_id, c_id))
+               c("b", "c"))
 
   # id2 should just be found in b
-  expect_equal(index$location$location[index$location$packet == id2], b_id)
+  expect_equal(index$location$location[index$location$packet == id2], "b")
 
   # remove location b
   orderly_location_remove("b", root = root$a)
@@ -179,14 +173,11 @@ test_that("Removing a location orphans packets only from that location", {
                   c("local", "orphan", "c"))
 
   # id1 should now only be found in c
-  config <- orderly_config(root$a)
   index <- root$a$index()
-  expect_equal(index$location$location[index$location$packet == id1], c_id)
+  expect_equal(index$location$location[index$location$packet == id1], "c")
 
   # id2 should be orphaned
-  orphan_id <- config$location$id[config$location$name == "orphan"]
-  expect_equal(index$location$location[index$location$packet == id2], orphan_id)
-
+  expect_equal(index$location$location[index$location$packet == id2], "orphan")
 })
 
 
@@ -230,8 +221,7 @@ test_that("can pull metadata from a file base location", {
 
   expect_s3_class(index$location, "data.frame")
   expect_setequal(index$location$packet, ids)
-  expect_equal(index$location$location,
-               rep(lookup_location_id("upstream", root_downstream), 3))
+  expect_equal(index$location$location, rep("upstream", 3))
 })
 
 
@@ -273,12 +263,12 @@ test_that("pull metadata from subset of locations", {
     ids[[name]] <- vcapply(1:3, function(i) create_random_packet(root[[name]]))
   }
 
-  location_id <- lookup_location_id(c("x", "y", "z"), root$a)
+  location_name <- c("x", "y", "z")
 
   orderly_location_pull_metadata(c("x", "y"), root = root$a)
   index <- root$a$index()
   expect_setequal(names(index$metadata), c(ids$x, ids$y))
-  expect_equal(index$location$location, rep(location_id[1:2], each = 3))
+  expect_equal(index$location$location, rep(location_name[1:2], each = 3))
   expect_equal(index$metadata[ids$x],
                root$x$index()$metadata)
   expect_equal(index$metadata[ids$y],
@@ -287,7 +277,7 @@ test_that("pull metadata from subset of locations", {
   orderly_location_pull_metadata(root = root$a)
   index <- root$a$index()
   expect_setequal(names(index$metadata), c(ids$x, ids$y, ids$z))
-  expect_equal(index$location$location, rep(location_id, each = 3))
+  expect_equal(index$location$location, rep(location_name, each = 3))
   expect_equal(index$metadata[ids$z],
                root$z$index()$metadata)
 })
@@ -347,8 +337,7 @@ test_that("Can pull metadata through chain of locations", {
   expect_equal(nrow(index$location), 3)
   expect_equal(index$location$packet, c(id1, id1, id2))
 
-  expect_equal(index$location$location,
-               lookup_location_id(c("b", "c", "c"), root$d))
+  expect_equal(index$location$location, c("b", "c", "c"))
 })
 
 
@@ -517,22 +506,18 @@ test_that("Can resolve locations", {
     }
   }
 
-  location_id <- set_names(
-    lookup_location_id(c("a", "b", "c", "d", "local"), root$dst),
-    c("a", "b", "c", "d", "local"))
-
   expect_equal(
     location_resolve_valid(NULL, root$dst, FALSE, FALSE),
-    lookup_location_id(c("a", "b", "c", "d"), root$dst))
+    c("a", "b", "c", "d"))
   expect_equal(
     location_resolve_valid(NULL, root$dst, TRUE, FALSE),
-    lookup_location_id(c("local", "a", "b", "c", "d"), root$dst))
+    c("local", "a", "b", "c", "d"))
   expect_equal(
     location_resolve_valid(c("a", "b", "local", "d"), root$dst, FALSE, FALSE),
-    lookup_location_id(c("a", "b", "d"), root$dst))
+    c("a", "b", "d"))
   expect_equal(
     location_resolve_valid(c("a", "b", "local", "d"), root$dst, TRUE, FALSE),
-    lookup_location_id(c("a", "b", "local", "d"), root$dst))
+    c("a", "b", "local", "d"))
 
   expect_error(
     location_resolve_valid(TRUE, root$dst, TRUE, FALSE),
@@ -595,8 +580,7 @@ test_that("Can filter locations", {
   ids <- unique(c(ids_a, ids_b, ids_c, ids_d))
   expected <- function(ids, location_name) {
     data_frame(packet = ids,
-               location_id = lookup_location_id(location_name, root$dst),
-               location_name = location_name)
+               location = location_name)
   }
   locs <- function(location) {
     location_resolve_valid(location, root$dst,
@@ -742,7 +726,7 @@ test_that("can add a custom outpack location", {
   mock_orderly_location_custom <- mockery::mock("value")
   mockery::stub(location_driver, "orderly_location_custom",
                 mock_orderly_location_custom)
-  expect_equal(location_driver(loc$id, root), "value")
+  expect_equal(location_driver(loc$name, root), "value")
   mockery::expect_called(mock_orderly_location_custom, 1)
   expect_equal(mockery::mock_args(mock_orderly_location_custom)[[1]],
                list(list(driver = "foo::bar", a = 1, b = 2)))

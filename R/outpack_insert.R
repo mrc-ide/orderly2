@@ -4,8 +4,6 @@ outpack_insert_packet <- function(path, json, root = NULL) {
   outpack_log_debug(root, "insert", meta$id, "orderly2:::outpack_insert_packet")
   assert_is_directory(path)
 
-  local_id <- local_location_id(root)
-
   hash_algorithm <- root$config$core$hash_algorithm
 
   ## At this point we need to require that 'id' is not known to the
@@ -19,7 +17,7 @@ outpack_insert_packet <- function(path, json, root = NULL) {
   ## appear.
   index <- root$index()
   exists <- any(index$location$packet == id &
-                index$location$location == local_id)
+                index$location$location == local)
   if (exists) {
     stop(sprintf("'%s' has already been added for '%s'", id, local))
   }
@@ -45,7 +43,7 @@ outpack_insert_packet <- function(path, json, root = NULL) {
   ## its own thing.
   hash <- hash_data(json, hash_algorithm)
   time <- Sys.time()
-  mark_packet_known(id, local_id, hash, time, root)
+  mark_packet_known(id, local, hash, time, root)
 
   ## If we were going to add a number in quick succession we could
   ## avoid churn here by not rewriting at every point.
@@ -53,12 +51,12 @@ outpack_insert_packet <- function(path, json, root = NULL) {
 }
 
 
-mark_packet_known <- function(packet_id, location_id, hash, time, root) {
+mark_packet_known <- function(packet_id, location, hash, time, root) {
   dat <- list(schema_version = scalar(outpack_schema_version()),
               packet = scalar(packet_id),
               time = scalar(time_to_num(time)),
               hash = scalar(hash))
-  dest <- file.path(root$path, ".outpack", "location", location_id, packet_id)
+  dest <- file.path(root$path, ".outpack", "location", location, packet_id)
   fs::dir_create(dirname(dest))
   writeLines(to_json(dat, "location"), dest)
 }

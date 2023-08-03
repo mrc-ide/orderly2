@@ -128,7 +128,7 @@ temp_file <- function() {
 ## Edit an existing configuration to drop the logging section. Hard
 ## without loading the json but this works for now:
 config_remove_logging <- function(path) {
-  fmt <- '{
+  config <- '{
   "schema_version": "0.0.1",
   "core": {
     "path_archive": "archive",
@@ -139,14 +139,14 @@ config_remove_logging <- function(path) {
   "location": [
     {
       "name": "local",
-      "id": "%s",
+      "id": "local",
       "type": "local",
       "args": []
     }
   ]
 }'
   writeLines(
-    sprintf(fmt, local_location_id(root_open(path, FALSE, FALSE))),
+    config,
     file.path(path, ".outpack", "config.json"))
 }
 

@@ -125,8 +125,7 @@ orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
   location_check_exists(root, old)
 
   config <- root$config
-  id <- lookup_location_id(old, root)
-  config$location$name[config$location$id == id] <- new
+  config$location$name[config$location$name == old] <- new
   root$update_config(config)
   invisible()
 }
@@ -156,9 +155,8 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
 
   index <- root$index()
   config <- root$config
-  id <- lookup_location_id(name, root)
-  known_here <- index$location$packet[index$location$location == id]
-  known_elsewhere <- index$location$packet[index$location$location != id]
+  known_here <- index$location$packet[index$location$location == name]
+  known_elsewhere <- index$location$packet[index$location$location != name]
   only_here <- setdiff(known_here, known_elsewhere)
 
   if (length(only_here) > 0) {
@@ -169,11 +167,10 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
       rownames(config$location) <- NULL
     }
 
-    orphan_id <- config$location$id[match("orphan", config$location$name)]
-    mark_packets_orphaned(id, only_here, orphan_id, root)
+    mark_packets_orphaned(name, only_here, root)
   }
 
-  location_path <- file.path(root$path, ".outpack", "location", id)
+  location_path <- file.path(root$path, ".outpack", "location", name)
   if (fs::dir_exists(location_path)) {
     fs::dir_delete(location_path)
   }
@@ -226,11 +223,11 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
                                            locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  location_id <- location_resolve_valid(location, root,
-                                        include_local = FALSE,
-                                        allow_no_locations = TRUE)
-  for (id in location_id) {
-    location_pull_metadata(id, root)
+  location_name <- location_resolve_valid(location, root,
+                                          include_local = FALSE,
+                                          allow_no_locations = TRUE)
+  for (name in location_name) {
+    location_pull_metadata(name, root)
   }
 }
 
@@ -316,11 +313,10 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
   ## We could come up with a few heuristics about where to get files
   ## from - see plan_copy_files too for another shot at this that can
   ## then be tidied up.
-  location_id <- location_resolve_valid(options$locations, root,
-                                        include_local = FALSE,
-                                        allow_no_locations = FALSE)
-  plan <- location_build_pull_plan(ids, location_id, root)
-  local_id <- local_location_id(root)
+  location_name <- location_resolve_valid(options$locations, root,
+                                          include_local = FALSE,
+                                          allow_no_locations = FALSE)
+  plan <- location_build_pull_plan(ids, location_name, root)
 
   ## At this point we should really be providing logging about how
   ## many packets, files, etc are being copied.  I've done this as a
@@ -340,15 +336,15 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
   for (i in seq_len(nrow(plan))) {
     ## See mrc-4351 (assumption is this was validated on insert).
     hash <- index$location$hash[index$location$packet == plan$packet[i] &
-                                index$location$location == plan$location_id[i]]
-    driver <- location_driver(plan$location_id[i], root)
+                                index$location$location == plan$location[i]]
+    driver <- location_driver(plan$location[i], root)
     if (root$config$core$use_file_store) {
       location_pull_files_store(root, driver, plan$packet[i])
     }
     if (!is.null(root$config$core$path_archive)) {
       location_pull_files_archive(root, driver, plan$packet[i])
     }
-    mark_packet_known(plan$packet[i], local_id, hash, Sys.time(), root)
+    mark_packet_known(plan$packet[i], local, hash, Sys.time(), root)
   }
 
   invisible(ids)
@@ -381,13 +377,13 @@ orderly_location_push <- function(packet_id, location, root = NULL,
                                   locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = TRUE,
                     call = environment())
-  location_id <- location_resolve_valid(location, root,
-                                        include_local = FALSE,
-                                        allow_no_locations = FALSE)
-  plan <- location_build_push_plan(packet_id, location_id, root)
+  location_name <- location_resolve_valid(location, root,
+                                          include_local = FALSE,
+                                          allow_no_locations = FALSE)
+  plan <- location_build_push_plan(packet_id, location_name, root)
 
   if (length(plan$files) > 0 || length(plan$packet_id) > 0) {
-    driver <- location_driver(location_id, root)
+    driver <- location_driver(location_name, root)
     for (hash in plan$files) {
       driver$push_file(find_file_by_hash(root, hash), hash)
     }
@@ -400,8 +396,8 @@ orderly_location_push <- function(packet_id, location, root = NULL,
 }
 
 
-location_driver <- function(location_id, root) {
-  i <- match(location_id, root$config$location$id)
+location_driver <- function(location_name, root) {
+  i <- match(location_name, root$config$location$name)
   type <- root$config$location$type[[i]]
   args <- root$config$location$args[[i]]
   switch(type,
@@ -421,9 +417,9 @@ orderly_location_custom <- function(args) {
 }
 
 
-location_pull_metadata <- function(location_id, root) {
+location_pull_metadata <- function(location_name, root) {
   index <- root$index()
-  driver <- location_driver(location_id, root)
+  driver <- location_driver(location_name, root)
 
   known_there <- driver$list()
 
@@ -439,11 +435,11 @@ location_pull_metadata <- function(location_id, root) {
     }
   }
 
-  known_here <- index$location$packet[index$location$location == location_id]
+  known_here <- index$location$packet[index$location$location == location_name]
   new_loc <- known_there[!(known_there$packet %in% known_here), ]
 
   for (i in seq_len(nrow(new_loc))) {
-    mark_packet_known(new_loc$packet[[i]], location_id, new_loc$hash[[i]],
+    mark_packet_known(new_loc$packet[[i]], location_name, new_loc$hash[[i]],
                       new_loc$time[[i]], root)
   }
 
@@ -524,26 +520,25 @@ location_resolve_valid <- function(location, root, include_local,
     stop("No suitable location found")
   }
 
-  lookup_location_id(location, root)
+  location
 }
 
 
-location_build_pull_plan <- function(packet_id, location_id, root) {
+location_build_pull_plan <- function(packet_id, location_name, root) {
   index <- root$index()
 
   ## Things that are found in any location:
-  candidates <- index$location[index$location$location %in% location_id,
+  candidates <- index$location[index$location$location %in% location_name,
                                c("packet", "location")]
 
   ## Sort by location
-  candidates <- candidates[order(match(candidates$location, location_id)), ]
+  candidates <- candidates[order(match(candidates$location, location_name)), ]
 
   plan <- data_frame(
     packet = packet_id,
-    location_id = candidates$location[match(packet_id, candidates$packet)])
-  plan$location_name <- lookup_location_name(plan$location_id, root)
+    location = candidates$location[match(packet_id, candidates$packet)])
 
-  if (anyNA(plan$location_id)) {
+  if (anyNA(plan$location)) {
     ## This is going to want eventual improvement before we face
     ## users.  The issues here are that:
     ## * id or location might be vectors (and potentially) quite long
@@ -557,11 +552,10 @@ location_build_pull_plan <- function(packet_id, location_id, root) {
     ##   packet here too (we can get that easily from the index)
     ## * we don't report back how the set of candidate locations was
     ##   resolved (e.g., explicitly given, default)
-    msg <- packet_id[is.na(plan$location_id)]
-    src <- lookup_location_name(location_id, root)
+    msg <- packet_id[is.na(plan$location)]
     stop(sprintf("Failed to find %s at location %s: %s",
                  ngettext(length(msg), "packet", "packets"),
-                 paste(squote(src), collapse = ", "),
+                 paste(squote(location_name), collapse = ", "),
                  paste(squote(msg), collapse = ", ")))
   }
 
@@ -569,8 +563,8 @@ location_build_pull_plan <- function(packet_id, location_id, root) {
 }
 
 
-location_build_push_plan <- function(packet_id, location_id, root) {
-  driver <- location_driver(location_id, root)
+location_build_push_plan <- function(packet_id, location_name, root) {
+  driver <- location_driver(location_name, root)
 
   packet_id <- sort(find_all_dependencies(packet_id, root$index()$metadata))
   packet_id_msg <- driver$list_unknown_packets(packet_id)
@@ -619,27 +613,10 @@ new_location_entry <- function(name, type, args) {
     check_symbol_from_str(args$driver, "args$driver")
   }
 
-  location_id <- paste(as.character(openssl::rand_bytes(4)), collapse = "")
   ## NOTE: make sure this matches the order in config_read
   data_frame(name = name,
-             id = location_id,
              type = type,
              args = I(list(args)))
-}
-
-
-lookup_location_id <- function(name, root) {
-  root$config$location$id[match(name, root$config$location$name)]
-}
-
-
-local_location_id <- function(root) {
-  lookup_location_id(local, root)
-}
-
-
-lookup_location_name <- function(id, root) {
-  root$config$location$name[match(id, root$config$location$id)]
 }
 
 
@@ -664,10 +641,9 @@ location_exists <- function(root, name) {
 }
 
 
-mark_packets_orphaned <- function(location_id, packet_id, orphan_id, root) {
-  location <- file.path(root$path, ".outpack", "location", location_id,
-                        packet_id)
-  dest <- file.path(root$path, ".outpack", "location", orphan_id, packet_id)
+mark_packets_orphaned <- function(location, packet_id, root) {
+  src <- file.path(root$path, ".outpack", "location", location, packet_id)
+  dest <- file.path(root$path, ".outpack", "location", "orphan", packet_id)
   fs::dir_create(dirname(dest))
-  fs::file_move(location, dest)
+  fs::file_move(src, dest)
 }

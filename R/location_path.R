@@ -2,19 +2,17 @@ orderly_location_path <- R6::R6Class(
   "orderly_location_path",
 
   private = list(
-    root = NULL,
-    local_id = NULL
+    root = NULL
   ),
 
   public = list(
     initialize = function(path) {
       private$root <- root_open(path, locate = FALSE, require_orderly = FALSE)
-      private$local_id <- local_location_id(private$root)
     },
 
     list = function() {
       dat <- private$root$index()$location
-      dat[dat$location == private$local_id, c("packet", "time", "hash")]
+      dat[dat$location == local, c("packet", "time", "hash")]
     },
 
     metadata = function(packet_ids) {
@@ -22,7 +20,7 @@ orderly_location_path <- R6::R6Class(
       ## shipping results from, then we need to validate that these
       ## ids are all found within our data.
       dat <- private$root$index()$location
-      msg <- setdiff(packet_ids, dat$packet[dat$location == private$local_id])
+      msg <- setdiff(packet_ids, dat$packet[dat$location == local])
       if (length(msg) > 0) {
         stop("Some packet ids not found: ",
              paste(squote(msg), collapse = ", "))
@@ -99,9 +97,8 @@ location_path_import_metadata <- function(str, hash, root) {
   }
 
   writeLines(str, file.path(root$path, ".outpack", "metadata", id))
-  local_id <- local_location_id(root)
   time <- Sys.time()
-  mark_packet_known(id, local_id, hash, time, root)
+  mark_packet_known(id, local, hash, time, root)
 }
 
 

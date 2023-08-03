@@ -154,11 +154,11 @@ plan_copy_files <- function(root, id, there, here) {
 ## We don't want here to necessarily download all of these files; some
 ## might be found locally.
 copy_files_from_remote <- function(id, there, here, dest, overwrite, root) {
-  location_id <- location_resolve_valid(NULL, root,
-                                        include_local = FALSE,
-                                        allow_no_locations = FALSE)
-  plan <- location_build_pull_plan(id, location_id, root)
-  driver <- location_driver(plan$location_id[match(id, plan$packet)], root)
+  location_name <- location_resolve_valid(NULL, root,
+                                          include_local = FALSE,
+                                          allow_no_locations = FALSE)
+  plan <- location_build_pull_plan(id, location_name, root)
+  driver <- location_driver(plan$location[match(id, plan$packet)], root)
 
   meta <- root$metadata(id)
   hash <- meta$files$hash[match(there, meta$files$path)]
