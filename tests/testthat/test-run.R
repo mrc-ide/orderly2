@@ -982,7 +982,7 @@ test_that("can use quote for queries queries", {
            orderly_run("data", envir = new.env(), root = path))
   path_src <- file.path(path, "src", "depends", "orderly.R")
   src <- readLines(path_src)
-  writeLines(sub('"latest"', 'quote(latest())', src, fixed = TRUE), path_src)
+  writeLines(sub('"latest"', "quote(latest())", src, fixed = TRUE), path_src)
   id2 <- orderly_run("depends", root = path)
   expect_equal(orderly_metadata(id2, root = path)$depends$packet, id1[[2]])
 })
