@@ -247,7 +247,6 @@ static_orderly_artefact <- function(args) {
 ##' @export
 orderly_dependency <- function(name, query, files) {
   assert_scalar_character(name)
-  assert_scalar_character(query)
 
   ctx <- orderly_context()
   subquery <- NULL
@@ -275,10 +274,16 @@ static_orderly_dependency <- function(args) {
 
   name <- static_string(name)
   files <- static_character_vector(files, TRUE)
-  ## TODO: allow passing expressions directly in, that will be much
-  ## nicer, but possibly needs some care as we do want a consistent
-  ## approach to NSE here
-  query <- static_string(query)
+
+  if (is.character(args$query)) {
+    query <- static_string(query)
+  } else if (is_call(args$query, "quote") && length(args$query) == 2) {
+    ## For now, just convert to string; we don't yet do much with this though
+    query <- deparse1(args$query[[2]])
+  } else {
+    query <- NULL
+  }
+
   if (is.null(name) || is.null(files) || is.null(query)) {
     return(NULL)
   }
