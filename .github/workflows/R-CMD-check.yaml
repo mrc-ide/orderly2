@@ -48,7 +48,7 @@ jobs:
       # releases and then we can install and cache against that.
       - name: setup server
         run: |
-          cargo install --git https://github.com/mrc-ide/outpack_server --branch mrc-4464
+          cargo install --git https://github.com/mrc-ide/outpack_server --branch main
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
