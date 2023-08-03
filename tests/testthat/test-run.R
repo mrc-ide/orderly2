@@ -138,7 +138,7 @@ test_that("can run orderly with parameters, without orderly", {
 })
 
 
-test_that("can ruin orderly with parameters, without orderly, globally", {
+test_that("can run orderly with parameters, without orderly, globally", {
   path <- test_prepare_orderly_example(c("parameters", "depends-query"))
   id <- orderly_run("parameters", parameters = list(a = 10, b = 20, c = 30),
                     envir = new.env(), root = path)
