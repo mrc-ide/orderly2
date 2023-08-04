@@ -162,3 +162,14 @@ test_that("default serialise errors if metadata found", {
     plugin_no_serialise(list(a = 1, b = 2)),
     "Your plugin produced output to be serialise but has no serialise method")
 })
+
+
+test_that("deal with devmode roots", {
+  skip_if_not_installed("mockery")
+  mock_find_package <- mockery::mock("/path/to/pkg", cycle = TRUE)
+  mock_is_dev_package <- mockery::mock(FALSE, TRUE)
+  mockery::stub(pkg_root, "find.package", mock_find_package)
+  mockery::stub(pkg_root, "is_dev_package", mock_is_dev_package)
+  expect_equal(pkg_root("pkg"), "/path/to/pkg")
+  expect_equal(pkg_root("pkg"), file.path("/path/to/pkg", "inst"))
+})
