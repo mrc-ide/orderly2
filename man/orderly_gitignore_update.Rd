@@ -26,7 +26,7 @@ Nothing, called for its side effects
 }
 \description{
 Update a gitignore, which is useful to prevent accidentally
-comitting files to source control that are generated. This
+committing files to source control that are generated. This
 includes artefacts, shared resources and dependencies (within a
 report directory) or at the global level all the contents of the
 \code{.outpack} directory, the draft folder and the archive directory.
