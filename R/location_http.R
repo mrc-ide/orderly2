@@ -54,6 +54,7 @@ orderly_location_http <- R6::R6Class(
         })
     },
 
+    ## TODO: we could get the schemas here from outpack_server too
     list_unknown_packets = function(ids) {
       body <- to_json(list(ids = ids, unpacked = scalar(TRUE)), NULL)
       content <- httr::content_type("application/json")

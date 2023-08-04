@@ -27,10 +27,8 @@ serialise <- function(data) {
 }
 
 .onLoad <- function(...) {
-  schema <- system.file("schema.json", package = "example.random",
-                        mustWork = TRUE)
   orderly2::orderly_plugin_register("example.random",
                                     config = config,
                                     serialise = serialise,
-                                    schema = schema)
+                                    schema = "schema.json")
 }

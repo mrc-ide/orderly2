@@ -1,10 +1,46 @@
 cache <- new.env(parent = emptyenv())
 
-custom_metadata_schema <- function() {
-  if (is.null(cache$custom_metadata_schema)) {
-    path <- system.file("outpack-custom.json", package = "orderly2",
-                        mustWork = TRUE)
-    cache$custom_metadata_schema <- paste(readLines(path), collapse = "\n")
+outpack_schema_version <- function() {
+  if (is.null(cache$schema_version)) {
+    path <- orderly2_file("schema/outpack/metadata.json")
+    cache$schema_version <- jsonlite::read_json(path)$version
   }
-  cache$custom_metadata_schema
+  cache$schema_version
+}
+
+
+get_schema <- function(name) {
+  if (inherits(name, "json")) {
+    jsonvalidate::json_schema$new(name)
+  } else {
+    load_schema(name)
+  }
+}
+
+
+custom_schema <- function(schema) {
+  load_schema(hash_data(schema, "sha1"), schema)
+}
+
+
+load_schema <- function(key) {
+  if (is.null(cache$schema[[key]])) {
+    if (is.null(cache$schema)) {
+      cache$schema <- list()
+    }
+    key_split <- strsplit(key, "/", fixed = TRUE)[[1]]
+    if (key_split[[1]] %in% c("orderly", "outpack")) {
+      path <- orderly2_file(file.path("schema", key))
+    } else {
+      path <- system_file(key_split[[2]], package = key_split[[1]])
+    }
+    cache$schema[[key]] <- jsonvalidate::json_schema$new(path)
+
+  }
+  cache$schema[[key]]
+}
+
+
+should_validate_schema <- function(schema) {
+  !is.null(schema) && getOption("outpack.schema_validate", FALSE)
 }

@@ -240,8 +240,8 @@ read_string <- function(path) {
 }
 
 
-outpack_file <- function(path) {
-  system_file(file.path("outpack", path), package = "orderly2")
+orderly2_file <- function(path) {
+  system_file(path, package = "orderly2")
 }
 
 
@@ -302,7 +302,7 @@ to_json <- function(x, schema = NULL, auto_unbox = FALSE, ...) {
                            json_verbatim = TRUE, na = "null", null = "null",
                            ...)
   if (should_validate_schema(schema)) {
-    outpack_schema(schema)$validate(json, error = TRUE)
+    get_schema(schema)$validate(json, error = TRUE)
   }
   json
 }

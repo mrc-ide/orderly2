@@ -58,5 +58,5 @@ mark_packet_known <- function(packet_id, location, hash, time, root) {
               hash = scalar(hash))
   dest <- file.path(root$path, ".outpack", "location", location, packet_id)
   fs::dir_create(dirname(dest))
-  writeLines(to_json(dat, "location"), dest)
+  writeLines(to_json(dat, "outpack/location.json"), dest)
 }

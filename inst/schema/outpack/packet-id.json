@@ -1,0 +1,9 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Outpack packet id",
+    "description": "A globally unique identifier for any packet, composed of an encoded date (to millisecond accuracy) and random bytes",
+    "version": "0.1.0",
+
+    "type": "string",
+    "pattern": "^([0-9]{8}-[0-9]{6})-([0-9a-f]{8})$"
+}

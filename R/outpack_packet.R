@@ -298,35 +298,17 @@ outpack_packet_use_dependency <- function(packet, query, files,
 ##'
 ##' @param data Additional metadata to add to the packet. This must be
 ##'   a string representing already-serialised json data.
-##'
-##' @param schema Optionally, but recommended, a schema to validate
-##'   `data` against.  Validation will only happen if the option
-##'   `outpack.schema_validate` is `TRUE`, as for the main schema
-##'   validation.  Will be passed to [jsonvalidate::json_schema], so
-##'   can be a string containing the schema or a path to the schema.
-outpack_packet_add_custom <- function(packet, application, data,
-                                      schema = NULL) {
+outpack_packet_add_custom <- function(packet, application, data) {
   p <- check_current_packet(packet)
 
   assert_scalar_character(application)
   assert_scalar_character(data)
-  if (!is.null(schema)) {
-    assert_scalar_character(data)
-  }
 
   tryCatch(
     jsonlite::parse_json(data),
     error = function(e) {
       stop("Syntax error in custom metadata: ", e$message, call. = FALSE)
     })
-
-  if (should_validate_schema(schema)) {
-    tryCatch(
-      custom_schema(schema)$validate(data, error = TRUE),
-      error = function(e) {
-        stop("Validating custom metadata failed: ", e$message, call. = FALSE)
-      })
-  }
 
   if (application %in% vcapply(packet$custom, "[[", "application")) {
     stop(sprintf("metadata for '%s' has already been added for this packet",

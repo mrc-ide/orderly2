@@ -339,12 +339,11 @@ Now, when we register the plugin, we provide the path to this schema, along with
 
 ```{r export_to_package = "full", eval = FALSE}
 .onLoad <- function(...) {
-  schema <- system.file("schema.json", package = "example.db", mustWork = TRUE)
   orderly2::orderly_plugin_register(
     name = "example.db",
     config = db_config,
     serialise = db_serialise,
-    schema = path_schema)
+    schema = "schema.json")
 }
 ```
 

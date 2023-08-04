@@ -146,7 +146,7 @@ log_collector_json <- function() {
 
 
 log_serialise <- function(data) {
-  to_json(data, "log", auto_unbox = TRUE, digits = NA)
+  to_json(data, "orderly/log.json", auto_unbox = TRUE, digits = NA)
 }
 
 

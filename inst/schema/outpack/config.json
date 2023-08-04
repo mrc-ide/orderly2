@@ -1,10 +1,11 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "outpack configuration schema",
-    "description": "Configuration schema",
-    "version": "0.0.1",
+    "title": "Outpack configuration schema",
+    "description": "Common configuration settings. Implementations may add additional properties, but these are the core.",
+    "version": "0.1.0",
 
     "type": "object",
+
     "properties": {
         "schema_version": {
             "description": "Schema version, used to manage migrations",
@@ -46,7 +47,6 @@
         },
 
         "location": {
-            "description": "Information about known locations. This is preliminary and will need changing as soon as we have any sort of generalised locations (especially ones that work over a HTTP API).  The current format is definitely not sufficient to capture the required concepts - 'path' is going to be required everywhere.",
             "type": "array",
             "items": {
                 "type": "object",

@@ -150,7 +150,7 @@ outpack_metadata_create <- function(path, name, id, time, files,
               git = git,
               custom = custom)
 
-  to_json(ret, "metadata")
+  to_json(ret, "outpack/metadata.json")
 }
 
 

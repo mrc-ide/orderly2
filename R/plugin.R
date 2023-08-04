@@ -34,8 +34,11 @@
 ##'   within this function and access anything you need from that. If
 ##'   not given, then no cleanup is done.
 ##'
-##' @param schema Optionally a path to a schema for the metadata
-##'   created by this plugin. See `vignette("plugins")` for details.
+##' @param schema Optionally a path, within the package, to a schema
+##'   for the metadata created by this plugin; you should omit the
+##'   `.json` extension.  So if your file contains in its sources the
+##'   file `inst/plugin/myschema.json` you would pass
+##'   `plugin/myschema`.  See `vignette("plugins")` for details.
 ##'
 ##' @return Nothing, this function is called for its side effect of
 ##'   registering a plugin.
@@ -44,7 +47,8 @@
 orderly_plugin_register <- function(name, config, serialise = NULL,
                                     cleanup = NULL, schema = NULL) {
   assert_scalar_character(name)
-  .plugins[[name]] <- orderly_plugin(config, serialise, cleanup, schema)
+  plugin <- orderly_plugin(name, config, serialise, cleanup, schema)
+  .plugins[[name]] <- plugin
 }
 
 
@@ -65,7 +69,7 @@ load_orderly_plugin <- function(name) {
 .plugins <- new.env(parent = emptyenv())
 
 
-orderly_plugin <- function(config, serialise, cleanup, schema) {
+orderly_plugin <- function(package, config, serialise, cleanup, schema) {
   assert_is(config, "function")
   if (is.null(cleanup)) {
     cleanup <- plugin_no_cleanup
@@ -74,15 +78,19 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
     if (is.null(serialise)) {
       stop("If 'schema' is given, then 'serialise' must be non-NULL")
     }
-    assert_file_exists(schema, name = "Schema file")
-    schema <- paste(readLines(schema), collapse = "\n")
-    class(schema) <- "json"
+    path_pkg <- system_file(package = package)
+    if (!file.exists(file.path(path_pkg, schema))) {
+      cli::cli_abort(
+        "Expected schema file '{schema}' to exist in package '{package}'")
+    }
+    schema <- sprintf("%s/%s", package, schema)
   }
   if (is.null(serialise)) {
     serialise <- plugin_no_serialise
   }
   assert_is(cleanup, "function")
-  ret <- list(config = config,
+  ret <- list(package = package,
+              config = config,
               serialise = serialise,
               cleanup = cleanup,
               schema = schema)

@@ -449,15 +449,7 @@ orderly_packet_cleanup_success <- function(p) {
     check_files_relaxed(path, p$orderly2$inputs_info)
   }
 
-  outpack_packet_add_custom(p, "orderly",
-                            to_json(custom_metadata(p$orderly2), NULL),
-                            custom_metadata_schema())
-  for (nm in names(p$plugins)) {
-    plugin_cfg <- p$orderly2$config$plugins[[nm]]
-    plugin_json <- plugin_cfg$serialise(p$plugins[[nm]])
-    outpack_packet_add_custom(p, nm, plugin_json, plugin_cfg$schema)
-  }
-
+  orderly_packet_add_metadata(p)
   outpack_packet_end(p)
   unlink(path, recursive = TRUE)
 }
@@ -465,9 +457,19 @@ orderly_packet_cleanup_success <- function(p) {
 
 orderly_packet_cleanup_failure <- function(p) {
   ignore_errors(plugin_run_cleanup(p$path, p$orderly2$config$plugins))
-  custom_metadata_json <- to_json(custom_metadata(p$orderly2))
-  outpack_packet_add_custom(p, "orderly", custom_metadata_json)
+  ignore_errors(orderly_packet_add_metadata(p))
   outpack_packet_end(p, insert = FALSE)
+}
+
+
+orderly_packet_add_metadata <- function(p) {
+  json <- to_json(custom_metadata(p$orderly2), "orderly/orderly.json")
+  outpack_packet_add_custom(p, "orderly", json)
+  for (nm in names(p$plugins)) {
+    cfg <- p$orderly2$config$plugins[[nm]]
+    json_p <- to_json(cfg$serialise(p$plugins[[nm]]), cfg$schema)
+    outpack_packet_add_custom(p, nm, json_p)
+  }
 }
 
 

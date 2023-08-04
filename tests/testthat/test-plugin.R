@@ -119,27 +119,38 @@ test_that("run cleanup on exit", {
 
 
 test_that("validate that plugins make sense", {
+  skip_if_not_installed("mockery")
   config <- function(...) "config"
   serialise <- function(...) "serialise"
   cleanup <- function(...) "cleanup"
-  schema <- withr::local_tempfile()
+  schema <- withr::local_tempfile(fileext = ".json")
   writeLines("{}", schema)
 
-  p <- orderly_plugin(config, NULL, NULL, NULL)
+  mock_system_file <- mockery::mock(dirname(schema), cycle = TRUE)
+  mockery::stub(orderly_plugin, "system_file", mock_system_file)
+
+  p <- orderly_plugin("pkg", config, NULL, NULL, NULL)
   expect_identical(p$config, config)
   expect_identical(p$serialise, plugin_no_serialise)
   expect_identical(p$cleanup, plugin_no_cleanup)
   expect_null(p$schema)
 
-  p <- orderly_plugin(config, serialise, cleanup, schema)
+  p <- orderly_plugin("pkg", config, serialise, cleanup, basename(schema))
   expect_identical(p$config, config)
   expect_identical(p$serialise, serialise)
   expect_identical(p$cleanup, cleanup)
-  expect_identical(p$schema, structure("{}", class = "json"))
+  expect_equal(p$schema, file.path("pkg", basename(schema)))
 
   expect_error(
-    orderly_plugin(config, NULL, NULL, schema),
+    orderly_plugin("pkg", config, NULL, NULL, basename(schema)),
     "If 'schema' is given, then 'serialise' must be non-NULL")
+
+  unlink(schema)
+  expect_error(
+    orderly_plugin("pkg", config, serialise, cleanup, basename(schema)),
+    sprintf("Expected schema file '%s' to exist in package 'pkg'",
+            basename(schema)),
+    fixed = TRUE)
 })
 
 
