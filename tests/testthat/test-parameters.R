@@ -30,7 +30,7 @@ test_that("prevent extra parameters", {
     check_parameters(list(a = 1), NULL),
     "Parameters given, but none declared")
   expect_equal(err$body,
-               c(i = "Did you forget 'orderly2::orderly_parameter()"))
+               c(i = "Did you forget 'orderly2::orderly_parameters()"))
 
   expect_error(
     check_parameters(list(a = 1, b = 2), list()),

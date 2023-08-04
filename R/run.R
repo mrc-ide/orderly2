@@ -284,7 +284,7 @@ check_parameters <- function(given, spec, call) {
   if (length(given) > 0 && is.null(spec)) {
     cli::cli_abort(
       c("Parameters given, but none declared",
-        i = "Did you forget 'orderly2::orderly_parameter()"),
+        i = "Did you forget 'orderly2::orderly_parameters()"),
       call = call)
   }
 
