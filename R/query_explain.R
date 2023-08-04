@@ -23,7 +23,7 @@ orderly_query_explain <- function(..., parameters = NULL,
                           options = options, root = root)
   query_simplified <- query_simplify(query)
   ret <- list(found = found,
-              n = length(na.omit(found)), # latest() returns NA
+              n = length(stats::na.omit(found)), # latest() returns NA
               outer = query_simplified$outer,
               parts = list())
 
