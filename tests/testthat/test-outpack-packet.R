@@ -30,11 +30,11 @@ test_that("Can run a basic packet", {
 
   path_metadata <- file.path(path, ".outpack", "metadata", id)
   expect_true(file.exists(path_metadata))
-  expect_true(get_schema("outpack/metadata.json")$validate(path_metadata))
+  expect_true(load_schema("outpack/metadata.json")$validate(path_metadata))
 
   path_location <- file.path(path, ".outpack", "location", "local", id)
   expect_true(file.exists(path_location))
-  expect_true(get_schema("outpack/location.json")$validate(path_location))
+  expect_true(load_schema("outpack/location.json")$validate(path_location))
 
   meta <- outpack_metadata_load(path_metadata)
 
@@ -120,7 +120,7 @@ test_that("Can handle dependencies", {
   meta <- orderly_metadata(id2, root = path)
   path_metadata <- file.path(path, ".outpack", "metadata", id2)
   expect_true(file.exists(path_metadata))
-  expect_true(get_schema("outpack/metadata.json")$validate(path_metadata))
+  expect_true(load_schema("outpack/metadata.json")$validate(path_metadata))
 
   expect_equal(
     meta$depends,

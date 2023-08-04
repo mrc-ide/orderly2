@@ -302,7 +302,7 @@ to_json <- function(x, schema = NULL, auto_unbox = FALSE, ...) {
                            json_verbatim = TRUE, na = "null", null = "null",
                            ...)
   if (should_validate_schema(schema)) {
-    get_schema(schema)$validate(json, error = TRUE)
+    load_schema(schema)$validate(json, error = TRUE)
   }
   json
 }

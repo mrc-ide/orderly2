@@ -9,20 +9,6 @@ outpack_schema_version <- function() {
 }
 
 
-get_schema <- function(name) {
-  if (inherits(name, "json")) {
-    jsonvalidate::json_schema$new(name)
-  } else {
-    load_schema(name)
-  }
-}
-
-
-custom_schema <- function(schema) {
-  load_schema(hash_data(schema, "sha1"), schema)
-}
-
-
 load_schema <- function(key) {
   if (is.null(cache$schema[[key]])) {
     if (is.null(cache$schema)) {
