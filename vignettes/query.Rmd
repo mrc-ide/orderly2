@@ -12,6 +12,8 @@ knitr::opts_chunk$set(
   collapse = TRUE)
 ```
 
+**This vignette provides a detailed overview of of the query language used to find packets and use them as dependencies of other packets. You may prefer to start with `vignette("dependencies")`**
+
 Orderly includes a query DSL (domain specific language), extending the one used by version 1 of orderly (see [`orderly1::orderly_search()`](https://www.vaccineimpact.org/orderly/reference/orderly_search.html)).
 
 Queries are used in identifying ids to pull in as dependencies, so rather than providing an identifier, you might want to depend on
@@ -21,8 +23,6 @@ Queries are used in identifying ids to pull in as dependencies, so rather than p
 * ...with some particular set of parameter values
 * ...that produced a particular file
 * ...that was depended on by some other packet
-
-Not all of this is supported as of the current version of `orderly2`, and *using* the queries seamlessly is also not supported!
 
 ## Structure of queries
 

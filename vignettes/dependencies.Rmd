@@ -1,0 +1,253 @@
+---
+title: "Dependencies between packets"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Dependencies between packets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+dir_tree <- function(path, sub = ".", ...) {
+  withr::with_dir(path, fs::dir_tree(sub, ...))
+}
+
+lang_output <- function(x, lang) {
+  writeLines(c(sprintf("```%s", lang), x, "```"))
+}
+r_output <- function(x) lang_output(x, "r")
+yaml_output <- function(x) lang_output(x, "yaml")
+plain_output <- function(x) lang_output(x, "plain")
+orderly_file <- function(...) {
+  system.file(..., package = "orderly2", mustWork = TRUE)
+}
+
+inline <- function(x) {
+  sprintf("`%s`", format(x))
+}
+
+knitr::opts_chunk$set(
+  collapse = TRUE)
+```
+
+One of the core aims of `orderly2` is to allow collaborative analysis; to do this the end of one piece of work is an input for another piece of work, perhaps someone else's.  To make this work in practice, one `orderly2` report can "depend" on some completed packet (or several completed packets) in order to pull in files as inputs.
+
+There are two levels that it is useful to think about dependencies:
+
+* At the level of the source report, as an instruction about what we **intend** to depend on; this may or may not be satisfiable
+* At the level of a completed packet, as a record about what **was** depended on
+
+This perspective differs somewhat from workflow managers where it is common to talk about "outdated dependencies" and have some single idea of an end result that a chain of dependencies builds up to.
+
+This vignette walks through some of the practical issues around creating and working with dependencies between reports, starting from simple cases (these will be familiar to users of `orderly1`) through to more advanced cases.  We then cover how to interrogate the dependency graph and our ideas for extending this in future, and some practical issues around how dependencies interact with different locations (there is some overlap here with `vignette("collaboration")`, which we will highlight).
+
+# Using dependencies
+
+Here, we show how to practically use dependencies in a few common scenarios of increasing complexity. The code examples are purposefully too-simple in order to keep the presentation straightforward, see the end of this document for a discussion of how complex these pieces of code might "optimally" be.
+
+## Basic use
+
+The primary mechanism for using dependencies is to call `orderly2::orderly_dependency()` from within an `orderly.R` script; this finds a suitable completed packet and copies files that are found from within that packet into your current report.
+
+```{r, include = FALSE}
+path <- tempfile()
+orderly2::orderly_init(path)
+
+fs::dir_create(file.path(path, "src", "data"))
+write.csv(data.frame(x = 1:10, y = 1:10 + rnorm(10)),
+          file.path(path, "src", "data", "data.csv"),
+          row.names = FALSE)
+writeLines(c(
+  'd <- read.csv("data.csv")',
+  "d$z <- resid(lm(y ~ x, d))",
+  'saveRDS(d, "data.rds")'),
+  file.path(path, "src", "data", "orderly.R"))
+orderly2::orderly_run("data", root = path)
+
+fs::dir_create(file.path(path, "src", "analysis"))
+writeLines(c(
+  'orderly2::orderly_dependency("data", "latest()", "data.rds")',
+  'd <- readRDS("data.rds")',
+  'png("analysis.png")',
+  "plot(y ~ x, d)",
+  'dev.off()'),
+  file.path(path, "src", "analysis", "orderly.R"))
+```
+
+```{r, echo = FALSE}
+dir_tree(file.path(path), "src")
+```
+
+and `src/analysis/orderly.R` contains:
+
+
+```{r, echo = FALSE, results = "asis"}
+r_output(readLines(file.path(path, "src/analysis/orderly.R")))
+```
+
+Here, we've used `orderly2::orderly_dependency()` to pull in the file `data.rds` from the most recent version (`latest()`) of the `data` packet, then we've used that file as normal to make a plot, which we've saved as `analysis.png` (this is very similar to the example from `vignette("introduction")`, to get us started).
+
+```{r}
+id1 <- orderly2::orderly_run("data", root = path, logging_console = FALSE)
+id2 <- orderly2::orderly_run("analysis", root = path)
+```
+
+When we look at the metadata for the packet created from the `analysis` report, we can see it has used `r id1` as its dependency:
+
+```{r}
+orderly2::orderly_metadata(id2, root = path)$depends
+```
+
+(indeed it had to, there is only one copy of the `data` packet to pick from).
+
+## Filtering candidates by parameters
+
+In the above example, our query was as simple as it could be --- the most recently created packet with the name `data`.  One common pattern we see is that an analysis might have a parameter (for example a country name) and a downstream analysis might share that parameter and want to pull in data for a country.
+
+```{r, include = FALSE}
+path <- tempfile()
+orderly2::orderly_init(path)
+
+fs::dir_create(file.path(path, "src", "data"))
+writeLines(c(
+  'orderly2::orderly_parameters(cyl = NULL)',
+  'd <- mtcars[mtcars$cyl == cyl, ]',
+  'saveRDS(d, "data.rds")'),
+  file.path(path, "src", "data", "orderly.R"))
+
+fs::dir_create(file.path(path, "src", "analysis"))
+writeLines(c(
+  'orderly2::orderly_parameters(cyl = NULL)',
+  'orderly2::orderly_dependency(',
+  '  "data",',
+  '  "latest(parameter:cyl == this:cyl)",',
+  '  "data.rds")',
+  'd <- readRDS("data.rds")',
+  'png("analysis.png")',
+  "plot(mpg ~ disp, d)",
+  'dev.off()'),
+  file.path(path, "src", "analysis", "orderly.R"))
+```
+
+```{r, echo = FALSE}
+dir_tree(file.path(path), "src")
+```
+
+with `src/data/orderly.R` containing:
+
+```{r, echo = FALSE, results = "asis"}
+r_output(readLines(file.path(path, "src/data/orderly.R")))
+```
+
+We can run this for several values of `cyl`:
+
+```{r}
+orderly2::orderly_run("data", list(cyl = 4), logging_console = FALSE,  root = path)
+orderly2::orderly_run("data", list(cyl = 6), logging_console = FALSE, root = path)
+orderly2::orderly_run("data", list(cyl = 8), logging_console = FALSE, root = path)
+```
+
+Our follow-on analysis contains:
+
+```{r, echo = FALSE, results = "asis"}
+r_output(readLines(file.path(path, "src/analysis/orderly.R")))
+```
+
+Here the query `latest(parameter:cyl == this:cyl)` says "find the most recent packet where it's parameter "cyl" (`parameter:cyl`) is the same as the parameter in the currently running report (`this:cyl`).
+
+```{r}
+orderly2::orderly_run("analysis", list(cyl = 4), root = path)
+```
+
+## Filtering candidates in other ways
+
+Above we saw two types of filtering candidates: `latest()` selected the most recent packet while `latest(parameter:cyl == this:cyl)` found a packet whose parameter matched one of our parameters.
+
+We could have used `latest(parameter:cyl == 4)` to hard code in a specific parameter value, and used `latest(parameter:cyl == environment:cyl)` to match against whatever value `cyl` took in the evaluating environment.
+
+Instead of a query, you can provide a single id (e.g, `r inline(orderly2::orderly_search("latest(parameter:cyl == 4)", root = path))`), which would mean that even as new copies of the `data` packet are created, this dependency will always resolve to the same value.
+
+You can chain together logical operations with `&&` (both sides must be true) or `||` (either side must be true), and group conditions with parentheses.  In addition to `==`, the usual complement of comparison operators will work. So you might have complex queries like
+
+```r
+latest((parameter:x == 1 || parameter:x == 2) && parameter:y > 10)
+```
+
+but in practice most people have queries that are a series of restrictions with `&&`.
+
+
+<!-- not implemented yet:
+
+  filter by time, perhaps
+
+  latest(created() > 2022-01-01)
+
+  (but this might be better in the search options I think)
+
+  filter by having a file:
+
+  has_file("results/data.rds")
+
+    -->
+
+## Computing dependencies and using many dependencies at once
+
+One common pattern is the map-reduce pattern over a set of orderly reports. With this, a set of packets are created over a vector of parameters, or perhaps a chain of different reports for each parameter, then they are all combined together.  For some parameter `p` that takes values "x", "y" and "z", this might look like:
+
+```
+    B(p = "x") -- C(p = "x")
+  /                          \
+A - B(p = "y") -- C(p = "y") - D
+  \                          /
+    B(p = "z") -- C(p = "z")
+```
+
+So here, D will want to combine all of the three copies of the `C` packet, one for each of `p` as "x", "y" and "z".
+
+Especially if there are only three values and these are hard coded, you might just write it out as
+
+```r
+orderly2::orderly_dependency("C", quote(latest(parameter:p == "x")),
+                             c("data/x.rds" = "result.rds"))
+orderly2::orderly_dependency("C", quote(latest(parameter:p == "y")),
+                             c("data/y.rds" = "result.rds"))
+orderly2::orderly_dependency("C", quote(latest(parameter:p == "z")),
+                             c("data/z.rds" = "result.rds"))
+```
+
+Note here that in each call we vary the second argument to select a different parameter value, and in the third argument we are naming our destination file a different name (so we end up with three files in `data/`).
+
+You can write this out as a `for` loop:
+
+```r
+for (p in c("x", "y", "z")) {
+  orderly2::orderly_dependency("C", quote(latest(parameter:p == environment:p)),
+                               c("data/${p}.rds" = "result.rds"))
+}
+```
+
+Here, in the second argument we use `environment:p` to fetch the value of `p` from the calling environment - this is the looping value so will take all three values. In the name of the third argument, we use the special interpolation format `${p}` to substitute in the value of `p` to build a filename.
+
+# How dependencies interact with locations
+
+By default, any packet that you have unpacked on your local archive is considered a candidate for inclusion by `orderly_dependency()`.  This is not always what you want.
+
+The locations that are selected, and the packets within them that are considered as candidates can be controlled by the `search_options` argument to `orderly2::orderly_run` (note that the argument is to `orderly_run()`, not to `orderly_dependency()` because this is an effect controlled by the *runner* of the report, not the *writer* of the report).
+
+There are three components here that affect how packets are selected
+
+* `location`: is a character vector of locations, matching your location names. Only packets that can be found at these locations will be considered. So if you have a mix of locally created packets as well as ones that other people can see, specifying `location = "server"` would limit to packets that are available on the server, which means that you will end up with dependencies that you colleagues would also get.
+* `allow_remote`: controls if we are willing to download files from a location in order to satisfy a dependency. If `TRUE`, then when you run the report, it might download files if more recent packets are available on a location than what you have locally.
+* `pull_metadata`: only has an effect if `allow_remote` is also `TRUE`; this causes the metadata to be refreshed before dependency resolution.
+
+There is further discussion of the details in `?orderly_run`
+
+<!-- # Working out why a candidate cannot be found -->
+
+# Other points
+
+If you are used to systems like `targets`, it is easy to make reports smaller than they need to be.  There's on real need to make these very small, and picking the right size is a challenge.
+
+If they are too small, you'll end up writing a lot of code to orchestrate running different reports and pulling things together.  You'll end spending a lot of time about whether things are "up to date" with one another because really a group of things always wants to run together.
+
+If they're too big then you might end up doing more work than you want to do, because in order to make a change to part of a piece of analysis you must run the whole thing again.
