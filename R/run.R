@@ -106,7 +106,7 @@
 ##'
 ##' @param search_options Optional control over locations, when used
 ##'   with [orderly2::orderly_dependency]; converted into a
-##'   [orderly2::outpack_search_options] object, see Details.
+##'   [orderly2::orderly_search_options] object, see Details.
 ##'
 ##' @param root The path to the root directory, or `NULL` (the
 ##'   default) to search for one from the current working directory if
