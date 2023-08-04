@@ -1,0 +1,27 @@
+#!/usr/bin/env Rscript
+
+root <- here::here()
+
+## The branch will typically be main
+outpack_branch <- "mrc-4230"
+url <- "https://github.com/mrc-ide/outpack"
+tmp <- tempfile()
+repo <- gert::git_clone(url, tmp, outpack_branch)
+
+dest <- file.path(root, "inst/outpack-schema")
+unlink(dest, recursive = TRUE)
+
+sha <- gert::git_info(tmp)$commit
+schema_version <-
+  jsonlite::read_json(file.path(tmp, "schema", "config.json"))$version
+
+fs::dir_copy(file.path(tmp, "schema"), dest)
+writeLines(c("# Imported from outpack",
+             "",
+             sprintf("* Schema version %s", schema_version),
+             sprintf("* Imported on %s", Sys.time()),
+             sprintf("* From outpack @ %s (%s)", sha, outpack_branch),
+             "",
+             "Do not make changes to files here, they will be overwritten",
+             "Run ./scripts/update_schemas to update"),
+           file.path(dest, "README.md"))
