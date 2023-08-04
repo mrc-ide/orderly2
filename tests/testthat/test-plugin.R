@@ -126,8 +126,8 @@ test_that("validate that plugins make sense", {
   schema <- withr::local_tempfile(fileext = ".json")
   writeLines("{}", schema)
 
-  mock_system_file <- mockery::mock(dirname(schema), cycle = TRUE)
-  mockery::stub(orderly_plugin, "system_file", mock_system_file)
+  mock_pkg_root <- mockery::mock(dirname(schema), cycle = TRUE)
+  mockery::stub(orderly_plugin, "pkg_root", mock_pkg_root)
 
   p <- orderly_plugin("pkg", config, NULL, NULL, NULL)
   expect_identical(p$config, config)

@@ -18,10 +18,11 @@ load_schema <- function(key) {
     if (key_split[[1]] %in% c("orderly", "outpack")) {
       path <- orderly2_file(file.path("schema", key))
     } else {
-      path <- system_file(key_split[[2]], package = key_split[[1]])
+      ## This peculiar construction lets us load devmode packages from
+      ## orderly2 when it is installed itself as a real package...
+      path <- file.path(pkg_root(key_split[[1]]), key_split[[2]])
     }
     cache$schema[[key]] <- jsonvalidate::json_schema$new(path)
-
   }
   cache$schema[[key]]
 }

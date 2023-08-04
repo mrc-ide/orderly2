@@ -78,7 +78,7 @@ orderly_plugin <- function(package, config, serialise, cleanup, schema) {
     if (is.null(serialise)) {
       stop("If 'schema' is given, then 'serialise' must be non-NULL")
     }
-    path_pkg <- system_file(package = package)
+    path_pkg <- pkg_root(package)
     if (!file.exists(file.path(path_pkg, schema))) {
       cli::cli_abort(
         "Expected schema file '{schema}' to exist in package '{package}'")
@@ -224,4 +224,28 @@ plugin_no_serialise <- function(data) {
                "has no serialise method"))
   }
   to_json(NULL, NULL)
+}
+
+
+## Some careful work here is required to cope with the case where
+## orderly2 and the plugin package are installed directly or in dev
+## mode
+##
+## If orderly or both are loaded in dev mode we can just use
+## system_file as the devtools shim is picked up by orderly.
+##
+## If both are installed properly, then system_file works because the
+## base version gives the right answer.
+##
+## However, in the case where orderly is properly installed but the
+## plugin is not (which is reasonably likely) then we need to find the
+## true root, in which case we need to build the path manually.
+pkg_root <- function(package) {
+  root <- find.package(package)
+  if (is_dev_package(package)) file.path(root, "inst") else root
+}
+
+
+is_dev_package <- function(package) {
+  "pkgload" %in% loadedNamespaces() && pkgload::is_dev_package(package)
 }

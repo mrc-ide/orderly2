@@ -54,7 +54,6 @@ clear_plugins <- function() {
 
 register_example_plugin <- function() {
   testthat::skip_if_not_installed("pkgload")
-  testthat::skip("skip for now")
   pkgload::load_all(test_path("plugins/example.random"),
                     quiet = TRUE, export_all = FALSE)
 }
