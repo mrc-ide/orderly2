@@ -132,7 +132,7 @@ Suppose we have two researchers, [Alice and Bob](https://en.wikipedia.org/wiki/A
 
 Both Alice and Bob clone this repo onto their machines, using their favourite git client (at the terminal with `git`, via GitHub desktop, or as here with [`gert`](https://r-lib.github.io/gert))
 
-At the moment, including hidden files (except `.git`, Alice sees:
+At the moment, including hidden files (except `.git`), Alice sees:
 
 ```{r, as = "alice", inwd = path_alice}
 fs::dir_tree(".", all = TRUE, glob = ".git", invert = TRUE)
@@ -214,7 +214,7 @@ We have seen several broad patterns of distributing packets.
 
 **Central server, final copy is run here**: In this case, Alice and Bob can both run things on the server, and these are the "canonical" copies, nothing is pushed to the server.  Reports can be run on the server by `ssh`-ing onto the server and running packets manually (TODO: mrc-4412) or using the web interface (this was possible with `OrderlyWeb` and will be possible again with `packit`).
 
-This approach works well where a primary goal is confidence that the packets everyone works with as dependencies are created under a "clean" environment with no unexpected global dependencies. With the web version, you can also enforce things like only running off the default branch.  Alice and Bob will thenend up with a collection of packets in their local archives that are a mix of canonical ones (from the server) and locally-created ones, but the local ones are always a dead end as they never get shared with anyone. As a result, Alice and Bob may delete their archive directories without any great concern.
+This approach works well where a primary goal is confidence that the packets everyone works with as dependencies are created under a "clean" environment with no unexpected global dependencies. With the web version, you can also enforce things like only running off the default branch.  Alice and Bob will then end up with a collection of packets in their local archives that are a mix of canonical ones (from the server) and locally-created ones, but the local ones are always a dead end as they never get shared with anyone. As a result, Alice and Bob may delete their archive directories without any great concern.
 
 When running their own packets, to make sure that the packet will run in a similar way to a packet run on the server, Bob may want to ensure that only dependencies that could be found on the server will be considered. To that, he can create search options
 
