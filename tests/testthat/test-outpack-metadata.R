@@ -62,6 +62,15 @@ test_that("Sensible error if metadata file not found", {
 })
 
 
+test_that("Can read metadata", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root)
+  expect_equal(
+    orderly_metadata_read(file.path(root$path, ".outpack", "metadata", id)),
+    orderly_metadata(id, root))
+})
+
+
 test_that("Can't get nonexistant metadata", {
   root <- create_temporary_root(path_archive = NULL, use_file_store = TRUE)
   id <- outpack_id()
