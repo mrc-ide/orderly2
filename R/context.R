@@ -103,7 +103,6 @@ orderly_run_info <- function() {
 
   deps <- ctx$packet$depends
   deps_n <- vnapply(deps, function(x) nrow(x$files))
-  ## TODO: do this more efficiently against the whole index?
   deps_name <- vcapply(deps, function(x) {
     outpack_metadata_core(x$packet, root)$name
   })

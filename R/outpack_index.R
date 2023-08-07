@@ -12,10 +12,13 @@ outpack_index <- R6::R6Class(
       private$path_ <- path
     },
 
-    ## TODO: I think that the skip_cache can just go entirely
-    refresh = function(skip_cache = FALSE) {
-      prev <- if (skip_cache) list() else private$data_
-      private$data_ <- index_update(private$path_, prev, skip_cache)
+    rebuild = function() {
+      private$data_ <- index_update(private$path_, NULL, TRUE)
+      invisible(self)
+    },
+
+    refresh = function() {
+      private$data_ <- index_update(private$path_, private$data_, FALSE)
       invisible(self)
     },
 

@@ -40,6 +40,7 @@
 ##' [`outpack.sharepoint`](https://mrc-ide.github.io/outpack.sharepoint)
 ##' package.
 ##'
+##'
 ##' *Be warned that we may change this interface in future, in which
 ##' case you may need to update your configuration.*
 ##'
@@ -175,9 +176,9 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
     fs::dir_delete(location_path)
   }
   ## This forces a rebuild of the index, and is the only call with
-  ## skip_cache = TRUE anywhere; it can probably be relaxed if the
-  ## refresh was more careful, but this is a rare operation.
-  root$index$refresh(skip_cache = TRUE)
+  ## rebuild() anywhere; it can probably be relaxed if the refresh was
+  ## more careful, but this is a rare operation.
+  root$index$rebuild()
   config$location <- config$location[config$location$name != name, ]
   config_update(config, root)
   invisible()
@@ -526,12 +527,8 @@ location_resolve_valid <- function(location, root, include_local,
 
 
 location_build_pull_plan <- function(packet_id, location_name, root) {
-  ## TODO: just needs location data
-  index <- root$index$data()
-
-  ## Things that are found in any location:
-  candidates <- index$location[index$location$location %in% location_name,
-                               c("packet", "location")]
+  ## Things that are found in suitable location:
+  candidates <- root$index$location(location_name)[c("packet", "location")]
 
   ## Sort by location
   candidates <- candidates[order(match(candidates$location, location_name)), ]
