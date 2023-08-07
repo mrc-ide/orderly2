@@ -3,7 +3,7 @@ outpack_root <- R6::R6Class(
   cloneable = FALSE,
 
   private = list(
-    index_data = list()
+    index_ = NULL
   ),
 
   public = list(
@@ -22,115 +22,18 @@ outpack_root <- R6::R6Class(
         self$files <- file_store$new(file.path(path, ".outpack", "files"))
       }
       self$logger <- self$config$logging
+      private$index_ <- outpack_index$new(path)
       lockBinding("path", self)
     },
 
     metadata = function(id) {
-      ## TODO: this contains more logic than ideal but attempts to
-      ## avoid updating the index if needed.  The other thing to do
-      ## would _always_ be to update the index but that feels wasteful
-      ## really.
-      ##
-      ## We could probably be much more efficient if we cached all
-      ## roots within a session, though doing that safely would
-      ## practically mean putting a key file in each root so that we
-      ## can detect directory moves.
-      meta <- private$index_data$metadata[[id]] %||%
-        self$index()$metadata[[id]]
-      if (is.null(meta)) {
-        stop(sprintf("id '%s' not found in index", id))
-      }
-      meta
+      private$index_$metadata(id)
     },
 
     index = function(skip_cache = FALSE) {
-      prev <- if (skip_cache) list() else private$index_data
-      private$index_data <- index_update(self, prev, skip_cache)
-      private$index_data
+      private$index_$refresh(skip_cache)$data()
     }
   ))
-
-
-read_location <- function(location_name, root_path, prev) {
-  path <- file.path(root_path, ".outpack", "location", location_name)
-  packets <- dir(path, re_id)
-  is_new <- !(packets %in% prev$packet[prev$location == location_name])
-  if (!any(is_new)) {
-    return(NULL)
-  }
-
-  dat <- lapply(file.path(path, packets[is_new]), jsonlite::read_json)
-  data_frame(packet = vcapply(dat, "[[", "packet"),
-             time = num_to_time(vnapply(dat, "[[", "time")),
-             hash = vcapply(dat, "[[", "hash"),
-             location = location_name)
-}
-
-
-read_locations <- function(root, prev) {
-  location_name <- root$config$location$name
-  if (is.null(prev)) {
-    prev <- data_frame(packet = character(),
-                       time = empty_time(),
-                       hash = character(),
-                       location = character())
-  }
-  new <- do.call(rbind, lapply(location_name, read_location, root$path, prev))
-  ret <- rbind(prev, new)
-  ## Always sort by location, then id
-  ret <- ret[order(match(ret$location, location_name), ret$packet), ]
-  ## Avoids weird computed rownames - always uses 1:n
-  rownames(ret) <- NULL
-  ret
-}
-
-
-read_metadata <- function(root, prev) {
-  path <- file.path(root$path, ".outpack", "metadata")
-  id_new <- setdiff(dir(path), names(prev))
-
-  if (length(id_new) == 0) {
-    return(prev)
-  }
-
-  files <- file.path(path, id_new)
-  new <- lapply(files, outpack_metadata_index_read)
-  names(new) <- id_new
-  ret <- c(prev, new)
-  ret[order(names(ret))]
-  ret
-}
-
-
-## The index consists of a few bits:
-## $location - data.frame of id, location and date
-## $metadata - named list of full metadata
-##
-## Later on we'll want to have some sort of index over this (e.g.,
-## name/id/parameters) to support the query interface, but that can
-## wait.
-index_update <- function(root, prev, skip_cache) {
-  root_path <- root$path
-  path_index <- file.path(root_path, ".outpack", "index", "outpack.rds")
-
-  if (length(prev) == 0 && file.exists(path_index) && !skip_cache) {
-    prev <- readRDS(path_index)
-  }
-
-  data <- prev
-
-  ## TODO: Add some logging through here.
-  data$location <- read_locations(root, data$location)
-  data$metadata <- read_metadata(root, data$metadata)
-  data$unpacked <- data$location$packet[data$location$location == local]
-
-  if (!identical(data, prev)) {
-    fs::dir_create(dirname(path_index))
-    saveRDS(data, path_index)
-  }
-
-  data
-}
 
 
 ## Not just for the file store, but this is how we can interact with

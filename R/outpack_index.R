@@ -1,0 +1,127 @@
+outpack_index <- R6::R6Class(
+  "outpack_index",
+  cloneable = FALSE,
+
+  private = list(
+    path_ = NULL,
+    data_ = list()
+  ),
+
+  public = list(
+    initialize = function(path) {
+      private$path_ <- path
+    },
+
+    refresh = function(skip_cache = FALSE) {
+      prev <- if (skip_cache) list() else private$data_
+      private$data_ <- index_update(private$path_, prev, skip_cache)
+      invisible(self)
+    },
+
+    metadata = function(id) {
+      ret <- private$data_$metadata[[id]]
+      if (is.null(ret)) {
+        self$refresh()
+        ret <- private$data_$metadata[[id]]
+      }
+      if (is.null(ret)) {
+        stop(sprintf("id '%s' not found in index", id))
+      }
+      ret
+    },
+
+    location = function(name) {
+      private$data_$location[private$data_$location$location %in% name, ]
+    },
+
+    unpacked = function() {
+      private$data_$unpacked
+    },
+
+    data = function() {
+      private$data_
+    }
+  ))
+
+
+index_update <- function(root_path, prev, skip_cache) {
+  path_index <- file.path(root_path, ".outpack", "index", "outpack.rds")
+
+  if (length(prev) == 0 && file.exists(path_index) && !skip_cache) {
+    prev <- readRDS(path_index)
+  }
+
+  data <- prev
+  data$location <- read_locations(root_path, data$location)
+  data$metadata <- read_metadata(root_path, data$metadata)
+  data$unpacked <- data$location$packet[data$location$location == local]
+
+  if (!identical(data, prev)) {
+    fs::dir_create(dirname(path_index))
+    saveRDS(data, path_index)
+  }
+
+  data
+}
+
+
+read_metadata <- function(root_path, prev) {
+  path <- file.path(root_path, ".outpack", "metadata")
+  id_new <- setdiff(dir(path), names(prev))
+
+  if (length(id_new) == 0) {
+    return(prev)
+  }
+
+  files <- file.path(path, id_new)
+  new <- lapply(files, outpack_metadata_index_read)
+  names(new) <- id_new
+  ret <- c(prev, new)
+  ret[order(names(ret))]
+  ret
+}
+
+
+## TODO: also keep time
+## TODO: don't use metadata_load
+outpack_metadata_index_read <- function(path) {
+  keep <- c("name", "id", "parameters", "files", "depends")
+  outpack_metadata_load(path)[keep]
+}
+
+
+read_locations <- function(root_path, prev) {
+  if (is.null(prev)) {
+    prev <- data_frame(packet = character(),
+                       time = empty_time(),
+                       hash = character(),
+                       location = character())
+  }
+
+  location_path <- fs::dir_ls(file.path(root_path, ".outpack", "location"),
+                              type = "directory")
+  location_name <- basename(location_path)
+  new <- do.call(rbind, lapply(location_name, read_location, root_path, prev))
+  ret <- rbind(prev, new)
+  ## Always sort by location, then id
+  ret <- ret[order(match(ret$location, location_name), ret$packet), ]
+  ## Avoids weird computed rownames - always uses 1:n
+  rownames(ret) <- NULL
+  ret
+}
+
+
+read_location <- function(location_name, root_path, prev) {
+  path <- file.path(root_path, ".outpack", "location", location_name)
+  packets <- dir(path, re_id)
+  is_new <- !(packets %in% prev$packet[prev$location == location_name])
+  if (!any(is_new)) {
+    return(NULL)
+  }
+
+  dat <- lapply(file.path(path, packets[is_new]), jsonlite::read_json)
+  data_frame(packet = vcapply(dat, "[[", "packet"),
+             time = num_to_time(vnapply(dat, "[[", "time")),
+             hash = vcapply(dat, "[[", "hash"),
+             location = location_name)
+}

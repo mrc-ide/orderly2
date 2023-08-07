@@ -186,12 +186,6 @@ outpack_metadata_load <- function(json) {
 }
 
 
-outpack_metadata_index_read <- function(path) {
-  keep <- c("name", "id", "parameters", "files", "depends")
-  outpack_metadata_load(path)[keep]
-}
-
-
 validate_hashes <- function(found, expected) {
   err <- found[names(expected)] != expected
   msg <- is.na(err)
