@@ -64,14 +64,14 @@ describe("http location integration tests", {
 
   it("can pull metadata", {
     root_downstream <- create_temporary_root(use_file_store = TRUE)
-    expect_null(names(root_downstream$index()$metadata))
+    expect_null(names(root_downstream$index$data()$metadata))
     orderly_location_add("upstream", "http", list(url = url),
                          root = root_downstream)
     expect_equal(orderly_location_list(root = root_downstream),
                  c("local", "upstream"))
     orderly_location_pull_metadata("upstream", root = root_downstream)
 
-    idx <- root_downstream$index()
+    idx <- root_downstream$index$data()
     expect_equal(names(idx$metadata), ids)
   })
 
@@ -103,7 +103,7 @@ describe("http location integration tests", {
     plan <- orderly_location_push(ids_downstream[[3]], "upstream",
                                   root = root_downstream)
     expect_setequal(plan$packet_id, ids_downstream)
-    idx <- root$index()
+    idx <- root$index$data()
     expect_true(all(ids_downstream %in% names(idx$metadata)))
     expect_true(all(root_downstream$files$list() %in% root$files$list()))
   })

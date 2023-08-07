@@ -207,9 +207,8 @@ validate_hashes <- function(found, expected) {
 
 
 get_metadata_hash <- function(packet_id, root) {
-  index <- root$index()$location
-  i <- index$packet == packet_id & index$location == local
-  hash <- index$hash[i]
+  dat <- root$index$location(local)
+  hash <- dat$hash[dat$packet == packet_id]
   stopifnot(length(hash) == 1)
   hash
 }

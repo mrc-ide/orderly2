@@ -117,7 +117,7 @@ config_set_require_complete_tree <- function(value, root) {
   }
 
   if (value) {
-    id <- root$index()$unpacked
+    id <- root$index$unpacked()
     orderly_location_pull_packet(id, recursive = TRUE, root = root)
   }
 
@@ -189,7 +189,7 @@ config_set_path_archive <- function(value, root) {
     assert_directory_does_not_exist(path_archive)
     tryCatch({
       fs::dir_create(path_archive)
-      invisible(lapply(root$index()$unpacked, function(id) {
+      invisible(lapply(root$index$unpacked(), function(id) {
         meta <- outpack_metadata_core(id, root)
         dst <- file.path(path_archive, meta$name, id, meta$files$path)
         root$files$get(meta$files$hash, dst, TRUE)

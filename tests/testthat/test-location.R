@@ -137,7 +137,7 @@ test_that("Can remove a location", {
 
   config <- orderly_config(root$a)
   orphan_id <- "orphan"
-  expect_equal(root$a$index()$location$location, orphan_id)
+  expect_equal(root$a$index$data()$location$location, orphan_id)
 })
 
 
@@ -160,7 +160,7 @@ test_that("Removing a location orphans packets only from that location", {
   orderly_location_pull_metadata(root = root$a)
 
   # id1 should now be found in both b and c
-  index <- root$a$index()
+  index <- root$a$index$data()
   expect_equal(index$location$location[index$location$packet == id1],
                c("b", "c"))
 
@@ -173,7 +173,7 @@ test_that("Removing a location orphans packets only from that location", {
                   c("local", "orphan", "c"))
 
   # id1 should now only be found in c
-  index <- root$a$index()
+  index <- root$a$index$data()
   expect_equal(index$location$location[index$location$packet == id1], "c")
 
   # id2 should be orphaned
@@ -214,10 +214,10 @@ test_that("can pull metadata from a file base location", {
 
   ## Sensible tests here will be much easier to write once we have a
   ## decent query interface.
-  index <- root_downstream$index()
+  index <- root_downstream$index$data()
   expect_length(index$metadata, 3)
   expect_setequal(names(index$metadata), ids)
-  expect_mapequal(index$metadata, root_upstream$index()$metadata)
+  expect_mapequal(index$metadata, root_upstream$index$data()$metadata)
 
   expect_s3_class(index$location, "data.frame")
   expect_setequal(index$location$packet, ids)
@@ -233,7 +233,7 @@ test_that("can pull empty metadata", {
                        root = root_downstream)
   orderly_location_pull_metadata("upstream", root = root_downstream)
 
-  index <- root_downstream$index()
+  index <- root_downstream$index$data()
   expect_length(index$metadata, 0)
   ## This is what we need to improve, everywhere
   expect_s3_class(index$location, "data.frame")
@@ -266,20 +266,20 @@ test_that("pull metadata from subset of locations", {
   location_name <- c("x", "y", "z")
 
   orderly_location_pull_metadata(c("x", "y"), root = root$a)
-  index <- root$a$index()
+  index <- root$a$index$data()
   expect_setequal(names(index$metadata), c(ids$x, ids$y))
   expect_equal(index$location$location, rep(location_name[1:2], each = 3))
   expect_equal(index$metadata[ids$x],
-               root$x$index()$metadata)
+               root$x$index$data()$metadata)
   expect_equal(index$metadata[ids$y],
-               root$y$index()$metadata)
+               root$y$index$data()$metadata)
 
   orderly_location_pull_metadata(root = root$a)
-  index <- root$a$index()
+  index <- root$a$index$data()
   expect_setequal(names(index$metadata), c(ids$x, ids$y, ids$z))
   expect_equal(index$location$location, rep(location_name, each = 3))
   expect_equal(index$metadata[ids$z],
-               root$z$index()$metadata)
+               root$z$index$data()$metadata)
 })
 
 
@@ -326,12 +326,12 @@ test_that("Can pull metadata through chain of locations", {
   ## Then when we pull from d it will simultaneously learn about the
   ## packet from both locations:
   orderly_location_pull_metadata(root = root$d)
-  index <- root$d$index()
+  index <- root$d$index$data()
 
   ## Metadata is correct
   expect_length(index$metadata, 2)
   expect_equal(names(index$metadata), c(id1, id2))
-  expect_equal(index$metadata, root$c$index()$metadata)
+  expect_equal(index$metadata, root$c$index$data()$metadata)
 
   ## Location information contains both sources
   expect_equal(nrow(index$location), 3)
@@ -353,7 +353,7 @@ test_that("can pull a packet from one location to another, using file store", {
   orderly_location_pull_metadata(root = root$dst)
   orderly_location_pull_packet(id, root = root$dst)
 
-  index <- root$dst$index()
+  index <- root$dst$index$data()
   expect_equal(index$unpacked, id)
   expect_true(file.exists(
     file.path(root$dst$path, "archive", "data", id, "data.rds")))
@@ -374,7 +374,7 @@ test_that("can pull a packet from one location to another, archive only", {
   orderly_location_pull_metadata(root = root$dst)
   orderly_location_pull_packet(id, root = root$dst)
 
-  index <- root$dst$index()
+  index <- root$dst$index$data()
   expect_equal(index$unpacked, id)
   expect_true(file.exists(
     file.path(root$dst$path, "archive", "data", id, "data.rds")))
@@ -487,9 +487,9 @@ test_that("Can pull a tree recursively", {
     orderly_location_pull_packet(id$c, recursive = TRUE, root = root$dst),
     c(id$a, id$b, id$c))
 
-  index <- root$dst$index()
+  index <- root$dst$index$data()
   expect_equal(index$unpacked,
-               root$src$index()$unpacked)
+               root$src$index$data()$unpacked)
 
   expect_equal(
     orderly_location_pull_packet(id$c, recursive = TRUE, root = root$dst),
@@ -649,10 +649,10 @@ test_that("if recursive pulls are required, pulls are recursive by default", {
   }
 
   orderly_location_pull_packet(id[["c"]], recursive = NULL, root = root$shallow)
-  expect_equal(root$shallow$index()$unpacked, id[["c"]])
+  expect_equal(root$shallow$index$data()$unpacked, id[["c"]])
 
   orderly_location_pull_packet(id[["c"]], recursive = NULL, root = root$deep)
-  expect_setequal(root$deep$index()$unpacked, id)
+  expect_setequal(root$deep$index$data()$unpacked, id)
 })
 
 

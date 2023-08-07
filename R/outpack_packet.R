@@ -210,7 +210,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
 
   needs_pull <- search_options$allow_remote &&
     packet$root$config$core$require_complete_tree &&
-    !(id %in% packet$root$index()$unpacked)
+    !(id %in% packet$root$index$unpacked())
   if (needs_pull) {
     orderly_location_pull_packet(id, root = packet$root)
   }

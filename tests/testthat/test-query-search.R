@@ -888,7 +888,7 @@ test_that("allow search before query", {
     orderly_search(quote(name == "data"), root = root$a,
                    options = list(pull_metadata = TRUE, allow_remote = TRUE)),
     ids)
-  expect_setequal(names(root$a$index()$metadata), ids)
+  expect_setequal(names(root$a$index$data()$metadata), ids)
 })
 
 

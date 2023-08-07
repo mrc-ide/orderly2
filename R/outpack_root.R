@@ -2,15 +2,12 @@ outpack_root <- R6::R6Class(
   "outpack_root",
   cloneable = FALSE,
 
-  private = list(
-    index_ = NULL
-  ),
-
   public = list(
     path = NULL,
     config = NULL,
     files = NULL,
     logger = NULL,
+    index = NULL,
 
     initialize = function(path) {
       assert_file_exists(path)
@@ -22,16 +19,13 @@ outpack_root <- R6::R6Class(
         self$files <- file_store$new(file.path(path, ".outpack", "files"))
       }
       self$logger <- self$config$logging
-      private$index_ <- outpack_index$new(path)
+      self$index <- outpack_index$new(path)
       lockBinding("path", self)
+      lockBinding("index", self)
     },
 
     metadata = function(id) {
-      private$index_$metadata(id)
-    },
-
-    index = function(skip_cache = FALSE) {
-      private$index_$refresh(skip_cache)$data()
+      self$index$metadata(id)
     }
   ))
 
@@ -120,7 +114,7 @@ file_import_archive <- function(root, path, file_path, name, id) {
 
 
 find_file_by_hash <- function(root, hash) {
-  index <- root$index()
+  index <- root$index$data()
 
   path_archive <- file.path(root$path, root$config$core$path_archive)
   algorithm <- hash_parse(hash)$algorithm
@@ -175,7 +169,7 @@ validate_packet_has_file <- function(root, id, path) {
 
 
 root_list_unknown_packets <- function(ids, root) {
-  setdiff(ids, root$index()$unpacked)
+  setdiff(ids, root$index$unpacked())
 }
 
 
@@ -183,8 +177,7 @@ root_list_unknown_files <- function(hashes, root) {
   if (root$config$core$use_file_store) {
     hashes[!root$files$exists(hashes)]
   } else {
-    idx <- root$index()
-    if (length(idx$unpacked) == 0) {
+    if (length(root$index$unpacked()) == 0) {
       return(hashes)
     }
     ## This could be quite a slow operation, especially if we always
@@ -199,7 +192,7 @@ add_file_store <- function(root) {
   ## hitting the index and looping over the metadata but there's no
   ## need to do so in such a weird way.
   root$files <- file_store$new(file.path(root$path, ".outpack", "files"))
-  invisible(lapply(root$index()$unpacked, function(id) {
+  invisible(lapply(root$index$unpacked(), function(id) {
     meta <- outpack_metadata_core(id, root)
     path <- lapply(meta$files$hash,
                    function(hash) find_file_by_hash(root, hash))

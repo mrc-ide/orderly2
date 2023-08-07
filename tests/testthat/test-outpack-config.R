@@ -84,7 +84,7 @@ test_that("Can add file_store", {
   orderly_location_pull_metadata(root = root$dst$path)
   orderly_location_pull_packet(id[["c"]], root = root$dst$path)
 
-  expect_equal(root$dst$index()$unpacked, id[["c"]])
+  expect_equal(root$dst$index$data()$unpacked, id[["c"]])
   orderly_config_set(core.use_file_store = TRUE, root = root$dst)
 
   expect_true(root$dst$config$core$use_file_store)
@@ -115,7 +115,7 @@ test_that("File store is not added if a hash cannot be resolved", {
 
   meta <- outpack_metadata_core(id, root)
 
-  expect_equal(root$index()$unpacked, id)
+  expect_equal(root$index$unpacked(), id)
   fs::file_delete(file.path(root$path, "archive", "test", id, "data.rds"))
   regex <- paste("Error adding file store:(.*)",
                  "the following files were missing or corrupted: 'data.rds'")
@@ -135,7 +135,7 @@ test_that("Files will be searched for by hash when adding file store", {
   id <- create_deterministic_packet(root, name = "data")
   id_new <- create_deterministic_packet(root, name = "data-new")
 
-  expect_equal(root$index()$unpacked, c(id, id_new))
+  expect_equal(root$index$unpacked(), c(id, id_new))
   fs::file_delete(file.path(root$path, "archive", "data", id, "data.rds"))
 
   suppressMessages(orderly_config_set(core.use_file_store = TRUE, root = root))
@@ -300,11 +300,11 @@ test_that("Enabling recursive pulls forces pulling missing packets", {
                        root = root$dst$path)
   orderly_location_pull_metadata(root = root$dst$path)
   orderly_location_pull_packet(id[["c"]], root = root$dst$path)
-  expect_equal(root$dst$index()$unpacked, id[["c"]])
+  expect_equal(root$dst$index$unpacked(), id[["c"]])
 
   orderly_config_set(core.require_complete_tree = TRUE, root = root$dst$path)
 
-  expect_setequal(root$dst$index()$unpacked, id)
+  expect_setequal(root$dst$index$unpacked(), id)
   expect_true(orderly_config(root$dst$path)$core$require_complete_tree)
 })
 

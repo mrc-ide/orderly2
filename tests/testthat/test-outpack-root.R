@@ -81,8 +81,7 @@ test_that("Can't get nonexistant metadata", {
 
 test_that("empty root has nothing unpacked", {
   root <- create_temporary_root()
-  index <- root$index()
-  expect_equal(index$unpacked, character())
+  expect_equal(root$index$unpacked(), character())
 })
 
 
@@ -152,7 +151,7 @@ test_that("Can work out what files are missing without file store", {
   ids <- create_random_packet_chain(root, 3)
 
   files <- unique(
-    unlist(lapply(root$index()$metadata, function(x) x$files$hash),
+    unlist(lapply(root$index$data()$metadata, function(x) x$files$hash),
            FALSE, FALSE))
   files_msg <- hash_data(files, "sha256")
 

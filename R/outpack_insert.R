@@ -15,7 +15,8 @@ outpack_insert_packet <- function(path, json, root = NULL) {
   ## *any* packet that exists?  For now it's academic as there's no
   ## equivalent to "pull" so this is the only way that things might
   ## appear.
-  index <- root$index()
+  ## TODO: consider root$index$location(local)
+  index <- root$index$data()
   exists <- any(index$location$packet == id &
                 index$location$location == local)
   if (exists) {
@@ -47,7 +48,7 @@ outpack_insert_packet <- function(path, json, root = NULL) {
 
   ## If we were going to add a number in quick succession we could
   ## avoid churn here by not rewriting at every point.
-  root$index()
+  root$index$data() # TODO: drop this line entirely
 }
 
 

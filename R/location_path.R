@@ -11,16 +11,14 @@ orderly_location_path <- R6::R6Class(
     },
 
     list = function() {
-      dat <- private$root$index()$location
-      dat[dat$location == local, c("packet", "time", "hash")]
+      private$root$index$location(local)[c("packet", "time", "hash")]
     },
 
     metadata = function(packet_ids) {
       ## TODO: if we're filtering based on which location we're
       ## shipping results from, then we need to validate that these
       ## ids are all found within our data.
-      dat <- private$root$index()$location
-      msg <- setdiff(packet_ids, dat$packet[dat$location == local])
+      msg <- setdiff(packet_ids, private$root$index$location(local)$packet)
       if (length(msg) > 0) {
         stop("Some packet ids not found: ",
              paste(squote(msg), collapse = ", "))

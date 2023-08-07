@@ -24,7 +24,7 @@ test_that("Can run a basic packet", {
   outpack_packet_end(p)
   expect_true(p$complete)
 
-  index <- root$index()
+  index <- root$index$data()
   expect_length(index$metadata, 1)
   id <- p$id
 
@@ -387,7 +387,7 @@ test_that("pre-prepared id can be used to start packet", {
   expect_equal(p$id, id)
 
   outpack_packet_end(p)
-  index <- root$index()
+  index <- root$index$data()
   expect_equal(names(index$metadata), id)
 })
 
@@ -740,17 +740,17 @@ test_that("can pull in dependency when not found, if requested", {
            'latest(name == "data" && parameter:p > 2)'),
     fixed = TRUE)
 
-  expect_length(root$a$index()$metadata, 0)
-  expect_equal(nrow(root$a$index()$location), 0)
-  expect_equal(length(root$a$index()$unpacked), 0)
+  expect_length(root$a$index$data()$metadata, 0)
+  expect_equal(nrow(root$a$index$data()$location), 0)
+  expect_equal(length(root$a$index$data()$unpacked), 0)
 
   outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds"),
                                 search_options = list(pull_metadata = TRUE,
                                                       allow_remote = TRUE))
 
-  expect_length(root$a$index()$metadata, 3)
-  expect_equal(nrow(root$a$index()$location), 3)
-  expect_equal(root$a$index()$unpacked, character())
+  expect_length(root$a$index$data()$metadata, 3)
+  expect_equal(nrow(root$a$index$data()$location), 3)
+  expect_equal(root$a$index$data()$unpacked, character())
   expect_equal(p_a$depends[[1]]$packet, ids[[3]])
 
   path_src_b <- withr::local_tempdir()
@@ -759,9 +759,9 @@ test_that("can pull in dependency when not found, if requested", {
                                 search_options = list(pull_metadata = TRUE,
                                                       allow_remote = TRUE))
 
-  expect_length(root$b$index()$metadata, 3)
-  expect_equal(nrow(root$b$index()$location), 4) # compare with above!
-  expect_equal(root$b$index()$unpacked, ids[[3]])
+  expect_length(root$b$index$data()$metadata, 3)
+  expect_equal(nrow(root$b$index$data()$location), 4) # compare with above!
+  expect_equal(root$b$index$data()$unpacked, ids[[3]])
   expect_equal(p_b$depends[[1]]$packet, ids[[3]])
 })
 

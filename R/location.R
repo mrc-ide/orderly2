@@ -153,7 +153,8 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   }
   location_check_exists(root, name)
 
-  index <- root$index()
+  ## TODO: can survive on just the location index, so root$index$location(NULL)
+  index <- root$index$data()
   config <- root$config
   known_here <- index$location$packet[index$location$location == name]
   known_elsewhere <- index$location$packet[index$location$location != name]
@@ -174,7 +175,8 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   if (fs::dir_exists(location_path)) {
     fs::dir_delete(location_path)
   }
-  root$index(skip_cache = TRUE)
+  ## TODO: this can be relaxed too
+  root$index$refresh(skip_cache = TRUE)$data()
   config$location <- config$location[config$location$name != name, ]
   config_update(config, root)
   invisible()
@@ -286,7 +288,7 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
     ids <- orderly_search(..., options = options, root = root)
   }
 
-  index <- root$index()
+  index <- root$index$data()
 
   recursive <- recursive %||% root$config$core$require_complete_tree
   assert_scalar_logical(recursive)
@@ -418,7 +420,7 @@ orderly_location_custom <- function(args) {
 
 
 location_pull_metadata <- function(location_name, root) {
-  index <- root$index()
+  index <- root$index$data()
   driver <- location_driver(location_name, root)
 
   known_there <- driver$list()
@@ -442,8 +444,6 @@ location_pull_metadata <- function(location_name, root) {
     mark_packet_known(new_loc$packet[[i]], location_name, new_loc$hash[[i]],
                       new_loc$time[[i]], root)
   }
-
-  root$index()
 }
 
 
@@ -525,7 +525,8 @@ location_resolve_valid <- function(location, root, include_local,
 
 
 location_build_pull_plan <- function(packet_id, location_name, root) {
-  index <- root$index()
+  ## TODO: just needs location data
+  index <- root$index$data()
 
   ## Things that are found in any location:
   candidates <- index$location[index$location$location %in% location_name,
@@ -566,14 +567,15 @@ location_build_pull_plan <- function(packet_id, location_name, root) {
 location_build_push_plan <- function(packet_id, location_name, root) {
   driver <- location_driver(location_name, root)
 
-  packet_id <- sort(find_all_dependencies(packet_id, root$index()$metadata))
+  metadata <- root$index$data()$metadata
+  packet_id <- sort(find_all_dependencies(packet_id, metadata))
   packet_id_msg <- driver$list_unknown_packets(packet_id)
 
   if (length(packet_id_msg) == 0) {
     files_msg <- character(0)
   } else {
     packet_id_msg <- sort(packet_id_msg)
-    metadata <- root$index()$metadata
+    metadata <- metadata
     ## All files across all missing ids:
     files <- unique(unlist(
       lapply(packet_id_msg, function(i) metadata[[i]]$files$hash)))
