@@ -9,6 +9,7 @@ articles:
     contents:
       - orderly2
       - introduction
+      - dependencies
       - collaboration
 
   - title: Advanced topics

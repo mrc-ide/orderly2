@@ -37,8 +37,9 @@ default configuration set at the root. If given, must be one of
 verbosity). Practically this has no effect at present as we've
 not added any fine-grained logging.}
 
-\item{search_options}{Optional control over locations, when used with
-\link{orderly_dependency}; see Details.}
+\item{search_options}{Optional control over locations, when used
+with \link{orderly_dependency}; converted into a
+\link{orderly_search_options} object, see Details.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working directory if

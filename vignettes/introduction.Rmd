@@ -162,6 +162,8 @@ We can run this just as before, using `orderly2::orderly_run()`:
 id <- orderly2::orderly_run("analysis", root = path)
 ```
 
+For more information on dependencies, see `vignette("dependencies")`.
+
 # Available in-report orderly commands
 
 The function `orderly2::orderly_dependency()` is designed to operate while the packet runs. These functions all act by adding metadata to the final packet, and perhaps by copying files into the directory.
