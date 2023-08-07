@@ -41,7 +41,7 @@ test_that("Can run a basic packet", {
   ## The index metadata is a subset of the full set:
   expect_mapequal(
     index$metadata[[id]],
-    meta[c("name", "id", "parameters", "files", "time","depends")])
+    meta[c("name", "id", "parameters", "files", "time", "depends")])
 
   expect_setequal(
     names(meta),
