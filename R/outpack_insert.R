@@ -15,10 +15,7 @@ outpack_insert_packet <- function(path, json, root = NULL) {
   ## *any* packet that exists?  For now it's academic as there's no
   ## equivalent to "pull" so this is the only way that things might
   ## appear.
-  ## TODO: consider root$index$location(local)
-  index <- root$index$data()
-  exists <- any(index$location$packet == id &
-                index$location$location == local)
+  exists <- any(root$index$location(local)$packet == id)
   if (exists) {
     stop(sprintf("'%s' has already been added for '%s'", id, local))
   }
@@ -45,10 +42,6 @@ outpack_insert_packet <- function(path, json, root = NULL) {
   hash <- hash_data(json, hash_algorithm)
   time <- Sys.time()
   mark_packet_known(id, local, hash, time, root)
-
-  ## If we were going to add a number in quick succession we could
-  ## avoid churn here by not rewriting at every point.
-  root$index$data() # TODO: drop this line entirely
 }
 
 

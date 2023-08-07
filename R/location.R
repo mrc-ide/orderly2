@@ -40,7 +40,6 @@
 ##' [`outpack.sharepoint`](https://mrc-ide.github.io/outpack.sharepoint)
 ##' package.
 ##'
-##'
 ##' *Be warned that we may change this interface in future, in which
 ##' case you may need to update your configuration.*
 ##'
