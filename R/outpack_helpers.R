@@ -133,9 +133,9 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
 plan_copy_files <- function(root, id, there, here) {
   assert_relative_path(there, no_dots = TRUE)
   validate_packet_has_file(root, id, there)
-  meta <- root$metadata(id)
   is_dir <- grepl("/$", there)
   if (any(is_dir)) {
+    meta <- outpack_metadata_core(id, root)
     files <- meta$files$path
     expanded <- lapply(which(is_dir), function(i) {
       p <- there[[i]]
@@ -160,7 +160,7 @@ copy_files_from_remote <- function(id, there, here, dest, overwrite, root) {
   plan <- location_build_pull_plan(id, location_name, root)
   driver <- location_driver(plan$location[match(id, plan$packet)], root)
 
-  meta <- root$metadata(id)
+  meta <- outpack_metadata_core(id, root)
   hash <- meta$files$hash[match(there, meta$files$path)]
   here_full <- file.path(dest, here)
 

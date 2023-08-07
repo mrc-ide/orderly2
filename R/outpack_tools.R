@@ -208,7 +208,7 @@ orderly_metadata_extract <- function(..., extract = NULL, root = NULL,
   }
   extract <- parse_extract(extract, environment())
 
-  meta <- lapply(ids, root$metadata, full = TRUE)
+  meta <- lapply(ids, orderly_metadata, root = root)
 
   envir <- environment()
   ret <- data_frame(id = ids)

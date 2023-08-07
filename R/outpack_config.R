@@ -117,7 +117,7 @@ config_set_require_complete_tree <- function(value, root) {
   }
 
   if (value) {
-    id <- root$index()$unpacked
+    id <- root$index$unpacked()
     orderly_location_pull_packet(id, recursive = TRUE, root = root)
   }
 
@@ -139,14 +139,14 @@ config_set_use_file_store <- function(value, root) {
     if (is.null(config$core$path_archive)) {
       stop("If 'path_archive' is NULL, then 'use_file_store' must be TRUE")
     }
-    root$remove_file_store()
+    remove_file_store(root)
   }
 
   if (value) {
     tryCatch(
-      root$add_file_store(),
+      add_file_store(root),
       error = function(e) {
-        root$remove_file_store()
+        remove_file_store(root)
         stop("Error adding file store: ", e$message, call. = FALSE)
       })
   }
@@ -189,8 +189,8 @@ config_set_path_archive <- function(value, root) {
     assert_directory_does_not_exist(path_archive)
     tryCatch({
       fs::dir_create(path_archive)
-      invisible(lapply(root$index()$unpacked, function(id) {
-        meta <- root$metadata(id)
+      invisible(lapply(root$index$unpacked(), function(id) {
+        meta <- outpack_metadata_core(id, root)
         dst <- file.path(path_archive, meta$name, id, meta$files$path)
         root$files$get(meta$files$hash, dst, TRUE)
       }))

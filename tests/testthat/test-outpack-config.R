@@ -84,14 +84,14 @@ test_that("Can add file_store", {
   orderly_location_pull_metadata(root = root$dst$path)
   orderly_location_pull_packet(id[["c"]], root = root$dst$path)
 
-  expect_equal(root$dst$index()$unpacked, id[["c"]])
+  expect_equal(root$dst$index$data()$unpacked, id[["c"]])
   orderly_config_set(core.use_file_store = TRUE, root = root$dst)
 
   expect_true(root$dst$config$core$use_file_store)
   expect_true(orderly_config(root$dst$path)$core$use_file_store)
   expect_true(fs::dir_exists(root$dst$files$path))
 
-  hash_pulled <- root$dst$metadata(id[["c"]])$files$hash
+  hash_pulled <- outpack_metadata_core(id[["c"]], root$dst)$files$hash
   expect_equal(length(hash_pulled), 4)
 
   dest <- temp_file()
@@ -101,7 +101,7 @@ test_that("Can add file_store", {
   root$dst$files$get(hash_pulled[[3]], dest, TRUE)
   root$dst$files$get(hash_pulled[[4]], dest, TRUE)
 
-  hash_not_pulled <- root$dst$metadata(id[["a"]])$files$hash
+  hash_not_pulled <- outpack_metadata_core(id[["a"]], root$dst)$files$hash
   expect_error(root$dst$files$get(hash_not_pulled[[1]], dest, TRUE),
                "not found in store")
 })
@@ -113,9 +113,9 @@ test_that("File store is not added if a hash cannot be resolved", {
 
   id <- create_random_packet(root, name = "test")
 
-  meta <- root$metadata(id)
+  meta <- outpack_metadata_core(id, root)
 
-  expect_equal(root$index()$unpacked, id)
+  expect_equal(root$index$unpacked(), id)
   fs::file_delete(file.path(root$path, "archive", "test", id, "data.rds"))
   regex <- paste("Error adding file store:(.*)",
                  "the following files were missing or corrupted: 'data.rds'")
@@ -135,7 +135,7 @@ test_that("Files will be searched for by hash when adding file store", {
   id <- create_deterministic_packet(root, name = "data")
   id_new <- create_deterministic_packet(root, name = "data-new")
 
-  expect_equal(root$index()$unpacked, c(id, id_new))
+  expect_equal(root$index$unpacked(), c(id, id_new))
   fs::file_delete(file.path(root$path, "archive", "data", id, "data.rds"))
 
   suppressMessages(orderly_config_set(core.use_file_store = TRUE, root = root))
@@ -144,7 +144,7 @@ test_that("Files will be searched for by hash when adding file store", {
 
   dest <- temp_file()
   dir.create(dest)
-  root$files$get(root$metadata(id)$files$hash, dest, TRUE)
+  root$files$get(outpack_metadata_core(id, root)$files$hash, dest, TRUE)
 })
 
 
@@ -242,7 +242,7 @@ test_that("Can add archive", {
   orderly_config_set(core.use_file_store = TRUE, root = root)
   orderly_config_set(core.path_archive = NULL, root = root)
 
-  hash <- root$metadata(id[["c"]])$files$hash
+  hash <- outpack_metadata_core(id[["c"]], root)$files$hash
   expect_equal(length(hash), 4)
 
   dest <- temp_file()
@@ -258,7 +258,7 @@ test_that("Archive is not added if file store is corrupt", {
   root <- create_temporary_root(path_archive = NULL, use_file_store = TRUE)
 
   id <- create_random_packet_chain(root, 3)
-  hash <- root$metadata(id[["c"]])$files$hash
+  hash <- outpack_metadata_core(id[["c"]], root)$files$hash
   fs::file_delete(root$files$filename(hash[[1]]))
   expect_error(orderly_config_set(core.path_archive = "archive", root = root),
                "Error adding 'path_archive': Hash not found in store:")
@@ -300,11 +300,11 @@ test_that("Enabling recursive pulls forces pulling missing packets", {
                        root = root$dst$path)
   orderly_location_pull_metadata(root = root$dst$path)
   orderly_location_pull_packet(id[["c"]], root = root$dst$path)
-  expect_equal(root$dst$index()$unpacked, id[["c"]])
+  expect_equal(root$dst$index$unpacked(), id[["c"]])
 
   orderly_config_set(core.require_complete_tree = TRUE, root = root$dst$path)
 
-  expect_setequal(root$dst$index()$unpacked, id)
+  expect_setequal(root$dst$index$unpacked(), id)
   expect_true(orderly_config(root$dst$path)$core$require_complete_tree)
 })
 

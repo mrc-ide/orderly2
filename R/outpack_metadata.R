@@ -27,7 +27,11 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
   validate_outpack_id(id)
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  root$metadata(id, full = TRUE)
+  path_metadata <- file.path(root$path, ".outpack", "metadata", id)
+  if (!file.exists(path_metadata)) {
+    stop(sprintf("id '%s' not found in index", id))
+  }
+  outpack_metadata_load(path_metadata)
 }
 
 
@@ -154,16 +158,27 @@ outpack_metadata_create <- function(path, name, id, time, files,
 }
 
 
-outpack_metadata_load <- function(json) {
-  if (!inherits(json, "json")) { # could use starts with "{"
-    json <- read_string(json)
-  }
+## This does a caching read via the index; under the hood it will load
+## that that was read with the outpack_metadata_core_read
+## function. Only the core fields will be deserialised and stored,
+## which should save time and space.
+outpack_metadata_core <- function(id, root) {
+  root$index$metadata(id)
+}
 
-  data <- jsonlite::parse_json(json)
+
+outpack_metadata_core_read <- function(path) {
+  keep <- c("id", "name", "parameters", "time", "files", "depends")
+  data <- jsonlite::read_json(path)[keep]
+  outpack_metadata_core_deserialise(data)
+}
+
+
+outpack_metadata_core_deserialise <- function(data) {
+  data$time <- lapply(data$time, num_to_time)
   data$files <- data_frame(path = vcapply(data$files, "[[", "path"),
                            size = vnapply(data$files, "[[", "size"),
                            hash = vcapply(data$files, "[[", "hash"))
-  data$time <- lapply(data$time, num_to_time)
   data$depends <- data_frame(
     packet = vcapply(data$depends, "[[", "packet"),
     query = vcapply(data$depends, "[[", "query"),
@@ -174,17 +189,20 @@ outpack_metadata_load <- function(json) {
   if (!is.null(data$git)) {
     data$git$url <- list_to_character(data$git$url)
   }
-  if (!is.null(data$custom$orderly)) {
-    data$custom$orderly <- custom_metadata_deserialise(data$custom$orderly)
-  }
-
   data
 }
 
 
-outpack_metadata_index_read <- function(path) {
-  keep <- c("name", "id", "parameters", "files", "depends")
-  outpack_metadata_load(path)[keep]
+outpack_metadata_load <- function(json) {
+  if (!inherits(json, "json")) { # could use starts with "{"
+    json <- read_string(json)
+  }
+  data <- jsonlite::parse_json(json)
+  data <- outpack_metadata_core_deserialise(data)
+  if (!is.null(data$custom$orderly)) {
+    data$custom$orderly <- custom_metadata_deserialise(data$custom$orderly)
+  }
+  data
 }
 
 
@@ -203,9 +221,8 @@ validate_hashes <- function(found, expected) {
 
 
 get_metadata_hash <- function(packet_id, root) {
-  index <- root$index()$location
-  i <- index$packet == packet_id & index$location == local
-  hash <- index$hash[i]
+  dat <- root$index$location(local)
+  hash <- dat$hash[dat$packet == packet_id]
   stopifnot(length(hash) == 1)
   hash
 }

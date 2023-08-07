@@ -24,7 +24,7 @@ test_that("Can run a basic packet", {
   outpack_packet_end(p)
   expect_true(p$complete)
 
-  index <- root$index()
+  index <- root$index$data()
   expect_length(index$metadata, 1)
   id <- p$id
 
@@ -39,8 +39,9 @@ test_that("Can run a basic packet", {
   meta <- outpack_metadata_load(path_metadata)
 
   ## The index metadata is a subset of the full set:
-  expect_mapequal(index$metadata[[id]],
-                  meta[c("name", "id", "parameters", "files", "depends")])
+  expect_mapequal(
+    index$metadata[[id]],
+    meta[c("name", "id", "parameters", "files", "time", "depends")])
 
   expect_setequal(
     names(meta),
@@ -76,7 +77,7 @@ test_that("Can run a basic packet", {
   expect_equal(index$unpacked, id)
 
   ## Easily retrieve metadata from root:
-  expect_equal(root$metadata(id), index$metadata[[id]])
+  expect_equal(outpack_metadata_core(id, root), index$metadata[[id]])
 })
 
 
@@ -387,7 +388,7 @@ test_that("pre-prepared id can be used to start packet", {
   expect_equal(p$id, id)
 
   outpack_packet_end(p)
-  index <- root$index()
+  index <- root$index$data()
   expect_equal(names(index$metadata), id)
 })
 
@@ -492,7 +493,7 @@ test_that("Can ignore files from the final packet", {
                           status = c("ignored", "unknown", "unknown")))
   outpack_packet_end(p)
 
-  meta <- root$metadata(p$id)
+  meta <- outpack_metadata_core(p$id, root)
   expect_equal(meta$files$path, c("log.json", "script.R", "zzz.png"))
   expect_length(root$files$list(), 3)
   expect_setequal(dir(file.path(root$path, "archive", "example", p$id)),
@@ -740,17 +741,17 @@ test_that("can pull in dependency when not found, if requested", {
            'latest(name == "data" && parameter:p > 2)'),
     fixed = TRUE)
 
-  expect_length(root$a$index()$metadata, 0)
-  expect_equal(nrow(root$a$index()$location), 0)
-  expect_equal(length(root$a$index()$unpacked), 0)
+  expect_length(root$a$index$data()$metadata, 0)
+  expect_equal(nrow(root$a$index$data()$location), 0)
+  expect_equal(length(root$a$index$data()$unpacked), 0)
 
   outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds"),
                                 search_options = list(pull_metadata = TRUE,
                                                       allow_remote = TRUE))
 
-  expect_length(root$a$index()$metadata, 3)
-  expect_equal(nrow(root$a$index()$location), 3)
-  expect_equal(root$a$index()$unpacked, character())
+  expect_length(root$a$index$data()$metadata, 3)
+  expect_equal(nrow(root$a$index$data()$location), 3)
+  expect_equal(root$a$index$data()$unpacked, character())
   expect_equal(p_a$depends[[1]]$packet, ids[[3]])
 
   path_src_b <- withr::local_tempdir()
@@ -759,9 +760,9 @@ test_that("can pull in dependency when not found, if requested", {
                                 search_options = list(pull_metadata = TRUE,
                                                       allow_remote = TRUE))
 
-  expect_length(root$b$index()$metadata, 3)
-  expect_equal(nrow(root$b$index()$location), 4) # compare with above!
-  expect_equal(root$b$index()$unpacked, ids[[3]])
+  expect_length(root$b$index$data()$metadata, 3)
+  expect_equal(nrow(root$b$index$data()$location), 4) # compare with above!
+  expect_equal(root$b$index$data()$unpacked, ids[[3]])
   expect_equal(p_b$depends[[1]]$packet, ids[[3]])
 })
 

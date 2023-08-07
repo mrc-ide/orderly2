@@ -90,9 +90,9 @@ test_that("can locate files from the store", {
 
   loc <- orderly_location_path$new(path)
   ids <- vcapply(1:3, function(i) create_random_packet(path))
-  idx <- root$index()
 
-  files <- idx$metadata[[1]]$files
+  files <- outpack_metadata_core(ids[[1]], root)$files
+
   h <- files$hash[files$path == "data.rds"]
   dest <- temp_file()
   res <- loc$fetch_file(h, dest)
@@ -121,7 +121,7 @@ test_that("Can find file from archive", {
 
   loc <- orderly_location_path$new(path)
   ids <- vcapply(1:3, function(i) create_random_packet(path))
-  idx <- root$index()
+  idx <- root$index$data()
 
   files <- idx$metadata[[1]]$files
   h <- files$hash[files$path == "data.rds"]
@@ -154,7 +154,7 @@ test_that("can detect differences between locations when destination empty", {
   orderly_location_add("server", "path", list(path = server$path),
                        root = client)
 
-  files <- lapply(ids, function(id) client$metadata(id)$files$hash)
+  files <- lapply(ids, function(id) client$index$metadata(id)$files$hash)
 
   ## Simplest case; leaf node not known to the server.
   plan1 <- location_build_push_plan(ids[[1]], "server", client)
@@ -188,8 +188,8 @@ test_that("Import complete tree via push into server", {
 
   plan <- orderly_location_push(ids[[4]], "server", client)
 
-  idx_c <- client$index()
-  idx_s <- server$index()
+  idx_c <- client$index$data()
+  idx_s <- server$index$data()
 
   expect_equal(idx_s$metadata, idx_c$metadata)
   expect_equal(idx_s$unpacked, idx_c$unpacked)
@@ -197,7 +197,7 @@ test_that("Import complete tree via push into server", {
   expect_equal(idx_s$location$hash, idx_c$location$hash)
 
   expect_setequal(plan$packet_id, ids)
-  files_used <- lapply(ids, function(id) client$metadata(id)$files$hash)
+  files_used <- lapply(ids, function(id) client$index$metadata(id)$files$hash)
   expect_setequal(plan$files, unique(unlist(files_used, FALSE, FALSE)))
 })
 
@@ -243,7 +243,7 @@ test_that("Prevent pushing things that would corrupt the store", {
     sprintf("Can't import metadata for '%s', as files missing", id))
 
   ## Manually import the files:
-  for (h in client$metadata(id)$files$hash) {
+  for (h in client$index$metadata(id)$files$hash) {
     location_path_import_file(find_file_by_hash(client, h), h, server)
   }
   expect_error(
@@ -293,5 +293,5 @@ test_that("push overlapping tree", {
   plan <- orderly_location_push(ids[[3]], "server", client)
 
   expect_setequal(plan$packet_id, ids)
-  expect_setequal(names(server$index()$metadata), c(id_base, ids))
+  expect_setequal(names(server$index$data()$metadata), c(id_base, ids))
 })

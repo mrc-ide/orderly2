@@ -89,7 +89,7 @@ new_query_index <- function(root, options) {
   if (options$pull_metadata) {
     orderly_location_pull_metadata(options$location, root)
   }
-  idx <- root$index()
+  idx <- root$index$data()
   metadata <- idx$metadata
 
   if (!is.null(options$location)) {

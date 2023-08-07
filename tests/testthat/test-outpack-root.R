@@ -74,35 +74,14 @@ test_that("Can't get nonexistant metadata", {
   root <- create_temporary_root(path_archive = NULL, use_file_store = TRUE)
   id <- outpack_id()
   expect_error(
-    root$metadata(id),
-    sprintf("id '%s' not found in index", id))
-  expect_error(
-    root$metadata(id, full = TRUE),
+    outpack_metadata_core(id, root),
     sprintf("id '%s' not found in index", id))
 })
 
 
 test_that("empty root has nothing unpacked", {
   root <- create_temporary_root()
-  index <- root$index()
-  expect_equal(index$unpacked, character())
-})
-
-
-test_that("Can read full metadata via root", {
-  root <- create_temporary_root()
-  id1 <- create_random_packet(root)
-  id2 <- create_random_packet(root)
-
-  d1 <- root$metadata(id1, TRUE)
-  d2 <- root$metadata(id1, FALSE)
-
-  expect_identical(d1[names(d2)], d2)
-  expect_equal(
-    setdiff(names(d1), names(d2)),
-    c("schema_version", "time", "git", "custom"))
-  expect_setequal(names(d1$time), c("start", "end"))
-  expect_equal(d1$schema_version, outpack_schema_version())
+  expect_equal(root$index$unpacked(), character())
 })
 
 
@@ -172,7 +151,7 @@ test_that("Can work out what files are missing without file store", {
   ids <- create_random_packet_chain(root, 3)
 
   files <- unique(
-    unlist(lapply(root$index()$metadata, function(x) x$files$hash),
+    unlist(lapply(root$index$data()$metadata, function(x) x$files$hash),
            FALSE, FALSE))
   files_msg <- hash_data(files, "sha256")
 
