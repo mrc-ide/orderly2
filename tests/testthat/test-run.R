@@ -138,6 +138,20 @@ test_that("can run orderly with parameters, without orderly", {
 })
 
 
+test_that("can run orderly with parameters, without orderly, globally", {
+  path <- test_prepare_orderly_example(c("parameters", "depends-query"))
+  id <- orderly_run("parameters", parameters = list(a = 10, b = 20, c = 30),
+                    envir = new.env(), root = path)
+  path_src <- file.path(path, "src", "depends-query")
+  envir <- list2env(list(a = 10, b = 20, c = 30), parent = globalenv())
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", envir))
+  path_rds <- file.path(path_src, "result.rds")
+  expect_true(file.exists(path_rds))
+  expect_equal(readRDS(path_rds), list(a = 20, b = 40, c = 60))
+})
+
+
 test_that("Can run simple case with dependency", {
   path <- test_prepare_orderly_example(c("data", "depends"))
   envir1 <- new.env()

@@ -109,6 +109,13 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
 ##'
 ##' @param name Name of the plugin
 ##'
+##' @param envir The environment of the calling function. You can
+##'   typically pass `parent.frame()` (or `rlang::caller_env()`) here
+##'   if the function calling `orderly_plugin_context()` is the
+##'   function that would be called by a user. This argument only has
+##'   an effect in interactive use (where `envir` is almost certainly
+##'   the global environment).
+##'
 ##' @return A list with elements:
 ##'
 ##' * `is_active`: a logical, indicating if we're running under
@@ -139,19 +146,15 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
 ##' @seealso [orderly2::orderly_plugin_register],
 ##' [orderly2::orderly_plugin_add_metadata]
 ##' @export
-orderly_plugin_context <- function(name) {
+orderly_plugin_context <- function(name, envir) {
   assert_scalar_character(name)
-  ctx <- orderly_context()
+  ctx <- orderly_context(envir)
   check_plugin_enabled(name, ctx$config)
   ## Narrower view on configuration - can only see the config for the
   ## plugin itself:
   ctx$config <- ctx$config$plugins[[name]]$config
   ## No direct access to the full packet
   ctx$packet <- NULL
-  ## Correct environment in the interactive case:
-  if (!ctx$is_active) {
-    ctx$envir <- orderly_environment(name)
-  }
   ctx
 }
 

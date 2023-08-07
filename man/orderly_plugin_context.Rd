@@ -4,10 +4,17 @@
 \alias{orderly_plugin_context}
 \title{Fetch plugin context}
 \usage{
-orderly_plugin_context(name)
+orderly_plugin_context(name, envir)
 }
 \arguments{
 \item{name}{Name of the plugin}
+
+\item{envir}{The environment of the calling function. You can
+typically pass \code{parent.frame()} (or \code{rlang::caller_env()}) here
+if the function calling \code{orderly_plugin_context()} is the
+function that would be called by a user. This argument only has
+an effect in interactive use (where \code{envir} is almost certainly
+the global environment).}
 }
 \value{
 A list with elements:

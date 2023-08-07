@@ -1,4 +1,4 @@
-orderly_context <- function() {
+orderly_context <- function(envir) {
   p <- get_active_packet()
   is_active <- !is.null(p)
   if (is_active) {
@@ -17,7 +17,6 @@ orderly_context <- function() {
     config <- root_open(root,
                         locate = FALSE,
                         require_orderly = TRUE)$config$orderly
-    envir <- orderly_environment("orderly2")
     src <- path
     parameters <- current_orderly_parameters(src, envir)
     name <- basename(path)
@@ -27,43 +26,6 @@ orderly_context <- function() {
   list(is_active = is_active, path = path, config = config, envir = envir,
        root = root, src = src, name = name, id = id, parameters = parameters,
        search_options = search_options, packet = p)
-}
-
-
-## This is a real trick, and is only used in the case where the report
-## is being run interactively, and in that case the correct thing is
-## *almost certainly* the global environment, as the user has to do
-## some tricks to stop that being the case; for example running
-##
-## > source("orderly.R", local = TRUE)
-##
-## We want to find the environment that corresponds to the top level
-## environment for orderly; that will be the one that called the
-## plugin function. So we'll have a stack of frames (corresponding to
-## the environments on the call stack) with *parents* that look like
-## this, outermost first:
-##
-## - (anything else)
-## - (calling environment) <-- this is what we're looking for
-## - (plugin)
-## - (orderly2; orderly_plugin_context)
-## - (orderly2; from orderly_context)
-## - (orderly2; from orderly_environment)
-##
-## so we loop down the stack looking for the first call to a function
-## in the plugin package, then take the frame *above* that.
-##
-## When we want this for a non-plugin case (i.e., the caller is in
-## orderly2) then we just need to pass name = "orderly2" here
-orderly_environment <- function(name) {
-  frames <- sys.frames()
-  for (i in seq_along(frames)[-1]) {
-    if (environmentName(parent.env(frames[[i]])) == name) {
-      return(frames[[i - 1]])
-    }
-  }
-  ## This error should never surface if the plugin is configured correctly
-  stop("Could not determine calling environment safely - please report")
 }
 
 
@@ -94,7 +56,7 @@ orderly_environment <- function(name) {
 ##'     - `as`: the filename used locally
 ##' @export
 orderly_run_info <- function() {
-  ctx <- orderly_context()
+  ctx <- orderly_context(rlang::caller_env())
 
   id <- ctx$packet$id %||% NA_character_
   name <- ctx$name
