@@ -152,10 +152,9 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
                  name))
   }
   location_check_exists(root, name)
-
-  ## TODO: can survive on just the location index, so root$index$location(NULL)
-  index <- root$index$data()
   config <- root$config
+
+  index <- root$index$data()
   known_here <- index$location$packet[index$location$location == name]
   known_elsewhere <- index$location$packet[index$location$location != name]
   only_here <- setdiff(known_here, known_elsewhere)
@@ -175,8 +174,10 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   if (fs::dir_exists(location_path)) {
     fs::dir_delete(location_path)
   }
-  ## TODO: this can be relaxed too
-  root$index$refresh(skip_cache = TRUE)$data()
+  ## This forces a rebuild of the index, and is the only call with
+  ## skip_cache = TRUE anywhere; it can probably be relaxed if the
+  ## refresh was more careful, but this is a rare operation.
+  root$index$refresh(skip_cache = TRUE)
   config$location <- config$location[config$location$name != name, ]
   config_update(config, root)
   invisible()

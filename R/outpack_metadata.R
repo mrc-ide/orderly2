@@ -158,22 +158,29 @@ outpack_metadata_create <- function(path, name, id, time, files,
 }
 
 
-## temporary name and function for now...
+## This does a caching read via the index; under the hood it will load
+## that that was read with the outpack_metadata_core_read
+## function. Only the core fields will be deserialised and stored,
+## which should save time and space.
 outpack_metadata_core <- function(id, root) {
-  root$metadata(id)
+  root$index$metadata(id)
 }
 
 
-outpack_metadata_load <- function(json) {
-  if (!inherits(json, "json")) { # could use starts with "{"
-    json <- read_string(json)
-  }
+outpack_metadata_core_read <- function(id, root) {
+  path <- file.path(root$path, ".outpack", "metadata", id)
+  assert_file_exists(path)
+  keep <- c("id", "name", "parameters", "time", "files", "depends")
+  data <- jsonlite::parse_json(json)[keep]
+  outpack_metadata_core_deserialise(data)
+}
 
-  data <- jsonlite::parse_json(json)
+
+outpack_metadata_core_deserialise <- function(data) {
+  data$time <- lapply(data$time, num_to_time)
   data$files <- data_frame(path = vcapply(data$files, "[[", "path"),
                            size = vnapply(data$files, "[[", "size"),
                            hash = vcapply(data$files, "[[", "hash"))
-  data$time <- lapply(data$time, num_to_time)
   data$depends <- data_frame(
     packet = vcapply(data$depends, "[[", "packet"),
     query = vcapply(data$depends, "[[", "query"),
@@ -184,10 +191,19 @@ outpack_metadata_load <- function(json) {
   if (!is.null(data$git)) {
     data$git$url <- list_to_character(data$git$url)
   }
+  data
+}
+
+
+outpack_metadata_load <- function(json) {
+  if (!inherits(json, "json")) { # could use starts with "{"
+    json <- read_string(json)
+  }
+  data <- jsonlite::parse_json(json)
+  data <- outpack_metadata_core_deserialise(data)
   if (!is.null(data$custom$orderly)) {
     data$custom$orderly <- custom_metadata_deserialise(data$custom$orderly)
   }
-
   data
 }
 
