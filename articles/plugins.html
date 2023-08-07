@@ -149,7 +149,7 @@ information for the database:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum_orderly_version</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.99.0</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plugins</span><span class="kw">:</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">example.db</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/RtmpAiy6gw/file1c9071537e4a</span></span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/RtmpeyEMA1/file1acf662c2824</span></span></code></pre></div>
 <p>Our plugin is called <code>example.db</code> and is listed within the
 <code>plugins</code> section, along with its configuration; in this case
 indicating the path where the SQLite file can be loaded from.</p>
@@ -331,15 +331,15 @@ reliably experience.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"example"</span>, root <span class="op">=</span> <span class="va">path_root</span><span class="op">)</span></span>
 <span><span class="co">## [ name       ]  example</span></span>
-<span><span class="co">## [ id         ]  20230807-133833-901309e1</span></span>
-<span><span class="co">## [ start      ]  2023-08-07 13:38:33</span></span>
+<span><span class="co">## [ id         ]  20230807-140442-df8bc300</span></span>
+<span><span class="co">## [ start      ]  2023-08-07 14:04:42</span></span>
 <span><span class="co">## &gt; example.db::query(sql = "SELECT * FROM mtcars WHERE cyl == 4", as = "dat")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("Summary of data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(summary(dat), "data.rds")</span></span>
 <span><span class="co">## [ result     ]  success</span></span>
-<span><span class="co">## [ end        ]  2023-08-07 13:38:33</span></span>
-<span><span class="co">## [ elapsed    ]  0.1134388 secs</span></span>
-<span><span class="co">## [1] "20230807-133833-901309e1"</span></span></code></pre></div>
+<span><span class="co">## [ end        ]  2023-08-07 14:04:43</span></span>
+<span><span class="co">## [ elapsed    ]  0.1227047 secs</span></span>
+<span><span class="co">## [1] "20230807-140442-df8bc300"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -460,12 +460,11 @@ conform to</p>
 along with the serialisation function:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">schema</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"schema.json"</span>, package <span class="op">=</span> <span class="st">"example.db"</span>, mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_plugin_register.html">orderly_plugin_register</a></span><span class="op">(</span></span>
 <span>    name <span class="op">=</span> <span class="st">"example.db"</span>,</span>
 <span>    config <span class="op">=</span> <span class="va">db_config</span>,</span>
 <span>    serialise <span class="op">=</span> <span class="va">db_serialise</span>,</span>
-<span>    schema <span class="op">=</span> <span class="va">path_schema</span><span class="op">)</span></span>
+<span>    schema <span class="op">=</span> <span class="st">"schema.json"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now, when the orderly metadata is saved (just before running the
 script part of a report) we will validate output that was passed into
@@ -478,7 +477,7 @@ by running <code>options(outpack.schema_validate = TRUE)</code>).</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">example</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230807-133833-901309e1</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230807-140442-df8bc300</span></span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
 <span><span class="co">## │           ├── log.json</span></span>
 <span><span class="co">## │           └── <span style="color: #00BB00;">orderly.R</span></span></span>
@@ -521,12 +520,11 @@ above:</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">schema</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"schema.json"</span>, package <span class="op">=</span> <span class="st">"example.db"</span>, mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_plugin_register.html">orderly_plugin_register</a></span><span class="op">(</span></span>
 <span>    name <span class="op">=</span> <span class="st">"example.db"</span>,</span>
 <span>    config <span class="op">=</span> <span class="va">db_config</span>,</span>
 <span>    serialise <span class="op">=</span> <span class="va">db_serialise</span>,</span>
-<span>    schema <span class="op">=</span> <span class="va">path_schema</span><span class="op">)</span></span>
+<span>    schema <span class="op">=</span> <span class="st">"schema.json"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>(this code could be in any .R file in the package, or across
 several).</p>
