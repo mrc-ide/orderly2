@@ -93,7 +93,7 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
   config <- root$config
   config$location <- rbind(config$location, loc)
   rownames(config$location) <- NULL
-  root$update_config(config)
+  config_update(config, root)
   invisible()
 }
 
@@ -126,7 +126,7 @@ orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
 
   config <- root$config
   config$location$name[config$location$name == old] <- new
-  root$update_config(config)
+  config_update(config, root)
   invisible()
 }
 
@@ -176,7 +176,7 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   }
   root$index(skip_cache = TRUE)
   config$location <- config$location[config$location$name != name, ]
-  root$update_config(config)
+  config_update(config, root)
   invisible()
 }
 

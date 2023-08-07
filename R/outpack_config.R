@@ -139,14 +139,14 @@ config_set_use_file_store <- function(value, root) {
     if (is.null(config$core$path_archive)) {
       stop("If 'path_archive' is NULL, then 'use_file_store' must be TRUE")
     }
-    root$remove_file_store()
+    remove_file_store(root)
   }
 
   if (value) {
     tryCatch(
-      root$add_file_store(),
+      add_file_store(root),
       error = function(e) {
-        root$remove_file_store()
+        remove_file_store(root)
         stop("Error adding file store: ", e$message, call. = FALSE)
       })
   }

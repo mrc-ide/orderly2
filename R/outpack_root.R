@@ -67,36 +67,6 @@ outpack_root <- R6::R6Class(
       prev <- if (skip_cache) list() else private$index_data
       private$index_data <- index_update(self, prev, skip_cache)
       private$index_data
-    },
-
-    add_file_store = function() {
-      self$files <- file_store$new(file.path(self$path, ".outpack", "files"))
-      invisible(lapply(self$index()$unpacked, function(id) {
-        meta <- self$metadata(id)
-        path <- lapply(meta$files$hash,
-                       function(hash) find_file_by_hash(self, hash))
-        failed <- vlapply(path, is.null)
-        if (any(failed)) {
-          missing <- meta$files$path[failed]
-          message <- sprintf(
-            "the following files were missing or corrupted: '%s'",
-            paste(missing, collapse = ", ")
-          )
-          stop(sprintf("Failed to import packet '%s': %s",
-                       id, message))
-        }
-        path <- vcapply(path, identity)
-        file_import_store(self, NULL, path, meta$files$hash)
-      }))
-    },
-
-    remove_file_store = function() {
-      self$files$destroy()
-      self$files <- NULL
-    },
-
-    update_config = function(config) {
-      config_update(config, self)
     }
   ))
 
@@ -338,4 +308,35 @@ root_list_unknown_files <- function(hashes, root) {
     ## validate each file (as we currently do)
     hashes[vlapply(hashes, function(h) is.null(find_file_by_hash(root, h)))]
   }
+}
+
+
+add_file_store <- function(root) {
+  ## TODO: tidy this up to be clearer about the loop; here we are
+  ## hitting the index and looping over the metadata but there's no
+  ## need to do so in such a weird way.
+  root$files <- file_store$new(file.path(root$path, ".outpack", "files"))
+  invisible(lapply(root$index()$unpacked, function(id) {
+    meta <- root$metadata(id)
+    path <- lapply(meta$files$hash,
+                   function(hash) find_file_by_hash(root, hash))
+    failed <- vlapply(path, is.null)
+    if (any(failed)) {
+      missing <- meta$files$path[failed]
+      message <- sprintf(
+        "the following files were missing or corrupted: '%s'",
+        paste(missing, collapse = ", ")
+      )
+      stop(sprintf("Failed to import packet '%s': %s",
+                   id, message))
+    }
+    path <- vcapply(path, identity)
+    file_import_store(root, NULL, path, meta$files$hash)
+  }))
+}
+
+
+remove_file_store <- function(root) {
+  root$files$destroy()
+  root$files <- NULL
 }
