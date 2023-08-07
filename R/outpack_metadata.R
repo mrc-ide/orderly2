@@ -167,11 +167,9 @@ outpack_metadata_core <- function(id, root) {
 }
 
 
-outpack_metadata_core_read <- function(id, root) {
-  path <- file.path(root$path, ".outpack", "metadata", id)
-  assert_file_exists(path)
+outpack_metadata_core_read <- function(path) {
   keep <- c("id", "name", "parameters", "time", "files", "depends")
-  data <- jsonlite::parse_json(json)[keep]
+  data <- jsonlite::read_json(path)[keep]
   outpack_metadata_core_deserialise(data)
 }
 

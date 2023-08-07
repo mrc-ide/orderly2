@@ -85,19 +85,11 @@ read_metadata <- function(root_path, prev) {
   }
 
   files <- file.path(path, id_new)
-  new <- lapply(files, outpack_metadata_index_read)
+  new <- lapply(files, outpack_metadata_core_read)
   names(new) <- id_new
   ret <- c(prev, new)
   ret[order(names(ret))]
   ret
-}
-
-
-## TODO: also keep time
-## TODO: don't use metadata_load
-outpack_metadata_index_read <- function(path) {
-  keep <- c("name", "id", "parameters", "files", "depends")
-  outpack_metadata_load(path)[keep]
 }
 
 

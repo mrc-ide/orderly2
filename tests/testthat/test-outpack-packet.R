@@ -39,8 +39,9 @@ test_that("Can run a basic packet", {
   meta <- outpack_metadata_load(path_metadata)
 
   ## The index metadata is a subset of the full set:
-  expect_mapequal(index$metadata[[id]],
-                  meta[c("name", "id", "parameters", "files", "depends")])
+  expect_mapequal(
+    index$metadata[[id]],
+    meta[c("name", "id", "parameters", "files", "time","depends")])
 
   expect_setequal(
     names(meta),
