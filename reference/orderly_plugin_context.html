@@ -76,13 +76,22 @@ the state of a packet.  You will then typically call
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_plugin_context</span><span class="op">(</span><span class="va">name</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_plugin_context</span><span class="op">(</span><span class="va">name</span>, <span class="va">envir</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>name</dt>
 <dd><p>Name of the plugin</p></dd>
+
+
+<dt>envir</dt>
+<dd><p>The environment of the calling function. You can
+typically pass <code><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame()</a></code> (or <code><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">rlang::caller_env()</a></code>) here
+if the function calling <code>orderly_plugin_context()</code> is the
+function that would be called by a user. This argument only has
+an effect in interactive use (where <code>envir</code> is almost certainly
+the global environment).</p></dd>
 
 </dl></div>
     <div class="section level2">
