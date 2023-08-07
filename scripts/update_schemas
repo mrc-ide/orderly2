@@ -2,8 +2,7 @@
 
 root <- here::here()
 
-## The branch will typically be main
-outpack_branch <- "mrc-4230"
+outpack_branch <- "main"
 url <- "https://github.com/mrc-ide/outpack"
 tmp <- tempfile()
 repo <- gert::git_clone(url, tmp, outpack_branch)
