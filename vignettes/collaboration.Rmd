@@ -258,4 +258,9 @@ However,
 If Alice and Bob were starting on a new machine they would:
 
 * clone their source repository
-* run `orderly::orderly_init()` from within the directory
+* run `orderly2::orderly_init()` from within the directory
+* run `orderly2` commands as normal
+
+Without running `orderly2::orderly_init()`, they will get an error prompting them to initialise the repo.
+
+There is no requirement for different repositories to share configuration options passed to `orderly2::orderly_init()`; so you can enable or disable the file store or have different sets of locations enabled, depending on your workflows. This means that there is, in practice, only an association _by convention_ between a set of related `orderly2` locations and their source tree and you can have an `orderly2` repository that points at locations that refer to different source trees!
