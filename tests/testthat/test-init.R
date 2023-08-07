@@ -135,6 +135,15 @@ test_that("can reinitialise with specific arguments that match config", {
                       logging_console = FALSE, require_complete_tree = FALSE,
                       logging_threshold = "info")
   expect_equal(normalise_path(tmp), normalise_path(res))
+
+  tmp <- withr::local_tempfile()
+  root <- outpack_init_no_orderly(tmp, path_archive = NULL,
+                                  use_file_store = TRUE,
+                                  logging_console = FALSE)
+  res <- orderly_init(tmp, use_file_store = TRUE, path_archive = NULL,
+                      logging_console = FALSE, require_complete_tree = FALSE,
+                      logging_threshold = "info")
+  expect_equal(normalise_path(tmp), normalise_path(res))
 })
 
 

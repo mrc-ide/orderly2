@@ -215,7 +215,7 @@ root_validate_same_configuration <- function(args, config, root, call) {
     cmp <- lapply(check, function(nm) {
       current <- root$config[[argmap[[nm]]]]
       given <- config[[argmap[[nm]]]]
-      changed <- current != given
+      changed <- !identical(current, given)
       list(changed = changed, name = nm, current = current, given = given)
     })
     err <- vlapply(cmp, "[[", "changed")
