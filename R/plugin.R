@@ -34,8 +34,11 @@
 ##'   within this function and access anything you need from that. If
 ##'   not given, then no cleanup is done.
 ##'
-##' @param schema Optionally a path to a schema for the metadata
-##'   created by this plugin. See `vignette("plugins")` for details.
+##' @param schema Optionally a path, within the package, to a schema
+##'   for the metadata created by this plugin; you should omit the
+##'   `.json` extension.  So if your file contains in its sources the
+##'   file `inst/plugin/myschema.json` you would pass
+##'   `plugin/myschema`.  See `vignette("plugins")` for details.
 ##'
 ##' @return Nothing, this function is called for its side effect of
 ##'   registering a plugin.
@@ -44,7 +47,8 @@
 orderly_plugin_register <- function(name, config, serialise = NULL,
                                     cleanup = NULL, schema = NULL) {
   assert_scalar_character(name)
-  .plugins[[name]] <- orderly_plugin(config, serialise, cleanup, schema)
+  plugin <- orderly_plugin(name, config, serialise, cleanup, schema)
+  .plugins[[name]] <- plugin
 }
 
 
@@ -65,7 +69,7 @@ load_orderly_plugin <- function(name) {
 .plugins <- new.env(parent = emptyenv())
 
 
-orderly_plugin <- function(config, serialise, cleanup, schema) {
+orderly_plugin <- function(package, config, serialise, cleanup, schema) {
   assert_is(config, "function")
   if (is.null(cleanup)) {
     cleanup <- plugin_no_cleanup
@@ -74,15 +78,19 @@ orderly_plugin <- function(config, serialise, cleanup, schema) {
     if (is.null(serialise)) {
       stop("If 'schema' is given, then 'serialise' must be non-NULL")
     }
-    assert_file_exists(schema, name = "Schema file")
-    schema <- paste(readLines(schema), collapse = "\n")
-    class(schema) <- "json"
+    path_pkg <- pkg_root(package)
+    if (!file.exists(file.path(path_pkg, schema))) {
+      cli::cli_abort(
+        "Expected schema file '{schema}' to exist in package '{package}'")
+    }
+    schema <- sprintf("%s/%s", package, schema)
   }
   if (is.null(serialise)) {
     serialise <- plugin_no_serialise
   }
   assert_is(cleanup, "function")
-  ret <- list(config = config,
+  ret <- list(package = package,
+              config = config,
               serialise = serialise,
               cleanup = cleanup,
               schema = schema)
@@ -216,4 +224,28 @@ plugin_no_serialise <- function(data) {
                "has no serialise method"))
   }
   to_json(NULL, NULL)
+}
+
+
+## Some careful work here is required to cope with the case where
+## orderly2 and the plugin package are installed directly or in dev
+## mode
+##
+## If orderly or both are loaded in dev mode we can just use
+## system_file as the devtools shim is picked up by orderly.
+##
+## If both are installed properly, then system_file works because the
+## base version gives the right answer.
+##
+## However, in the case where orderly is properly installed but the
+## plugin is not (which is reasonably likely) then we need to find the
+## true root, in which case we need to build the path manually.
+pkg_root <- function(package) {
+  root <- find.package(package)
+  if (is_dev_package(package)) file.path(root, "inst") else root
+}
+
+
+is_dev_package <- function(package) {
+  "pkgload" %in% loadedNamespaces() && pkgload::is_dev_package(package)
 }

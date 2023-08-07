@@ -278,7 +278,7 @@ config_serialise <- function(config, path) {
 
   config$orderly <- NULL
 
-  to_json(config, "config")
+  to_json(config, "outpack/config.json")
 }
 
 

@@ -1,6 +1,8 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Outpack git information",
     "description": "Information about source versioning with git",
+    "version": "0.1.0",
 
     "type": "object",
     "properties": {

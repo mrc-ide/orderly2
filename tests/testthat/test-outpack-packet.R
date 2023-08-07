@@ -30,11 +30,11 @@ test_that("Can run a basic packet", {
 
   path_metadata <- file.path(path, ".outpack", "metadata", id)
   expect_true(file.exists(path_metadata))
-  outpack_schema("metadata")$validate(path_metadata)
+  expect_true(load_schema("outpack/metadata.json")$validate(path_metadata))
 
   path_location <- file.path(path, ".outpack", "location", "local", id)
   expect_true(file.exists(path_location))
-  outpack_schema("location")$validate(path_location)
+  expect_true(load_schema("outpack/location.json")$validate(path_location))
 
   meta <- outpack_metadata_load(path_metadata)
 
@@ -121,7 +121,7 @@ test_that("Can handle dependencies", {
   meta <- orderly_metadata(id2, root = path)
   path_metadata <- file.path(path, ".outpack", "metadata", id2)
   expect_true(file.exists(path_metadata))
-  outpack_schema("metadata")$validate(path_metadata)
+  expect_true(load_schema("outpack/metadata.json")$validate(path_metadata))
 
   expect_equal(
     meta$depends,
@@ -334,32 +334,6 @@ test_that("Can't add custom data for same app twice", {
   expect_error(
     outpack_packet_add_custom(p, "app2", '{"c": [1, 2, 3]}'),
     "metadata for 'app2' has already been added for this packet")
-})
-
-
-test_that("Can validate custom metadata against schema", {
-  schema <- '{
-    "type": "object",
-    "properties": {"a": { "type": "string" }, "b": { "type": "number" }}}'
-
-  tmp <- temp_file()
-
-  root <- create_temporary_root()
-
-  src <- fs::dir_create(file.path(tmp, "src"))
-  saveRDS(runif(10), file.path(src, "data.rds"))
-  p <- outpack_packet_start(src, "example", root = root)
-  expect_error(
-    outpack_packet_add_custom(p, "app1", '{"a": 1, "b": 2}', schema),
-    "Validating custom metadata failed:")
-  ## No error
-  outpack_packet_add_custom(p, "app1", '{"a": "str", "b": 2}', schema)
-  outpack_packet_end(p)
-
-  path_metadata <- file.path(root$path, ".outpack", "metadata", p$id)
-  meta <- outpack_metadata_load(path_metadata)
-  expect_equal(meta$custom,
-               list(app1 = list(a = "str", b = 2)))
 })
 
 

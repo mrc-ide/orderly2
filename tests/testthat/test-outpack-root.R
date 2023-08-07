@@ -66,7 +66,7 @@ test_that("root configuration matches schema", {
   skip_if_not_installed("jsonvalidate")
   root <- create_temporary_root()
   path_config <- file.path(root$path, ".outpack", "config.json")
-  expect_true(outpack_schema("config")$validate(path_config))
+  expect_true(load_schema("outpack/config.json")$validate(path_config))
 })
 
 
