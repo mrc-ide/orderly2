@@ -90,9 +90,9 @@ test_that("can locate files from the store", {
 
   loc <- orderly_location_path$new(path)
   ids <- vcapply(1:3, function(i) create_random_packet(path))
-  idx <- root$index()
 
-  files <- idx$metadata[[1]]$files
+  files <- outpack_metadata_core(ids[[1]], root)$files
+
   h <- files$hash[files$path == "data.rds"]
   dest <- temp_file()
   res <- loc$fetch_file(h, dest)

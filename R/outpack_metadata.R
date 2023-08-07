@@ -158,6 +158,12 @@ outpack_metadata_create <- function(path, name, id, time, files,
 }
 
 
+## temporary name and function for now...
+outpack_metadata_core <- function(id, root) {
+  root$metadata(id)
+}
+
+
 outpack_metadata_load <- function(json) {
   if (!inherits(json, "json")) { # could use starts with "{"
     json <- read_string(json)

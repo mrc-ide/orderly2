@@ -190,7 +190,7 @@ config_set_path_archive <- function(value, root) {
     tryCatch({
       fs::dir_create(path_archive)
       invisible(lapply(root$index()$unpacked, function(id) {
-        meta <- root$metadata(id)
+        meta <- outpack_metadata_core(id, root)
         dst <- file.path(path_archive, meta$name, id, meta$files$path)
         root$files$get(meta$files$hash, dst, TRUE)
       }))

@@ -457,7 +457,7 @@ location_pull_hash_store <- function(root, driver, hash) {
 
 
 location_pull_files_store <- function(root, driver, packet_id) {
-  hash <- root$metadata(packet_id)$files$hash
+  hash <- outpack_metadata_core(packet_id, root)$files$hash
   location_pull_hash_store(root, driver, hash)
 }
 
@@ -480,7 +480,7 @@ location_pull_hash_archive <- function(root, driver, hash, dest) {
 }
 
 location_pull_files_archive <- function(root, driver, packet_id) {
-  meta <- root$metadata(packet_id)
+  meta <- outpack_metadata_core(packet_id, root)
   dest <- file.path(root$path, root$config$core$path_archive, meta$name,
                     packet_id, meta$files$path)
   if (root$config$core$use_file_store) {

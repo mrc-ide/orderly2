@@ -76,7 +76,7 @@ test_that("Can run a basic packet", {
   expect_equal(index$unpacked, id)
 
   ## Easily retrieve metadata from root:
-  expect_equal(root$metadata(id), index$metadata[[id]])
+  expect_equal(outpack_metadata_core(id, root), index$metadata[[id]])
 })
 
 
@@ -492,7 +492,7 @@ test_that("Can ignore files from the final packet", {
                           status = c("ignored", "unknown", "unknown")))
   outpack_packet_end(p)
 
-  meta <- root$metadata(p$id)
+  meta <- outpack_metadata_core(p$id, root)
   expect_equal(meta$files$path, c("log.json", "script.R", "zzz.png"))
   expect_length(root$files$list(), 3)
   expect_setequal(dir(file.path(root$path, "archive", "example", p$id)),

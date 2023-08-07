@@ -52,7 +52,7 @@ file_export <- function(root, id, there, here, dest, overwrite) {
   ## TODO: check that no dependency destination exists, or offer solution
   ## to overwrite (requires argument here, flowing back to the interface)
   here_full <- file.path(dest, here)
-  meta <- root$metadata(id)
+  meta <- outpack_metadata_core(id, root)
   hash <- meta$files$hash[match(there, meta$files$path)]
   stopifnot(all(!is.na(hash)))
   fs::dir_create(dirname(here_full))
@@ -145,7 +145,7 @@ find_file_by_hash <- function(root, hash) {
 
 
 validate_packet_has_file <- function(root, id, path) {
-  files <- root$metadata(id)$files$path
+  files <- outpack_metadata_core(id, root)$files$path
 
   is_dir <- grepl("/$", path)
   found <- path %in% files
@@ -200,7 +200,7 @@ add_file_store <- function(root) {
   ## need to do so in such a weird way.
   root$files <- file_store$new(file.path(root$path, ".outpack", "files"))
   invisible(lapply(root$index()$unpacked, function(id) {
-    meta <- root$metadata(id)
+    meta <- outpack_metadata_core(id, root)
     path <- lapply(meta$files$hash,
                    function(hash) find_file_by_hash(root, hash))
     failed <- vlapply(path, is.null)

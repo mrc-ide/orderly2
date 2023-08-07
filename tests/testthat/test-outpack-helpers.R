@@ -33,7 +33,7 @@ test_that("can copy files from location, using store", {
                      options = list(allow_remote = TRUE), root = here)
   expect_equal(dir(tmp), "data.rds")
 
-  meta <- there$metadata(id)
+  meta <- orderly_metadata(id, root = there)
   hash <- meta$files$hash[meta$files$path == "data.rds"]
   expect_equal(hash_file(file.path(tmp, "data.rds"), "sha256"), hash)
   expect_equal(here$files$list(), hash)
@@ -57,7 +57,7 @@ test_that("can copy files from location, using archive", {
                      options = list(allow_remote = TRUE), root = here)
   expect_equal(dir(tmp), "data.rds")
 
-  meta <- there$metadata(id)
+  meta <- orderly_metadata(id, there)
   hash <- meta$files$hash[meta$files$path == "data.rds"]
   expect_equal(hash_file(file.path(tmp, "data.rds"), "sha256"), hash)
 })

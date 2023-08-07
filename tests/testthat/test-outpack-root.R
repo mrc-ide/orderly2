@@ -74,7 +74,7 @@ test_that("Can't get nonexistant metadata", {
   root <- create_temporary_root(path_archive = NULL, use_file_store = TRUE)
   id <- outpack_id()
   expect_error(
-    root$metadata(id),
+    outpack_metadata_core(id, root),
     sprintf("id '%s' not found in index", id))
 })
 

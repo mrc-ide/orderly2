@@ -357,7 +357,8 @@ test_that("can pull a packet from one location to another, using file store", {
   expect_equal(index$unpacked, id)
   expect_true(file.exists(
     file.path(root$dst$path, "archive", "data", id, "data.rds")))
-  expect_true(all(root$dst$files$exists(root$dst$metadata(id)$files$hash)))
+  meta <- outpack_metadata_core(id, root$dst)
+  expect_true(all(root$dst$files$exists(meta$files$hash)))
 })
 
 
