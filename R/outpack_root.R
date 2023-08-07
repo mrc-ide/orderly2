@@ -1,39 +1,9 @@
-## TODO: I am torn here on design - we could make most of the things
-## that use the root be methods, but that risks a god class.  Getting
-## access to the index does require mutability so that must be a
-## method, but it's possible that moving to free functions everywhere
-## would be best.
 outpack_root <- R6::R6Class(
   "outpack_root",
   cloneable = FALSE,
 
   private = list(
-    index_data = list(),
-    metadata_read = function(id) {
-      path_metadata <- file.path(self$path, ".outpack", "metadata", id)
-      if (!file.exists(path_metadata)) {
-        stop(sprintf("id '%s' not found in index", id))
-      }
-      outpack_metadata_load(path_metadata)
-    },
-
-    metadata_load = function(id) {
-      ## TODO: this contains more logic than ideal but attempts to
-      ## avoid updating the index if needed.  The other thing to do
-      ## would _always_ be to update the index but that feels wasteful
-      ## really.
-      ##
-      ## We could probably be much more efficient if we cached all
-      ## roots within a session, though doing that safely would
-      ## practically mean putting a key file in each root so that we
-      ## can detect directory moves.
-      meta <- private$index_data$metadata[[id]] %||%
-        self$index()$metadata[[id]]
-      if (is.null(meta)) {
-        stop(sprintf("id '%s' not found in index", id))
-      }
-      meta
-    }
+    index_data = list()
   ),
 
   public = list(
@@ -55,12 +25,22 @@ outpack_root <- R6::R6Class(
       lockBinding("path", self)
     },
 
-    metadata = function(id, full = FALSE) {
-      if (full) {
-        private$metadata_read(id)
-      } else {
-        private$metadata_load(id)
+    metadata = function(id) {
+      ## TODO: this contains more logic than ideal but attempts to
+      ## avoid updating the index if needed.  The other thing to do
+      ## would _always_ be to update the index but that feels wasteful
+      ## really.
+      ##
+      ## We could probably be much more efficient if we cached all
+      ## roots within a session, though doing that safely would
+      ## practically mean putting a key file in each root so that we
+      ## can detect directory moves.
+      meta <- private$index_data$metadata[[id]] %||%
+        self$index()$metadata[[id]]
+      if (is.null(meta)) {
+        stop(sprintf("id '%s' not found in index", id))
       }
+      meta
     },
 
     index = function(skip_cache = FALSE) {

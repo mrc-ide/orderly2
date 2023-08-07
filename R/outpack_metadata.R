@@ -27,7 +27,11 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
   validate_outpack_id(id)
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  root$metadata(id, full = TRUE)
+  path_metadata <- file.path(root$path, ".outpack", "metadata", id)
+  if (!file.exists(path_metadata)) {
+    stop(sprintf("id '%s' not found in index", id))
+  }
+  outpack_metadata_load(path_metadata)
 }
 
 

@@ -76,9 +76,6 @@ test_that("Can't get nonexistant metadata", {
   expect_error(
     root$metadata(id),
     sprintf("id '%s' not found in index", id))
-  expect_error(
-    root$metadata(id, full = TRUE),
-    sprintf("id '%s' not found in index", id))
 })
 
 
@@ -86,23 +83,6 @@ test_that("empty root has nothing unpacked", {
   root <- create_temporary_root()
   index <- root$index()
   expect_equal(index$unpacked, character())
-})
-
-
-test_that("Can read full metadata via root", {
-  root <- create_temporary_root()
-  id1 <- create_random_packet(root)
-  id2 <- create_random_packet(root)
-
-  d1 <- root$metadata(id1, TRUE)
-  d2 <- root$metadata(id1, FALSE)
-
-  expect_identical(d1[names(d2)], d2)
-  expect_equal(
-    setdiff(names(d1), names(d2)),
-    c("schema_version", "time", "git", "custom"))
-  expect_setequal(names(d1$time), c("start", "end"))
-  expect_equal(d1$schema_version, outpack_schema_version())
 })
 
 
