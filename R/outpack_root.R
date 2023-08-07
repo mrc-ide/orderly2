@@ -22,10 +22,6 @@ outpack_root <- R6::R6Class(
       self$index <- outpack_index$new(path)
       lockBinding("path", self)
       lockBinding("index", self)
-    },
-
-    metadata = function(id) {
-      self$index$metadata(id)
     }
   ))
 

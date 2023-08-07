@@ -154,7 +154,7 @@ test_that("can detect differences between locations when destination empty", {
   orderly_location_add("server", "path", list(path = server$path),
                        root = client)
 
-  files <- lapply(ids, function(id) client$metadata(id)$files$hash)
+  files <- lapply(ids, function(id) client$index$metadata(id)$files$hash)
 
   ## Simplest case; leaf node not known to the server.
   plan1 <- location_build_push_plan(ids[[1]], "server", client)
@@ -197,7 +197,7 @@ test_that("Import complete tree via push into server", {
   expect_equal(idx_s$location$hash, idx_c$location$hash)
 
   expect_setequal(plan$packet_id, ids)
-  files_used <- lapply(ids, function(id) client$metadata(id)$files$hash)
+  files_used <- lapply(ids, function(id) client$index$metadata(id)$files$hash)
   expect_setequal(plan$files, unique(unlist(files_used, FALSE, FALSE)))
 })
 
@@ -243,7 +243,7 @@ test_that("Prevent pushing things that would corrupt the store", {
     sprintf("Can't import metadata for '%s', as files missing", id))
 
   ## Manually import the files:
-  for (h in client$metadata(id)$files$hash) {
+  for (h in client$index$metadata(id)$files$hash) {
     location_path_import_file(find_file_by_hash(client, h), h, server)
   }
   expect_error(
