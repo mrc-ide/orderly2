@@ -3,13 +3,14 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   collaboration: collaboration.html
+  dependencies: dependencies.html
   introduction: introduction.html
   metadata: metadata.html
   migrating: migrating.html
   orderly2: orderly2.html
   plugins: plugins.html
   query: query.html
-last_built: 2023-08-07T14:04Z
+last_built: 2023-08-07T14:07Z
 urls:
   reference: https://mrc-ide.github.io/orderly2/reference
   article: https://mrc-ide.github.io/orderly2/articles

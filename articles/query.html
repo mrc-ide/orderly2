@@ -46,6 +46,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
     <a class="dropdown-item" href="../articles/introduction.html">Introduction to orderly2</a>
+    <a class="dropdown-item" href="../articles/dependencies.html">Dependencies between packets</a>
     <a class="dropdown-item" href="../articles/collaboration.html">Collaborative analysis</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Advanced topics</h6>
@@ -91,6 +92,10 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html" class="external-link">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span></span>
 <span>  collapse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><strong>This vignette provides a detailed overview of of the query
+language used to find packets and use them as dependencies of other
+packets. You may prefer to start with
+<code><a href="../articles/dependencies.html">vignette("dependencies")</a></code></strong></p>
 <p>Orderly includes a query DSL (domain specific language), extending
 the one used by version 1 of orderly (see <a href="https://www.vaccineimpact.org/orderly/reference/orderly_search.html" class="external-link"><code>orderly1::orderly_search()</code></a>).</p>
 <p>Queries are used in identifying ids to pull in as dependencies, so
@@ -102,9 +107,6 @@ rather than providing an identifier, you might want to depend on</p>
 <li>…that produced a particular file</li>
 <li>…that was depended on by some other packet</li>
 </ul>
-<p>Not all of this is supported as of the current version of
-<code>orderly2</code>, and <em>using</em> the queries seamlessly is also
-not supported!</p>
 <div class="section level2">
 <h2 id="structure-of-queries">Structure of queries<a class="anchor" aria-label="anchor" href="#structure-of-queries"></a>
 </h2>
