@@ -9,6 +9,7 @@ articles:
     contents:
       - orderly2
       - introduction
+      - collaboration
 
   - title: Advanced topics
     navbar: Advanced topics
