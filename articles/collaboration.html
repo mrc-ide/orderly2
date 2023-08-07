@@ -202,10 +202,10 @@ Alice sees:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_list_src.html">orderly_list_src</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `orderly2::orderly_list_src()`:</span></span></span>
-<span><span class="co">## <span style="color: #BBBB00;">!</span> orderly directory '/tmp/Rtmpw7YDDB/file199d44e7b22d/alice' not</span></span>
+<span><span class="co">## <span style="color: #BBBB00;">!</span> orderly directory '/tmp/Rtmpak483a/file199b3d4fd7ed/alice' not</span></span>
 <span><span class="co">##   initialised</span></span>
 <span><span class="co">## <span style="color: #BB0000;">✖</span> Did not find an '.outpack' directory within path</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please run orderly2::orderly_init("/tmp/Rtmpw7YDDB/file199d44e7b22d/alice")</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please run orderly2::orderly_init("/tmp/Rtmpak483a/file199b3d4fd7ed/alice")</span></span>
 <span><span class="co">##   to initialise</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> See ?orderly_init for more arguments to this function</span></span></code></pre></div>
 <p>Alice needs to run <code><a href="https://www.vaccineimpact.org/orderly/reference/orderly_init.html" class="external-link">orderly::orderly_init()</a></code> first:</p>
@@ -224,12 +224,12 @@ so Alice adds that to her <code>orderly2</code> configuration with
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span>
 <span><span class="co">## [ name       ]  data</span></span>
-<span><span class="co">## [ id         ]  20230807-140718-c66f7d27</span></span>
-<span><span class="co">## [ start      ]  2023-08-07 14:07:18</span></span>
+<span><span class="co">## [ id         ]  20230807-144639-555be0ee</span></span>
+<span><span class="co">## [ start      ]  2023-08-07 14:46:39</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span>
 <span><span class="co">## [ result     ]  success</span></span>
-<span><span class="co">## [ end        ]  2023-08-07 14:07:18</span></span>
-<span><span class="co">## [ elapsed    ]  0.0633719 secs</span></span></code></pre></div>
+<span><span class="co">## [ end        ]  2023-08-07 14:46:39</span></span>
+<span><span class="co">## [ elapsed    ]  0.09853625 secs</span></span></code></pre></div>
 <p>Perhaps it takes several goes for Alice to be happy with the
 analysis, but at some point she has something ready to share. She can
 then “push” the final packet up onto their server:</p>
@@ -252,13 +252,13 @@ git’s use of <code>origin</code>.)</p>
 <span>  name <span class="op">=</span> <span class="st">"data"</span>, </span>
 <span>  options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>allow_remote <span class="op">=</span> <span class="cn">TRUE</span>, pull_metadata <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##                         id name parameters</span></span>
-<span><span class="co">## 1 20230807-140718-c66f7d27 data</span></span></code></pre></div>
+<span><span class="co">## 1 20230807-144639-555be0ee data</span></span></code></pre></div>
 <p>Having seen there is a new “data” packet here, he can pull this down
 locally (TODO: mrc-4414 makes this nicer):</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_location_pull_packet.html">orderly_location_pull_packet</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span></span></code></pre></div>
 <p>Now Bob is in a position to develop against the same packet that
-Alice ran (20230807-140718-c66f7d27)</p>
+Alice ran (20230807-144639-555be0ee)</p>
 </div>
 <div class="section level2">
 <h2 id="possible-working-patterns">Possible working patterns<a class="anchor" aria-label="anchor" href="#possible-working-patterns"></a>
