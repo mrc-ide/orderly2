@@ -30,7 +30,9 @@ This vignette provides a how-to style introduction to `orderly2`, an overview of
 
 # Creating an empty orderly repository
 
-The first step is to initialise an empty orderly repository. This is a directory with the file `orderly_config.yml` within it, and since version 2 also a directory `.outpack/`.  The `.outpack/` directory should not be modified and should be excluded from version control. This can be done with `orderly2::orderly_init()`;
+The first step is to initialise an empty `orderly2` repository. An `orderly2` repository is a directory with the file `orderly_config.yml` within it, and since version 2 also a directory `.outpack/`.  Files within the `.outpack/` directory should never be directly modified by users and this directory should be excluded from version control (see `orderly2::orderly_gitignore_update`).
+
+Create an orderly2 repository by calling `orderly2::orderly_init()`:
 
 ```{r}
 path <- tempfile() # we'll use a temporary directory here
@@ -42,6 +44,8 @@ which creates a few files:
 ```{r, echo = FALSE}
 dir_tree(path, all = TRUE)
 ```
+
+This step should be performed on a completely empty directory, otherwise an error will be thrown.  Later, you will re-initialise an `orderly2` repository when cloning to a new machine, such as when working with others; this is discussed in `vignette("collaboration")`l.
 
 The `orderly_config.yml` file contains very little by default:
 

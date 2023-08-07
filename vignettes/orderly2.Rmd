@@ -36,7 +36,7 @@ The conceptual pieces that are needed here are:
 * a system of storage so that results of running analysis can be shared among a group
 * a system to control how integration of these pieces of analysis takes place
 
-We refer to a transportable unit of analysis as a "packet". This conceptually is a directory of files created by running some code, and is our atomic unit of work from the point of view of `orderly`.  Each packet has an underlying source form, which anyone *can* run. However, most of the time people will use pre-run packets and 
+We refer to a transportable unit of analysis as a "packet". This conceptually is a directory of files created by running some code, and is our atomic unit of work from the point of view of `orderly`.  Each packet has an underlying source form, which anyone *can* run. However, most of the time people will use pre-run packets that they or their collaborators have run as inputs to onward analyses (see `vignette("dependencies")` and `vignette("collaboration")` for more details).
 
 # Reproducible analyses
 
