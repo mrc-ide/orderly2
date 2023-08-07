@@ -66,6 +66,9 @@ knitr::knit_hooks$set(inwd = function(before, options) {
 })
 ```
 
+<!--
+unfortunately, this will not actually style the pkgdown site, due to a bug in downlit https://github.com/r-lib/downlit/issues/149, waiting on https://github.com/r-lib/downlit/pull/160 to be merged.
+  -->
 ```{css, echo=FALSE}
 .sourceCode {
     position: relative;
@@ -102,7 +105,7 @@ div pre.bob:after {
     font-weight: normal;
     font-family: sans-serif;
     padding: 0 5px;
-    color: steelblue4;
+    color: blue;
 }
 ```
 
@@ -159,7 +162,7 @@ orderly2::orderly_location_add(
 ```
 ```{r, eval = FALSE, as = "alice"}
 orderly2::orderly_location_add(
-  "server", "http", list(url = "http://orderly.example.com")
+  "server", "http", list(url = "http://orderly.example.com"))
 ```
 
 Once done, she can run any analysis:
@@ -185,7 +188,7 @@ orderly2::orderly_location_add(
 ```
 ```{r, eval = FALSE, as = "bob"}
 orderly2::orderly_location_add(
-  "server", "http", list(url = "http://orderly.example.com")
+  "server", "http", list(url = "http://orderly.example.com"))
 ```
 
 (Here, Bob has also used the name `server` to refer to their shared server, but could have used anything; this is similar to git's use of `origin`.)
