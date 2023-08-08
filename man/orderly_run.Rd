@@ -144,3 +144,15 @@ functionality was never available in orderly version 1, though
 we had intended to support it.
 }
 
+\examples{
+path <- withr::local_tempfile()
+fs::dir_copy(system.file("example", package = "orderly2"), path)
+orderly2::orderly_init(path)
+orderly2::orderly_run("data", root = path)
+
+# After running, a finished packet appears in the archive:
+fs::dir_tree(path)
+
+# and we can query the metadata
+orderly2::orderly_metadata_extract(name = "data", root = path)
+}
