@@ -106,7 +106,12 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
         i = "Did you forget latest()?"))
     }
     if (length(id) == 0 || is.na(id)) {
-      cli::cli_abort("Query returned 0 results")
+      explanation <- orderly_query_explain(..., options = options,
+                                           envir = envir, root = root)
+      cli::cli_abort(
+        c("Query returned 0 results",
+          i = "See 'rlang::last_error()$explanation' for details"),
+        explanation = explanation)
     }
   }
 

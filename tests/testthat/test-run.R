@@ -1000,3 +1000,20 @@ test_that("can use quote for queries queries", {
   id2 <- orderly_run("depends", root = path)
   expect_equal(orderly_metadata(id2, root = path)$depends$packet, id1[[2]])
 })
+
+
+test_that("can describe misses for dependencies", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  envir <- new.env()
+  err <- expect_error(
+    orderly_run("depends", root = path, envir = envir),
+    "Failed to run report")
+  expect_equal(
+    unname(err$parent$message),
+    "Failed to find packet for query 'latest(name == \"data\")'")
+  expect_equal(
+    err$parent$body,
+    c(i = "See 'rlang::last_error()$explanation' for details"))
+  expect_s3_class(err$parent$explanation, "orderly_query_explain")
+  expect_identical(err$explanation, err$parent$explanation)
+})

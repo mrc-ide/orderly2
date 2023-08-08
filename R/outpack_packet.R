@@ -198,14 +198,13 @@ outpack_packet_use_dependency <- function(packet, query, files,
                        options = search_options,
                        root = packet$root)
   if (is.na(id)) {
-    ## TODO: this is where we would want to consider explaining what
-    ## went wrong; because that comes with a cost we should probably
-    ## control this behind some options. We also would want to return
-    ## some classed error here to help with formatting and handling
-    ## the error. In particular we definitely want to allow for
-    ## cycling through allow_remote and location in addition to
-    ## near misses on parameters etc.
-    stop(sprintf("Failed to find packet for query:\n    %s", format(query)))
+    explanation <- orderly_query_explain(
+      query, parameters = packet$parameters, envir = envir,
+      options = search_options, root = packet$root)
+    cli::cli_abort(
+      c("Failed to find packet for query '{format(query)}'",
+        i = "See 'rlang::last_error()$explanation' for details"),
+      explanation = explanation)
   }
 
   needs_pull <- search_options$allow_remote &&
