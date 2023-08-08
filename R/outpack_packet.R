@@ -235,7 +235,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
 
   outpack_packet_file_mark(packet, result$here, "immutable")
 
-  invisible()
+  invisible(id)
 }
 
 
