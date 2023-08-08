@@ -260,3 +260,12 @@ test_that("validate inputs to orderly_query", {
     orderly_query("latest", list(a = 1)),
     "'name' must be character")
 })
+
+
+test_that("can construct query without expression", {
+  res <- orderly_query(NULL)
+  expect_equal(format(res), "NULL")
+
+  res <- orderly_query(NULL, name = "foo")
+  expect_equal(format(res), 'name == "foo"')
+})

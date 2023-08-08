@@ -173,7 +173,9 @@ query_parse_add_scope <- function(expr_parsed, scope) {
   scoped_functions <- list("latest", "single")
   expr <- expr_parsed$expr
 
-  if (expr_parsed$type %in% scoped_functions) {
+  if (expr_parsed$type == "empty") {
+    expr_parsed <- parsed_scope
+  } else if (expr_parsed$type %in% scoped_functions) {
     fn <- deparse(expr[[1]])
     ## Include scope inside the top level function call
     if (length(expr_parsed$args) == 0) {
