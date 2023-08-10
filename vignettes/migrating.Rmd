@@ -54,6 +54,12 @@ We think this is much clearer, and comes with documentation and autocomplete sup
 
 In fact, for simple reports, **no** special functions are required, though you'll find that some will be useful (see `vignette("orderly2")`)
 
+Some specific changes:
+
+* you no longer need to list packages with `packages:`, instead just use `library()` as in an ordinary script. We will record the state of the session regardless so you will get a record of what was used
+* you no longer need to use `sources:` to list scripts you want to source, instead use `source()` as normal
+* `global_resources` has become `orderly2::orderly_shared_resource` (these aren't really global so much as shared). Note that the directory they are in is now always `shared/` at the orderly root, you may not configure it.
+
 ### Implications
 
 This change has widespread implications:
