@@ -230,7 +230,7 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
                                           include_local = FALSE,
                                           allow_no_locations = TRUE)
   for (name in location_name) {
-    location_pull_metadata(name, root)
+    location_pull_metadata(name, root, environment())
   }
 }
 
@@ -420,20 +420,40 @@ orderly_location_custom <- function(args) {
 }
 
 
-location_pull_metadata <- function(location_name, root) {
+location_pull_metadata <- function(location_name, root, call) {
   index <- root$index$data()
   driver <- location_driver(location_name, root)
 
   known_there <- driver$list()
 
   ## Things we've never heard of from any location:
-  new_id_metadata <- setdiff(known_there$packet, names(index$metadata))
-  if (length(new_id_metadata) > 0) {
-    metadata <- driver$metadata(new_id_metadata)
+  is_new <- !(known_there$packet %in% names(index$metadata))
+
+  if (any(is_new)) {
+    metadata <- driver$metadata(known_there$packet[is_new])
+    id_new <- known_there$packet[is_new]
+    expected_hash <- known_there$hash[is_new]
     path_metadata <- file.path(root$path, ".outpack", "metadata")
     fs::dir_create(path_metadata)
-    filename <- file.path(path_metadata, new_id_metadata)
+    filename <- file.path(path_metadata, id_new)
     for (i in seq_along(metadata)) {
+      ## Ensure that the server is shipping data that matches what it
+      ## says it is, if this is the first time we've seen this.
+      ##
+      ## This is not actually actionable, and it's not clear what can
+      ## be done at present. The user should probably remove this
+      ## location I think.
+      hash_validate_data(
+        metadata[[i]], expected_hash[[i]],
+        sprintf("metadata for '%s' from '%s'", id_new[i], location_name),
+        c(x = paste("This is bad news, I'm afraid. Your location is sending",
+                    "data that does not match the hash it says it does.",
+                    "Please let us know how this might have happened."),
+          i = paste("Probably all you can do at this point is remove this",
+                    "location from your configuration by running",
+                    sprintf('orderly2::orderly_location_remove("%s")',
+                            location_name))),
+        call)
       writeLines(metadata[[i]], filename[[i]])
     }
   }

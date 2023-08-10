@@ -768,3 +768,25 @@ test_that("pull packet sets allow_remote to TRUE if not given", {
                                  root = root$dst),
     "If specifying 'options', 'allow_remote' must be TRUE")
 })
+
+
+test_that("handle metadata where the hash does not match reported", {
+  here <- create_temporary_root()
+  there <- create_temporary_root()
+  orderly_location_add("server", "path", list(path = there$path), root = here)
+  id <- create_random_packet(there)
+
+  path_metadata <- file.path(there$path, ".outpack", "metadata", id)
+  json <- jsonlite::prettify(read_string(path_metadata))
+  writeLines(json, path_metadata)
+
+  err <- expect_error(
+    orderly_location_pull_metadata(root = here),
+    "Hash of metadata for '.+' from 'server' does")
+  expect_equal(
+    unname(err$message),
+    sprintf("Hash of metadata for '%s' from 'server' does not match!", id))
+  expect_equal(names(err$body), c("i", "i", "x", "i"))
+  expect_match(err$body[[3]], "This is bad news")
+  expect_match(err$body[[4]], "remove this location")
+})

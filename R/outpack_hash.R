@@ -26,21 +26,33 @@ hash_parse <- function(hash) {
 }
 
 
-hash_validate_file <- function(path, expected) {
-  hash_validate(rehash(path, hash_file, expected), expected, squote(path))
+hash_validate_file <- function(path, expected, body = NULL, call = NULL) {
+  hash_validate(rehash(path, hash_file, expected), expected, squote(path),
+                body, call)
 }
 
 
-hash_validate_data <- function(data, expected, name = deparse(substitute(x))) {
-  hash_validate(rehash(data, hash_data, expected), expected, name)
+hash_validate_data <- function(data, expected, name = deparse(substitute(x)),
+                               body = NULL, call = NULL) {
+  hash_validate(rehash(data, hash_data, expected), expected, name,
+                body, call)
 }
 
 
-hash_validate <- function(found, expected, name) {
+hash_validate <- function(found, expected, name, body, call) {
   if (found != expected) {
-    stop(sprintf(
-      "Hash of %s does not match:\n - expected: %s\n - found:    %s",
-      name, expected, found))
+    ## These are hard to print well because the sha256 hash that we
+    ## probably have consumes 71 characters, plus 2 for the bullet.
+    ##
+    ## 7         8
+    ## 01234567890
+    ## aaa0 given
+    ## bcde want
+    cli::cli_abort(c("Hash of {name} does not match!",
+                     i = "{.strong {found}} found",
+                     i = "{.strong {expected}} want",
+                     body),
+                   call = call)
   }
   invisible(found)
 }
