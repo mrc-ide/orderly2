@@ -424,7 +424,22 @@ location_pull_metadata <- function(location_name, root, call) {
   index <- root$index$data()
   driver <- location_driver(location_name, root)
 
+  hint_remove <- paste("Probably all you can do at this point is remove this",
+                       "location from your configuration by running",
+                       sprintf('orderly2::orderly_location_remove("%s")',
+                               location_name))
+
   known_there <- driver$list()
+
+  if (anyDuplicated(known_there$packet)) {
+    dups <- unique(known_there$packet[duplicated(known_there$packet)])
+    cli::cli_abort(
+      c("Duplicate metadata reported from location '{location_name}'",
+        x = "Duplicate data returned for packets {squote(dups)}",
+        i = "This is a bug in your location server, please report it",
+        i = hint_remove),
+      call = call)
+  }
 
   ## Things we've never heard of from any location:
   is_new <- !(known_there$packet %in% names(index$metadata))
@@ -449,10 +464,7 @@ location_pull_metadata <- function(location_name, root, call) {
         c(x = paste("This is bad news, I'm afraid. Your location is sending",
                     "data that does not match the hash it says it does.",
                     "Please let us know how this might have happened."),
-          i = paste("Probably all you can do at this point is remove this",
-                    "location from your configuration by running",
-                    sprintf('orderly2::orderly_location_remove("%s")',
-                            location_name))),
+          i = hint_remove),
         call)
       writeLines(metadata[[i]], filename[[i]])
     }
@@ -473,10 +485,7 @@ location_pull_metadata <- function(location_name, root, call) {
                   "what you want!"),
         i = "Conflicts for: {squote(seen_before[err])}",
         i = "We would be interested in this case, please let us know",
-        i = paste("Probably all you can do at this point is remove this",
-                  "location from your configuration by running",
-                  sprintf('orderly2::orderly_location_remove("%s")',
-                          location_name))),
+        i = hint_remove),
       call = call)
   }
 

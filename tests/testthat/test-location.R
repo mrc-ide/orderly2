@@ -816,3 +816,27 @@ test_that("handle metadata where two locations differ in hash for same id", {
   expect_match(err$body[[3]], "please let us know")
   expect_match(err$body[[4]], "remove this location")
 })
+
+
+test_that("avoid duplicated metadata", {
+  skip_if_not_installed("mockery")
+  here <- create_temporary_root()
+  there <- create_temporary_root()
+  orderly_location_add("server", "path", list(path = there$path), root = here)
+  id <- create_random_packet(there)
+
+  driver <- location_driver("server", root = here)
+  mock_driver <- list(list = function(x) rbind(driver$list(), driver$list()))
+  mock_location_driver <- mockery::mock(mock_driver)
+
+  mockery::stub(location_pull_metadata, "location_driver", mock_location_driver)
+  err <- expect_error(
+    location_pull_metadata("server", here, NULL),
+    "Duplicate metadata reported from location 'server'")
+  expect_equal(names(err$body), c("x", "i", "i"))
+  expect_equal(err$body[[1]],
+               sprintf("Duplicate data returned for packets '%s'", id))
+  expect_equal(err$body[[2]],
+               "This is a bug in your location server, please report it")
+  expect_match(err$body[[3]], "remove this location")
+})
