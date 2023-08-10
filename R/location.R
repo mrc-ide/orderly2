@@ -458,9 +458,30 @@ location_pull_metadata <- function(location_name, root, call) {
     }
   }
 
+  seen_before <- intersect(known_there$packet, index$location$packet)
+  hash_there <- known_there$hash[match(seen_before, known_there$packet)]
+  hash_here <- index$location$hash[match(seen_before, index$location$packet)]
+  err <- hash_there != hash_here
+  if (any(err)) {
+    cli::cli_abort(
+      c("Location '{location_name}' has conflicting metadata",
+        x = paste("This is {.strong really} bad news. We have been offered",
+                  "metadata from '{location_name}' that has a different hash",
+                  "to metadata that we have already imported from other",
+                  "locations. I'm not going to import this new metadata, but",
+                  "there's no guarantee that the older metadata is actually",
+                  "what you want!"),
+        i = "Conflicts for: {squote(seen_before[err])}",
+        i = "We would be interested in this case, please let us know",
+        i = paste("Probably all you can do at this point is remove this",
+                  "location from your configuration by running",
+                  sprintf('orderly2::orderly_location_remove("%s")',
+                          location_name))),
+      call = call)
+  }
+
   known_here <- index$location$packet[index$location$location == location_name]
   new_loc <- known_there[!(known_there$packet %in% known_here), ]
-
   for (i in seq_len(nrow(new_loc))) {
     mark_packet_known(new_loc$packet[[i]], location_name, new_loc$hash[[i]],
                       new_loc$time[[i]], root)

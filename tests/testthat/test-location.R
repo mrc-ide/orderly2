@@ -790,3 +790,29 @@ test_that("handle metadata where the hash does not match reported", {
   expect_match(err$body[[3]], "This is bad news")
   expect_match(err$body[[4]], "remove this location")
 })
+
+
+test_that("handle metadata where two locations differ in hash for same id", {
+  root <- list()
+  for (name in c("a", "b", "us")) {
+    root[[name]] <- create_temporary_root()
+  }
+
+  id <- outpack_id()
+  create_random_packet(root$a, id = id)
+  create_random_packet(root$b, id = id)
+
+  orderly_location_add("a", "path", list(path = root$a$path), root = root$us)
+  orderly_location_add("b", "path", list(path = root$b$path), root = root$us)
+
+  orderly_location_pull_metadata(location = "a", root = root$us)
+  err <- expect_error(
+    orderly_location_pull_metadata(location = "b", root = root$us),
+    "Location 'b' has conflicting metadata")
+  expect_equal(names(err$body), c("x", "i", "i", "i"))
+  expect_match(err$body[[1]],
+               "We have been offered metadata from 'b' that has a different")
+  expect_match(err$body[[2]], sprintf("Conflicts for: '%s'", id))
+  expect_match(err$body[[3]], "please let us know")
+  expect_match(err$body[[4]], "remove this location")
+})
