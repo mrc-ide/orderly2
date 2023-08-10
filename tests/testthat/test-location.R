@@ -768,3 +768,75 @@ test_that("pull packet sets allow_remote to TRUE if not given", {
                                  root = root$dst),
     "If specifying 'options', 'allow_remote' must be TRUE")
 })
+
+
+test_that("handle metadata where the hash does not match reported", {
+  here <- create_temporary_root()
+  there <- create_temporary_root()
+  orderly_location_add("server", "path", list(path = there$path), root = here)
+  id <- create_random_packet(there)
+
+  path_metadata <- file.path(there$path, ".outpack", "metadata", id)
+  json <- jsonlite::prettify(read_string(path_metadata))
+  writeLines(json, path_metadata)
+
+  err <- expect_error(
+    orderly_location_pull_metadata(root = here),
+    "Hash of metadata for '.+' from 'server' does")
+  expect_equal(
+    unname(err$message),
+    sprintf("Hash of metadata for '%s' from 'server' does not match!", id))
+  expect_equal(names(err$body), c("x", "i", "x", "i"))
+  expect_match(err$body[[3]], "This is bad news")
+  expect_match(err$body[[4]], "remove this location")
+})
+
+
+test_that("handle metadata where two locations differ in hash for same id", {
+  root <- list()
+  for (name in c("a", "b", "us")) {
+    root[[name]] <- create_temporary_root()
+  }
+
+  id <- outpack_id()
+  create_random_packet(root$a, id = id)
+  create_random_packet(root$b, id = id)
+
+  orderly_location_add("a", "path", list(path = root$a$path), root = root$us)
+  orderly_location_add("b", "path", list(path = root$b$path), root = root$us)
+
+  orderly_location_pull_metadata(location = "a", root = root$us)
+  err <- expect_error(
+    orderly_location_pull_metadata(location = "b", root = root$us),
+    "Location 'b' has conflicting metadata")
+  expect_equal(names(err$body), c("x", "i", "i", "i"))
+  expect_match(err$body[[1]],
+               "We have been offered metadata from 'b' that has a different")
+  expect_match(err$body[[2]], sprintf("Conflicts for: '%s'", id))
+  expect_match(err$body[[3]], "please let us know")
+  expect_match(err$body[[4]], "remove this location")
+})
+
+
+test_that("avoid duplicated metadata", {
+  skip_if_not_installed("mockery")
+  here <- create_temporary_root()
+  there <- create_temporary_root()
+  orderly_location_add("server", "path", list(path = there$path), root = here)
+  id <- create_random_packet(there)
+
+  driver <- location_driver("server", root = here)
+  mock_driver <- list(list = function(x) rbind(driver$list(), driver$list()))
+  mock_location_driver <- mockery::mock(mock_driver)
+
+  mockery::stub(location_pull_metadata, "location_driver", mock_location_driver)
+  err <- expect_error(
+    location_pull_metadata("server", here, NULL),
+    "Duplicate metadata reported from location 'server'")
+  expect_equal(names(err$body), c("x", "i", "i"))
+  expect_equal(err$body[[1]],
+               sprintf("Duplicate data returned for packets '%s'", id))
+  expect_equal(err$body[[2]],
+               "This is a bug in your location server, please report it")
+  expect_match(err$body[[3]], "remove this location")
+})

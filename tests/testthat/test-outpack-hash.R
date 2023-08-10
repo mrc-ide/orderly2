@@ -34,8 +34,10 @@ test_that("can validate hash", {
     withr::with_dir(dirname(tmp),
                     hash_validate_file(basename(tmp), expected_data)),
     sprintf("Hash of '%s' does not match", basename(tmp)))
-  expect_error(
+  err <- expect_error(
     hash_validate_data(data, expected_file, "thing"),
-    sprintf("Hash of thing does not match:\n - expected: %s\n - found:    %s",
-            expected_file, expected_data))
+    "Hash of thing does not match!")
+  expect_equal(names(err$body), c("x", "i"))
+  expect_match(err$body[[1]], sprintf("%s.+found", expected_data))
+  expect_match(err$body[[2]], sprintf("%s.+want", expected_file))
 })

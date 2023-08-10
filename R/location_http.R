@@ -21,8 +21,8 @@ orderly_location_http <- R6::R6Class(
     metadata = function(packet_ids) {
       ret <- vcapply(packet_ids, function(id) {
         tryCatch(
-          private$client$get(sprintf("/metadata/%s/text", id),
-                             parse_json = FALSE),
+          trimws(private$client$get(sprintf("/metadata/%s/text", id),
+                                    parse_json = FALSE)),
           outpack_http_client_error = function(e) {
             if (e$code == 404) {
               e$message <- sprintf("Some packet ids not found: '%s'", id)

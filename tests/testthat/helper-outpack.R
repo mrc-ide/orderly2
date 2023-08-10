@@ -3,11 +3,13 @@
 options(outpack.schema_validate = TRUE)
 
 
-create_random_packet <- function(root, name = "data", parameters = NULL) {
+create_random_packet <- function(root, name = "data", parameters = NULL,
+                                 id = NULL) {
   src <- fs::dir_create(tempfile())
   on.exit(unlink(src, recursive = TRUE))
   saveRDS(runif(10), file.path(src, "data.rds"))
-  p <- outpack_packet_start(src, name, parameters = parameters, root = root)
+  p <- outpack_packet_start(src, name, parameters = parameters, id = id,
+                            root = root)
   outpack_packet_end(p)
   p$id
 }
