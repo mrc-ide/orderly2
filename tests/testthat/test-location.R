@@ -786,7 +786,7 @@ test_that("handle metadata where the hash does not match reported", {
   expect_equal(
     unname(err$message),
     sprintf("Hash of metadata for '%s' from 'server' does not match!", id))
-  expect_equal(names(err$body), c("i", "i", "x", "i"))
+  expect_equal(names(err$body), c("x", "i", "x", "i"))
   expect_match(err$body[[3]], "This is bad news")
   expect_match(err$body[[4]], "remove this location")
 })

@@ -49,7 +49,7 @@ hash_validate <- function(found, expected, name, body, call) {
     ## aaa0 given
     ## bcde want
     cli::cli_abort(c("Hash of {name} does not match!",
-                     i = "{.strong {found}} found",
+                     x = "{.strong {found}} found",
                      i = "{.strong {expected}} want",
                      body),
                    call = call)
