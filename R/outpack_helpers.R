@@ -165,15 +165,15 @@ copy_files_from_remote <- function(id, there, here, dest, overwrite, root) {
   here_full <- file.path(dest, here)
 
   if (root$config$core$use_file_store) {
-    hash_msg <- hash[!root$files$exists(hash)]
-    location_pull_hash_store(root, driver, hash_msg)
+    location_pull_hash_store(hash, driver, root$files)
     root$files$get(hash, here_full, overwrite)
   } else {
     src <- lapply(hash, function(h) find_file_by_hash(root, h))
     is_missing <- vlapply(src, is.null)
     hash_msg <- hash[is_missing]
-    location_pull_hash_archive(root, driver, hash[is_missing],
-                               here_full[is_missing])
+    for (i in which(is_missing)) {
+      driver$fetch_file(hash[[i]], here_full[[i]])
+    }
     fs::file_copy(list_to_character(src[!is_missing]),
                   here_full[!is_missing],
                   overwrite = overwrite)
