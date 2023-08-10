@@ -147,6 +147,21 @@ autocomplete support in most IDEs.</p>
 <p>In fact, for simple reports, <strong>no</strong> special functions
 are required, though you’ll find that some will be useful (see
 <code><a href="../articles/orderly2.html">vignette("orderly2")</a></code>)</p>
+<p>Some specific changes:</p>
+<ul>
+<li>you no longer need to list packages with <code>packages:</code>,
+instead just use <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> as in an ordinary script. We
+will record the state of the session regardless so you will get a record
+of what was used</li>
+<li>you no longer need to use <code>sources:</code> to list scripts you
+want to source, instead use <code><a href="https://rdrr.io/r/base/source.html" class="external-link">source()</a></code> as normal</li>
+<li>
+<code>global_resources</code> has become
+<code><a href="../reference/orderly_shared_resource.html">orderly2::orderly_shared_resource</a></code> (these aren’t really
+global so much as shared). Note that the directory they are in is now
+always <code>shared/</code> at the orderly root, you may not configure
+it.</li>
+</ul>
 <div class="section level4">
 <h4 id="implications">Implications<a class="anchor" aria-label="anchor" href="#implications"></a>
 </h4>
