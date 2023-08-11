@@ -590,11 +590,6 @@ pairs <- function(a) {
 }
 
 
-split_unordered <- function(x, f, ...) {
-  split(x, factor(f, levels = unique(f)), ...)
-}
-
-
 pretty_bytes <- function(n) {
   if (n < 1e3) {
     unit <- "B"

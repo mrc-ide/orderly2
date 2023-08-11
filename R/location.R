@@ -773,8 +773,6 @@ location_pull_files <- function(files, root) {
     cleanup <- function() invisible()
     i <- store$exists(files$hash)
     if (any(i)) {
-      total_local <- pretty_bytes(sum(files$size[i]))
-      total_fetch <- pretty_bytes(sum(files$size[!i]))
       files <- files[!i, ]
     }
   } else {
