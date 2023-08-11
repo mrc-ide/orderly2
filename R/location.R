@@ -603,9 +603,9 @@ location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
 
 
 location_build_pull_plan_location <- function(packets, location, root, call) {
-  location_name <- location_resolve_valid(location, root,
-                                          include_local = FALSE,
-                                          allow_no_locations = FALSE)
+  location_name <- location_resolve_valid(
+    location, root, include_local = FALSE,
+    allow_no_locations = length(packets$fetch) == 0)
   ## Things that are found in suitable location:
   candidates <- root$index$location(location_name)
   msg <- setdiff(packets$fetch, candidates$packet)
