@@ -289,12 +289,6 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
   plan <- location_build_pull_plan(ids, options$locations, recursive, root,
                                    call = environment())
 
-  if (root$config$core$use_file_store) {
-    store <- root$files
-  } else {
-    store <- file_store$new(file.path(root$path, "orderly", "pull"))
-  }
-
   if (plan$info$n_extra > 0) {
     cli::cli_alert_info(paste(
       "Also pulling {plan$info$n_extra} packet{?s},",
@@ -306,17 +300,29 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
       "already unpacked"))
   }
 
-  location_pull_files(plan$files, store, root)
+  store <- location_pull_files(plan$files, root)
+
+  use_archive <- !is.null(root$config$core$path_archive)
+  if (use_archive) {
+    n <- length(plan$packet_id)
+    cli::cli_progress_bar(
+      format = paste(
+        "{cli::pb_spin} Writing files for '{id}' (packet {i} / {n})",
+        "| ETA: {cli::pb_eta} [{cli::pb_elapsed}]"),
+      format_done = paste(
+        "{cli::col_green(cli::symbol$tick)} Unpacked {n} packet{?s}",
+        "in {cli::pb_elapsed}."),
+      total = n,
+      clear = FALSE)
+  }
   for (id in plan$packet_id) {
-    if (!is.null(root$config$core$path_archive)) {
-      location_pull_files_archive(id, store, root)
+    if (use_archive) {
+      cli::cli_progress_update()
+      location_pull_files_archive(id, store$value, root)
     }
     mark_packet_known(id, local, plan$hash[[id]], Sys.time(), root)
   }
-
-  if (!root$config$core$use_file_store) {
-    store$destroy()
-  }
+  store$cleanup()
 
   invisible(plan$packet_id)
 }
@@ -476,14 +482,14 @@ location_pull_hash_store <- function(files, location_name, driver, store) {
       format = paste(
         "{cli::pb_spin} Fetching file {i}/{nrow(files)}",
         "({pretty_bytes(files$size[i])}) from '{location_name}'",
-        " | ETA: {cli::pb_eta} [{cli::pb_elapsed}]"),
+        "| ETA: {cli::pb_eta} [{cli::pb_elapsed}]"),
       format_done = paste(
         "{cli::col_green(cli::symbol$tick)} Fetched {nrow(files)} file{?s}",
         "({total_size}) from '{location_name}' in {cli::pb_elapsed}."),
       total = sum(files$size),
       clear = FALSE)
     for (i in seq_len(nrow(files))) {
-      res <- cli::cli_progress_update(files$size[[i]])
+      cli::cli_progress_update(files$size[[i]])
       h <- files$hash[[i]]
       tmp <- driver$fetch_file(h, store$tmp())
       store$put(tmp, h, move = TRUE)
@@ -761,8 +767,10 @@ mark_packets_orphaned <- function(location, packet_id, root) {
 ## and copes well with data races and corruption of data on disk
 ## (e.g., users having edited files that we rely on, or editing them
 ## after we hash them the first time).
-location_pull_files <- function(files, store, root) {
+location_pull_files <- function(files, root) {
   if (root$config$core$use_file_store) {
+    store <- root$files
+    cleanup <- function() invisible()
     i <- store$exists(files$hash)
     if (any(i)) {
       total_local <- pretty_bytes(sum(files$size[i]))
@@ -771,6 +779,8 @@ location_pull_files <- function(files, store, root) {
     }
   } else {
     cli::cli_alert_info("Looking for suitable files already on disk")
+    store <- temporary_filestore(root)
+    cleanup <- function() store$destroy()
     for (hash in files$hash) {
       if (!is.null(path <- find_file_by_hash(root, hash))) {
         store$put(path, hash)
@@ -790,4 +800,10 @@ location_pull_files <- function(files, store, root) {
                                location_driver(loc, root), store)
     }
   }
+  list(value = store, cleanup = cleanup)
+}
+
+
+temporary_filestore <- function(root) {
+  file_store$new(file.path(root$path, "orderly", "pull"))
 }

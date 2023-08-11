@@ -123,7 +123,8 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
           "Original error:\n", e$message),
           call. = FALSE)
       }
-      copy_files_from_remote(id, plan$there, plan$here, dest, overwrite, root)
+      copy_files_from_remote(id, plan$there, plan$here, dest, overwrite, root,
+                             environment())
     })
 
   invisible(plan)
@@ -151,31 +152,15 @@ plan_copy_files <- function(root, id, there, here) {
 }
 
 
-## We don't want here to necessarily download all of these files; some
-## might be found locally.
-copy_files_from_remote <- function(id, there, here, dest, overwrite, root) {
-  location_name <- location_resolve_valid(NULL, root,
-                                          include_local = FALSE,
-                                          allow_no_locations = FALSE)
-  plan <- location_build_pull_plan(id, location_name, root)
-  driver <- location_driver(plan$location[match(id, plan$packet)], root)
-
+copy_files_from_remote <- function(id, there, here, dest, overwrite, root,
+                                   call = NULL) {
+  plan <- location_build_pull_plan(id, location = NULL, recursive = FALSE,
+                                   root = root, call = call)
   meta <- outpack_metadata_core(id, root)
+  ## TODO: I don't think that we correctly cope with file misses here.
   hash <- meta$files$hash[match(there, meta$files$path)]
   here_full <- file.path(dest, here)
-
-  if (root$config$core$use_file_store) {
-    location_pull_hash_store(hash, driver, root$files)
-    root$files$get(hash, here_full, overwrite)
-  } else {
-    src <- lapply(hash, function(h) find_file_by_hash(root, h))
-    is_missing <- vlapply(src, is.null)
-    hash_msg <- hash[is_missing]
-    for (i in which(is_missing)) {
-      driver$fetch_file(hash[[i]], here_full[[i]])
-    }
-    fs::file_copy(list_to_character(src[!is_missing]),
-                  here_full[!is_missing],
-                  overwrite = overwrite)
-  }
+  store <- location_pull_files(plan$files[hash %in% plan$files$hash, ], root)
+  root$files$get(hash, here_full, overwrite)
+  store$cleanup()
 }
