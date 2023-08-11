@@ -175,7 +175,7 @@ The error suggests running `rlang::last_error()$explanation` for more informatio
 rlang::last_error()$explanation
 ```
 
-This is an `orderly_query_explain` object, which tries to come up with reasons why your query might not have matched; we'll expand this in future so let us know what you might like to see.
+This is an `orderly_query_explain` object, which tries to come up with reasons why your query might not have matched; we'll expand this in the future so let us know what you might like to see.
 
 This tells you that your query can be decomposed into two subqueries `A` (the match against the parameter `cyl` being 9000), which matched no packets and `B` (the match against the packet name being `data`), which matched 3 packets. If each subquery matched packets but some *pairs* don't then it will try and guide you towards problematic pairs.
 
