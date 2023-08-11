@@ -54,8 +54,9 @@ test_that("can copy files from location, using archive", {
                        root = here),
     "Unable to copy files, as they are not available locally")
 
-  orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
-                     options = list(allow_remote = TRUE), root = here)
+  suppressMessages(
+    orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
+                       options = list(allow_remote = TRUE), root = here))
   expect_equal(dir(tmp), "data.rds")
 
   meta <- orderly_metadata(id, there)
@@ -71,8 +72,9 @@ test_that("can interpolate filenames in copy", {
   ## Some bindings to force lookup:
   path <- "a"
   file <- "b"
-  orderly_copy_files(id, files = c("${path}/${file}.rds" = "data.rds"),
-                     dest = dst, root = root)
+  suppressMessages(
+    orderly_copy_files(id, files = c("${path}/${file}.rds" = "data.rds"),
+                       dest = dst, root = root))
   expect_equal(dir(dst), "a")
   expect_equal(dir(file.path(dst, "a")), "b.rds")
   expect_identical(
