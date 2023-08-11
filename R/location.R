@@ -240,14 +240,11 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##' available for use as dependencies (e.g., with
 ##' [orderly2::orderly_dependency]).
 ##'
-##' The behaviour of this function will vary depending on whether or
-##' not the destination outpack repository (i.e., `root`) uses a file
-##' store or not.  If it does, then we simply import the unknown files
-##' into the store, and this will always be fairly efficient.  If no
-##' file store is used then for the time being we pull all files from
-##' the upstream location, even if this means copying a file we
-##' already know about elsewhere in the outpack archive.  We will
-##' improve this in a future version.
+##' It is possible that it will take a long time to pull packets, if
+##' you are moving a lot of data or if you are operating over a slow
+##' connection.  Cancelling and resuming a pull should be fairly
+##' efficient, as we keep track of files that are copied over even in
+##' the case of an interrupted pull.
 ##'
 ##' @title Pull a single packet from a location
 ##'
@@ -298,20 +295,30 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
     store <- file_store$new(file.path(root$path, "orderly", "pull"))
   }
 
+  if (plan$info$n_extra > 0) {
+    cli::cli_alert_info(paste(
+      "Also pulling {plan$info$n_extra} packet{?s},",
+      "dependencies of those requested"))
+  }
+  if (plan$info$n_skip > 0) {
+    cli::cli_alert_info(paste(
+      "Skipping {plan$info$n_skip} of {plan$info$n_total} packet{?s}",
+      "already unpacked"))
+  }
+
   location_pull_files(plan$files, store, root)
-  for (i in seq_len(nrow(plan$packets))) {
-    id <- plan$packets$packet[[i]]
+  for (id in plan$packet_id) {
     if (!is.null(root$config$core$path_archive)) {
       location_pull_files_archive(id, store, root)
     }
-    mark_packet_known(id, local, plan$packets$hash[[i]], Sys.time(), root)
+    mark_packet_known(id, local, plan$hash[[id]], Sys.time(), root)
   }
 
   if (!root$config$core$use_file_store) {
     store$destroy()
   }
 
-  invisible(plan$packets$packet)
+  invisible(plan$packet_id)
 }
 
 
@@ -528,10 +535,25 @@ location_resolve_valid <- function(location, root, include_local,
 
 location_build_pull_plan <- function(packet_id, location, recursive, root,
                                      call = NULL) {
-  location_name <- location_resolve_valid(location, root,
-                                          include_local = FALSE,
-                                          allow_no_locations = FALSE)
+  packets <- location_build_pull_plan_packets(packet_id, recursive, root, call)
+  info <- list(n_extra = length(packets$full) - length(packets$requested),
+               n_skip = length(packets$skip),
+               n_total = length(packets$full))
 
+  location <- location_build_pull_plan_location(packets, location, root, call)
+  files <- location_build_pull_plan_files(packets$fetch, location, root, call)
+
+  ## Finally, get the hash of each of the pulled packets (this needs
+  ## tidying up generally; see 'get_metadata_hash', which we can use
+  ## as a base.
+  tmp <- root$index$location(location)
+  hash <- set_names(tmp$hash[match(packets$fetch, tmp$packet)], packets$fetch)
+
+  list(packet_id = packets$fetch, files = files, hash = hash, info = info)
+}
+
+
+location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
   recursive <- recursive %||% root$config$core$require_complete_tree
   assert_scalar_logical(recursive)
   if (root$config$core$require_complete_tree && !recursive) {
@@ -545,29 +567,44 @@ location_build_pull_plan <- function(packet_id, location, recursive, root,
 
   index <- root$index$data()
   if (recursive) {
-    packet_id_full <- find_all_dependencies(packet_id, index$metadata)
-    n_extra <- length(packet_id_full) - length(packet_id)
+    full <- find_all_dependencies(packet_id, index$metadata)
+    n_extra <- length(full) - length(packet_id)
     if (n_extra > 0) {
       cli::cli_alert_info(
         "Also pulling {n_extra} packets, dependencies of those requested")
     }
   } else {
-    packet_id_full <- packet_id
+    full <- packet_id
   }
 
-  ## Skip over ones we already have.
-  packet_id_fetch <- setdiff(packet_id_full, root$index$unpacked())
-  n_skip <- length(packet_id_full) - length(packet_id_fetch)
-  if (n_skip > 0) {
-    cli::cli_alert_info(
-      "Skipping {n_skip} / {length(packet_id_full)} packets already unpacked")
+  index <- root$index$data()
+  if (recursive) {
+    full <- find_all_dependencies(packet_id, index$metadata)
+    n_extra <- length(full) - length(packet_id)
+    if (n_extra > 0) {
+      cli::cli_alert_info(
+        "Also pulling {n_extra} packets, dependencies of those requested")
+    }
+  } else {
+    full <- packet_id
   }
 
+  skip <- intersect(full, root$index$unpacked())
+  fetch <- setdiff(full, skip)
+
+  list(requested = packet_id, full = full, skip = skip, fetch = fetch)
+}
+
+
+location_build_pull_plan_location <- function(packets, location, root, call) {
+  location_name <- location_resolve_valid(location, root,
+                                          include_local = FALSE,
+                                          allow_no_locations = FALSE)
   ## Things that are found in suitable location:
   candidates <- root$index$location(location_name)
-  msg <- setdiff(packet_id_fetch, candidates$packet)
+  msg <- setdiff(packets$fetch, candidates$packet)
   if (length(msg) > 0) {
-    extra <- setdiff(msg, packet_id)
+    extra <- setdiff(msg, packets$requested)
     if (length(extra) > 0) {
       hint_extra <- paste(
         "{length(extra)} missing packet{?s} were requested as dependencies of",
@@ -580,11 +617,12 @@ location_build_pull_plan <- function(packet_id, location, recursive, root,
                      i = hint_extra),
                    call = call)
   }
+  location_name
+}
 
-  meta <- index$metadata[packet_id_fetch]
 
-  ## Find the *first* place we can fetch a file from among all
-  ## locations, respecting the order that we were given them in.
+location_build_pull_plan_files <- function(packet_id, location, root, call) {
+  meta <- root$index$data()$metadata[packet_id]
   packet_hash <- lapply(meta, function(x) x$files$hash)
   n_files <- vnapply(meta, function(x) nrow(x$files))
   if (sum(n_files) == 0) {
@@ -592,22 +630,30 @@ location_build_pull_plan <- function(packet_id, location, recursive, root,
                         size = character(),
                         location = character())
   } else {
+    if (length(location) == 1) {
+      location_use <- location
+    } else {
+      ## Find the first location (within the provided set) to contain
+      ## each packet:
+      loc <- root$index$location(location)
+      location_use <- vcapply(packet_id, function(id) {
+        intersect(location, loc$location[loc$packet == id])[[1]]
+      }, USE.NAMES = FALSE)
+    }
     files <- data_frame(
       hash = unlist(lapply(meta, function(x) x$files$hash), FALSE, FALSE),
       size = unlist(lapply(meta, function(x) x$files$size), FALSE, FALSE),
-      location = rep(candidates$location, n_files))
+      location = location_use)
+    ## Then we ensure we prefer to fetch from earlier-provided
+    ## locations by ordering the list by locations and dropping
+    ## duplicated hashes.
+    if (length(location) > 1) {
+      files <- files[order(match(files$location, location)), ]
+    }
+    files <- files[!duplicated(files$hash), ]
+    rownames(files) <- NULL
   }
-  if (length(location_name) > 1) {
-    files <- files[order(match(files$location, location_name)), ]
-  }
-  files <- files[!duplicated(files$hash), ]
-  rownames(files) <- NULL
-
-  packets <- candidates[match(packet_id_fetch, candidates$packet),
-                        c("packet", "hash")]
-  rownames(packets) <- NULL
-
-  list(files = files, packets = packets)
+  files
 }
 
 
@@ -721,9 +767,6 @@ location_pull_files <- function(files, store, root) {
     if (any(i)) {
       total_local <- pretty_bytes(sum(files$size[i]))
       total_fetch <- pretty_bytes(sum(files$size[!i]))
-      ## cli::cli_alert_success(
-      ##   paste("Satisfying {sum(i)} file{?s} ({total_local}) locally,",
-      ##         "sum(!i) file{?s} ({total_fetch}) to fetch from '{location_name}'"))
       files <- files[!i, ]
     }
   } else {
