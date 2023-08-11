@@ -160,7 +160,7 @@ copy_files_from_remote <- function(id, there, here, dest, overwrite, root,
   ## TODO: I don't think that we correctly cope with file misses here.
   hash <- meta$files$hash[match(there, meta$files$path)]
   here_full <- file.path(dest, here)
-  store <- location_pull_files(plan$files[hash %in% plan$files$hash, ], root)
-  root$files$get(hash, here_full, overwrite)
+  store <- location_pull_files(plan$files[plan$files$hash %in% hash, ], root)
+  store$value$get(hash, here_full, overwrite)
   store$cleanup()
 }

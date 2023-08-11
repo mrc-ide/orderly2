@@ -29,8 +29,9 @@ test_that("can copy files from location, using store", {
                        root = here),
     "Unable to copy files, as they are not available locally")
 
-  orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
-                     options = list(allow_remote = TRUE), root = here)
+  suppressMessages(
+    orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
+                       options = list(allow_remote = TRUE), root = here))
   expect_equal(dir(tmp), "data.rds")
 
   meta <- orderly_metadata(id, root = there)
