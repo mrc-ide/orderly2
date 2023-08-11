@@ -682,7 +682,7 @@ test_that("Can select location when querying dependencies for a report", {
                            root = path[["us"]])
       orderly_location_pull_metadata(nm, root = path[["us"]])
       for (i in ids[[nm]]) {
-        orderly_location_pull_packet(i, root = path[["us"]])
+        suppressMessages(orderly_location_pull_packet(i, root = path[["us"]]))
       }
     }
   }
@@ -725,7 +725,7 @@ test_that("can select location when querying dependencies interactively", {
                            root = path[["us"]])
       orderly_location_pull_metadata(nm, root = path[["us"]])
       for (i in ids[[nm]]) {
-        orderly_location_pull_packet(i, root = path[["us"]])
+        suppressMessages(orderly_location_pull_packet(i, root = path[["us"]]))
       }
     }
   }

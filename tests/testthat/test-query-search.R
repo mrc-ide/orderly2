@@ -244,7 +244,7 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
     character())
 
   for (i in ids$x) {
-    orderly_location_pull_packet(i, root = root$a)
+    suppressMessages(orderly_location_pull_packet(i, root = root$a))
   }
 
   expect_equal(
@@ -287,7 +287,7 @@ test_that("scope and allow_local can be used together to filter query", {
     NA_character_)
 
   for (i in c(x1, y1)) {
-    orderly_location_pull_packet(i, root = root$dst)
+    suppressMessages(orderly_location_pull_packet(i, root = root$dst))
   }
 
   expect_equal(

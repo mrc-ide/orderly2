@@ -658,7 +658,7 @@ test_that("can pull in dependency from specific location", {
   }
   orderly_location_pull_metadata(root = root$a)
   for (id in ids$z) {
-    orderly_location_pull_packet(id, root = root$a)
+    suppressMessages(orderly_location_pull_packet(id, root = root$a))
   }
 
   path_src <- temp_file()
@@ -675,14 +675,14 @@ test_that("can pull in dependency from specific location", {
     fixed = TRUE)
 
   for (id in ids$x) {
-    orderly_location_pull_packet(id, root = root$a)
+    suppressMessages(orderly_location_pull_packet(id, root = root$a))
   }
   outpack_packet_use_dependency(p, query, c("data1.rds" = "data.rds"),
                                 search_options = options)
   expect_equal(p$depends[[1]]$packet, ids$x[[3]])
 
   for (id in ids$y) {
-    orderly_location_pull_packet(id, root = root$a)
+    suppressMessages(orderly_location_pull_packet(id, root = root$a))
   }
   outpack_packet_use_dependency(p, query, c("data2.rds" = "data.rds"),
                                 search_options = options)
