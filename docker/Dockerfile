@@ -1,6 +1,9 @@
 FROM rocker/r-ver:latest
 
-RUN apt-get update && apt-get install -y --no-install-recommends git
+RUN apt-get update \
+        && apt-get install -y --no-install-recommends git \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
 
 COPY DESCRIPTION /tmp/DESCRIPTION
 
