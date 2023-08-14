@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -ex
+HERE=$(dirname $0)
+. $HERE/common
+
+docker build --pull \
+       --build-arg GIT_ID=$GIT_SHA \
+       --build-arg GIT_BRANCH=$GIT_BRANCH \
+       --tag $TAG_SHA \
+       -f docker/Dockerfile \
+       .
+
+# We always push the SHA tagged versions, for debugging if the tests
+# after this step fail
+docker push $TAG_SHA
