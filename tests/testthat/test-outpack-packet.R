@@ -636,11 +636,15 @@ test_that("error if dependency cannot be resolved", {
   path_src <- temp_file()
   fs::dir_create(path_src)
   p <- outpack_packet_start(path_src, "example", root = root)
-  expect_error(
+  err <- expect_error(
     outpack_packet_use_dependency(p, quote(latest(name == "data")),
                                   c("data.rds" = "data.rds")),
-    'Failed to find packet for query:\n    latest(name == "data")',
+    "Failed to find packet for query 'latest(name == \"data\")'",
     fixed = TRUE)
+  expect_equal(err$body,
+               c(i = "See 'rlang::last_error()$explanation' for details"))
+  expect_equal(err$explanation,
+               orderly_query_explain("latest", name = "data", root = root))
 })
 
 
@@ -670,8 +674,8 @@ test_that("can pull in dependency from specific location", {
   expect_error(
     outpack_packet_use_dependency(p, query, c("data.rds" = "data.rds"),
                                   search_options = options),
-    paste0("Failed to find packet for query:\n    ",
-           'latest(name == "data" && parameter:p > 2)'),
+    paste("Failed to find packet for query",
+          "'latest(name == \"data\" && parameter:p > 2)'"),
     fixed = TRUE)
 
   for (id in ids$x) {
@@ -711,8 +715,8 @@ test_that("can pull in dependency when not found, if requested", {
   p_a <- outpack_packet_start(path_src_a, "example", root = root$a$path)
   expect_error(
     outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds")),
-    paste0("Failed to find packet for query:\n    ",
-           'latest(name == "data" && parameter:p > 2)'),
+    paste("Failed to find packet for query",
+          "'latest(name == \"data\" && parameter:p > 2)'"),
     fixed = TRUE)
 
   expect_length(root$a$index$data()$metadata, 0)

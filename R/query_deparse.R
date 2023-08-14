@@ -63,6 +63,9 @@ deparse_query <- function(x, subquery, envir) {
   if (length(x) == 1) {
     return(deparse_single(x))
   }
+  if (is.null(x)) {
+    return("NULL")
+  }
 
   fn <- as.character(x[[1]])
   args <- x[-1]

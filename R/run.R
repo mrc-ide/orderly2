@@ -215,7 +215,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
     str_trace <- format_rlang_trace(e$trace, colours = FALSE)
     outpack_log_info(p, "trace", str_trace, caller, console = FALSE)
     orderly_packet_cleanup_failure(p)
-    cli::cli_abort("Failed to run report", parent = e)
+    cli::cli_abort("Failed to run report",
+                   parent = e,
+                   explanation = e$explanation)
   }
 
   id

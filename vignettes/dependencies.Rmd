@@ -92,7 +92,7 @@ id1 <- orderly2::orderly_run("data", root = path, logging_console = FALSE)
 id2 <- orderly2::orderly_run("analysis", root = path)
 ```
 
-When we look at the metadata for the packet created from the `analysis` report, we can see it has used `r id1` as its dependency:
+When we look at the metadata for the packet created from the `analysis` report, we can see it has used `r inline(id1)` as its dependency:
 
 ```{r}
 orderly2::orderly_metadata(id2, root = path)$depends
@@ -157,6 +157,52 @@ Here the query `latest(parameter:cyl == this:cyl)` says "find the most recent pa
 
 ```{r}
 orderly2::orderly_run("analysis", list(cyl = 4), root = path)
+```
+
+## Interpreting errors
+
+If your query fails to resolve a candidate it will error:
+
+```{r, error = TRUE}
+orderly2::orderly_run("analysis", list(cyl = 9000), root = path)
+```
+
+The error message here tries to be fairly self explanatory; we have failed to find a packet that satisfies our query` latest(parameter:cyl == this:cyl && name == "data")`; note that the report name `data` has become part of this query, so there are two conditions being matched on.
+
+The error suggests running `rlang::last_error()$explanation` for more information, which we can do:
+
+```{r}
+rlang::last_error()$explanation
+```
+
+This is an `orderly_query_explain` object, which tries to come up with reasons why your query might not have matched; we'll expand this in the future so let us know what you might like to see.
+
+This tells you that your query can be decomposed into two subqueries `A` (the match against the parameter `cyl` being 9000), which matched no packets and `B` (the match against the packet name being `data`), which matched 3 packets. If each subquery matched packets but some *pairs* don't then it will try and guide you towards problematic pairs.
+
+You can also ask `orderly2` to explain any query for you:
+
+```{r}
+orderly2::orderly_query_explain(
+  quote(latest(parameter:cyl == 9000)), name = "data", root = path)
+```
+
+If you save this object you can explore it in more detail:
+
+```{r}
+explanation <- orderly2::orderly_query_explain(
+  quote(latest(parameter:cyl == 9000)), name = "data", root = path)
+explanation$parts$B
+```
+
+(this would have worked with `rlang::last_error()$explanation$parts$A` too).
+
+You can also use `orderly2::orderly_metadata_extract` to work out what values you might have looked for:
+
+```{r}
+orderly2::orderly_metadata_extract(
+  name = "data",
+  extract = c(cyl = "parameters.cyl is number"),
+  root = path)
 ```
 
 ## Filtering candidates in other ways

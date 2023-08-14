@@ -253,10 +253,13 @@ orderly_dependency <- function(name, query, files) {
   query <- orderly_query(query, name = name, subquery = subquery)
   search_options <- as_orderly_search_options(ctx$search_options)
   if (ctx$is_active) {
-    outpack_packet_use_dependency(ctx$packet, query, files,
-                                  search_options = search_options,
-                                  envir = ctx$envir,
-                                  overwrite = TRUE)
+    id <- outpack_packet_use_dependency(ctx$packet, query, files,
+                                        search_options = search_options,
+                                        envir = ctx$envir,
+                                        overwrite = TRUE)
+
+    msg <- sprintf("%s @ %s (%s)", name, id, format(query))
+    outpack_log_info(ctx$packet, "depends", msg, "orderly2::orderly_dependency")
   } else {
     orderly_copy_files(query, files = files, dest = ctx$path, overwrite = TRUE,
                        parameters = ctx$parameters, options = search_options,

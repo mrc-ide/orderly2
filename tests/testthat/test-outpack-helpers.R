@@ -110,5 +110,8 @@ test_that("require a single id for search", {
     orderly_copy_files(name = "missing", files = c(here = "there"),
                        dest = dst, root = root),
     "Query returned 0 results")
-  expect_null(err$body)
+  expect_equal(err$body,
+               c(i = "See 'rlang::last_error()$explanation' for details"))
+  expect_equal(err$explanation,
+               orderly_query_explain(NULL, name = "missing", root = root))
 })
