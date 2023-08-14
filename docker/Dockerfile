@@ -1,5 +1,7 @@
 FROM rocker/r-ver:latest
 
+RUN apt-get update && apt-get install -y --no-install-recommends git
+
 COPY DESCRIPTION /tmp/DESCRIPTION
 
 RUN install2.r --error remotes && \
