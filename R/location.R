@@ -362,6 +362,7 @@ orderly_location_push <- function(packet_id, location, root = NULL,
   if (length(plan$files) > 0 || length(plan$packet_id) > 0) {
     driver <- location_driver(location_name, root)
     for (hash in plan$files) {
+      ## TODO: mrc-4505 - needs work
       driver$push_file(find_file_by_hash(root, hash), hash)
     }
     for (id in plan$packet_id) {
@@ -473,27 +474,25 @@ location_pull_metadata <- function(location_name, root, call) {
 
 
 location_pull_hash_store <- function(files, location_name, driver, store) {
+  ## Practically this is only ever called when files at least one row,
+  ## so we ignore the corner case of trying to pull zero files.x
   total_size <- pretty_bytes(sum(files$size))
-  if (nrow(files) == 0) {
-    cli::cli_alert_success("All files already available locally")
-  } else {
-    withr::local_options(cli.progress_show_after = 0) # we need the end status
-    cli::cli_progress_bar(
-      format = paste(
-        "{cli::pb_spin} Fetching file {i}/{nrow(files)}",
-        "({pretty_bytes(files$size[i])}) from '{location_name}'",
-        "| ETA: {cli::pb_eta} [{cli::pb_elapsed}]"),
-      format_done = paste(
-        "{cli::col_green(cli::symbol$tick)} Fetched {nrow(files)} file{?s}",
-        "({total_size}) from '{location_name}' in {cli::pb_elapsed}."),
-      total = sum(files$size),
-      clear = FALSE)
-    for (i in seq_len(nrow(files))) {
-      cli::cli_progress_update(files$size[[i]])
-      h <- files$hash[[i]]
-      tmp <- driver$fetch_file(h, store$tmp())
-      store$put(tmp, h, move = TRUE)
-    }
+  withr::local_options(cli.progress_show_after = 0) # we need the end status
+  cli::cli_progress_bar(
+    format = paste(
+      "{cli::pb_spin} Fetching file {i}/{nrow(files)}",
+      "({pretty_bytes(files$size[i])}) from '{location_name}'",
+      "| ETA: {cli::pb_eta} [{cli::pb_elapsed}]"),
+    format_done = paste(
+      "{cli::col_green(cli::symbol$tick)} Fetched {nrow(files)} file{?s}",
+      "({total_size}) from '{location_name}' in {cli::pb_elapsed}."),
+    total = sum(files$size),
+    clear = FALSE)
+  for (i in seq_len(nrow(files))) {
+    cli::cli_progress_update(files$size[[i]])
+    h <- files$hash[[i]]
+    tmp <- driver$fetch_file(h, store$tmp())
+    store$put(tmp, h, move = TRUE)
   }
 }
 
@@ -575,22 +574,6 @@ location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
   if (recursive) {
     full <- find_all_dependencies(packet_id, index$metadata)
     n_extra <- length(full) - length(packet_id)
-    if (n_extra > 0) {
-      cli::cli_alert_info(
-        "Also pulling {n_extra} packets, dependencies of those requested")
-    }
-  } else {
-    full <- packet_id
-  }
-
-  index <- root$index$data()
-  if (recursive) {
-    full <- find_all_dependencies(packet_id, index$metadata)
-    n_extra <- length(full) - length(packet_id)
-    if (n_extra > 0) {
-      cli::cli_alert_info(
-        "Also pulling {n_extra} packets, dependencies of those requested")
-    }
   } else {
     full <- packet_id
   }
@@ -612,15 +595,17 @@ location_build_pull_plan_location <- function(packets, location, root, call) {
   if (length(msg) > 0) {
     extra <- setdiff(msg, packets$requested)
     if (length(extra) > 0) {
-      hint_extra <- paste(
-        "{length(extra)} missing packet{?s} were requested as dependencies of",
+      hint <- paste(
+        "{length(extra)} missing packets were requested as dependencies of",
         "the ones you asked for: {squote(extra)}")
     } else {
-      hint_extra <- NULL
+      ## In the case where the above is used, we probably have
+      ## up-to-date metadata so we don't display this.
+      hint <- "Do you need to run 'orderly2::orderly_location_pull_metadata()'?"
     }
     cli::cli_abort(c("Failed to find packet{?s} {squote(msg)}",
                      i = "Looked in location{?s} {squote(location_name)}",
-                     i = hint_extra),
+                     i = hint),
                    call = call)
   }
   location_name
@@ -773,6 +758,7 @@ location_pull_files <- function(files, root) {
     cleanup <- function() invisible()
     i <- store$exists(files$hash)
     if (any(i)) {
+      cli::cli_alert_success("Found {sum(i)} file{?s} in the file store")
       files <- files[!i, ]
     }
   } else {

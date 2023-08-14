@@ -454,7 +454,40 @@ test_that("Sensible error if packet not known", {
     suppressMessages(orderly_location_pull_packet(id, root = root$dst)),
     sprintf("Failed to find packet '%s'", id),
     fixed = TRUE)
-  expect_equal(err$body, c(i = "Looked in location 'src'"))
+  expect_equal(
+    err$body,
+    c(i = "Looked in location 'src'",
+      i = "Do you need to run 'orderly2::orderly_location_pull_metadata()'?"))
+})
+
+
+test_that("Sensible error if dependent packet not known", {
+  root <- list()
+  for (name in c("a", "b", "c")) {
+    root[[name]] <- create_temporary_root(require_complete_tree = name != "b")
+  }
+
+  id <- create_random_packet_chain(root$a, 5)
+  orderly_location_add("a", "path", list(path = root$a$path),
+                       root = root$b)
+  orderly_location_pull_metadata(root = root$b)
+  suppressMessages(orderly_location_pull_packet(id[[5]], root = root$b))
+
+  orderly_location_add("b", "path", list(path = root$b$path),
+                       root = root$c)
+  orderly_location_pull_metadata(root = root$c)
+
+  err <- expect_error(
+    suppressMessages(orderly_location_pull_packet(id[[5]], root = root$c)),
+    sprintf("Failed to find packet '%s'", id[[4]]))
+  ## This needs work. The shoddy pluralisation is the least of the
+  ## issue, see mrc-4513; however, this situation is rare in most
+  ## likely uses.
+  expect_equal(
+    err$body,
+    c(i = "Looked in location 'b'",
+      i = paste("1 missing packets were requested as dependencies of",
+                sprintf("the ones you asked for: '%s'", id[[4]]))))
 })
 
 
@@ -603,7 +636,10 @@ test_that("Can filter locations", {
   err <- expect_error(
     location_build_pull_plan(ids, c("a", "b", "c"), NULL, root = root$dst),
     "Failed to find packets")
-  expect_equal(err$body, c(i = "Looked in locations 'a', 'b', and 'c'"))
+  expect_equal(
+    err$body,
+    c(i = "Looked in locations 'a', 'b', and 'c'",
+      i = "Do you need to run 'orderly2::orderly_location_pull_metadata()'?"))
 })
 
 
@@ -832,4 +868,24 @@ test_that("avoid duplicated metadata", {
   expect_equal(err$body[[2]],
                "This is a bug in your location server, please report it")
   expect_match(err$body[[3]], "remove this location")
+})
+
+
+test_that("skip files in the file store", {
+  root <- list()
+  for (name in c("src", "dst")) {
+    root[[name]] <- create_temporary_root(use_file_store = TRUE)
+  }
+
+  id <- create_random_packet_chain(root$src, 3)
+  orderly_location_add("src", "path", list(path = root$src$path),
+                       root = root$dst)
+  orderly_location_pull_metadata(root = root$dst)
+  suppressMessages(orderly_location_pull_packet(id[[1]], root = root$dst))
+
+  res <- testthat::evaluate_promise(
+    orderly_location_pull_packet(id[[2]], root = root$dst))
+  expect_match(res$messages, "Found 1 file in the file store", all = FALSE)
+  expect_match(res$messages, "Need to fetch 3 files.+from 1 location",
+               all = FALSE)
 })
