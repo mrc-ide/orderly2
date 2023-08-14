@@ -3,7 +3,7 @@ FROM rocker/r-ver:latest
 COPY DESCRIPTION /tmp/DESCRIPTION
 
 RUN install2.r --error remotes && \
-        Rscript -e 'remotes::install_deps("/tmp/DESCRIPTION")' && \
+        Rscript -e 'remotes::install_deps("/tmp")' && \
         rm /tmp/DESCRIPTION
 
 COPY . /src
