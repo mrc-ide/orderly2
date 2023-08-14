@@ -404,10 +404,13 @@ test_that("detect and avoid modified files in source repository", {
 
   ## Corrupt the file in the first id by truncating it:
   file.create(file.path(root$src$path, "archive", "data", id[[1]], "a.rds"))
-  skip("needs care")
-  expect_message(
-    orderly_location_pull_packet(id[[1]], root = root$dst),
-    sprintf("Rejecting file 'a.rds' in 'data/%s'", id[[1]]))
+
+  ## Then pull
+  res <- testthat::evaluate_promise(
+    orderly_location_pull_packet(id[[1]], root = root$dst))
+
+  expect_match(res$messages, "Rejecting file from archive 'a.rds' in 'data/",
+               all = FALSE)
 
   expect_equal(
     hash_file(file.path(root$dst$path, "archive", "data", id[[1]], "a.rds")),
@@ -570,34 +573,37 @@ test_that("Can filter locations", {
                            allow_no_locations = FALSE)
   }
 
-  skip("needs a lot of reworking")
-  expect_equal(
-    location_build_pull_plan(ids, NULL, NULL, root = root$dst),
-    expected(ids,
-             c("a", "a", "a", "b", "b", "b", "c", "c", "c", "d", "d", "d")))
-  ## Invert order:
-  expect_equal(
-    location_build_pull_plan(ids, locs(c("d", "c", "b", "a")), root = root$dst),
-    expected(ids,
-             c("d", "d", "d", "b", "b", "b", "d", "d", "d", "d", "d", "d")))
+  plan <- location_build_pull_plan(ids, NULL, NULL, root = root$dst)
+  expect_equal(plan$files$location, rep(c("a", "b", "c", "d"), each = 6))
+
+  ## Invert order, now prefers 'd'
+  plan <- location_build_pull_plan(ids, locs(c("d", "c", "b", "a")), NULL,
+                                   root = root$dst)
+  expect_equal(plan$files$location, rep(c("d", "b"), c(18, 6)))
+
   ## Drop redundant locations
-  expect_equal(
-    location_build_pull_plan(ids, locs(c("b", "d")), root = root$dst),
-    expected(ids,
-             c("b", "b", "b", "b", "b", "b", "d", "d", "d", "d", "d", "d")))
+  plan <- location_build_pull_plan(ids, locs(c("b", "d")), NULL,
+                                   root = root$dst)
+  expect_equal(plan$files$location, rep(c("b", "d"), each = 12))
 
   ## Some corner cases:
+  plan <- location_build_pull_plan(ids_a[[1]], NULL, NULL, root = root$dst)
+  expect_equal(plan$files$location, c("a", "a"))
+  plan <- location_build_pull_plan(character(), NULL, NULL, root = root$dst)
   expect_equal(
-    location_build_pull_plan(ids_a[[1]], locs(NULL), root = root$dst),
-    expected(ids_a[[1]], "a"))
-  expect_equal(
-    location_build_pull_plan(character(), locs(NULL), root = root$dst),
-    expected(character(), character()))
+    plan,
+    list(packet_id = character(),
+         files = data_frame(hash = character(),
+                            size = numeric(),
+                            location = character()),
+         hash = set_names(character(), character()),
+         info = list(n_extra = 0, n_skip = 0, n_total = 0)))
 
   ## Failure to find things:
   err <- expect_error(
-    location_build_pull_plan(ids, locs(c("a", "b", "c")), root = root$dst),
-    "Failed to find packets at location 'a', 'b', 'c'")
+    location_build_pull_plan(ids, c("a", "b", "c"), NULL, root = root$dst),
+    "Failed to find packets")
+  expect_equal(err$body, c(i = "Looked in locations 'a', 'b', and 'c'"))
 })
 
 

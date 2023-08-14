@@ -124,9 +124,13 @@ find_file_by_hash <- function(root, hash) {
       if (file.exists(path) && hash_file(path, algorithm) == hash) {
         return(path)
       }
-      ## TODO: incorporate this into logging later:
-      message(sprintf("Rejecting file '%s' in '%s/%s'",
-                      meta$files$path[[i]], meta$name, id))
+      p <- meta$files$path[[i]]
+      ## Not actually a warning; formats in a way that works within
+      ## the overal logging. What is not obvious is that this is
+      ## potentially coming from a remote and that's not always clear,
+      ## so we need a way of nesting output
+      cli::cli_alert_warning(
+        "Rejecting file from archive '{p}' in '{meta$name}/{id}'")
     }
   }
 

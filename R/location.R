@@ -633,7 +633,7 @@ location_build_pull_plan_files <- function(packet_id, location, root, call) {
   n_files <- vnapply(meta, function(x) nrow(x$files))
   if (sum(n_files) == 0) {
     files <- data_frame(hash = character(),
-                        size = character(),
+                        size = numeric(),
                         location = character())
   } else {
     if (length(location) == 1) {
