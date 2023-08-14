@@ -39,8 +39,11 @@ your plugin uses. You can call \code{orderly_plugin_context} from
 within this function and access anything you need from that. If
 not given, then no cleanup is done.}
 
-\item{schema}{Optionally a path to a schema for the metadata
-created by this plugin. See \code{vignette("plugins")} for details.}
+\item{schema}{Optionally a path, within the package, to a schema
+for the metadata created by this plugin; you should omit the
+\code{.json} extension.  So if your file contains in its sources the
+file \code{inst/plugin/myschema.json} you would pass
+\code{plugin/myschema}.  See \code{vignette("plugins")} for details.}
 }
 \value{
 Nothing, this function is called for its side effect of
