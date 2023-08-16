@@ -591,9 +591,9 @@ location_build_pull_plan_location <- function(packets, location, root, call) {
     allow_no_locations = length(packets$fetch) == 0)
   ## Things that are found in suitable location:
   candidates <- root$index$location(location_name)
-  msg <- setdiff(packets$fetch, candidates$packet)
-  if (length(msg) > 0) {
-    extra <- setdiff(msg, packets$requested)
+  missing <- setdiff(packets$fetch, candidates$packet)
+  if (length(missing) > 0) {
+    extra <- setdiff(missing, packets$requested)
     if (length(extra) > 0) {
       hint <- paste(
         "{length(extra)} missing packets were requested as dependencies of",
@@ -603,7 +603,7 @@ location_build_pull_plan_location <- function(packets, location, root, call) {
       ## up-to-date metadata so we don't display this.
       hint <- "Do you need to run 'orderly2::orderly_location_pull_metadata()'?"
     }
-    cli::cli_abort(c("Failed to find packet{?s} {squote(msg)}",
+    cli::cli_abort(c("Failed to find packet{?s} {squote(missing)}",
                      i = "Looked in location{?s} {squote(location_name)}",
                      i = hint),
                    call = call)
