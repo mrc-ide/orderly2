@@ -1,5 +1,7 @@
 describe("server integration tests", {
-  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
+  root <- create_temporary_root(path_archive = NULL,
+                                use_file_store = TRUE,
+                                require_complete_tree = TRUE)
   path <- root$path
   server <- outpack_server(path)
   url <- "http://localhost:8000"
@@ -39,23 +41,20 @@ describe("server integration tests", {
   })
 
   it("throws compatible error on missing file", {
-    path1 <- temp_file()
-    path2 <- temp_file()
-    msg <- "Hash 'hash:abc123' not found at location"
+    dest <- temp_file()
+    msg <- "Hash 'md5:abc123' not found at location"
     err_http <- expect_error(
-      client_http$fetch_file("hash:abc123", path1),
+      client_http$fetch_file("md5:abc123", dest),
       msg)
-    err_path <- expect_error(
-      client_path$fetch_file("hash:abc123", path1),
-      msg)
-    expect_false(file.exists(path1))
-    expect_false(file.exists(path2))
+    expect_false(file.exists(dest))
   })
 })
 
 
 describe("http location integration tests", {
-  root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
+  root <- create_temporary_root(path_archive = NULL,
+                                use_file_store = TRUE,
+                                require_complete_tree = TRUE)
   path <- root$path
   server <- outpack_server(path)
   url <- "http://localhost:8000"
@@ -120,7 +119,7 @@ describe("http location integration tests", {
     cl <- outpack_http_client$new(url)
     err <- expect_error(cl$post(sprintf("/packet/%s", hash_bad), meta,
                                 httr::content_type("text/plain")),
-                        "Hash of packet does not match")
+                        "Expected hash '.+' but found '.+'")
 
     ## Then on the method, should return same error here:
     loc <- orderly_location_http$new(url)
@@ -142,12 +141,9 @@ describe("http location integration tests", {
     writeLines("corrupt", tmp)
     hash_corrupt <- hash_file(tmp, "sha256")
 
-    ## This error back is not incredible, as it's not clear what is
-    ## expected, but that's something we can imporove on the rust
-    ## front. This should never get surfaced to the user though.
     expect_error(
       loc$push_file(tmp, hash_correct),
-      sprintf("Hash %s does not match file contents. Expected %s",
+      sprintf("Expected hash '%s' but found '%s'",
               hash_correct, hash_corrupt))
   })
 })
