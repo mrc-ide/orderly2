@@ -588,3 +588,17 @@ pairs <- function(a) {
   Map(c, a[i[, 1]], a[i[, 2]], USE.NAMES = FALSE)
 
 }
+
+
+pretty_bytes <- function(n) {
+  if (n < 1e3) {
+    unit <- "B"
+  } else if (n < 1e6) {
+    unit <- "kB"
+    n <- n / 1e3
+  } else {
+    unit <- "MB"
+    n <- n / 1e6
+  }
+  paste(prettyNum(round(n, 1), big.mark = ","), unit)
+}

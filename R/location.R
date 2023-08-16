@@ -240,14 +240,11 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##' available for use as dependencies (e.g., with
 ##' [orderly2::orderly_dependency]).
 ##'
-##' The behaviour of this function will vary depending on whether or
-##' not the destination outpack repository (i.e., `root`) uses a file
-##' store or not.  If it does, then we simply import the unknown files
-##' into the store, and this will always be fairly efficient.  If no
-##' file store is used then for the time being we pull all files from
-##' the upstream location, even if this means copying a file we
-##' already know about elsewhere in the outpack archive.  We will
-##' improve this in a future version.
+##' It is possible that it will take a long time to pull packets, if
+##' you are moving a lot of data or if you are operating over a slow
+##' connection.  Cancelling and resuming a pull should be fairly
+##' efficient, as we keep track of files that are copied over even in
+##' the case of an interrupted pull.
 ##'
 ##' @title Pull a single packet from a location
 ##'
@@ -289,68 +286,45 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
     ids <- orderly_search(..., options = options, root = root)
   }
 
-  index <- root$index$data()
+  plan <- location_build_pull_plan(ids, options$locations, recursive, root,
+                                   call = environment())
 
-  recursive <- recursive %||% root$config$core$require_complete_tree
-  assert_scalar_logical(recursive)
-  if (root$config$core$require_complete_tree && !recursive) {
-    stop("'recursive' must be TRUE (or NULL) with your configuration")
+  if (plan$info$n_extra > 0) {
+    cli::cli_alert_info(paste(
+      "Also pulling {plan$info$n_extra} packet{?s},",
+      "dependencies of those requested"))
+  }
+  if (plan$info$n_skip > 0) {
+    cli::cli_alert_info(paste(
+      "Skipping {plan$info$n_skip} of {plan$info$n_total} packet{?s}",
+      "already unpacked"))
   }
 
-  if (recursive) {
-    ids <- find_all_dependencies(ids, index$metadata)
+  store <- location_pull_files(plan$files, root)
+
+  use_archive <- !is.null(root$config$core$path_archive)
+  if (use_archive) {
+    n <- length(plan$packet_id)
+    cli::cli_progress_bar(
+      format = paste(
+        "{cli::pb_spin} Writing files for '{id}' (packet {i} / {n})",
+        "| ETA: {cli::pb_eta} [{cli::pb_elapsed}]"),
+      format_done = paste(
+        "{cli::col_green(cli::symbol$tick)} Unpacked {n} packet{?s}",
+        "in {cli::pb_elapsed}."),
+      total = n,
+      clear = FALSE)
   }
-
-  ## Later, it might be better if we did not skip over unpacked
-  ## packets, but instead validate and/or repair them (see mrc-3052)
-  ids <- setdiff(ids, index$unpacked)
-  if (length(ids) == 0) {
-    return(invisible(ids))
-  }
-
-  ## I think that this whole section here could be simplified a lot,
-  ## because we just need to get the full list of files over the
-  ## packets; i.e., the reverse situation of the push logic; do that
-  ## in a separate PR.
-  ##
-  ## We could come up with a few heuristics about where to get files
-  ## from - see plan_copy_files too for another shot at this that can
-  ## then be tidied up.
-  location_name <- location_resolve_valid(options$locations, root,
-                                          include_local = FALSE,
-                                          allow_no_locations = FALSE)
-  plan <- location_build_pull_plan(ids, location_name, root)
-
-  ## At this point we should really be providing logging about how
-  ## many packets, files, etc are being copied.  I've done this as a
-  ## single loop, but there's also no real reason why we might not
-  ## present this as a single update operation for pulling all files
-  ## across all packets (within a single location where more than one
-  ## is required).  This is the simplest implementation for now
-  ## though.
-  ##
-  ## Even though we look across all locations for places we can find a
-  ## packet, we don't look across all locations for a given file (that
-  ## is, if a location fails to provide the expected file, we will
-  ## error and not try and recover).  That's probably reasonable
-  ## behaviour as this should be pretty rare if people have sensible
-  ## workflows, but there's also an argument that we might try looking
-  ## for a given file in any location at some point.
-  for (i in seq_len(nrow(plan))) {
-    ## See mrc-4351 (assumption is this was validated on insert).
-    hash <- index$location$hash[index$location$packet == plan$packet[i] &
-                                index$location$location == plan$location[i]]
-    driver <- location_driver(plan$location[i], root)
-    if (root$config$core$use_file_store) {
-      location_pull_files_store(root, driver, plan$packet[i])
+  for (id in plan$packet_id) {
+    if (use_archive) {
+      cli::cli_progress_update()
+      location_pull_files_archive(id, store$value, root)
     }
-    if (!is.null(root$config$core$path_archive)) {
-      location_pull_files_archive(root, driver, plan$packet[i])
-    }
-    mark_packet_known(plan$packet[i], local, hash, Sys.time(), root)
+    mark_packet_known(id, local, plan$hash[[id]], Sys.time(), root)
   }
+  store$cleanup()
 
-  invisible(ids)
+  invisible(plan$packet_id)
 }
 
 
@@ -388,6 +362,7 @@ orderly_location_push <- function(packet_id, location, root = NULL,
   if (length(plan$files) > 0 || length(plan$packet_id) > 0) {
     driver <- location_driver(location_name, root)
     for (hash in plan$files) {
+      ## TODO: mrc-4505 - needs work
       driver$push_file(find_file_by_hash(root, hash), hash)
     }
     for (id in plan$packet_id) {
@@ -498,48 +473,36 @@ location_pull_metadata <- function(location_name, root, call) {
 }
 
 
-location_pull_hash_store <- function(root, driver, hash) {
-  hash_missing <- unique(hash[!root$files$exists(hash)])
-  for (h in hash_missing) {
-    tmp <- root$files$tmp()
-    root$files$put(driver$fetch_file(h, tmp), h, move = TRUE)
+location_pull_hash_store <- function(files, location_name, driver, store) {
+  ## Practically this is only ever called when files at least one row,
+  ## so we ignore the corner case of trying to pull zero files.x
+  total_size <- pretty_bytes(sum(files$size))
+  withr::local_options(cli.progress_show_after = 0) # we need the end status
+  cli::cli_progress_bar(
+    format = paste(
+      "{cli::pb_spin} Fetching file {i}/{nrow(files)}",
+      "({pretty_bytes(files$size[i])}) from '{location_name}'",
+      "| ETA: {cli::pb_eta} [{cli::pb_elapsed}]"),
+    format_done = paste(
+      "{cli::col_green(cli::symbol$tick)} Fetched {nrow(files)} file{?s}",
+      "({total_size}) from '{location_name}' in {cli::pb_elapsed}."),
+    total = sum(files$size),
+    clear = FALSE)
+  for (i in seq_len(nrow(files))) {
+    cli::cli_progress_update(files$size[[i]])
+    h <- files$hash[[i]]
+    tmp <- driver$fetch_file(h, store$tmp())
+    store$put(tmp, h, move = TRUE)
   }
 }
 
 
-location_pull_files_store <- function(root, driver, packet_id) {
-  hash <- outpack_metadata_core(packet_id, root)$files$hash
-  location_pull_hash_store(root, driver, hash)
-}
-
-
-location_pull_hash_archive <- function(root, driver, hash, dest) {
-  ## TODO: some special care needed here if we want to avoid
-  ## downloading the same file twice from _this_ packet as we won't be
-  ## able to use find_file_by_hash function to resolve that; instead
-  ## this should loop over unique hashes ideally. Easy enough but
-  ## complicates the code.
-  fs::dir_create(dirname(dest))
-  for (i in seq_along(hash)) {
-    src <- find_file_by_hash(root, hash[[i]])
-    if (is.null(src)) {
-      driver$fetch_file(hash[[i]], dest[[i]])
-    } else {
-      fs::file_copy(src, dest[[i]], overwrite = TRUE)
-    }
-  }
-}
-
-location_pull_files_archive <- function(root, driver, packet_id) {
+location_pull_files_archive <- function(packet_id, store, root) {
   meta <- outpack_metadata_core(packet_id, root)
   dest <- file.path(root$path, root$config$core$path_archive, meta$name,
                     packet_id, meta$files$path)
-  if (root$config$core$use_file_store) {
-    for (i in seq_len(nrow(meta$files))) {
-      root$files$get(meta$files$hash[[i]], dest[[i]], overwrite = TRUE)
-    }
-  } else {
-    location_pull_hash_archive(root, driver, meta$files$hash, dest)
+  for (i in seq_len(nrow(meta$files))) {
+    store$get(meta$files$hash[[i]], dest[[i]], overwrite = TRUE)
   }
 }
 
@@ -575,39 +538,113 @@ location_resolve_valid <- function(location, root, include_local,
 }
 
 
-location_build_pull_plan <- function(packet_id, location_name, root) {
-  ## Things that are found in suitable location:
-  candidates <- root$index$location(location_name)[c("packet", "location")]
+location_build_pull_plan <- function(packet_id, location, recursive, root,
+                                     call = NULL) {
+  packets <- location_build_pull_plan_packets(packet_id, recursive, root, call)
+  info <- list(n_extra = length(packets$full) - length(packets$requested),
+               n_skip = length(packets$skip),
+               n_total = length(packets$full))
 
-  ## Sort by location
-  candidates <- candidates[order(match(candidates$location, location_name)), ]
+  location <- location_build_pull_plan_location(packets, location, root, call)
+  files <- location_build_pull_plan_files(packets$fetch, location, root, call)
 
-  plan <- data_frame(
-    packet = packet_id,
-    location = candidates$location[match(packet_id, candidates$packet)])
+  ## Finally, get the hash of each of the pulled packets (this needs
+  ## tidying up generally; see 'get_metadata_hash', which we can use
+  ## as a base.
+  tmp <- root$index$location(location)
+  hash <- set_names(tmp$hash[match(packets$fetch, tmp$packet)], packets$fetch)
 
-  if (anyNA(plan$location)) {
-    ## This is going to want eventual improvement before we face
-    ## users.  The issues here are that:
-    ## * id or location might be vectors (and potentially) quite long
-    ##   so formatting the message nicely is not
-    ##   straightforward. Better would be to throw an error object
-    ##   that takes care of formatting as we can test that more easily
-    ## * the id above might include things that the user did not
-    ##   directly ask for (but were included as dependencies) and we
-    ##   don't capture that intent.
-    ## * we might also want to include the human readable name of the
-    ##   packet here too (we can get that easily from the index)
-    ## * we don't report back how the set of candidate locations was
-    ##   resolved (e.g., explicitly given, default)
-    msg <- packet_id[is.na(plan$location)]
-    stop(sprintf("Failed to find %s at location %s: %s",
-                 ngettext(length(msg), "packet", "packets"),
-                 paste(squote(location_name), collapse = ", "),
-                 paste(squote(msg), collapse = ", ")))
+  list(packet_id = packets$fetch, files = files, hash = hash, info = info)
+}
+
+
+location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
+  recursive <- recursive %||% root$config$core$require_complete_tree
+  assert_scalar_logical(recursive)
+  if (root$config$core$require_complete_tree && !recursive) {
+    cli::cli_abort(
+      c("'recursive' must be TRUE (or NULL) with your configuration",
+        i = paste("Because 'core.require_complete_tree' is true, we can't",
+                  "do a non-recursive pull, as this might leave an incomplete",
+                  "tree")),
+      call = call)
   }
 
-  plan
+  index <- root$index$data()
+  if (recursive) {
+    full <- find_all_dependencies(packet_id, index$metadata)
+    n_extra <- length(full) - length(packet_id)
+  } else {
+    full <- packet_id
+  }
+
+  skip <- intersect(full, root$index$unpacked())
+  fetch <- setdiff(full, skip)
+
+  list(requested = packet_id, full = full, skip = skip, fetch = fetch)
+}
+
+
+location_build_pull_plan_location <- function(packets, location, root, call) {
+  location_name <- location_resolve_valid(
+    location, root, include_local = FALSE,
+    allow_no_locations = length(packets$fetch) == 0)
+  ## Things that are found in suitable location:
+  candidates <- root$index$location(location_name)
+  missing <- setdiff(packets$fetch, candidates$packet)
+  if (length(missing) > 0) {
+    extra <- setdiff(missing, packets$requested)
+    if (length(extra) > 0) {
+      hint <- paste(
+        "{length(extra)} missing packets were requested as dependencies of",
+        "the ones you asked for: {squote(extra)}")
+    } else {
+      ## In the case where the above is used, we probably have
+      ## up-to-date metadata so we don't display this.
+      hint <- "Do you need to run 'orderly2::orderly_location_pull_metadata()'?"
+    }
+    cli::cli_abort(c("Failed to find packet{?s} {squote(missing)}",
+                     i = "Looked in location{?s} {squote(location_name)}",
+                     i = hint),
+                   call = call)
+  }
+  location_name
+}
+
+
+location_build_pull_plan_files <- function(packet_id, location, root, call) {
+  meta <- root$index$data()$metadata[packet_id]
+  packet_hash <- lapply(meta, function(x) x$files$hash)
+  n_files <- vnapply(meta, function(x) nrow(x$files))
+  if (sum(n_files) == 0) {
+    files <- data_frame(hash = character(),
+                        size = numeric(),
+                        location = character())
+  } else {
+    if (length(location) == 1) {
+      location_use <- location
+    } else {
+      ## Find the first location (within the provided set) to contain
+      ## each packet:
+      loc <- root$index$location(location)
+      location_use <- vcapply(packet_id, function(id) {
+        intersect(location, loc$location[loc$packet == id])[[1]]
+      }, USE.NAMES = FALSE)
+    }
+    files <- data_frame(
+      hash = unlist(lapply(meta, function(x) x$files$hash), FALSE, FALSE),
+      size = unlist(lapply(meta, function(x) x$files$size), FALSE, FALSE),
+      location = location_use)
+    ## Then we ensure we prefer to fetch from earlier-provided
+    ## locations by ordering the list by locations and dropping
+    ## duplicated hashes.
+    if (length(location) > 1) {
+      files <- files[order(match(files$location, location)), ]
+    }
+    files <- files[!duplicated(files$hash), ]
+    rownames(files) <- NULL
+  }
+  files
 }
 
 
@@ -695,4 +732,62 @@ mark_packets_orphaned <- function(location, packet_id, root) {
   dest <- file.path(root$path, ".outpack", "location", "orphan", packet_id)
   fs::dir_create(dirname(dest))
   fs::file_move(src, dest)
+}
+
+
+## This approach may be suboptimal in the case where the user does not
+## already have a file store, as it means that files will be copied
+## around and hashed more than ideal:
+##
+## * hash the candidate file
+## * rehash on entry into the file store
+## * copy into the file store
+## * copy from the file store into the final location
+##
+## So in the case where a hash is only present once in a chain of
+## packets being pulled this will be one too many hashes and one too
+## many copies.
+##
+## However, this approach makes the logic fairly easy to deal with,
+## and copes well with data races and corruption of data on disk
+## (e.g., users having edited files that we rely on, or editing them
+## after we hash them the first time).
+location_pull_files <- function(files, root) {
+  if (root$config$core$use_file_store) {
+    store <- root$files
+    cleanup <- function() invisible()
+    i <- store$exists(files$hash)
+    if (any(i)) {
+      cli::cli_alert_success("Found {sum(i)} file{?s} in the file store")
+      files <- files[!i, ]
+    }
+  } else {
+    cli::cli_alert_info("Looking for suitable files already on disk")
+    store <- temporary_filestore(root)
+    cleanup <- function() store$destroy()
+    for (hash in files$hash) {
+      if (!is.null(path <- find_file_by_hash(root, hash))) {
+        store$put(path, hash)
+      }
+    }
+  }
+
+  if (nrow(files) == 0) {
+    cli::cli_alert_success("All files available locally, no need to fetch any")
+  } else {
+    locations <- unique(files$location)
+    cli::cli_alert_info(paste(
+      "Need to fetch {nrow(files)} file{?s} ({pretty_bytes(sum(files$size))})",
+      "from {length(locations)} location{?s}"))
+    for (loc in locations) {
+      location_pull_hash_store(files[files$location == loc, ], loc,
+                               location_driver(loc, root), store)
+    }
+  }
+  list(value = store, cleanup = cleanup)
+}
+
+
+temporary_filestore <- function(root) {
+  file_store$new(file.path(root$path, "orderly", "pull"))
 }

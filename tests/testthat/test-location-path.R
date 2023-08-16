@@ -286,8 +286,8 @@ test_that("push overlapping tree", {
                        root = client)
 
   id_base <- create_random_packet(server)
-  orderly_location_pull_metadata(root = client) # TODO: should be automatic
-  orderly_location_pull_packet(id_base, root = client)
+  orderly_location_pull_metadata(root = client)
+  suppressMessages(orderly_location_pull_packet(id_base, root = client))
 
   ids <- create_random_packet_chain(client, 3, id_base)
   plan <- orderly_location_push(ids[[3]], "server", client)

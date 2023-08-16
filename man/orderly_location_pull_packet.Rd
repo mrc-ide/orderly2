@@ -55,12 +55,9 @@ available for use as dependencies (e.g., with
 \link{orderly_dependency}).
 }
 \details{
-The behaviour of this function will vary depending on whether or
-not the destination outpack repository (i.e., \code{root}) uses a file
-store or not.  If it does, then we simply import the unknown files
-into the store, and this will always be fairly efficient.  If no
-file store is used then for the time being we pull all files from
-the upstream location, even if this means copying a file we
-already know about elsewhere in the outpack archive.  We will
-improve this in a future version.
+It is possible that it will take a long time to pull packets, if
+you are moving a lot of data or if you are operating over a slow
+connection.  Cancelling and resuming a pull should be fairly
+efficient, as we keep track of files that are copied over even in
+the case of an interrupted pull.
 }

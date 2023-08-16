@@ -279,3 +279,14 @@ test_that("pairs generates pairs", {
                list(c("a", "b"), c("a", "c"), c("b", "c"),
                     c("a", "d"), c("b", "d"), c("c", "d")))
 })
+
+
+test_that("can print pretty bytes", {
+  expect_equal(pretty_bytes(100), "100 B")
+  expect_equal(pretty_bytes(5000), "5 kB")
+  expect_equal(pretty_bytes(5123), "5.1 kB")
+  expect_equal(pretty_bytes(5000000), "5 MB")
+  expect_equal(pretty_bytes(5123456), "5.1 MB")
+  expect_equal(pretty_bytes(5000000000), "5,000 MB")
+  expect_equal(pretty_bytes(5123456789), "5,123.5 MB")
+})

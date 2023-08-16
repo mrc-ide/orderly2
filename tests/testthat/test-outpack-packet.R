@@ -662,7 +662,7 @@ test_that("can pull in dependency from specific location", {
   }
   orderly_location_pull_metadata(root = root$a)
   for (id in ids$z) {
-    orderly_location_pull_packet(id, root = root$a)
+    suppressMessages(orderly_location_pull_packet(id, root = root$a))
   }
 
   path_src <- temp_file()
@@ -679,14 +679,14 @@ test_that("can pull in dependency from specific location", {
     fixed = TRUE)
 
   for (id in ids$x) {
-    orderly_location_pull_packet(id, root = root$a)
+    suppressMessages(orderly_location_pull_packet(id, root = root$a))
   }
   outpack_packet_use_dependency(p, query, c("data1.rds" = "data.rds"),
                                 search_options = options)
   expect_equal(p$depends[[1]]$packet, ids$x[[3]])
 
   for (id in ids$y) {
-    orderly_location_pull_packet(id, root = root$a)
+    suppressMessages(orderly_location_pull_packet(id, root = root$a))
   }
   outpack_packet_use_dependency(p, query, c("data2.rds" = "data.rds"),
                                 search_options = options)
@@ -723,9 +723,10 @@ test_that("can pull in dependency when not found, if requested", {
   expect_equal(nrow(root$a$index$data()$location), 0)
   expect_equal(length(root$a$index$data()$unpacked), 0)
 
-  outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds"),
-                                search_options = list(pull_metadata = TRUE,
-                                                      allow_remote = TRUE))
+  suppressMessages(
+    outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds"),
+                                  search_options = list(pull_metadata = TRUE,
+                                                        allow_remote = TRUE)))
 
   expect_length(root$a$index$data()$metadata, 3)
   expect_equal(nrow(root$a$index$data()$location), 3)
@@ -734,9 +735,10 @@ test_that("can pull in dependency when not found, if requested", {
 
   path_src_b <- withr::local_tempdir()
   p_b <- outpack_packet_start(path_src_b, "example", root = root$b$path)
-  outpack_packet_use_dependency(p_b, query, c("data.rds" = "data.rds"),
-                                search_options = list(pull_metadata = TRUE,
-                                                      allow_remote = TRUE))
+  suppressMessages(
+    outpack_packet_use_dependency(p_b, query, c("data.rds" = "data.rds"),
+                                  search_options = list(pull_metadata = TRUE,
+                                                        allow_remote = TRUE)))
 
   expect_length(root$b$index$data()$metadata, 3)
   expect_equal(nrow(root$b$index$data()$location), 4) # compare with above!
@@ -759,7 +761,8 @@ test_that("can pull in directories", {
   id <- p1$id
 
   dest <- withr::local_tempdir()
-  orderly_copy_files(id, files = c(d = "data/"), dest = dest, root = root)
+  suppressMessages(
+    orderly_copy_files(id, files = c(d = "data/"), dest = dest, root = root))
   expect_equal(dir(dest), "d")
   expect_equal(dir(file.path(dest, "d")), letters[1:6])
 
