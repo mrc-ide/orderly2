@@ -265,7 +265,6 @@ config_new <- function(path_archive, use_file_store, require_complete_tree,
   hash_algorithm <- "sha256"
 
   list(
-    schema_version = outpack_schema_version(),
     core = list(
       path_archive = path_archive,
       use_file_store = use_file_store,

@@ -46,8 +46,7 @@ outpack_insert_packet <- function(path, json, root = NULL) {
 
 
 mark_packet_known <- function(packet_id, location, hash, time, root) {
-  dat <- list(schema_version = scalar(outpack_schema_version()),
-              packet = scalar(packet_id),
+  dat <- list(packet = scalar(packet_id),
               time = scalar(time_to_num(time)),
               hash = scalar(hash))
   dest <- file.path(root$path, ".outpack", "location", location, packet_id)
