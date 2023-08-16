@@ -168,7 +168,7 @@ test_that("Don't call cleanup on an active packet", {
   append_lines(file.path(path_src, "orderly.R"),
                "orderly2::orderly_cleanup_status()")
   expect_error(
-    orderly_run("data", root = path),
+    orderly_run_quietly("data", root = path),
     "Don't call 'orderly2::orderly_cleanup_status()' from a running packet",
     fixed = TRUE)
 })

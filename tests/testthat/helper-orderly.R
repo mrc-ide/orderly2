@@ -91,6 +91,11 @@ is_windows <- function() {
 }
 
 
+orderly_init_quietly <- function(...) {
+  suppressMessages(orderly_init(...))
+}
+
+
 orderly_run_quietly <- function(..., echo = FALSE) {
   suppressMessages(orderly_run(..., echo = echo))
 }
