@@ -2,17 +2,11 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Outpack configuration schema",
     "description": "Common configuration settings. Implementations may add additional properties, but these are the core.",
-    "version": "0.1.0",
+    "version": "0.1.1",
 
     "type": "object",
 
     "properties": {
-        "schema_version": {
-            "description": "Schema version, used to manage migrations",
-            "type": "string",
-            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-        },
-
         "core": {
             "type": "object",
             "properties": {
@@ -31,19 +25,6 @@
             },
             "required": ["path_archive", "use_file_store", "hash_algorithm"],
             "additionalProperties": false
-        },
-
-        "logging": {
-            "type": "object",
-            "properties": {
-                "threshold": {
-                    "enum": ["info", "debug", "trace"]
-                },
-                "console": {
-                    "type": "boolean"
-                }
-            },
-            "required": ["threshold", "console"]
         },
 
         "location": {
@@ -66,5 +47,5 @@
         }
     },
 
-    "required": ["schema_version", "core", "location"]
+    "required": ["core", "location"]
 }

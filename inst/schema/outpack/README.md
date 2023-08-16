@@ -1,8 +1,8 @@
 # Imported from outpack
 
-* Schema version 0.1.0
-* Imported on 2023-08-04 10:50:00.881256
-* From outpack @ 16fe1adea1049a4f4aaf0252e2239729195e8b8c (mrc-4230)
+* Schema version 0.1.1
+* Imported on 2023-08-16 15:10:09.708349
+* From outpack @ 8c3de62166c13502ca808f5d4f0fc70e27268762 (mrc-4529)
 
 Do not make changes to files here, they will be overwritten
 Run ./scripts/update_schemas to update
