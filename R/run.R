@@ -93,16 +93,8 @@
 ##'   report script; by default we use the global environment, which
 ##'   may not always be what is wanted.
 ##'
-##' @param logging_console Optional logical to control printing logs
-##'   to the console, overriding any default configuration set at the
-##'   root.
-##'
-##' @param logging_threshold Optional logging threshold to control the
-##'   amount of detail in logs printed during running, overriding any
-##'   default configuration set at the root. If given, must be one of
-##'   `info`, `debug` or `trace` (in increasing order of
-##'   verbosity). Practically this has no effect at present as we've
-##'   not added any fine-grained logging.
+##' @param echo Optional logical to control printing output from
+##'   `source()` to the console.
 ##'
 ##' @param search_options Optional control over locations, when used
 ##'   with [orderly2::orderly_dependency]; converted into a
@@ -134,8 +126,7 @@
 ##'
 ##' # and we can query the metadata:
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
-orderly_run <- function(name, parameters = NULL, envir = NULL,
-                        logging_console = NULL, logging_threshold = NULL,
+orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                         search_options = NULL, root = NULL, locate = TRUE) {
   root <- root_open(root, locate, require_orderly = TRUE, call = environment())
   validate_orderly_directory(name, root, environment())
@@ -169,9 +160,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
                                            dat$artefacts)
   }
   p <- outpack_packet_start(path, name, parameters = parameters,
-                            id = id, logging_console = logging_console,
-                            logging_threshold = logging_threshold,
-                            root = root)
+                            id = id, root = root)
   outpack_packet_file_mark(p, "orderly.R", "immutable")
   p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
                      strict = dat$strict, inputs_info = inputs_info,
@@ -187,8 +176,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   local <- new.env(parent = emptyenv())
   local$warnings <- collector()
   res <- rlang::try_fetch(
-    withr::with_dir(path,
-                    source_echo("orderly.R", envir, p$logger$console)),
+    withr::with_dir(path, source_echo("orderly.R", envir, echo)),
     warning = function(e) {
       local$warnings$add(e)
       rlang::zap()
@@ -204,13 +192,16 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
   info_end <- withr::with_dir(path, check_session_global_state(info))
   success <- is.null(local$error) && info_end$success
 
-  caller <- "orderly2::orderly_run"
-  outpack_log_info(p, "result", if (success) "success" else "failure",
-                   caller)
+  if (success) {
+    cli::cli_alert_success("Finished running {.file orderly.R}")
+  } else {
+    cli::cli_alert_danger("Error running {.file orderly.R}")
+  }
 
   if (length(local$warnings$get()) > 0) {
     str_warnings <- vcapply(local$warnings$get(), conditionMessage)
-    outpack_log_info(p, "warning", I(str_warnings), caller, console = FALSE)
+    cli::cli_alert_warning("{length(str_warnings)} warning{?s} found:")
+    cli::cli_li(str_warnings)
   }
 
   if (success) {
@@ -222,10 +213,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
         set_names(detail, rep("x", length(detail)))))
   } else {
     e <- local$error
-    str_error <- format_rlang_error(e, backtrace = FALSE, colours = FALSE)
-    outpack_log_info(p, "error", str_error, caller, console = FALSE)
-    str_trace <- format_rlang_trace(e$trace, colours = FALSE)
-    outpack_log_info(p, "trace", str_trace, caller, console = FALSE)
+    ## TODO: consider saving 'e' as a file within the directory.
     orderly_packet_cleanup_failure(p)
     cli::cli_abort("Failed to run report",
                    parent = e,
@@ -239,9 +227,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL,
 custom_metadata <- function(dat) {
   shared <- dat$shared_resources %||% list()
   role <- data_frame(
-    path = c("orderly.R", "log.json", dat$resources, shared$here),
+    path = c("orderly.R",  dat$resources, shared$here),
     role = c("orderly",
-             "log",
              rep_along("resource", dat$resources),
              rep_along("shared", shared$here)))
   artefacts <- lapply(dat$artefacts, function(x) {

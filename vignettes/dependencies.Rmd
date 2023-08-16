@@ -88,7 +88,7 @@ r_output(readLines(file.path(path, "src/analysis/orderly.R")))
 Here, we've used `orderly2::orderly_dependency()` to pull in the file `data.rds` from the most recent version (`latest()`) of the `data` packet, then we've used that file as normal to make a plot, which we've saved as `analysis.png` (this is very similar to the example from `vignette("introduction")`, to get us started).
 
 ```{r}
-id1 <- orderly2::orderly_run("data", root = path, logging_console = FALSE)
+id1 <- orderly2::orderly_run("data", root = path)
 id2 <- orderly2::orderly_run("analysis", root = path)
 ```
 
@@ -142,9 +142,9 @@ r_output(readLines(file.path(path, "src/data/orderly.R")))
 We can run this for several values of `cyl`:
 
 ```{r}
-orderly2::orderly_run("data", list(cyl = 4), logging_console = FALSE,  root = path)
-orderly2::orderly_run("data", list(cyl = 6), logging_console = FALSE, root = path)
-orderly2::orderly_run("data", list(cyl = 8), logging_console = FALSE, root = path)
+orderly2::orderly_run("data", list(cyl = 4), root = path)
+orderly2::orderly_run("data", list(cyl = 6), root = path)
+orderly2::orderly_run("data", list(cyl = 8), root = path)
 ```
 
 Our follow-on analysis contains:

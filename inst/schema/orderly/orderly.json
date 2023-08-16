@@ -48,7 +48,7 @@
                         "type": "string"
                     },
                     "role": {
-                        "enum": ["orderly", "resource", "dependency", "shared", "log"]
+                        "enum": ["orderly", "resource", "dependency", "shared"]
                     }
                 }
             }

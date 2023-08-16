@@ -257,10 +257,10 @@ orderly_dependency <- function(name, query, files) {
                                         search_options = search_options,
                                         envir = ctx$envir,
                                         overwrite = TRUE)
-
-    msg <- sprintf("%s @ %s (%s)", name, id, format(query))
-    outpack_log_info(ctx$packet, "depends", msg, "orderly2::orderly_dependency")
+    cli::cli_alert_info(
+      "Depending on {.pkg {name}} @ {.code {id}} (via {format(query)})")
   } else {
+    ## TODO: also echo here I think
     orderly_copy_files(query, files = files, dest = ctx$path, overwrite = TRUE,
                        parameters = ctx$parameters, options = search_options,
                        envir = ctx$envir, root = ctx$root)

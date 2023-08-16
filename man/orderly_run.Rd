@@ -8,8 +8,7 @@ orderly_run(
   name,
   parameters = NULL,
   envir = NULL,
-  logging_console = NULL,
-  logging_threshold = NULL,
+  echo = TRUE,
   search_options = NULL,
   root = NULL,
   locate = TRUE
@@ -26,16 +25,8 @@ must be a scalar character, numeric, integer or logical.}
 report script; by default we use the global environment, which
 may not always be what is wanted.}
 
-\item{logging_console}{Optional logical to control printing logs
-to the console, overriding any default configuration set at the
-root.}
-
-\item{logging_threshold}{Optional logging threshold to control the
-amount of detail in logs printed during running, overriding any
-default configuration set at the root. If given, must be one of
-\code{info}, \code{debug} or \code{trace} (in increasing order of
-verbosity). Practically this has no effect at present as we've
-not added any fine-grained logging.}
+\item{echo}{Optional logical to control printing output from
+\code{source()} to the console.}
 
 \item{search_options}{Optional control over locations, when used
 with \link{orderly_dependency}; converted into a

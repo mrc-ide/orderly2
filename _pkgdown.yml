@@ -42,7 +42,6 @@ reference:
       - orderly_metadata
       - orderly_metadata_read
       - orderly_metadata_extract
-      - orderly_log_read
   - title: Search
     contents:
       - orderly_query

@@ -14,14 +14,14 @@ test_that("Can run a basic packet", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path <- root$path
 
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   expect_s3_class(p, "outpack_packet")
   expect_null(p$complete)
 
   outpack_packet_run(p, "script.R")
   expect_true(file.exists(file.path(path_src, "myplot.png")))
 
-  outpack_packet_end(p)
+  outpack_packet_end_quietly(p)
   expect_true(p$complete)
 
   index <- root$index$data()
@@ -56,7 +56,7 @@ test_that("Can run a basic packet", {
                                         query = character(),
                                         files = I(list())))
   expect_setequal(meta$files$path,
-                  c("data.csv", "myplot.png", "script.R", "log.json"))
+                  c("data.csv", "myplot.png", "script.R"))
   expect_equal(meta$files$size,
                file.size(file.path(path_src, meta$files$path)))
   expect_equal(meta$files$hash,
@@ -107,16 +107,16 @@ test_that("Can handle dependencies", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path <- root$path
 
-  p1 <- outpack_packet_start(path_src1, "a", root = root)
+  p1 <- outpack_packet_start_quietly(path_src1, "a", root = root)
   id1 <- p1$id
   outpack_packet_run(p1, "script.R")
-  outpack_packet_end(p1)
+  outpack_packet_end_quietly(p1)
 
-  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   id2 <- p2$id
   outpack_packet_use_dependency(p2, id1, c("incoming.csv" = "data.csv"))
   outpack_packet_run(p2, "script.R")
-  outpack_packet_end(p2)
+  outpack_packet_end_quietly(p2)
 
   meta <- orderly_metadata(id2, root = path)
   path_metadata <- file.path(path, ".outpack", "metadata", id2)
@@ -140,8 +140,8 @@ test_that("Can't add a packet twice", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path <- root$path
 
-  p <- outpack_packet_start(path_src, "example", root = root)
-  outpack_packet_end(p)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
+  outpack_packet_end_quietly(p)
 
   id <- p$id
   json <- read_string(file.path(path, ".outpack", "metadata", id))
@@ -159,14 +159,14 @@ test_that("Can't use nonexistant id as dependency", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path <- root$path
 
-  p1 <- outpack_packet_start(path_src, "example", root = root)
-  outpack_packet_end(p1)
+  p1 <- outpack_packet_start_quietly(path_src, "example", root = root)
+  outpack_packet_end_quietly(p1)
 
-  p2 <- outpack_packet_start(path_src, "example", root = root)
+  p2 <- outpack_packet_start_quietly(path_src, "example", root = root)
   expect_error(
     outpack_packet_use_dependency(p2, p1$id, c("a" = "b")),
     sprintf("Packet '%s' does not contain path 'b'", p1$id))
-  outpack_packet_cancel(p2)
+  suppressMessages(outpack_packet_cancel(p2))
 })
 
 
@@ -180,10 +180,10 @@ test_that("Can't use file that does not exist from dependency", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path <- root$path
 
-  p1 <- outpack_packet_start(path_src1, "a", root = root)
-  outpack_packet_end(p1)
+  p1 <- outpack_packet_start_quietly(path_src1, "a", root = root)
+  outpack_packet_end_quietly(p1)
 
-  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   expect_error(
     outpack_packet_use_dependency(p2, p1$id, c("incoming.csv" = "data.csv")),
     "Packet '.+' does not contain path 'data.csv'")
@@ -216,16 +216,16 @@ test_that("Can use dependency from outpack without file store", {
                                 use_file_store = FALSE)
   path <- root$path
 
-  p1 <- outpack_packet_start(path_src1, "a", root = root)
+  p1 <- outpack_packet_start_quietly(path_src1, "a", root = root)
   id1 <- p1$id
   outpack_packet_run(p1, "script.R")
-  outpack_packet_end(p1)
+  outpack_packet_end_quietly(p1)
 
-  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   id2 <- p2$id
   outpack_packet_use_dependency(p2, id1, c("incoming.csv" = "data.csv"))
   outpack_packet_run(p2, "script.R")
-  outpack_packet_end(p2)
+  outpack_packet_end_quietly(p2)
 
   meta <- orderly_metadata(id2, root = path)
   expect_equal(
@@ -263,17 +263,17 @@ test_that("validate dependencies from archive", {
                                 use_file_store = FALSE)
   path <- root$path
 
-  p1 <- outpack_packet_start(path_src1, "a", root = root)
+  p1 <- outpack_packet_start_quietly(path_src1, "a", root = root)
   id1 <- p1$id
   outpack_packet_run(p1, "script.R")
-  outpack_packet_end(p1)
+  outpack_packet_end_quietly(p1)
 
   ## Change the value here:
   write.csv(data.frame(x = 1:10, y = runif(10)),
             file.path(root$path, "archive", "a", id1, "data.csv"),
             row.names = FALSE)
 
-  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   id2 <- p2$id
   expect_error(
     outpack_packet_use_dependency(p2, id1, c("incoming.csv" = "data.csv")),
@@ -288,10 +288,10 @@ test_that("Can add additional data", {
 
   src <- fs::dir_create(file.path(tmp, "src"))
   saveRDS(runif(10), file.path(src, "data.rds"))
-  p <- outpack_packet_start(src, "example", root = root)
+  p <- outpack_packet_start_quietly(src, "example", root = root)
   custom <- '{"a": 1, "b": 2}'
   outpack_packet_add_custom(p, "potato", custom)
-  outpack_packet_end(p)
+  outpack_packet_end_quietly(p)
 
   meta <- orderly_metadata(p$id, root = root)
   expect_equal(meta$custom, list(potato = list(a = 1, b = 2)))
@@ -305,10 +305,10 @@ test_that("Can add multiple copies of extra data", {
 
   src <- fs::dir_create(file.path(tmp, "src"))
   saveRDS(runif(10), file.path(src, "data.rds"))
-  p <- outpack_packet_start(src, "example", root = root)
+  p <- outpack_packet_start_quietly(src, "example", root = root)
   outpack_packet_add_custom(p, "app1", '{"a": 1, "b": 2}')
   outpack_packet_add_custom(p, "app2", '{"c": [1, 2, 3]}')
-  outpack_packet_end(p)
+  outpack_packet_end_quietly(p)
 
   path_metadata <- file.path(root$path, ".outpack", "metadata", p$id)
   meta <- outpack_metadata_load(path_metadata)
@@ -325,7 +325,7 @@ test_that("Can't add custom data for same app twice", {
 
   src <- fs::dir_create(file.path(tmp, "src"))
   saveRDS(runif(10), file.path(src, "data.rds"))
-  p <- outpack_packet_start(src, "example", root = root)
+  p <- outpack_packet_start_quietly(src, "example", root = root)
   outpack_packet_add_custom(p, "app1", '{"a": 1, "b": 2}')
   outpack_packet_add_custom(p, "app2", '{"a": 1, "b": 2}')
   expect_error(
@@ -344,7 +344,7 @@ test_that("Can report nicely about json syntax errors", {
 
   src <- fs::dir_create(file.path(tmp, "src"))
   saveRDS(runif(10), file.path(src, "data.rds"))
-  p <- outpack_packet_start(src, "example", root = root)
+  p <- outpack_packet_start_quietly(src, "example", root = root)
   expect_error(
     outpack_packet_add_custom(p, "app1", '{"a": 1, "b": 2'),
     "Syntax error in custom metadata:")
@@ -358,10 +358,10 @@ test_that("pre-prepared id can be used to start packet", {
   path_src <- temp_file()
   fs::dir_create(path_src)
 
-  p <- outpack_packet_start(path_src, "example", id = id, root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", id = id, root = root)
   expect_equal(p$id, id)
 
-  outpack_packet_end(p)
+  outpack_packet_end_quietly(p)
   index <- root$index$data()
   expect_equal(names(index$metadata), id)
 })
@@ -387,7 +387,7 @@ test_that("Can hash files on startup", {
 
   inputs <- c("data.csv", "script.R")
 
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   expect_equal(outpack_packet_file_list(p),
                data_frame(path = inputs, status = "unknown"))
   outpack_packet_file_mark(p, inputs, "immutable")
@@ -400,7 +400,7 @@ test_that("Can hash files on startup", {
   outpack_packet_file_mark(p, "zzz.png", "immutable")
   expect_equal(outpack_packet_file_list(p),
                data_frame(path = c(inputs, "zzz.png"), status = "immutable"))
-  outpack_packet_end(p)
+  outpack_packet_end_quietly(p)
 })
 
 
@@ -423,11 +423,11 @@ test_that("Can detect changes to hashed files", {
             file.path(path_src, "data.csv"),
             row.names = FALSE)
   inputs <- c("script.R", "data.csv")
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   outpack_packet_file_mark(p, inputs, "immutable")
   outpack_packet_run(p, "script.R")
   expect_error(
-    outpack_packet_end(p),
+    outpack_packet_end_quietly(p),
     "File was changed after being added: 'data.csv'")
 })
 
@@ -439,7 +439,7 @@ test_that("Re-adding files triggers hash", {
   fs::dir_create(path_src)
   write.csv(mtcars, file.path(path_src, "data.csv"))
 
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   outpack_packet_file_mark(p, "data.csv", "immutable")
   expect_silent(outpack_packet_file_mark(p, "data.csv", "immutable"))
   expect_length(p$files, 1)
@@ -455,7 +455,7 @@ test_that("Can ignore files from the final packet", {
 
   inputs <- c("data.csv", "script.R")
 
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   expect_equal(outpack_packet_file_list(p),
                data_frame(path = inputs, status = "unknown"))
   outpack_packet_file_mark(p, "data.csv", "ignored")
@@ -465,15 +465,15 @@ test_that("Can ignore files from the final packet", {
   expect_equal(outpack_packet_file_list(p),
                data_frame(path = c(inputs, "zzz.png"),
                           status = c("ignored", "unknown", "unknown")))
-  outpack_packet_end(p)
+  outpack_packet_end_quietly(p)
 
   meta <- outpack_metadata_core(p$id, root)
-  expect_equal(meta$files$path, c("log.json", "script.R", "zzz.png"))
-  expect_length(root$files$list(), 3)
+  expect_equal(meta$files$path, c("script.R", "zzz.png"))
+  expect_length(root$files$list(), 2)
   expect_setequal(dir(file.path(root$path, "archive", "example", p$id)),
-                  c("log.json", "script.R", "zzz.png"))
+                  c("script.R", "zzz.png"))
   expect_setequal(dir(path_src),
-                  c("data.csv", "log.json", "script.R", "zzz.png"))
+                  c("data.csv", "script.R", "zzz.png"))
 })
 
 
@@ -481,7 +481,7 @@ test_that("Files cannot be immutable and ignored", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path_src <- create_temporary_simple_src()
 
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   outpack_packet_file_mark(p, "data.csv", "ignored")
   outpack_packet_file_mark(p, "script.R", "immutable")
 
@@ -498,7 +498,7 @@ test_that("Validate a packet is incomplete", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path_src <- create_temporary_simple_src()
 
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   outpack_packet_finish(p)
   expect_error(check_current_packet(p),
                "Packet '.+' is complete")
@@ -516,7 +516,7 @@ test_that("can mark subsets of files immutably without error", {
   hash <- withr::with_dir(path_src,
                           hash_files(letters[1:6], "sha256", named = TRUE))
 
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   outpack_packet_file_mark(p, c("a", "b", "c"), "immutable")
   expect_equal(p$files$immutable, hash[1:3])
 
@@ -550,14 +550,14 @@ test_that("can depend based on a simple query", {
   for (i in 1:3) {
     for (name in  c("a", "b")) {
       saveRDS(runif(10), file.path(src1, "data.rds"))
-      p <- outpack_packet_start(src1, name, parameters = list(i = i),
+      p <- outpack_packet_start_quietly(src1, name, parameters = list(i = i),
                                 root = root)
-      outpack_packet_end(p)
+      outpack_packet_end_quietly(p)
       id[[name]] <- c(id[[name]], p$id)
     }
   }
 
-  p <- outpack_packet_start(src2, "x", root = root)
+  p <- outpack_packet_start_quietly(src2, "x", root = root)
   outpack_packet_use_dependency(p, "latest", c("1.rds" = "data.rds"))
 
   expect_mapequal(
@@ -588,22 +588,22 @@ test_that("can depend based on a query with subqueries", {
   id <- list(a = character())
   for (i in 1:3) {
     saveRDS(runif(10), file.path(src_a, "data.rds"))
-    p <- outpack_packet_start(src_a, "a", parameters = list(i = i), root = root)
-    outpack_packet_end(p)
+    p <- outpack_packet_start_quietly(src_a, "a", parameters = list(i = i), root = root)
+    outpack_packet_end_quietly(p)
     id$a <- c(id$a, p$id)
   }
 
-  p1 <- outpack_packet_start(src_b, "b", root = root)
+  p1 <- outpack_packet_start_quietly(src_b, "b", root = root)
   query1 <- orderly_query("latest(parameter:i < 3)", name = "a")
   outpack_packet_use_dependency(p1, query1, c("2.rds" = "data.rds"))
-  outpack_packet_end(p1)
+  outpack_packet_end_quietly(p1)
   id$b <- p1$id
 
-  p2 <- outpack_packet_start(src_c, "c", root = root)
+  p2 <- outpack_packet_start_quietly(src_c, "c", root = root)
   query2 <- orderly_query("latest(usedby({B}))", name = "a",
                           subquery = list(B = id$b))
   outpack_packet_use_dependency(p2, query2, files = c("new.rds" = "data.rds"))
-  outpack_packet_end(p2)
+  outpack_packet_end_quietly(p2)
   expect_length(p2$depends, 1)
   expect_equal(p2$depends[[1]]$packet, id$a[[2]])
   expect_equal(p2$depends[[1]]$query,
@@ -616,12 +616,12 @@ test_that("validate that dependencies must evaluate to a single id", {
   path_src2 <- withr::local_tempdir()
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
 
-  p1 <- outpack_packet_start(path_src1, "a", parameters = list(x = 1),
+  p1 <- outpack_packet_start_quietly(path_src1, "a", parameters = list(x = 1),
                              root = root)
   saveRDS(runif(5), file.path(path_src1, "data.rds"))
-  outpack_packet_end(p1)
+  outpack_packet_end_quietly(p1)
 
-  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   expect_error(
     outpack_packet_use_dependency(p2, "parameter:x == 1",
                                   c("incoming.rds" = "data.rds")),
@@ -635,7 +635,7 @@ test_that("error if dependency cannot be resolved", {
   root <- create_temporary_root()
   path_src <- temp_file()
   fs::dir_create(path_src)
-  p <- outpack_packet_start(path_src, "example", root = root)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root)
   err <- expect_error(
     outpack_packet_use_dependency(p, quote(latest(name == "data")),
                                   c("data.rds" = "data.rds")),
@@ -668,7 +668,7 @@ test_that("can pull in dependency from specific location", {
   path_src <- temp_file()
   fs::dir_create(path_src)
 
-  p <- outpack_packet_start(path_src, "example", root = root$a)
+  p <- outpack_packet_start_quietly(path_src, "example", root = root$a)
   query <- quote(latest(name == "data" && parameter:p > 2))
   options <- list(location = c("x", "y"), allow_remote = FALSE)
   expect_error(
@@ -712,7 +712,7 @@ test_that("can pull in dependency when not found, if requested", {
   path_src_a <- withr::local_tempdir()
   query <- quote(latest(name == "data" && parameter:p > 2))
 
-  p_a <- outpack_packet_start(path_src_a, "example", root = root$a$path)
+  p_a <- outpack_packet_start_quietly(path_src_a, "example", root = root$a$path)
   expect_error(
     outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds")),
     paste("Failed to find packet for query",
@@ -734,7 +734,7 @@ test_that("can pull in dependency when not found, if requested", {
   expect_equal(p_a$depends[[1]]$packet, ids[[3]])
 
   path_src_b <- withr::local_tempdir()
-  p_b <- outpack_packet_start(path_src_b, "example", root = root$b$path)
+  p_b <- outpack_packet_start_quietly(path_src_b, "example", root = root$b$path)
   suppressMessages(
     outpack_packet_use_dependency(p_b, query, c("data.rds" = "data.rds"),
                                   search_options = list(pull_metadata = TRUE,
@@ -752,12 +752,12 @@ test_that("can pull in directories", {
   path <- root$path
 
   path_src1 <- withr::local_tempdir()
-  p1 <- outpack_packet_start(path_src1, "a", root = root)
+  p1 <- outpack_packet_start_quietly(path_src1, "a", root = root)
   fs::dir_create(file.path(path_src1, "data"))
   for (i in letters[1:6]) {
     writeLines(i, file.path(path_src1, "data", i))
   }
-  outpack_packet_end(p1)
+  outpack_packet_end_quietly(p1)
   id <- p1$id
 
   dest <- withr::local_tempdir()
@@ -767,7 +767,7 @@ test_that("can pull in directories", {
   expect_equal(dir(file.path(dest, "d")), letters[1:6])
 
   path_src2 <- withr::local_tempdir()
-  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   outpack_packet_use_dependency(p2, 'latest(name == "a")', c(d = "data/"))
   expect_equal(p2$depends[[1]]$files,
                data_frame(here = file.path("d", letters[1:6]),
@@ -780,12 +780,12 @@ test_that("exporting directories reports on trailing slashes being missing", {
   path <- root$path
 
   path_src1 <- withr::local_tempdir()
-  p1 <- outpack_packet_start(path_src1, "a", root = root)
+  p1 <- outpack_packet_start_quietly(path_src1, "a", root = root)
   fs::dir_create(file.path(path_src1, "data"))
   for (i in letters[1:6]) {
     writeLines(i, file.path(path_src1, "data", i))
   }
-  outpack_packet_end(p1)
+  outpack_packet_end_quietly(p1)
   id <- p1$id
 
   err <- paste0("Packet '.+' does not contain path 'data'\n",
@@ -797,7 +797,7 @@ test_that("exporting directories reports on trailing slashes being missing", {
     err)
 
   path_src2 <- withr::local_tempdir()
-  p2 <- outpack_packet_start(path_src2, "b", root = root)
+  p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   expect_error(
     outpack_packet_use_dependency(p2, 'latest(name == "a")', c(d = "data")),
     err)
@@ -808,7 +808,7 @@ test_that("can overwrite dependencies", {
   root <- create_temporary_root()
   id <- create_random_packet(root, "data")
   path_src <- withr::local_tempdir()
-  p <- outpack_packet_start(path_src, "next", root = root)
+  p <- outpack_packet_start_quietly(path_src, "next", root = root)
   file.create(file.path(path_src, "data.rds"))
   err <- expect_error(
     outpack_packet_use_dependency(p, id, c("data.rds" = "data.rds"),

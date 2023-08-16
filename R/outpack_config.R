@@ -56,9 +56,7 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
   setters <- list(
     "core.require_complete_tree" = config_set_require_complete_tree,
     "core.use_file_store" = config_set_use_file_store,
-    "core.path_archive" = config_set_path_archive,
-    "logging.console" = config_set_logging_console,
-    "logging.threshold" = config_set_logging_threshold)
+    "core.path_archive" = config_set_path_archive)
 
   unknown <- setdiff(names(options), names(setters))
   if (length(unknown)) {
@@ -68,10 +66,6 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
 
   for (nm in names(options)) {
     root <- setters[[nm]](options[[nm]], root)
-  }
-
-  if (any(grepl("^logging\\.", names(options)))) {
-    root$logger <- root$config$logging
   }
 
   invisible()
@@ -96,11 +90,6 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
 ##'   - `require_complete_tree`: Indicates if this outpack store requires
 ##'     all dependencies to be fully available (`core.require_complete_tree`)
 ##'   - `hash_algorithm`: The hash algorithm used (currently not modifiable)
-##'
-##' * `logging`: Control over logging
-##'   - `threshold`: Level of verbosity, set via `logging.threshold`
-##'   - `console`: Indicates if logging to the console is enabled by default,
-##'     set via `logging.console`
 ##'
 ##' * `location`: Information about locations; see
 ##'   [orderly2::orderly_location_add],
@@ -229,23 +218,7 @@ config_set_path_archive <- function(value, root) {
 }
 
 
-config_set_logging_threshold <- function(value, root) {
-  config <- root$config
-  config$logging$threshold <- log_level_check(value, "logging.threshold")
-  config_update(config, root)
-}
-
-
-config_set_logging_console <- function(value, root) {
-  assert_scalar_logical(value)
-  config <- root$config
-  config$logging$console <- value
-  config_update(config, root)
-}
-
-
-config_new <- function(path_archive, use_file_store, require_complete_tree,
-                       logging_console, logging_threshold) {
+config_new <- function(path_archive, use_file_store, require_complete_tree) {
   if (!is.null(path_archive)) {
     assert_scalar_character(path_archive)
   }
@@ -255,9 +228,6 @@ config_new <- function(path_archive, use_file_store, require_complete_tree,
   }
 
   assert_scalar_logical(require_complete_tree)
-
-  assert_scalar_logical(logging_console)
-  logging_threshold <- log_level_check(logging_threshold)
 
   ## TODO: There's a good reason here to wonder if this _should_ be
   ## configurable.  I'll keep it here within the configuration even
@@ -270,9 +240,6 @@ config_new <- function(path_archive, use_file_store, require_complete_tree,
       use_file_store = use_file_store,
       require_complete_tree = require_complete_tree,
       hash_algorithm = hash_algorithm),
-    logging = list(
-      console = logging_console,
-      threshold = logging_threshold),
     location = new_location_entry(local, "local", NULL))
 }
 
@@ -280,7 +247,6 @@ config_new <- function(path_archive, use_file_store, require_complete_tree,
 config_serialise <- function(config, path) {
   config$schema_version <- scalar(config$schema_version)
   config$core <- lapply(config$core, scalar)
-  config$logging <- lapply(config$logging, scalar)
 
   prepare_location <- function(loc) {
     args <- loc$args[[1]]
@@ -322,10 +288,5 @@ config_read <- function(root_path) {
     name = vcapply(config$location, "[[", "name"),
     type = vcapply(config$location, "[[", "type"),
     args = I(lapply(config$location, "[[", "args")))
-  if (is.null(config$logging)) {
-    ## Logging is unspecified in config, so use implementation defined
-    ## defaults:
-    config$logging <- list(console = TRUE, threshold = "info")
-  }
   config
 }

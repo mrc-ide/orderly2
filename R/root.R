@@ -46,13 +46,6 @@
 ##'   location; if `TRUE` you will always have all the packets that
 ##'   you hold metadata about.
 ##'
-##' @param logging_console Logical, indicating if we should log to the
-##'   console. If `TRUE`, then many operations will produce
-##'   informational output; set to `FALSE` to prevent this.
-##'
-##' @param logging_threshold The degree of verbosity; one of `info`,
-##'   `debug` or `trace` in increasing order of verbosity.
-##'
 ##' @return The full, normalised, path to the root,
 ##'   invisibly. Typically this is called only for its side effect.
 ##'
@@ -69,9 +62,7 @@
 orderly_init <- function(path,
                          path_archive = "archive",
                          use_file_store = FALSE,
-                         require_complete_tree = FALSE,
-                         logging_console = TRUE,
-                         logging_threshold = "info") {
+                         require_complete_tree = FALSE) {
   assert_scalar_character(path)
   has_orderly_config <- file.exists(file.path(path, "orderly_config.yml"))
   if (!has_orderly_config && file.exists(path)) {
@@ -94,8 +85,7 @@ orderly_init <- function(path,
     }
   }
 
-  config <- config_new(path_archive, use_file_store, require_complete_tree,
-                       logging_console, logging_threshold)
+  config <- config_new(path_archive, use_file_store, require_complete_tree)
 
   path_outpack <- file.path(path, ".outpack")
   if (file.exists(path_outpack)) {
@@ -107,7 +97,7 @@ orderly_init <- function(path,
     fs::dir_create(file.path(path_outpack, "location"))
     config_write(config, path)
     root <- outpack_root$new(path)
-    outpack_log_info(root, "init", path, "orderly2::orderly_init")
+    cli::cli_alert_success("Created orderly root at '{path}'")
   }
 
   if (!has_orderly_config) {
@@ -216,9 +206,7 @@ root_validate_same_configuration <- function(args, config, root, call) {
   argmap <- list(
     path_archive = c("core", "path_archive"),
     use_file_store = c("core", "use_file_store"),
-    require_complete_tree = c("core", "require_complete_tree"),
-    logging_console = c("logging", "console"),
-    logging_threshold = c("logging", "threshold"))
+    require_complete_tree = c("core", "require_complete_tree"))
   check <- intersect(names(argmap), names(args))
   if (length(check) > 0) {
     cmp <- lapply(check, function(nm) {

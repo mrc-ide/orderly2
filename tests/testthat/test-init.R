@@ -3,7 +3,7 @@ test_that("Initialisation requires empty directory", {
   fs::dir_create(tmp)
   on.exit(unlink(tmp, recursive = TRUE))
   file.create(file.path(tmp, "file"))
-  expect_error(orderly_init(tmp, logging_console = FALSE),
+  expect_error(orderly_init(tmp),
                "'path' exists but is not empty, or an outpack archive")
 })
 
@@ -11,7 +11,7 @@ test_that("Initialisation requires empty directory", {
 test_that("Can initialise a new orderly root", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
-  res <- orderly_init(tmp, logging_console = FALSE)
+  res <- orderly_init(tmp)
   expect_true(file.exists(tmp))
   expect_identical(normalise_path(res), normalise_path(tmp))
   root <- root_open(tmp, FALSE, TRUE)
@@ -31,7 +31,7 @@ test_that("initialisation leaves things unchanged", {
 
 test_that("can turn an outpack root into an orderly one", {
   tmp <- withr::local_tempdir()
-  outpack_init_no_orderly(tmp, logging_console = FALSE)
+  outpack_init_no_orderly(tmp)
 
   orderly_init(tmp)
   root2 <- root_open(tmp, FALSE, FALSE)
@@ -56,9 +56,8 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
                   base),
       i = "See ?orderly_init for more arguments to this function"))
 
-  withr::with_dir(parent, orderly_init(base, logging_console = FALSE))
+  withr::with_dir(parent, orderly_init(base))
   root <- root_open(path, FALSE, TRUE)
-  expect_false(root$config$logging$console)
   expect_true(is_directory(file.path(path, ".outpack")))
 
   id <- withr::with_dir(parent, orderly_run("data", root = base))
@@ -91,23 +90,22 @@ test_that("can log creation of outpack repo", {
   path <- temp_file()
   expect_message(
     root <- orderly_init(path, path_archive = "archive", use_file_store = TRUE),
-    "[ init       ]",
+    "Created orderly root at",
     fixed = TRUE)
 })
-
 
 
 test_that("Initialisation can't be done into a file", {
   tmp <- withr::local_tempfile()
   file.create(tmp)
-  expect_error(orderly_init(tmp, logging_console = FALSE),
+  expect_error(orderly_init(tmp),
                "'path' exists but is not a directory")
 })
 
 
 test_that("can't reinitialise an outpack root with different arguments", {
   tmp <- withr::local_tempfile()
-  root <- outpack_init_no_orderly(tmp, logging_console = FALSE)
+  root <- outpack_init_no_orderly(tmp)
 
   err <- expect_error(
     orderly_init(tmp, use_file_store = TRUE),
@@ -130,26 +128,23 @@ test_that("can't reinitialise an outpack root with different arguments", {
 
 test_that("can reinitialise with specific arguments that match config", {
   tmp <- withr::local_tempfile()
-  root <- outpack_init_no_orderly(tmp, logging_console = FALSE)
+  root <- outpack_init_no_orderly(tmp)
   res <- orderly_init(tmp, use_file_store = FALSE, path_archive = "archive",
-                      logging_console = FALSE, require_complete_tree = FALSE,
-                      logging_threshold = "info")
+                      require_complete_tree = FALSE)
   expect_equal(normalise_path(tmp), normalise_path(res))
 
   tmp <- withr::local_tempfile()
   root <- outpack_init_no_orderly(tmp, path_archive = NULL,
-                                  use_file_store = TRUE,
-                                  logging_console = FALSE)
+                                  use_file_store = TRUE)
   res <- orderly_init(tmp, use_file_store = TRUE, path_archive = NULL,
-                      logging_console = FALSE, require_complete_tree = FALSE,
-                      logging_threshold = "info")
+                      require_complete_tree = FALSE)
   expect_equal(normalise_path(tmp), normalise_path(res))
 })
 
 
 test_that("inform about weirdly nested roots: orderly in outpack", {
   tmp <- withr::local_tempfile()
-  root <- outpack_init_no_orderly(tmp, logging_console = FALSE)
+  root <- outpack_init_no_orderly(tmp)
   p <- file.path(tmp, "a", "b")
   fs::dir_create(p)
   file.create(file.path(p, "orderly_config.yml"))
@@ -169,9 +164,9 @@ test_that("inform about weirdly nested roots: orderly in outpack", {
 
 test_that("inform about weirdly nested roots: orderly in outpack", {
   tmp <- withr::local_tempfile()
-  root <- orderly_init(tmp, logging_console = FALSE)
+  root <- orderly_init(tmp)
   p <- file.path(tmp, "a", "b")
-  root2 <- outpack_init_no_orderly(p, logging_console = FALSE)
+  root2 <- outpack_init_no_orderly(p)
   err <- expect_error(
     withr::with_dir(p, root_open(".", TRUE, TRUE)),
     "Found incorrectly nested orderly and outpack directories")
