@@ -52,7 +52,7 @@ jobs:
       - name: setup server
         if: runner.os != 'macOS'
         run: |
-          cargo install --git https://github.com/mrc-ide/outpack_server --branch main
+          cargo install --git https://github.com/mrc-ide/outpack_server --branch mrc-4530
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
