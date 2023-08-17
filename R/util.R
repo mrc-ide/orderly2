@@ -542,11 +542,6 @@ normalise_path <- function(x) {
 }
 
 
-split_newlines <- function(x) {
-  strsplit(x, "\n", fixed = TRUE)[[1]]
-}
-
-
 pairs <- function(a) {
   i <- which(upper.tri(diag(length(a))), TRUE)
   Map(c, a[i[, 1]], a[i[, 2]], USE.NAMES = FALSE)
