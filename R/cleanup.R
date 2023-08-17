@@ -69,7 +69,7 @@ orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL,
                             locate = TRUE) {
   status <- orderly_cleanup_status(name, root, locate)
   n <- length(status$delete)
-  if (length(n) == 0) {
+  if (n == 0) {
     cli::cli_alert_success("Nothing to clean")
   } else {
     if (dry_run) {
@@ -127,6 +127,9 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   ## that are present as directory entries; this is explicit only for
   ## dependencies, but we need to work it out ourselves for the rest.
   matches_path <- function(x, path, add_slash = TRUE) {
+    if (is.null(path)) {
+      return(rep(FALSE, length(x)))
+    }
     path_dir <- if (add_slash) with_trailing_slash(path) else path
     x %in% path |
       row_any(vapply(path_dir, function(p) string_starts_with(p, x),

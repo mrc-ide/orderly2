@@ -181,3 +181,15 @@ test_that("Don't be weird about not passing name", {
     withr::with_dir(path_src, orderly_cleanup_status(root = path)),
     "If 'root' is given explicitly, 'name' is required")
 })
+
+
+test_that("Cope with cleaning up when there's nothing to do", {
+  path <- test_prepare_orderly_example("data")
+  path_src <- file.path(path, "src", "data")
+  status <- withr::with_dir(path_src, orderly_cleanup_status())
+  expect_equal(status$delete, character())
+  res <- testthat::evaluate_promise(
+    withr::with_dir(path_src, orderly_cleanup()))
+  expect_match(res$messages, "Nothing to clean")
+  expect_equal(res$result, status)
+})
