@@ -26,8 +26,18 @@ test_that("can cleanup explicit things quite well", {
                      ignored = NA))
   expect_equal(status$delete, "mygraph.png")
 
-  status <- withr::with_dir(path_src, orderly_cleanup())
-  expect_equal(dir(path_src), c("data.csv", "orderly.R"))
+  res <- testthat::evaluate_promise(
+    withr::with_dir(path_src, orderly_cleanup(dry_run = TRUE)))
+  expect_match(res$messages, "I would delete 1 file from 'explicit':",
+               all = FALSE)
+  expect_setequal(dir(path_src), c("data.csv", "orderly.R", "mygraph.png"))
+  expect_equal(res$result, status)
+
+  res <- testthat::evaluate_promise(
+    withr::with_dir(path_src, orderly_cleanup()))
+  expect_match(res$messages, "Deleting 1 file from 'explicit':", all = FALSE)
+  expect_setequal(dir(path_src), c("data.csv", "orderly.R"))
+  expect_equal(res$result, status)
 })
 
 

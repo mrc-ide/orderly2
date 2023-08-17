@@ -528,6 +528,7 @@ delete_empty_directories <- function(path) {
       fs::dir_delete(p)
     }
   }
+  invisible(p)
 }
 
 
