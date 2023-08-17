@@ -505,7 +505,7 @@ path_is_git_ignored <- function(path, root) {
 
 
 row_any <- function(x) {
-  apply(x, 1, any)
+  if (is.null(dim(x))) x else apply(x, 1, any)
 }
 
 

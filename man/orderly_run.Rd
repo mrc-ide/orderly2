@@ -144,3 +144,16 @@ functionality was never available in orderly version 1, though
 we had intended to support it.
 }
 
+\examples{
+# Create a simple example:
+path <- orderly2::orderly_example("default")
+
+# Run the 'data' task:
+orderly2::orderly_run("data", root = path)
+
+# After running, a finished packet appears in the archive:
+fs::dir_tree(path)
+
+# and we can query the metadata:
+orderly2::orderly_metadata_extract(name = "data", root = path)
+}

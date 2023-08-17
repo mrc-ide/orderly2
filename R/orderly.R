@@ -12,6 +12,9 @@
 ##'   that have completed
 ##'
 ##' @export
+##' @examples
+##' path <- orderly2::orderly_example("default")
+##' orderly2::orderly_list_src(root = path)
 orderly_list_src <- function(root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = TRUE,
                     call = environment())

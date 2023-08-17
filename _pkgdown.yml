@@ -80,3 +80,4 @@ reference:
   - title: Everything else
     contents:
       - orderly_copy_files
+      - orderly_example

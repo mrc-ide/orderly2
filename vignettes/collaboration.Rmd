@@ -213,7 +213,7 @@ Now Bob is in a position to develop against the same packet that Alice ran (`r i
 
 We have seen several broad patterns of distributing packets.
 
-**Central server, push allowed**: This is the case as above; this is very flexible but requires that everyone is relaxed about how packets are created as you are ultimately trusting that your collegues are exercising good environment hygeiene. Just because rules are not being enforced by the computer though, doesn't mean that you might not have ideas within the group about who can or should push. It may be useful to only push from your HPC system after running computationally demanding tasks there, and being careful to only do this when 
+**Central server, push allowed**: This is the case as above; this is very flexible but requires that everyone is relaxed about how packets are created as you are ultimately trusting that your colleagues are exercising good environment hygiene. Just because rules are not being enforced by the computer though, doesn't mean that you might not have ideas within the group about who can or should push. It may be useful to only push from your HPC system after running computationally demanding tasks there.
 
 **Central server, final copy is run here**: In this case, Alice and Bob can both run things on the server, and these are the "canonical" copies, nothing is pushed to the server.  Reports can be run on the server by `ssh`-ing onto the server and running packets manually (TODO: mrc-4412) or using the web interface (this was possible with `OrderlyWeb` and will be possible again with `packit`).
 
@@ -231,15 +231,15 @@ and then pass this in to `orderly2::orderly_run` when running a report. In devel
 
 # Pulling complete trees, or not
 
-When you pull packets from a server (with `orderly2::orderly_location_pull_packet()`), dependning on your settings you will either end up with just the packet that you request, or that packet **plus** all of its recursive dependencies. This is controlled by the configuration option `core.require_complete_tree`, which is `FALSE` by default; this is suitable for most users, but servers should be set with `core.require_complete_tree = TRUE`.
+When you pull packets from a server (with `orderly2::orderly_location_pull_packet()`), depending on your settings you will either end up with just the packet that you request, or that packet **plus** all of its recursive dependencies. This is controlled by the configuration option `core.require_complete_tree`, which is `FALSE` by default; this is suitable for most users, but servers should be set with `core.require_complete_tree = TRUE`.
 
-In most of the situaions above, the users are never holding the canonical source of the packets - so it does not matter if they don't have all if their dependencies. They do hold all the metadata for all packets (again, recursively) and could download the dependencies later if they wanted to inspect them. Typically though, this would just be extra space used up on disk.
+In most of the situations above, the users are never holding the canonical source of the packets - so it does not matter if they don't have all if their dependencies. They do hold all the metadata for all packets (again, recursively) and could download the dependencies later if they wanted to inspect them. Typically though, this would just be extra space used up on disk.
 
 When you push a packet to a server, it always pushes the complete tree.
 
 # Moving as little data as possible
 
-When pulling packets, first the user pulls metadata from the server. When `orderly2::orderly_location_metadata_pull` is run, all metadata from the server is updated on the client (mrc-4444 wil make this lazier). We now know everything the server holds, and the hashes of all the files contained in each packet.
+When pulling packets, first the user pulls metadata from the server. When `orderly2::orderly_location_metadata_pull` is run, all metadata from the server is updated on the client (mrc-4444 will make this lazier). We now know everything the server holds, and the hashes of all the files contained in each packet.
 
 It is very likely that we already know of some of the files within a packet being requested, so the client first looks to see if these exist within its archive, verifying that they have not been changed.  It then requests from the server all the files that it cannot resolve locally. If doing a recursive pull (with `core.require_complete_tree = TRUE`) then we look at the union over all files in the set of packets that are currently missing from our archive. This is frequently much less than the full set of files within the packets.
 
@@ -254,7 +254,7 @@ This multi-step process means that we avoid copying data that is already known a
 
 # Interaction between source tree and `.outpack`
 
-It is important that the `.outpack` directory is *not* shared via git; we warn about this now, and you can use `orderly2::ordery_gitignore_update()` to automatically create a suitable `.gitignore` file that will prevent it being accidentically committed.
+It is important that the `.outpack` directory is *not* shared via git; we warn about this now, and you can use `orderly2::ordery_gitignore_update()` to automatically create a suitable `.gitignore` file that will prevent it being accidentally committed.
 
 However, 
 

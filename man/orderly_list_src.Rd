@@ -26,6 +26,10 @@ for passing to \link{orderly_run}
 List source reports - that is, directories within \verb{src/} that
 contain a file \code{orderly.R}
 }
+\examples{
+path <- orderly2::orderly_example("default")
+orderly2::orderly_list_src(root = path)
+}
 \seealso{
 \link{orderly_metadata_extract} for listing packets
 that have completed

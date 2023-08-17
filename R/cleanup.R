@@ -41,11 +41,35 @@
 ##'   `orderly_cleanup`)
 ##'
 ##' @export
+##' @examples
+##' # Create a simple example:
+##' path <- orderly2::orderly_example("default")
+##'
+##' # We simulate running a packet interactively by using 'source';
+##' # you might have run this line-by-line, or with the "Source"
+##' # button in Rstudio.
+##' source(file.path(path, "src/data/orderly.R"), chdir = TRUE)
+##'
+##' # Having run this, the output of the report is present in the
+##' # source directory:
+##' fs::dir_tree(path)
+##'
+##' # We can detect what might want cleaning up by running
+##' # "orderly_cleanup_status":
+##' orderly2::orderly_cleanup_status("data", root = path)
+##'
+##' # Soon this will print more nicely to the screen, but for now you
+##' # can see that the status of "data.rds" is "derived", which means
+##' # that orderly knows that it is subject to being cleaned up; the
+##' # "delete" element shows what will be deleted.
+##'
+##' # Do the actual deletion:
+##' orderly2::orderly_cleanup("data", root = path)
 orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL,
                             locate = TRUE) {
   status <- orderly_cleanup_status(name, root, locate)
   n <- length(status$delete)
-  if (length(n) == 0) {
+  if (n == 0) {
     cli::cli_alert_success("Nothing to clean")
   } else {
     if (dry_run) {
@@ -103,6 +127,9 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   ## that are present as directory entries; this is explicit only for
   ## dependencies, but we need to work it out ourselves for the rest.
   matches_path <- function(x, path, add_slash = TRUE) {
+    if (is.null(path)) {
+      return(rep(FALSE, length(x)))
+    }
     path_dir <- if (add_slash) with_trailing_slash(path) else path
     x %in% path |
       row_any(vapply(path_dir, function(p) string_starts_with(p, x),

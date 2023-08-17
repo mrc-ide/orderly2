@@ -24,7 +24,21 @@
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
+##' @seealso orderly_config
 ##' @export
+##' @examples
+##'
+##' # The default configuration does not include a file store, and
+##' # saves output within the "archive" directory:
+##' path <- withr::local_tempdir()
+##' orderly2::orderly_init(path)
+##' fs::dir_tree(path, all = TRUE)
+##'
+##' # Change this after the fact:
+##' orderly2::orderly_config_set(core.use_file_store = TRUE,
+##'                              core.path_archive = NULL,
+##'                              root = path)
+##' fs::dir_tree(path, all = TRUE)
 orderly_config_set <- function(..., options = list(...), root = NULL,
                                locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
@@ -97,10 +111,17 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
 ##'   columns `name`, `id`, `priority`, `type` and `args`, with `args`
 ##'   being a list column.
 ##'
-##' * `orderly`: A list of orderly-specific configuration, currently
-##'   this is unstable.
+##' * `orderly`: A list of orderly-specific configuration; this is
+##'   just the minimum required version (as
+##'   `minimum_orderly_version`).
 ##'
 ##' @export
+##' @examples
+##'
+##' # A default configuration in a new temporary directory
+##' path <- withr::local_tempdir()
+##' orderly2::orderly_init(path)
+##' orderly2::orderly_config(path)
 orderly_config <- function(root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())

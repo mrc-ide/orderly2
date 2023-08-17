@@ -47,11 +47,19 @@ configuration, or \link{orderly_location_list} to more
 simply list available locations. Returns as a \link{data.frame} with
 columns \code{name}, \code{id}, \code{priority}, \code{type} and \code{args}, with \code{args}
 being a list column.
-\item \code{orderly}: A list of orderly-specific configuration, currently
-this is unstable.
+\item \code{orderly}: A list of orderly-specific configuration; this is
+just the minimum required version (as
+\code{minimum_orderly_version}).
 }
 }
 \description{
 Read the current orderly configuration, stored within the outpack
 root, along with any orderly-specific extensions.
+}
+\examples{
+
+# A default configuration in a new temporary directory
+path <- withr::local_tempdir()
+orderly2::orderly_init(path)
+orderly2::orderly_config(path)
 }
