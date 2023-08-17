@@ -51,7 +51,7 @@ test_that("can clean up unknown files if gitignored", {
   files <- c("a/x", "b/c/x", "b/c/y")
   file.create(file.path(path_src, files))
 
-  status <- orderly_cleanup_status("explicit", path)
+  status <- orderly_cleanup_status("explicit", root = path)
   expect_equal(
     status$status[c("a/x", "b/c/x", "b/c/y"), ],
     cbind(source = set_names(rep(FALSE, 3), files),
@@ -60,7 +60,7 @@ test_that("can clean up unknown files if gitignored", {
   expect_equal(status$delete, character())
 
   writeLines(c("b/"), file.path(path_src, ".gitignore"))
-  status <- orderly_cleanup_status("explicit", path)
+  status <- orderly_cleanup_status("explicit", root = path)
   expect_equal(
     status$status[c("a/x", "b/c/x", "b/c/y"), ],
     cbind(source = set_names(rep(FALSE, 3), files),
@@ -68,8 +68,13 @@ test_that("can clean up unknown files if gitignored", {
           ignored = c(FALSE, TRUE, TRUE)))
   expect_equal(status$delete, c("b/c/x", "b/c/y"))
 
-  status2 <- orderly_cleanup("explicit", path)
-  expect_equal(status2, status)
+  res <- testthat::evaluate_promise(
+    orderly_cleanup("explicit", root = path))
+  expect_match(res$messages,
+               "Deleting 2 files from 'explicit'", all = FALSE)
+  expect_match(res$messages,
+               "Also deleted 1 empty directory", all = FALSE)
+  expect_equal(res$result, status)
   expect_setequal(
     dir(path_src, recursive = TRUE, include.dirs = TRUE),
     c("a", "a/x", "data.csv", "orderly.R"))
@@ -80,7 +85,7 @@ test_that("can clean up shared resources", {
   path <- test_prepare_orderly_example("shared")
   path_src <- file.path(path, "src", "shared")
   file.create(file.path(path_src, "shared_data.csv"))
-  status <- orderly_cleanup_status("shared", path)
+  status <- orderly_cleanup_status("shared", root = path)
 
   files <- c("orderly.R", "shared_data.csv")
   expect_setequal(rownames(status$role), files)
@@ -104,7 +109,7 @@ test_that("can clean up dependencies", {
   path <- test_prepare_orderly_example(c("data", "depends"))
   path_src <- file.path(path, "src", "depends")
   file.create(file.path(path_src, c("input.rds", "other.rds")))
-  status <- orderly_cleanup_status("depends", path)
+  status <- orderly_cleanup_status("depends", root = path)
 
   files <- c("input.rds", "orderly.R", "other.rds")
   expect_setequal(rownames(status$role), files)
@@ -130,7 +135,7 @@ test_that("can clean up directories", {
   path_src <- file.path(path, "src", "directories")
   withr::with_dir(path_src,
                   sys.source("orderly.R", envir))
-  status <- orderly_cleanup_status("directories", path)
+  status <- orderly_cleanup_status("directories", root = path)
 
   files <- c("data/a.csv", "data/b.csv", "orderly.R",
              "output/a.rds", "output/b.rds")
@@ -149,8 +154,8 @@ test_that("can clean up directories", {
           ignored = NA))
   expect_equal(status$delete, c("output/a.rds", "output/b.rds"))
 
-  status2 <- orderly_cleanup("directories", path)
-  expect_equal(status2, status)
+  res <- testthat::evaluate_promise(orderly_cleanup("directories", root = path))
+  expect_equal(res$result, status)
   expect_setequal(
     dir(path_src, recursive = TRUE, include.dirs = TRUE),
     c("data", "data/a.csv", "data/b.csv", "orderly.R"))
@@ -166,4 +171,13 @@ test_that("Don't call cleanup on an active packet", {
     orderly_run("data", root = path),
     "Don't call 'orderly2::orderly_cleanup_status()' from a running packet",
     fixed = TRUE)
+})
+
+
+test_that("Don't be weird about not passing name", {
+  path <- test_prepare_orderly_example("data")
+  path_src <- file.path(path, "src", "data")
+  expect_error(
+    withr::with_dir(path_src, orderly_cleanup_status(root = path)),
+    "If 'root' is given explicitly, 'name' is required")
 })

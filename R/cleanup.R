@@ -59,7 +59,7 @@ orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL,
       p <- delete_empty_directories(status$path)
       if (length(p)) {
         cli::cli_alert_info("Also deleted {length(p)} empty director{?y/ies}:")
-        cli::cli_li(p)
+        cli::cli_li(paste0(p, "/"))
       }
     }
   }
@@ -78,13 +78,17 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
       i = "The orderly_cleanup* functions are for interactive use only")
   }
 
-  if (is.null(name)) {
+  if (is.null(name) && is.null(root)) {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)$path
     name <- basename(path)
   } else {
     root <- root_open(root, locate = locate, require_orderly = TRUE,
                       call = environment())
+    if (is.null(name)) {
+      ## This situation would be very odd, just disallow it
+      cli::cli_abort("If 'root' is given explicitly, 'name' is required")
+    }
     validate_orderly_directory(name, root, environment())
     path <- file.path(root$path, "src", name)
     root <- root$path
