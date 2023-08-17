@@ -588,7 +588,8 @@ test_that("can depend based on a query with subqueries", {
   id <- list(a = character())
   for (i in 1:3) {
     saveRDS(runif(10), file.path(src_a, "data.rds"))
-    p <- outpack_packet_start_quietly(src_a, "a", parameters = list(i = i), root = root)
+    p <- outpack_packet_start_quietly(src_a, "a", parameters = list(i = i),
+                                      root = root)
     outpack_packet_end_quietly(p)
     id$a <- c(id$a, p$id)
   }
