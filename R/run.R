@@ -123,15 +123,16 @@
 ##'
 ##' @export
 ##' @examples
-##' path <- withr::local_tempfile()
-##' fs::dir_copy(system.file("example", package = "orderly2"), path)
-##' orderly2::orderly_init(path)
+##' # Create a simple example:
+##' path <- orderly2::orderly_example("default")
+##'
+##' # Run the 'data' task:
 ##' orderly2::orderly_run("data", root = path)
 ##'
 ##' # After running, a finished packet appears in the archive:
 ##' fs::dir_tree(path)
 ##'
-##' # and we can query the metadata
+##' # and we can query the metadata:
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL,
                         logging_console = NULL, logging_threshold = NULL,
