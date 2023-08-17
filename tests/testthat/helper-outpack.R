@@ -8,11 +8,9 @@ create_random_packet <- function(root, name = "data", parameters = NULL,
   src <- fs::dir_create(tempfile())
   on.exit(unlink(src, recursive = TRUE))
   saveRDS(runif(10), file.path(src, "data.rds"))
-  suppressMessages({
-    p <- outpack_packet_start(src, name, parameters = parameters, id = id,
-                              root = root)
-    outpack_packet_end(p)
-  })
+  p <- outpack_packet_start_quietly(
+    src, name, parameters = parameters, id = id, root = root)
+  outpack_packet_end_quietly(p)
   p$id
 }
 
@@ -22,10 +20,9 @@ create_deterministic_packet <- function(root, name = "data",
   src <- fs::dir_create(tempfile())
   on.exit(unlink(src, recursive = TRUE))
   saveRDS(1:10, file.path(src, "data.rds"))
-  suppressMessages({
-    p <- outpack_packet_start(src, name, parameters = parameters, root = root)
-    outpack_packet_end(p)
-  })
+  p <- outpack_packet_start_quietly(
+    src, name, parameters = parameters, root = root)
+  outpack_packet_end_quietly(p)
   p$id
 }
 
@@ -74,7 +71,7 @@ create_random_dependent_packet <- function(root, name, dependency_ids) {
   src <- fs::dir_create(tempfile())
   on.exit(unlink(src, recursive = TRUE), add = TRUE)
 
-  p <- outpack_packet_start(src, name, root = root)
+  p <- outpack_packet_start_quietly(src, name, root = root)
 
   len <- length(dependency_ids)
   if (len == 0) {
@@ -91,7 +88,7 @@ create_random_dependent_packet <- function(root, name, dependency_ids) {
     }
     outpack_packet_run(p, "script.R")
   }
-  outpack_packet_end(p)
+  outpack_packet_end_quietly(p)
 
   p$id
 }

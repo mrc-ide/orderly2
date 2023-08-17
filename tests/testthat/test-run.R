@@ -105,7 +105,8 @@ test_that("cope with computed values in static functions", {
 test_that("run a packet with parameters", {
   path <- test_prepare_orderly_example("parameters")
   envir <- new.env()
-  id <- orderly_run_quietly("parameters", parameters = list(a = 10, b = 20, c = 30),
+  id <- orderly_run_quietly("parameters",
+                            parameters = list(a = 10, b = 20, c = 30),
                             envir = envir, root = path)
   path_rds <- file.path(path, "archive", "parameters", id, "data.rds")
   expect_true(file.exists(path_rds))
@@ -140,7 +141,8 @@ test_that("can run orderly with parameters, without orderly", {
 
 test_that("can run orderly with parameters, without orderly, globally", {
   path <- test_prepare_orderly_example(c("parameters", "depends-query"))
-  id <- orderly_run_quietly("parameters", parameters = list(a = 10, b = 20, c = 30),
+  id <- orderly_run_quietly("parameters",
+                            parameters = list(a = 10, b = 20, c = 30),
                             envir = new.env(), root = path)
   path_src <- file.path(path, "src", "depends-query")
   envir <- list2env(list(a = 10, b = 20, c = 30), parent = globalenv())
@@ -705,7 +707,8 @@ test_that("can select location when querying dependencies interactively", {
   for (nm in c("us", "prod", "dev")) {
     path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
     if (nm != "us") {
-      ids[[nm]] <- orderly_run_quietly("data", envir = envir1, root = path[[nm]])
+      ids[[nm]] <- orderly_run_quietly("data", envir = envir1,
+                                       root = path[[nm]])
       orderly_location_add(nm, "path", list(path = path[[nm]]),
                            root = path[["us"]])
       orderly_location_pull_metadata(nm, root = path[["us"]])
@@ -715,7 +718,8 @@ test_that("can select location when querying dependencies interactively", {
     }
   }
   ## Run extra local copy - this is the most recent.
-  ids[["us"]] <- orderly_run_quietly("data", envir = envir1, root = path[["us"]])
+  ids[["us"]] <- orderly_run_quietly("data", envir = envir1,
+                                     root = path[["us"]])
 
   orderly_interactive_set_search_options(list(location = "prod"))
   expect_equal(.interactive$search_options, list(location = "prod"))
