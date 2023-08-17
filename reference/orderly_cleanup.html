@@ -75,7 +75,7 @@ be deleted.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_cleanup</span><span class="op">(</span>name <span class="op">=</span> <span class="cn">NULL</span>, root <span class="op">=</span> <span class="cn">NULL</span>, locate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_cleanup</span><span class="op">(</span>name <span class="op">=</span> <span class="cn">NULL</span>, dry_run <span class="op">=</span> <span class="cn">FALSE</span>, root <span class="op">=</span> <span class="cn">NULL</span>, locate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">orderly_cleanup_status</span><span class="op">(</span>name <span class="op">=</span> <span class="cn">NULL</span>, root <span class="op">=</span> <span class="cn">NULL</span>, locate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -85,6 +85,12 @@ be deleted.</p>
     <dl><dt>name</dt>
 <dd><p>Name of the report directory to clean (i.e., we look
 at <code>src/&lt;name&gt;</code> relative to your orderly root</p></dd>
+
+
+<dt>dry_run</dt>
+<dd><p>Logical, indicating if we should <em>not</em> delete
+anything, but instead just print information about what we would
+do</p></dd>
 
 
 <dt>root</dt>
