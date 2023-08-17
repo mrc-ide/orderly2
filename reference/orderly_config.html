@@ -115,10 +115,55 @@ configuration, or <a href="orderly_location_list.html">orderly_location_list</a>
 simply list available locations. Returns as a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> with
 columns <code>name</code>, <code>id</code>, <code>priority</code>, <code>type</code> and <code>args</code>, with <code>args</code>
 being a list column.</p></li>
-<li><p><code>orderly</code>: A list of orderly-specific configuration, currently
-this is unstable.</p></li>
+<li><p><code>orderly</code>: A list of orderly-specific configuration; this is
+just the minimum required version (as
+<code>minimum_orderly_version</code>).</p></li>
 </ul></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A default configuration in a new temporary directory</span></span></span>
+<span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_tempfile.html" class="external-link">local_tempdir</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_init.html">orderly_init</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [ init       ]  /tmp/RtmpfU5oTY/file15be7b55663f</span>
+<span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_config</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $schema_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0.1.0"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $core</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $core$path_archive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "archive"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $core$use_file_store</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $core$require_complete_tree</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $core$hash_algorithm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sha256"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $logging</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $logging$console</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $logging$threshold</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "info"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $location</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name  type args</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 local local     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $orderly</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $orderly$minimum_orderly_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘1.99.0’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
