@@ -20,6 +20,7 @@ cleanup
 codecov
 com
 composable
+config
 csv
 cyl
 db
@@ -34,6 +35,7 @@ etc
 github
 gitignore
 ide
+ing
 init
 io
 json
