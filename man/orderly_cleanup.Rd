@@ -5,13 +5,17 @@
 \alias{orderly_cleanup_status}
 \title{Clean up source directory}
 \usage{
-orderly_cleanup(name = NULL, root = NULL, locate = TRUE)
+orderly_cleanup(name = NULL, dry_run = FALSE, root = NULL, locate = TRUE)
 
 orderly_cleanup_status(name = NULL, root = NULL, locate = TRUE)
 }
 \arguments{
 \item{name}{Name of the report directory to clean (i.e., we look
 at \verb{src/<name>} relative to your orderly root}
+
+\item{dry_run}{Logical, indicating if we should \emph{not} delete
+anything, but instead just print information about what we would
+do}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working directory if

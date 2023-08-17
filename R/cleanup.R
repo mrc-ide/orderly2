@@ -28,6 +28,10 @@
 ##' @param name Name of the report directory to clean (i.e., we look
 ##'   at `src/<name>` relative to your orderly root
 ##'
+##' @param dry_run Logical, indicating if we should *not* delete
+##'   anything, but instead just print information about what we would
+##'   do
+##'
 ##' @inheritParams orderly_run
 ##'
 ##' @return An (currently unstable) object of class
@@ -37,12 +41,28 @@
 ##'   `orderly_cleanup`)
 ##'
 ##' @export
-orderly_cleanup <- function(name = NULL, root = NULL, locate = TRUE) {
+orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL,
+                            locate = TRUE) {
   status <- orderly_cleanup_status(name, root, locate)
-  if (length(status$delete) > 0) {
-    withr::with_dir(status$path, fs::file_delete(status$delete))
+  n <- length(status$delete)
+  if (length(n) == 0) {
+    cli::cli_alert_success("Nothing to clean")
+  } else {
+    if (dry_run) {
+      cli::cli_alert_info("I would delete {n} file{?s} from '{status$name}':")
+    } else {
+      cli::cli_alert_info("Deleting {n} file{?s} from '{status$name}':")
+    }
+    cli::cli_li(status$delete)
+    if (!dry_run) {
+      withr::with_dir(status$path, fs::file_delete(status$delete))
+      p <- delete_empty_directories(status$path)
+      if (length(p)) {
+        cli::cli_alert_info("Also deleted {length(p)} empty director{?y/ies}:")
+        cli::cli_li(paste0(p, "/"))
+      }
+    }
   }
-  delete_empty_directories(status$path)
   invisible(status)
 }
 
@@ -58,13 +78,17 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
       i = "The orderly_cleanup* functions are for interactive use only")
   }
 
-  if (is.null(name)) {
+  if (is.null(name) && is.null(root)) {
     path <- getwd()
     root <- detect_orderly_interactive_path(path)$path
     name <- basename(path)
   } else {
     root <- root_open(root, locate = locate, require_orderly = TRUE,
                       call = environment())
+    if (is.null(name)) {
+      ## This situation would be very odd, just disallow it
+      cli::cli_abort("If 'root' is given explicitly, 'name' is required")
+    }
     validate_orderly_directory(name, root, environment())
     path <- file.path(root$path, "src", name)
     root <- root$path

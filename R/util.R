@@ -489,16 +489,6 @@ quote_braces <- function(x) {
 }
 
 
-## Currently supported in gert 1.9000 (which is the 2.0
-## prerelease). Rather than depend on that version directly, requiring
-## people to install it from source or r-universe, just sniff for the
-## function we need, for now:
-gert_git_ignore_path_is_ignored <- function() {
-  tryCatch(getExportedValue("gert", "git_ignore_path_is_ignored"),
-             error = function(e) NULL)
-}
-
-
 git_open <- function(path) {
   tryCatch(gert::git_open(path), error = function(e) NULL)
 }
@@ -506,11 +496,10 @@ git_open <- function(path) {
 
 path_is_git_ignored <- function(path, root) {
   repo <- git_open(root)
-  gert_fn <- gert_git_ignore_path_is_ignored()
-  if (is.null(repo) || is.null(gert_fn)) {
+  if (is.null(repo)) {
     rep_len(NA, length(path))
   } else {
-    gert_fn(path, repo)
+    gert::git_ignore_path_is_ignored(path, repo)
   }
 }
 
@@ -521,13 +510,15 @@ row_any <- function(x) {
 
 
 delete_empty_directories <- function(path) {
-  paths <- fs::dir_ls(path, type = "directory", recurse = TRUE)
+  withr::local_dir(path)
+  paths <- fs::dir_ls(".", type = "directory", recurse = TRUE)
   paths <- setdiff(paths[order(nchar(paths), decreasing = TRUE)], path)
   for (p in paths) {
     if (length(fs::dir_ls(p, all = TRUE)) == 0) {
       fs::dir_delete(p)
     }
   }
+  invisible(p)
 }
 
 
