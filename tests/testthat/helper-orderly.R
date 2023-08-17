@@ -89,9 +89,3 @@ skip_on_solaris <- function() {
 is_windows <- function() {
   tolower(Sys.info()[["sysname"]]) == "windows"
 }
-
-
-skip_if_older_gert <- function() {
-  testthat::skip_if(is.null(gert_git_ignore_path_is_ignored()),
-                    "older gert")
-}
