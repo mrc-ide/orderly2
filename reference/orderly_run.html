@@ -76,8 +76,7 @@ your script and check that all expected artefacts were created.</p>
 <span>  <span class="va">name</span>,</span>
 <span>  parameters <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envir <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  logging_console <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  logging_threshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  echo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  search_options <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  root <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  locate <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -102,19 +101,9 @@ report script; by default we use the global environment, which
 may not always be what is wanted.</p></dd>
 
 
-<dt>logging_console</dt>
-<dd><p>Optional logical to control printing logs
-to the console, overriding any default configuration set at the
-root.</p></dd>
-
-
-<dt>logging_threshold</dt>
-<dd><p>Optional logging threshold to control the
-amount of detail in logs printed during running, overriding any
-default configuration set at the root. If given, must be one of
-<code>info</code>, <code>debug</code> or <code>trace</code> (in increasing order of
-verbosity). Practically this has no effect at present as we've
-not added any fine-grained logging.</p></dd>
+<dt>echo</dt>
+<dd><p>Optional logical to control printing output from
+<code><a href="https://rdrr.io/r/base/source.html" class="external-link">source()</a></code> to the console.</p></dd>
 
 
 <dt>search_options</dt>
@@ -225,19 +214,19 @@ we had intended to support it.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a simple example:</span></span></span>
 <span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_example.html">orderly_example</a></span><span class="op">(</span><span class="st">"default"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [ init       ]  /tmp/RtmpfU5oTY/file15be6ae9c4f9</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpHuRbe5/file172c2b4846fe'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the 'data' task:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_run</span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpfU5oTY/file15be6ae9c4f9'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpHuRbe5/file172c2b4846fe'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># After running, a finished packet appears in the archive:</span></span></span>
 <span class="r-in"><span><span class="fu">fs</span><span class="fu">::</span><span class="fu"><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/RtmpfU5oTY/file15be6ae9c4f9': no such file or directory</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/RtmpHuRbe5/file172c2b4846fe': no such file or directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># and we can query the metadata:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_metadata_extract.html">orderly_metadata_extract</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpfU5oTY/file15be6ae9c4f9'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpHuRbe5/file172c2b4846fe'</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -79,9 +79,7 @@ root, along with a directory <code>.outpack/</code> at the same level.</p>
 <span>  <span class="va">path</span>,</span>
 <span>  path_archive <span class="op">=</span> <span class="st">"archive"</span>,</span>
 <span>  use_file_store <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  require_complete_tree <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  logging_console <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  logging_threshold <span class="op">=</span> <span class="st">"info"</span></span>
+<span>  require_complete_tree <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -114,17 +112,6 @@ always operates in recursive mode.  This is <code>FALSE</code> by default,
 but set to <code>TRUE</code> if you want your archive to behave well as a
 location; if <code>TRUE</code> you will always have all the packets that
 you hold metadata about.</p></dd>
-
-
-<dt>logging_console</dt>
-<dd><p>Logical, indicating if we should log to the
-console. If <code>TRUE</code>, then many operations will produce
-informational output; set to <code>FALSE</code> to prevent this.</p></dd>
-
-
-<dt>logging_threshold</dt>
-<dd><p>The degree of verbosity; one of <code>info</code>,
-<code>debug</code> or <code>trace</code> in increasing order of verbosity.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -163,7 +150,7 @@ already initialised with an <code>.outpack</code> directory but not an
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Initialise a new repository, setting an option:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_init</span><span class="op">(</span><span class="va">path</span>, use_file_store <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [ init       ]  /tmp/RtmpfU5oTY/file15be27f25ccd</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpHuRbe5/file172c26db0998'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># fs::dir_tree(path, all = TRUE)</span></span></span>
 </code></pre></div>

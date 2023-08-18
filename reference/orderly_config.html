@@ -103,10 +103,6 @@ is enabled (<code>core.use_file_store</code>)</p></li>
 all dependencies to be fully available (<code>core.require_complete_tree</code>)</p></li>
 <li><p><code>hash_algorithm</code>: The hash algorithm used (currently not modifiable)</p></li>
 </ul></li>
-<li><p><code>logging</code>: Control over logging</p><ul><li><p><code>threshold</code>: Level of verbosity, set via <code>logging.threshold</code></p></li>
-<li><p><code>console</code>: Indicates if logging to the console is enabled by default,
-set via <code>logging.console</code></p></li>
-</ul></li>
 <li><p><code>location</code>: Information about locations; see
 <a href="orderly_location_add.html">orderly_location_add</a>,
 <a href="orderly_location_rename.html">orderly_location_rename</a> and
@@ -126,11 +122,8 @@ just the minimum required version (as
 <span class="r-in"><span><span class="co"># A default configuration in a new temporary directory</span></span></span>
 <span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_tempfile.html" class="external-link">local_tempdir</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_init.html">orderly_init</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [ init       ]  /tmp/RtmpfU5oTY/file15be7b55663f</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpHuRbe5/file172c628d33a5'</span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_config</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $schema_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0.1.0"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $core</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $core$path_archive</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "archive"</span>
@@ -143,14 +136,6 @@ just the minimum required version (as
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $core$hash_algorithm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sha256"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $logging</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $logging$console</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $logging$threshold</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "info"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $location</span>
