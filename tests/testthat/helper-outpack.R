@@ -8,9 +8,9 @@ create_random_packet <- function(root, name = "data", parameters = NULL,
   src <- fs::dir_create(tempfile())
   on.exit(unlink(src, recursive = TRUE))
   saveRDS(runif(10), file.path(src, "data.rds"))
-  p <- outpack_packet_start(src, name, parameters = parameters, id = id,
-                            root = root)
-  outpack_packet_end(p)
+  p <- outpack_packet_start_quietly(
+    src, name, parameters = parameters, id = id, root = root)
+  outpack_packet_end_quietly(p)
   p$id
 }
 
@@ -20,8 +20,9 @@ create_deterministic_packet <- function(root, name = "data",
   src <- fs::dir_create(tempfile())
   on.exit(unlink(src, recursive = TRUE))
   saveRDS(1:10, file.path(src, "data.rds"))
-  p <- outpack_packet_start(src, name, parameters = parameters, root = root)
-  outpack_packet_end(p)
+  p <- outpack_packet_start_quietly(
+    src, name, parameters = parameters, root = root)
+  outpack_packet_end_quietly(p)
   p$id
 }
 
@@ -40,24 +41,27 @@ create_random_packet_chain <- function(root, length, base = NULL) {
   on.exit(unlink(src, recursive = TRUE), add = TRUE)
 
   id <- character()
-  for (i in seq_len(length)) {
-    nm <- letters[[i]]
-    p <- file.path(src, nm)
-    fs::dir_create(p)
-    packet <- outpack_packet_start(p, nm, root = root)
-    id[[nm]] <- packet$id
+  suppressMessages({
+    for (i in seq_len(length)) {
+      nm <- letters[[i]]
+      p <- file.path(src, nm)
+      fs::dir_create(p)
+      packet <- outpack_packet_start(p, nm, root = root)
+      id[[nm]] <- packet$id
 
-    if (i == 1 && is.null(base)) {
-      saveRDS(runif(10), file.path(p, "data.rds"))
-    } else {
-      code <- sprintf("saveRDS(readRDS('input.rds') * %d, 'data.rds')", i)
-      writeLines(code, file.path(p, "script.R"))
-      id_use <- if (i > 1) id[[letters[i - 1]]] else base
-      outpack_packet_use_dependency(packet, id_use, c("input.rds" = "data.rds"))
-      outpack_packet_run(packet, "script.R")
+      if (i == 1 && is.null(base)) {
+        saveRDS(runif(10), file.path(p, "data.rds"))
+      } else {
+        code <- sprintf("saveRDS(readRDS('input.rds') * %d, 'data.rds')", i)
+        writeLines(code, file.path(p, "script.R"))
+        id_use <- if (i > 1) id[[letters[i - 1]]] else base
+        outpack_packet_use_dependency(packet, id_use,
+                                      c("input.rds" = "data.rds"))
+        outpack_packet_run(packet, "script.R")
+      }
+      outpack_packet_end(packet)
     }
-    outpack_packet_end(packet)
-  }
+  })
 
   id
 }
@@ -67,7 +71,7 @@ create_random_dependent_packet <- function(root, name, dependency_ids) {
   src <- fs::dir_create(tempfile())
   on.exit(unlink(src, recursive = TRUE), add = TRUE)
 
-  p <- outpack_packet_start(src, name, root = root)
+  p <- outpack_packet_start_quietly(src, name, root = root)
 
   len <- length(dependency_ids)
   if (len == 0) {
@@ -84,7 +88,7 @@ create_random_dependent_packet <- function(root, name, dependency_ids) {
     }
     outpack_packet_run(p, "script.R")
   }
-  outpack_packet_end(p)
+  outpack_packet_end_quietly(p)
 
   p$id
 }
@@ -93,7 +97,7 @@ create_random_dependent_packet <- function(root, name, dependency_ids) {
 create_temporary_root <- function(...) {
   path <- tempfile()
   withr::defer_parent(unlink(path, recursive = TRUE))
-  orderly_init(path, ..., logging_console = FALSE)
+  suppressMessages(orderly_init(path, ...))
   root_open(path, locate = FALSE, require_orderly = FALSE)
 }
 
@@ -127,32 +131,6 @@ temp_file <- function() {
 }
 
 
-## Edit an existing configuration to drop the logging section. Hard
-## without loading the json but this works for now:
-config_remove_logging <- function(path) {
-  config <- '{
-  "schema_version": "0.0.1",
-  "core": {
-    "path_archive": "archive",
-    "use_file_store": false,
-    "require_complete_tree": false,
-    "hash_algorithm": "sha256"
-  },
-  "location": [
-    {
-      "name": "local",
-      "id": "local",
-      "type": "local",
-      "args": []
-    }
-  ]
-}'
-  writeLines(
-    config,
-    file.path(path, ".outpack", "config.json"))
-}
-
-
 helper_add_git <- function(path) {
   ## Note that the git repo is in the src, not in the outpack root
   gert::git_init(path)
@@ -170,7 +148,7 @@ helper_add_git <- function(path) {
 ## This matches the old semantics of outpack_root, and is used to
 ## create a root that does not have the orderly bits.
 outpack_init_no_orderly <- function(...) {
-  path <- orderly_init(...)
+  path <- orderly_init_quietly(...)
   fs::file_delete(file.path(path, "orderly_config.yml"))
   outpack_root$new(path)
 }
@@ -185,4 +163,14 @@ outpack_packet_run <- function(packet, script, envir = NULL) {
   assert_file_exists(script, workdir = packet$path, name = "Script")
   withr::with_dir(packet$path,
                   source_echo(script, envir = envir, echo = FALSE))
+}
+
+
+outpack_packet_start_quietly <- function(...) {
+  suppressMessages(outpack_packet_start(...))
+}
+
+
+outpack_packet_end_quietly <- function(...) {
+  suppressMessages(outpack_packet_end(...))
 }

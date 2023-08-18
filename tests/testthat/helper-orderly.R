@@ -6,7 +6,7 @@ options(outpack.schema_validate =
 test_prepare_orderly_example <- function(examples, ...) {
   tmp <- tempfile()
   withr::defer_parent(unlink(tmp, recursive = TRUE))
-  orderly_init(tmp, logging_console = FALSE)
+  suppressMessages(orderly_init(tmp))
   config <- readLines(file.path(tmp, "orderly_config.yml"))
 
   if (any(c("shared", "shared-dir") %in% examples)) {
@@ -88,4 +88,14 @@ skip_on_solaris <- function() {
 
 is_windows <- function() {
   tolower(Sys.info()[["sysname"]]) == "windows"
+}
+
+
+orderly_init_quietly <- function(...) {
+  suppressMessages(orderly_init(...))
+}
+
+
+orderly_run_quietly <- function(..., echo = FALSE) {
+  suppressMessages(orderly_run(..., echo = echo))
 }

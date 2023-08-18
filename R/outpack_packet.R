@@ -15,17 +15,6 @@
 ##' @param id Optionally, an outpack id via [orderly2::outpack_id]. If
 ##'   not given a new id will be generated.
 ##'
-##' @param logging_console Optional logical, indicating if we should
-##'   override the root's default in logging to the console. A value
-##'   of `NULL` uses the root value, `TRUE` enables console output
-##'   even when this is suppressed by the root, and `FALSE` disables
-##'   it even when this is enabled by the root.
-##'
-##' @param logging_threshold Optional log threshold, indicating if we
-##'   override the root's default in logging to the console. A value
-##'   of `NULL` uses the root value, otherwise use `info`, `debug` or
-##'   `trace` (in increasing order of verbosity).
-##'
 ##' @inheritParams outpack_metadata
 ##'
 ##' @return Invisibly, a copy of the packet data; this can be passed
@@ -33,8 +22,6 @@
 ##'
 ##' @noRd
 outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
-                                 logging_console = NULL,
-                                 logging_threshold = NULL,
                                  root = NULL) {
   root <- root_open(root, locate = FALSE, require_orderly = FALSE)
 
@@ -48,10 +35,6 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
     validate_outpack_id(id)
   }
 
-  logger <- outpack_packet_logger(path, root, logging_console,
-                                  logging_threshold)
-  caller <- "orderly2::outpack_packet_start"
-
   time <- list(start = Sys.time())
 
   packet <- structure(
@@ -63,18 +46,18 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
         parameters = parameters,
         files = list(),
         time = time,
-        logger = logger,
         root = root),
       parent = emptyenv()),
     class = "outpack_packet")
 
-  outpack_log_info(packet, "name", name, caller)
-  outpack_log_info(packet, "id", id, caller)
+  ## Human readable logging:
+  cli::cli_alert_info(
+    "Starting packet '{.pkg {name}}' {.code {id}} at {time$start}")
   if (length(parameters) > 0) {
-    detail <- sprintf("%s: %s", names(parameters), unname(parameters))
-    outpack_log_info(packet, "parameter", I(detail), caller)
+    cli::cli_alert_info("Parameters:")
+    cli::cli_li(sprintf("{.bold %s}: %s",
+                        names(parameters), unname(parameters)))
   }
-  outpack_log_info(packet, "start", format(time$start), caller)
 
   invisible(packet)
 }
@@ -82,8 +65,7 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
 
 outpack_packet_cancel <- function(packet) {
   packet <- check_current_packet(packet)
-  outpack_log_info(packet, "cancel", packet$id,
-                   "orderly2::outpack_packet_cancel")
+  cli::cli_alert_danger("Cancelling {packet$id}")
   outpack_packet_finish(packet)
 }
 
@@ -104,11 +86,9 @@ outpack_packet_end <- function(packet, insert = TRUE) {
   packet <- check_current_packet(packet)
   packet$time$end <- Sys.time()
   hash_algorithm <- packet$root$config$core$hash_algorithm
-  caller <- "orderly2::outpack_packet_end"
-  outpack_log_info(packet, "end", format(packet$time$end), caller)
   elapsed_str <- format(packet$time$end - packet$time$start)
-  outpack_log_info(packet, "elapsed", elapsed_str, caller)
-  writeLines(packet$logger$json$get(), file.path(packet$path, "log.json"))
+  cli::cli_alert_success(
+    "Finished {packet$id} at {packet$time$end} ({elapsed_str})")
   json <- outpack_metadata_create(packet$path, packet$name, packet$id,
                                   packet$time,
                                   files = NULL,
@@ -122,9 +102,8 @@ outpack_packet_end <- function(packet, insert = TRUE) {
     outpack_insert_packet(packet$path, json, packet$root)
   } else {
     ## TODO: I am not sure what the best filename to use here is -
-    ## good options feel like 'outpack.json' (like we do with
-    ## 'log.json') and `<id>` or '<id>.json' (totally collision
-    ## resistant)
+    ## good options feel like 'outpack.json' and `<id>` or '<id>.json'
+    ## (totally collision resistant)
     writeLines(json, file.path(packet$path, "outpack.json"))
   }
   outpack_packet_finish(packet)

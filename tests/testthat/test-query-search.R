@@ -827,9 +827,9 @@ test_that("adding scope filters queries", {
   id <- list(a = character(), b = character())
   for (i in 1:3) {
     for (name in  c("a", "b")) {
-      p <- outpack_packet_start(src, name, parameters = list(i = i),
-                                root = root)
-      outpack_packet_end(p)
+      p <- outpack_packet_start_quietly(src, name, parameters = list(i = i),
+                                        root = root)
+      outpack_packet_end_quietly(p)
       id[[name]] <- c(id[[name]], p$id)
     }
   }

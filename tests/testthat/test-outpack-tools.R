@@ -112,10 +112,12 @@ test_that("can extract git metadata", {
 
   info <- helper_add_git(path_src)
 
-  p <- outpack_packet_start(path_src, "example", root = root)
-  id <- p$id
-  outpack_packet_run(p, "script.R")
-  outpack_packet_end(p)
+  suppressMessages({
+    p <- outpack_packet_start(path_src, "example", root = root)
+    id <- p$id
+    outpack_packet_run(p, "script.R")
+    outpack_packet_end(p)
+  })
 
   meta <- orderly_metadata(id, root = root$path)
 
@@ -154,11 +156,11 @@ test_that("can extract orderly metadata", {
   path <- test_prepare_orderly_example(c("parameters", "description"))
   envir <- new.env()
   ids1 <- vcapply(1:3, function(i) {
-    orderly_run("parameters", root = path, envir = envir,
-                parameters = list(a = i, b = 20, c = 30))
+    orderly_run_quietly("parameters", root = path, envir = envir,
+                        parameters = list(a = i, b = 20, c = 30))
   })
   ids2 <- vcapply(1:2, function(i) {
-    orderly_run("description", root = path, envir = envir)
+    orderly_run_quietly("description", root = path, envir = envir)
   })
 
   expect_equal(
@@ -180,7 +182,7 @@ test_that("can extract orderly custom metadata", {
   ## This is example in the docs
   path <- test_prepare_orderly_example("description")
   envir <- new.env()
-  id <- orderly_run("description", root = path, envir = envir)
+  id <- orderly_run_quietly("description", root = path, envir = envir)
   d <- orderly_metadata_extract(
     'name == "description"',
     extract = c(display = "custom.orderly.description.display is string"),
@@ -193,8 +195,8 @@ test_that("can extract session metadata", {
   path <- test_prepare_orderly_example("parameters")
   envir <- new.env()
   ids <- vcapply(1:3, function(i) {
-    orderly_run("parameters", root = path, envir = envir,
-                parameters = list(a = i, b = 20, c = 30))
+    orderly_run_quietly("parameters", root = path, envir = envir,
+                        parameters = list(a = i, b = 20, c = 30))
   })
   meta <- lapply(ids, orderly_metadata, root = path)
 
@@ -334,12 +336,12 @@ test_that("can extract plugin metadata", {
   env <- new.env()
   set.seed(1)
   ids <- vcapply(1:3, function(i) {
-    orderly_run("plugin", root = path, envir = env)
+    orderly_run_quietly("plugin", root = path, envir = env)
   })
   meta <- lapply(ids, orderly_metadata, root = path)
 
   d <- orderly_metadata_extract(NULL, extract = "custom.example\\.random",
-                                  root = path)
+                                root = path)
   expect_setequal(names(d), c("id", "custom_example.random"))
   ## mrc-4437 - this will change later
   expect_equal(d[["custom_example.random"]][[1]],

@@ -3,7 +3,7 @@ test_that("Can run simple example with plugin", {
 
   envir <- new.env()
   set.seed(1)
-  id <- orderly_run("plugin", root = path, envir = envir)
+  id <- orderly_run_quietly("plugin", root = path, envir = envir)
 
   set.seed(1)
   cmp <- rnorm(10)
@@ -93,7 +93,7 @@ test_that("error if packet uses non-configured plugin", {
 
   envir <- new.env()
   expect_error(
-    orderly_run("plugin", root = path, envir = envir),
+    orderly_run_quietly("plugin", root = path, envir = envir),
     "Plugin 'example.random' not enabled in 'orderly_config.yml'",
     fixed = TRUE)
 })
@@ -110,7 +110,7 @@ test_that("run cleanup on exit", {
 
   envir <- new.env()
   set.seed(1)
-  id <- orderly_run("plugin", root = path, envir = envir)
+  id <- orderly_run_quietly("plugin", root = path, envir = envir)
 
   mockery::expect_called(mock_cleanup, 1)
   expect_equal(

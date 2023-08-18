@@ -94,14 +94,13 @@ test_that("Can add file_store", {
   expect_true(fs::dir_exists(root$dst$files$path))
 
   hash_pulled <- outpack_metadata_core(id[["c"]], root$dst)$files$hash
-  expect_equal(length(hash_pulled), 4)
+  expect_equal(length(hash_pulled), 3)
 
   dest <- temp_file()
   dir.create(dest)
   root$dst$files$get(hash_pulled[[1]], dest, TRUE)
   root$dst$files$get(hash_pulled[[2]], dest, TRUE)
   root$dst$files$get(hash_pulled[[3]], dest, TRUE)
-  root$dst$files$get(hash_pulled[[4]], dest, TRUE)
 
   hash_not_pulled <- outpack_metadata_core(id[["a"]], root$dst)$files$hash
   expect_error(root$dst$files$get(hash_not_pulled[[1]], dest, TRUE),
@@ -245,14 +244,13 @@ test_that("Can add archive", {
   orderly_config_set(core.path_archive = NULL, root = root)
 
   hash <- outpack_metadata_core(id[["c"]], root)$files$hash
-  expect_equal(length(hash), 4)
+  expect_equal(length(hash), 3)
 
   dest <- temp_file()
   dir.create(dest)
   root$files$get(hash[[1]], dest, TRUE)
   root$files$get(hash[[2]], dest, TRUE)
   root$files$get(hash[[3]], dest, TRUE)
-  root$files$get(hash[[4]], dest, TRUE)
 })
 
 
@@ -324,48 +322,4 @@ test_that("Unchanged require_complete_tree prints message", {
   expect_message(
     orderly_config_set(core.require_complete_tree = TRUE, root = root),
     "'core.require_complete_tree' was unchanged")
-})
-
-
-test_that("can set logging threshold", {
-  root <- create_temporary_root()
-  expect_equal(root$config$logging,
-               list(console = FALSE, threshold = "info"))
-
-  orderly_config_set(logging.threshold = "debug", root = root)
-  expect_equal(root$config$logging$threshold, "debug")
-  expect_equal(orderly_config(root$path)$logging$threshold, "debug")
-})
-
-
-test_that("reject invalid logging thresholds", {
-  root <- create_temporary_root()
-  expect_error(
-    orderly_config_set(logging.threshold = "unknown", root = root),
-    "logging.threshold must be one of 'info', 'debug', 'trace'",
-    fixed = TRUE)
-})
-
-
-test_that("can control console logging", {
-  root <- create_temporary_root()
-  orderly_config_set(logging.console = TRUE, root = root)
-  expect_true(root$config$logging$console)
-
-  root2 <- root_open(root$path, FALSE, FALSE)
-  expect_true(root2$config$logging$console)
-
-  orderly_config_set(logging.console = FALSE, root = root)
-  expect_false(root$config$logging$console)
-
-  root3 <- root_open(root$path, FALSE, FALSE)
-  expect_false(root3$config$logging$console)
-})
-
-
-test_that("loading config without logging adds defaults", {
-  root <- create_temporary_root()
-  config_remove_logging(root$path)
-  root2 <- root_open(root$path, FALSE, FALSE)
-  expect_equal(root2$config$logging, list(console = TRUE, threshold = "info"))
 })

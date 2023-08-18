@@ -33,12 +33,6 @@ is enabled (\code{core.use_file_store})
 all dependencies to be fully available (\code{core.require_complete_tree})
 \item \code{hash_algorithm}: The hash algorithm used (currently not modifiable)
 }
-\item \code{logging}: Control over logging
-\itemize{
-\item \code{threshold}: Level of verbosity, set via \code{logging.threshold}
-\item \code{console}: Indicates if logging to the console is enabled by default,
-set via \code{logging.console}
-}
 \item \code{location}: Information about locations; see
 \link{orderly_location_add},
 \link{orderly_location_rename} and

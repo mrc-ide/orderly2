@@ -13,7 +13,7 @@ test_that("Configuration must exist", {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE))
   fs::dir_create(tmp)
-  outpack_init_no_orderly(tmp, logging_console = FALSE)
+  outpack_init_no_orderly(tmp)
   expect_error(orderly_config_read(tmp),
                "Orderly configuration does not exist: 'orderly_config.yml'")
 })
@@ -21,7 +21,7 @@ test_that("Configuration must exist", {
 
 test_that("error of opening an outpack root that is not an orderly root", {
   tmp <- withr::local_tempfile()
-  root <- outpack_init_no_orderly(tmp, logging_console = FALSE)
+  root <- outpack_init_no_orderly(tmp)
 
   err <- expect_error(
     withr::with_dir(tmp, root_open(".", FALSE, TRUE)),
@@ -39,7 +39,7 @@ test_that("error of opening an outpack root that is not an orderly root", {
 
 test_that("pass back a root", {
   path_outpack <- withr::local_tempfile()
-  root_outpack <- outpack_init_no_orderly(path_outpack, logging_console = FALSE)
+  root_outpack <- outpack_init_no_orderly(path_outpack)
   path_orderly <- test_prepare_orderly_example(character())
   root_orderly <- root_open(path_orderly, FALSE, TRUE)
 

@@ -393,8 +393,8 @@ test_that("detect and avoid modified files in source repository", {
   saveRDS(runif(10), file.path(tmp, "b.rds"))
   id <- character(2)
   for (i in seq_along(id)) {
-    p <- outpack_packet_start(tmp, "data", root = root$src)
-    outpack_packet_end(p)
+    p <- outpack_packet_start_quietly(tmp, "data", root = root$src)
+    outpack_packet_end_quietly(p)
     id[[i]] <- p$id
   }
 
@@ -607,21 +607,21 @@ test_that("Can filter locations", {
   }
 
   plan <- location_build_pull_plan(ids, NULL, NULL, root = root$dst)
-  expect_equal(plan$files$location, rep(c("a", "b", "c", "d"), each = 6))
+  expect_equal(plan$files$location, rep(c("a", "b", "c", "d"), each = 3))
 
   ## Invert order, now prefers 'd'
   plan <- location_build_pull_plan(ids, locs(c("d", "c", "b", "a")), NULL,
                                    root = root$dst)
-  expect_equal(plan$files$location, rep(c("d", "b"), c(18, 6)))
+  expect_equal(plan$files$location, rep(c("d", "b"), c(9, 3)))
 
   ## Drop redundant locations
   plan <- location_build_pull_plan(ids, locs(c("b", "d")), NULL,
                                    root = root$dst)
-  expect_equal(plan$files$location, rep(c("b", "d"), each = 12))
+  expect_equal(plan$files$location, rep(c("b", "d"), each = 6))
 
   ## Some corner cases:
   plan <- location_build_pull_plan(ids_a[[1]], NULL, NULL, root = root$dst)
-  expect_equal(plan$files$location, c("a", "a"))
+  expect_equal(plan$files$location, "a")
   plan <- location_build_pull_plan(character(), NULL, NULL, root = root$dst)
   expect_equal(
     plan,
@@ -886,6 +886,6 @@ test_that("skip files in the file store", {
   res <- testthat::evaluate_promise(
     orderly_location_pull_packet(id[[2]], root = root$dst))
   expect_match(res$messages, "Found 1 file in the file store", all = FALSE)
-  expect_match(res$messages, "Need to fetch 3 files.+from 1 location",
+  expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
                all = FALSE)
 })

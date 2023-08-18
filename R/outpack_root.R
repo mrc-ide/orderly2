@@ -6,7 +6,6 @@ outpack_root <- R6::R6Class(
     path = NULL,
     config = NULL,
     files = NULL,
-    logger = NULL,
     index = NULL,
 
     initialize = function(path) {
@@ -18,7 +17,6 @@ outpack_root <- R6::R6Class(
       if (self$config$core$use_file_store) {
         self$files <- file_store$new(file.path(path, ".outpack", "files"))
       }
-      self$logger <- self$config$logging
       self$index <- outpack_index$new(path)
       lockBinding("path", self)
       lockBinding("index", self)

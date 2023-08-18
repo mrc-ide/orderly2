@@ -38,10 +38,12 @@ test_that("store git information into packet, if under git's control", {
   ## Note that the git repo is in the src, not in the outpack root
   git_info <- helper_add_git(path_src)
 
-  p <- outpack_packet_start(path_src, "example", root = root)
-  id <- p$id
-  outpack_packet_run(p, "script.R")
-  outpack_packet_end(p)
+  suppressMessages({
+    p <- outpack_packet_start(path_src, "example", root = root)
+    id <- p$id
+    outpack_packet_run(p, "script.R")
+    outpack_packet_end(p)
+  })
 
   meta <- orderly_metadata(id, root = root$path)
   expect_mapequal(meta$git,
@@ -55,10 +57,12 @@ test_that("store no information into packet, if no git found", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path_src <- create_temporary_simple_src()
 
-  p <- outpack_packet_start(path_src, "example", root = root)
-  id <- p$id
-  outpack_packet_run(p, "script.R")
-  outpack_packet_end(p)
+  suppressMessages({
+    p <- outpack_packet_start(path_src, "example", root = root)
+    id <- p$id
+    outpack_packet_run(p, "script.R")
+    outpack_packet_end(p)
+  })
 
   meta <- orderly_metadata(id, root = root$path)
   expect_true("git" %in% names(meta))
