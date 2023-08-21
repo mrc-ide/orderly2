@@ -68,6 +68,11 @@ squote <- function(x) {
 }
 
 
+dquote <- function(x) {
+  sprintf('"%s"', x)
+}
+
+
 drop_null <- function(x, empty) {
   i <- vlapply(x, is.null)
   if (all(i)) empty else x[!i]

@@ -7,8 +7,9 @@ test_that("can cleanup explicit things quite well", {
   status <- withr::with_dir(path_src, orderly_cleanup_status())
 
   expect_s3_class(status, "orderly_cleanup_status")
-  expect_setequal(names(status),
-                  c("name", "root", "path", "role", "status", "delete"))
+  expect_setequal(
+    names(status),
+    c("name", "root", "path", "role", "status", "delete", "unknown"))
   expect_equal(status$name, "explicit")
   expect_equal(status$root, root_open(path, FALSE, FALSE)$path)
   expect_equal(normalise_path(status$path),
@@ -25,6 +26,14 @@ test_that("can cleanup explicit things quite well", {
                      derived = c(FALSE, TRUE, FALSE),
                      ignored = NA))
   expect_equal(status$delete, "mygraph.png")
+  expect_equal(status$unknown, character())
+
+  res <- testthat::evaluate_promise(print(status))
+  expect_equal(res$result, status)
+  expect_length(res$messages, 3)
+  expect_match(res$messages[[1]], "explicit is not clean")
+  expect_match(res$messages[[2]], "1 file can be deleted by running")
+  expect_match(res$messages[[3]], "mygraph.png")
 
   res <- testthat::evaluate_promise(
     withr::with_dir(path_src, orderly_cleanup(dry_run = TRUE)))
@@ -38,6 +47,45 @@ test_that("can cleanup explicit things quite well", {
   expect_match(res$messages, "Deleting 1 file from 'explicit':", all = FALSE)
   expect_setequal(dir(path_src), c("data.csv", "orderly.R"))
   expect_equal(res$result, status)
+})
+
+
+test_that("inform when running implicitly", {
+  path <- test_prepare_orderly_example("implicit")
+  helper_add_git(path)
+  envir <- new.env()
+  path_src <- file.path(path, "src", "implicit")
+  withr::with_dir(path_src,
+                  sys.source("orderly.R", envir))
+
+  status <- withr::with_dir(path_src, orderly_cleanup_status())
+  expect_equal(status$delete, character())
+  expect_setequal(status$unknown, c("data.csv", "mygraph.png"))
+
+  res <- testthat::evaluate_promise(print(status))
+  expect_equal(res$result, status)
+  expect_length(res$messages, 6)
+  expect_match(res$messages[[1]], "implicit is not clean")
+  expect_match(res$messages[[2]], "2 files have unknown status")
+  expect_match(res$messages[[5]], "Mark these as resources")
+  expect_match(res$messages[[6]], "Mark these as artefacts, dependencies")
+
+  writeLines("mygraph.png", file.path(path_src, ".gitignore"))
+
+  status <- withr::with_dir(path_src, orderly_cleanup_status())
+  expect_equal(status$delete, "mygraph.png")
+  expect_setequal(status$unknown, "data.csv")
+
+  res <- testthat::evaluate_promise(print(status))
+  expect_equal(res$result, status)
+  expect_length(res$messages, 7)
+  expect_match(res$messages[[1]], "implicit is not clean")
+  expect_match(res$messages[[2]], "1 file can be deleted by running")
+  expect_match(res$messages[[3]], "mygraph.png")
+  expect_match(res$messages[[4]], "1 file has unknown status")
+  expect_match(res$messages[[5]], "data.csv")
+  expect_match(res$messages[[6]], "Mark these as resources")
+  expect_match(res$messages[[7]], "Mark these as artefacts, dependencies")
 })
 
 
@@ -191,5 +239,11 @@ test_that("Cope with cleaning up when there's nothing to do", {
   res <- testthat::evaluate_promise(
     withr::with_dir(path_src, orderly_cleanup()))
   expect_match(res$messages, "Nothing to clean")
+  expect_equal(res$result, status)
+
+  res <- testthat::evaluate_promise(print(status))
+  expect_length(res$messages, 1)
+  expect_match(res$messages,
+               "data is clean, nothing to delete, nothing unknown")
   expect_equal(res$result, status)
 })
