@@ -917,6 +917,9 @@ test_that("can search for queries using boolean", {
     orderly_search(quote(parameter:a == true), root = root),
     x1)
   expect_equal(
+    orderly_search(quote(parameter:a == True), root = root),
+    x1)
+  expect_equal(
     orderly_search(quote(parameter:a == "TRUE"), root = root),
     c(y1))
   expect_equal(
@@ -937,6 +940,9 @@ test_that("can search for queries using boolean", {
     x2)
   expect_equal(
     orderly_search(quote(parameter:a == false), root = root),
+    x2)
+  expect_equal(
+    orderly_search(quote(parameter:a == False), root = root),
     x2)
   expect_equal(
     orderly_search(quote(parameter:a == "FALSE"), root = root),
