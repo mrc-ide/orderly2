@@ -353,6 +353,35 @@ Set your working directory to `src/<name>` and any orderly script should be full
 
 After doing this, you will have a mix of files within your source directory. We recommend a per-source-directory `.gitignore` which will keep these files out of version control (see below).  We will soon implement support for cleaning up generated files from this directory.
 
+For example, suppose that we have interactively run our `incoming_data/orderly.R` script, we would leave behind generated files.  We can report on this with `orderly2::orderly_cleanup_status`:
+
+```{r, include = FALSE}
+withr::with_dir(file.path(path, "src/incoming_data"),
+                sys.source("orderly.R", new.env(parent = .GlobalEnv)))
+```
+
+```{r}
+orderly2::orderly_cleanup_status("incoming_data", root = path)
+```
+
+If you have files here that are unknown to orderly it will tell you about them and prompt you to tell it about them explicitly.
+
+You can clean up generated files by running (as suggested in the message):
+
+```{r}
+orderly2::orderly_cleanup("incoming_data", root = path)
+```
+
+There is a `dry_run = TRUE` argument you can pass if you want to see what would be deleted without using the status function.
+
+You can also keep these files out of git by using the `orderly2::orderly_gitignore_update` function:
+
+```{r}
+orderly2::orderly_gitignore_update("incoming_data", root = path)
+```
+
+This creates (or updates) a `.gitignore` file within the report so that generated files will not be included by git.  If you have already accidentally committed them then the gitignore has no real effect and you should do some git surgery, see the git manuals or this [handy, if profane, guide](https://ohshitgit.com/).
+
 # Debugging and coping with errors
 
 (To be written)
