@@ -293,7 +293,8 @@ is_id_lookup <- function(expr) {
 }
 
 is_logical <- function(expr) {
-  truthy <- list(TRUE, FALSE, quote(true), quote(false), quote(True), quote(False))
+  truthy <- list(TRUE, FALSE, quote(true), quote(false),
+                 quote(True), quote(False))
   any(vlapply(truthy, identical, expr))
 }
 
