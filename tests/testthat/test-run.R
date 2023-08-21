@@ -994,3 +994,17 @@ test_that("can describe misses for dependencies", {
   expect_s3_class(err$parent$explanation, "orderly_query_explain")
   expect_identical(err$explanation, err$parent$explanation)
 })
+
+
+test_that("can run example with artefacts and no resources", {
+  path <- test_prepare_orderly_example("implicit")
+  path_src <- file.path(path, "src", "implicit", "orderly.R")
+  file.create(file.path(dirname(path_src), "mygraph.png"))
+
+  envir <- new.env()
+  ## previously this errored
+  prepend_lines(path_src, 'orderly2::orderly_artefact("plot", "mygraph.png")')
+  id <- orderly_run_quietly("implicit", root = path, envir = envir)
+  expect_true(file.exists(
+    file.path(path, "archive", "implicit", id, "mygraph.png")))
+})

@@ -117,6 +117,9 @@ vcapply <- function(X, FUN, ...) { # nolint
 
 ## TODO: also replace copy_shared with this
 expand_dirs <- function(paths, workdir) {
+  if (length(paths) == 0) {
+    return(character())
+  }
   withr::local_dir(workdir)
   i <- is_directory(paths)
   if (any(i)) {
