@@ -54,21 +54,22 @@ static_orderly_strict_mode <- function(args) {
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
-    pars <- static_orderly_parameters(list(...))
+    call <- environment()
     envir <- parent.frame()
-    check_parameters_interactive(envir, pars)
+    pars <- static_orderly_parameters(list(...), call)
+    check_parameters_interactive(envir, pars, call)
   }
 
   invisible()
 }
 
 
-static_orderly_parameters <- function(args) {
+static_orderly_parameters <- function(args, call) {
   if (length(args) == 0L) {
     return(NULL)
   }
   assert_named(args, unique = TRUE, name = "Arguments to 'orderly_parameters'")
-  check_parameter_values(args, TRUE)
+  check_parameter_values(args, TRUE, call)
 
   args
 }
@@ -77,7 +78,7 @@ static_orderly_parameters <- function(args) {
 current_orderly_parameters <- function(src, envir) {
   dat <- orderly_read(src)
   pars <- static_orderly_parameters(dat$parameters)
-  values <- check_parameters_interactive(envir, pars)
+  values <- check_parameters_interactive(envir, pars, NULL)
   values
 }
 

@@ -136,8 +136,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
 
   src <- file.path(root$path, "src", name)
   dat <- orderly_read(src)
-  parameters <- check_parameters(parameters, dat$parameters,
-                                 environment())
+  parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
 
   id <- outpack_id()
@@ -322,7 +321,7 @@ check_parameters <- function(given, spec, call) {
     return(NULL)
   }
 
-  check_parameter_values(given, FALSE)
+  check_parameter_values(given, FALSE, call)
 
   use_default <- setdiff(names(spec), names(given))
   if (length(use_default) > 0) {
@@ -332,29 +331,38 @@ check_parameters <- function(given, spec, call) {
 }
 
 
-check_parameter_values <- function(given, defaults) {
-  name <- if (defaults) "parameter defaults" else "parameters"
-  if (defaults) {
+check_parameter_values <- function(given, is_defaults, call) {
+  if (is_defaults) {
     given <- given[!vlapply(given, is.null)]
   }
 
   nonscalar <- lengths(given) != 1
-  if (any(nonscalar)) {
-    stop(sprintf(
-      "Invalid %s: %s - must be scalar",
-      name, paste(squote(names(nonscalar[nonscalar])), collapse = ", ")))
-  }
+  too_complex <- !vlapply(given, function(x) all(is_simple_atomic(x)))
+  err <- nonscalar | too_complex
 
-  err <- !vlapply(given, is_simple_atomic)
   if (any(err)) {
-    stop(sprintf(
-      "Invalid %s: %s - must be character, numeric or logical",
-      name, paste(squote((names(err[err]))), collapse = ", ")))
+    name <- if (is_defaults) "default" else "value"
+    title <- "Invalid parameter {name}{cli::qty(sum(err))}{?s}"
+    if (any(nonscalar)) {
+      msg_nonscalar <- c(
+        "x" = "Values must be scalar, but were not for:",
+        set_names(names(given)[nonscalar], rep("*", sum(nonscalar))))
+    } else {
+      msg_nonscalar <- NULL
+    }
+    if (any(too_complex)) {
+      msg_too_complex <- c(
+        "x" = "Values must be character, numeric or boolean, but were not for:",
+        set_names(names(given)[too_complex], rep("*", sum(too_complex))))
+    } else {
+      msg_too_complex <- NULL
+    }
+    cli::cli_abort(c(title, msg_nonscalar, msg_too_complex), call = call)
   }
 }
 
 
-check_parameters_interactive <- function(envir, spec) {
+check_parameters_interactive <- function(envir, spec, call) {
   if (length(spec) == 0) {
     return()
   }
@@ -380,7 +388,7 @@ check_parameters_interactive <- function(envir, spec) {
   ## that we're running in a pecular mode so the value might just have
   ## been overwritten
   found <- set_names(lapply(names(spec), function(v) envir[[v]]), names(spec))
-  check_parameter_values(found[!vlapply(found, is.null)], FALSE)
+  check_parameter_values(found[!vlapply(found, is.null)], FALSE, call)
   invisible(found)
 }
 
