@@ -64,17 +64,13 @@ find_all_dependencies <- function(id, metadata) {
 }
 
 
-validate_parameters <- function(parameters) {
+validate_parameters <- function(parameters, call) {
   if (is.null(parameters) || length(parameters) == 0) {
     return()
   }
   assert_is(parameters, "list")
   assert_named(parameters, unique = TRUE)
-  ok <- vlapply(parameters, is_simple_scalar_atomic)
-  if (!all(ok)) {
-    stop(sprintf("All parameters must be scalar atomics: error for %s",
-                 paste(squote(names(parameters)[!ok]), collapse = ", ")))
-  }
+  check_parameter_values(parameters, FALSE, call)
 }
 
 

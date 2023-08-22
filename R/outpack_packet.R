@@ -27,7 +27,7 @@ outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
 
   assert_scalar_character(name)
   assert_is_directory(path)
-  validate_parameters(parameters)
+  validate_parameters(parameters, NULL)
 
   if (is.null(id)) {
     id <- outpack_id()

@@ -23,15 +23,34 @@ test_that("Validate parameters", {
   expect_error(
     validate_parameters(list(1, 1)),
     "'parameters' must be named")
-  expect_error(
+  err <- expect_error(
     validate_parameters(list(a = 1, b = 2:3)),
-    "All parameters must be scalar atomics: error for 'b'")
-  expect_error(
+    "Invalid parameter value\\b")
+  expect_equal(
+    err$body,
+    c("x" = "Values must be scalar, but were not for:",
+      "*" = "b"))
+  err <- expect_error(
     validate_parameters(list(a = new.env(), b = 2:3)),
-    "All parameters must be scalar atomics: error for 'a', 'b'")
-  expect_error(
+    "Invalid parameter values\\b")
+  expect_equal(
+    err$body,
+    c("x" = "Values must be scalar, but were not for:",
+      "*" = "a",
+      "*" = "b",
+      "x" = "Values must be character, numeric or boolean, but were not for:",
+      "*" = "a"))
+  err <- expect_error(
     validate_parameters(list(a = new.env(), b = 2:3, c = NA)),
-    "All parameters must be scalar atomics: error for 'a', 'b', 'c'")
+    "Invalid parameter values\\b")
+  expect_equal(
+    err$body,
+    c("x" = "Values must be scalar, but were not for:",
+      "*" = "a",
+      "*" = "b",
+      "x" = "Values must be character, numeric or boolean, but were not for:",
+      "*" = "a",
+      "*" = "c"))
 })
 
 
