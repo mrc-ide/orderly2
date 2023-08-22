@@ -150,7 +150,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   v_source <- c("orderly", "resource")
   v_derived <- c("shared_resource", "dependency", "artefact")
 
-  is_source <- row_any(role[, v_source, drop = FALSE])
+  is_source <- row_any(role[, v_source, drop = FALSE]) | files == ".gitignore"
   is_derived <- !is_source & row_any(role[, v_derived, drop = FALSE])
   is_ignored <- path_is_git_ignored(file.path("src", name, files), path)
   status <- cbind(source = is_source,
@@ -161,11 +161,48 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   to_delete <- (is_derived | (!is.na(is_ignored) & is_ignored)) & !is_source
   delete <- files[to_delete]
 
+  unknown <- files[!is_source & !to_delete]
+
   structure(list(name = name,
                  root = root,
                  path = path,
                  role = role,
                  status = status,
-                 delete = delete),
+                 delete = delete,
+                 unknown = unknown),
             class = "orderly_cleanup_status")
+}
+
+
+##' @export
+print.orderly_cleanup_status <- function(x, ...) {
+  if (all(x$status[, "source"])) {
+    cli::cli_alert_success(
+      "{.pkg {x$name}} is clean, nothing to delete, nothing unknown")
+  } else {
+    cli::cli_alert_danger("{.pkg {x$name}} is not clean:")
+    if (length(x$delete) > 0) {
+      cli::cli_alert_info(
+        paste("{length(x$delete)} file{?s} can be deleted by running",
+              "'orderly2::orderly_cleanup({dquote(x$name)})':"))
+      cli::cli_ul()
+      cli::cli_li(x$delete)
+      cli::cli_end()
+    }
+    if (length(x$unknown) > 0) {
+      cli::cli_alert_info(
+        "{length(x$unknown)} file{?s} {?has/have} unknown status:")
+      cli::cli_ul()
+      cli::cli_li(x$unknown)
+      cli::cli_end()
+      cli::cli_alert_info(paste(
+        "Mark these as resources to indicate that these files should not be",
+        "cleaned up."), wrap = TRUE)
+      cli::cli_alert_info(paste(
+        "Mark these as artefacts, dependencies, or list in .gitignore to",
+        "indicate that these files can be automatically cleaned up"),
+        wrap = TRUE)
+    }
+  }
+  invisible(x)
 }
