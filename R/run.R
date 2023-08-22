@@ -205,7 +205,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   }
 
   if (success) {
-    orderly_packet_cleanup_success(p)
+    orderly_packet_cleanup_success(p, environment())
   } else if (is.null(local$error)) {
     detail <- info_end$message
     cli::cli_abort(
@@ -255,15 +255,16 @@ custom_metadata <- function(dat) {
 }
 
 
-check_produced_artefacts <- function(path, artefacts) {
+check_produced_artefacts <- function(path, artefacts, call) {
   if (is.null(artefacts)) {
     return()
   }
   expected <- unlist(lapply(artefacts, "[[", "files"), FALSE, FALSE)
   found <- file_exists(expected, workdir = path)
   if (any(!found)) {
-    stop("Script did not produce expected artefacts: ",
-         paste(squote(expected[!found]), collapse = ", "))
+    cli::cli_abort(c("Script did not produce expected artefacts:",
+                     set_names(expected[!found], rep("*", sum(!found)))),
+                   call = call)
   }
 
   for (i in seq_along(artefacts)) {
@@ -440,11 +441,12 @@ copy_resources_implicit <- function(src, dst, resources, artefacts) {
 
 
 ## All the cleanup bits for the happy exit (where we do the validation etc)
-orderly_packet_cleanup_success <- function(p) {
+orderly_packet_cleanup_success <- function(p, call = NULL) {
   path <- p$path
 
   plugin_run_cleanup(path, p$orderly2$config$plugins)
-  p$orderly2$artefacts <- check_produced_artefacts(path, p$orderly2$artefacts)
+  p$orderly2$artefacts <- check_produced_artefacts(path, p$orderly2$artefacts,
+                                                   call)
   if (p$orderly2$strict$enabled) {
     check_files_strict(path, p$files, p$orderly2$artefacts)
   } else {

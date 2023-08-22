@@ -75,9 +75,10 @@ test_that("error if declared artefacts are not produced", {
     'orderly2::orderly_artefact("some data", "output.csv")',
     code),
     path_src)
-  expect_error(
+  err <- expect_error(
     orderly_run_quietly("explicit", root = path, envir = envir),
-    "Script did not produce expected artefacts: 'output.csv'")
+    "Script did not produce expected artefacts:")
+  expect_equal(err$body, c("*" = "output.csv"))
 })
 
 
