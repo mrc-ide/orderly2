@@ -24,7 +24,7 @@
 orderly_strict_mode <- function() {
   p <- get_active_packet()
   if (!is.null(p)) {
-    prevent_multiple_calls(p, "strict_mode")
+    prevent_multiple_calls(p, "strict_mode", environment())
     p$orderly2$strict <- static_orderly_strict_mode(list())
   }
   invisible()
@@ -54,21 +54,22 @@ static_orderly_strict_mode <- function(args) {
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
-    pars <- static_orderly_parameters(list(...))
+    call <- environment()
     envir <- parent.frame()
-    check_parameters_interactive(envir, pars)
+    pars <- static_orderly_parameters(list(...), call)
+    check_parameters_interactive(envir, pars, call)
   }
 
   invisible()
 }
 
 
-static_orderly_parameters <- function(args) {
+static_orderly_parameters <- function(args, call) {
   if (length(args) == 0L) {
     return(NULL)
   }
   assert_named(args, unique = TRUE, name = "Arguments to 'orderly_parameters'")
-  check_parameter_values(args, TRUE)
+  check_parameter_values(args, TRUE, call)
 
   args
 }
@@ -77,7 +78,7 @@ static_orderly_parameters <- function(args) {
 current_orderly_parameters <- function(src, envir) {
   dat <- orderly_read(src)
   pars <- static_orderly_parameters(dat$parameters)
-  values <- check_parameters_interactive(envir, pars)
+  values <- check_parameters_interactive(envir, pars, NULL)
   values
 }
 
@@ -116,7 +117,7 @@ orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
 
   p <- get_active_packet()
   if (!is.null(p)) {
-    prevent_multiple_calls(p, "description")
+    prevent_multiple_calls(p, "description", environment())
     p$orderly2$description <-
       list(display = display, long = long, custom = custom)
   }
@@ -310,7 +311,7 @@ static_orderly_dependency <- function(args) {
 ##' @return Undefined
 ##' @export
 orderly_shared_resource <- function(...) {
-  files <- validate_shared_resource(list(...))
+  files <- validate_shared_resource(list(...), environment())
   ctx <- orderly_context(rlang::caller_env())
 
   files <- copy_shared_resource(ctx$root, ctx$path, ctx$config, files)
@@ -324,15 +325,19 @@ orderly_shared_resource <- function(...) {
 }
 
 
-validate_shared_resource <- function(args) {
+validate_shared_resource <- function(args, call) {
   if (length(args) == 0) {
-    stop("orderly_shared_resource requires at least one argument")
+    cli::cli_abort("'orderly_shared_resource' requires at least one argument",
+                   call = call)
   }
   assert_named(args, unique = TRUE)
   is_invalid <- !vlapply(args, function(x) is.character(x) && length(x) == 1)
   if (any(is_invalid)) {
-    stop(sprintf("Invalid shared resource %s: entries must be strings",
-                 paste(squote(names(args)[is_invalid]), collapse = ", ")))
+    cli::cli_abort(
+      sprintf(
+        "Invalid shared resource %s: entries must be strings",
+        paste(squote(names(args)[is_invalid]), collapse = ", ")),
+      call = call)
   }
   list_to_character(args)
 }
@@ -421,8 +426,11 @@ get_active_packet <- function() {
 }
 
 
-prevent_multiple_calls <- function(packet, name) {
+prevent_multiple_calls <- function(packet, name, call) {
   if (!is.null(packet$orderly2[[name]])) {
-    stop(sprintf("Only one call to 'orderly2::orderly_%s' is allowed", name))
+    cli::cli_abort(
+      c("Only one call to 'orderly2::orderly_{name}' is allowed",
+        i = "You have already called this function earlier in your orderly.R"),
+      call = call)
   }
 }

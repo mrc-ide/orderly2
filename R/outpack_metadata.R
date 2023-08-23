@@ -69,7 +69,7 @@ outpack_metadata_create <- function(path, name, id, time, files,
   time$end <- scalar(time_to_num(time$end))
 
   if (!is.null(parameters)) {
-    validate_parameters(parameters)
+    validate_parameters(parameters, NULL)
     parameters <- lapply(parameters, scalar)
   }
 

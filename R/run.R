@@ -136,8 +136,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
 
   src <- file.path(root$path, "src", name)
   dat <- orderly_read(src)
-  parameters <- check_parameters(parameters, dat$parameters,
-                                 environment())
+  parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
 
   id <- outpack_id()
@@ -205,7 +204,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   }
 
   if (success) {
-    orderly_packet_cleanup_success(p)
+    orderly_packet_cleanup_success(p, environment())
   } else if (is.null(local$error)) {
     detail <- info_end$message
     cli::cli_abort(
@@ -255,15 +254,16 @@ custom_metadata <- function(dat) {
 }
 
 
-check_produced_artefacts <- function(path, artefacts) {
+check_produced_artefacts <- function(path, artefacts, call) {
   if (is.null(artefacts)) {
     return()
   }
   expected <- unlist(lapply(artefacts, "[[", "files"), FALSE, FALSE)
   found <- file_exists(expected, workdir = path)
   if (any(!found)) {
-    stop("Script did not produce expected artefacts: ",
-         paste(squote(expected[!found]), collapse = ", "))
+    cli::cli_abort(c("Script did not produce expected artefacts:",
+                     set_names(expected[!found], rep("*", sum(!found)))),
+                   call = call)
   }
 
   for (i in seq_along(artefacts)) {
@@ -321,7 +321,7 @@ check_parameters <- function(given, spec, call) {
     return(NULL)
   }
 
-  check_parameter_values(given, FALSE)
+  check_parameter_values(given, FALSE, call)
 
   use_default <- setdiff(names(spec), names(given))
   if (length(use_default) > 0) {
@@ -331,29 +331,38 @@ check_parameters <- function(given, spec, call) {
 }
 
 
-check_parameter_values <- function(given, defaults) {
-  name <- if (defaults) "parameter defaults" else "parameters"
-  if (defaults) {
+check_parameter_values <- function(given, is_defaults, call) {
+  if (is_defaults) {
     given <- given[!vlapply(given, is.null)]
   }
 
   nonscalar <- lengths(given) != 1
-  if (any(nonscalar)) {
-    stop(sprintf(
-      "Invalid %s: %s - must be scalar",
-      name, paste(squote(names(nonscalar[nonscalar])), collapse = ", ")))
-  }
+  too_complex <- !vlapply(given, function(x) all(is_simple_atomic(x)))
+  err <- nonscalar | too_complex
 
-  err <- !vlapply(given, is_simple_atomic)
   if (any(err)) {
-    stop(sprintf(
-      "Invalid %s: %s - must be character, numeric or logical",
-      name, paste(squote((names(err[err]))), collapse = ", ")))
+    name <- if (is_defaults) "default" else "value"
+    title <- "Invalid parameter {name}{cli::qty(sum(err))}{?s}"
+    if (any(nonscalar)) {
+      msg_nonscalar <- c(
+        "x" = "Values must be scalar, but were not for:",
+        set_names(names(given)[nonscalar], rep("*", sum(nonscalar))))
+    } else {
+      msg_nonscalar <- NULL
+    }
+    if (any(too_complex)) {
+      msg_too_complex <- c(
+        "x" = "Values must be character, numeric or boolean, but were not for:",
+        set_names(names(given)[too_complex], rep("*", sum(too_complex))))
+    } else {
+      msg_too_complex <- NULL
+    }
+    cli::cli_abort(c(title, msg_nonscalar, msg_too_complex), call = call)
   }
 }
 
 
-check_parameters_interactive <- function(envir, spec) {
+check_parameters_interactive <- function(envir, spec, call) {
   if (length(spec) == 0) {
     return()
   }
@@ -379,7 +388,7 @@ check_parameters_interactive <- function(envir, spec) {
   ## that we're running in a pecular mode so the value might just have
   ## been overwritten
   found <- set_names(lapply(names(spec), function(v) envir[[v]]), names(spec))
-  check_parameter_values(found[!vlapply(found, is.null)], FALSE)
+  check_parameter_values(found[!vlapply(found, is.null)], FALSE, call)
   invisible(found)
 }
 
@@ -440,11 +449,12 @@ copy_resources_implicit <- function(src, dst, resources, artefacts) {
 
 
 ## All the cleanup bits for the happy exit (where we do the validation etc)
-orderly_packet_cleanup_success <- function(p) {
+orderly_packet_cleanup_success <- function(p, call = NULL) {
   path <- p$path
 
   plugin_run_cleanup(path, p$orderly2$config$plugins)
-  p$orderly2$artefacts <- check_produced_artefacts(path, p$orderly2$artefacts)
+  p$orderly2$artefacts <- check_produced_artefacts(path, p$orderly2$artefacts,
+                                                   call)
   if (p$orderly2$strict$enabled) {
     check_files_strict(path, p$files, p$orderly2$artefacts)
   } else {

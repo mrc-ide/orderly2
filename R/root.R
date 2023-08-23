@@ -186,7 +186,7 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
   root <- outpack_root$new(path_open)
 
   if (has_orderly) {
-    root$config$orderly <- orderly_config_read(root$path)
+    root$config$orderly <- orderly_config_read(root$path, call)
   } else if (require_orderly) {
     cli::cli_abort(
       c("Did not find 'orderly_config.yml' in '{path}'",

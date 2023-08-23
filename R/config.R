@@ -1,4 +1,4 @@
-orderly_config_read <- function(path) {
+orderly_config_read <- function(path, call = NULL) {
   filename <- file.path(path, "orderly_config.yml")
   assert_file_exists(basename(filename), workdir = path,
                      name = "Orderly configuration")
@@ -8,7 +8,8 @@ orderly_config_read <- function(path) {
     assert_named(raw)
   }
 
-  raw <- resolve_envvar(raw, orderly_envir_read(path), "orderly_config.yml")
+  raw <- resolve_envvar(raw, orderly_envir_read(path, call),
+                        "orderly_config.yml")
 
   check <- list(
     minimum_orderly_version = orderly_config_validate_minimum_orderly_version,
@@ -23,29 +24,34 @@ orderly_config_read <- function(path) {
   on.exit(setwd(owd))
   dat <- list()
   for (x in names(check)) {
-    dat[[x]] <- check[[x]](raw[[x]], filename)
+    dat[[x]] <- check[[x]](raw[[x]], filename, call)
   }
 
   dat
 }
 
 
-orderly_config_validate_minimum_orderly_version <- function(value, filename) {
+orderly_config_validate_minimum_orderly_version <- function(value, filename,
+                                                            call = NULL) {
   assert_scalar_character(value)
   version <- numeric_version(value)
   if (version < numeric_version("1.99.0")) {
-    stop("Migrate from version 1, see docs that we need to write still...")
+    cli::cli_abort(
+      c("Detected old orderly version, you need to migrate to orderly2",
+        i = 'Please see documentation at vignette("migrating")'),
+      call = call)
   }
   if (version > current_orderly_version()) {
-    stop(sprintf(
+    cli::cli_abort(sprintf(
       "orderly version '%s' is required, but only '%s' installed",
-      version, current_orderly_version()))
+      version, current_orderly_version()),
+      call = call)
   }
   version
 }
 
 
-orderly_config_validate_plugins <- function(plugins, filename) {
+orderly_config_validate_plugins <- function(plugins, filename, call = NULL) {
   if (is.null(plugins)) {
     return(NULL)
   }
@@ -61,7 +67,7 @@ orderly_config_validate_plugins <- function(plugins, filename) {
 }
 
 
-orderly_envir_read <- function(path) {
+orderly_envir_read <- function(path, call = NULL) {
   filename <- file.path(path, "orderly_envir.yml")
   if (!file.exists(filename)) {
     return(NULL)
@@ -76,9 +82,13 @@ orderly_envir_read <- function(path) {
   n <- lengths(dat)
   nok <- n != 1L
   if (any(nok)) {
-    stop(sprintf("Expected all elements of %s to be scalar (check %s)",
-                 basename(filename),
-                 paste(squote(names(dat)[nok]), collapse = ", ")))
+    err <- sprintf("Expected '%s' to be scalar, but had length %d",
+                   names(dat)[nok], n[nok])
+    cli::cli_abort(
+      c("All elements of '{basename(filename)}' must be scalar",
+        set_names(err, rep("x", length(err))),
+        i = "Working directory was '{dirname(filename)}'"),
+      call = call)
   }
   vcapply(dat[n == 1], as.character)
 }

@@ -17,17 +17,21 @@ test_that("Can read an orderly environment file", {
 test_that("environment files must be really simple", {
   path <- test_prepare_orderly_example("explicit")
   writeLines("A: value1\nB: [1, 2]", file.path(path, "orderly_envir.yml"))
-  expect_error(
+  err <- expect_error(
     orderly_envir_read(path),
-    "Expected all elements of orderly_envir.yml to be scalar (check 'B')",
+    "All elements of 'orderly_envir.yml' must be scalar",
     fixed = TRUE)
+  expect_equal(err$body[1],
+               c(x = "Expected 'B' to be scalar, but had length 2"))
+  expect_match(err$body[[2]],
+               "^Working directory was '.+'$")
 })
 
 
 test_that("can validate minimum required version", {
   expect_error(
     orderly_config_validate_minimum_orderly_version("1.4.5", "orderly.yml"),
-    "Migrate from version 1, see docs that we need to write still...",
+    "Detected old orderly version, you need to migrate to orderly2",
     fixed = TRUE)
   expect_error(
     orderly_config_validate_minimum_orderly_version("99.0.0", "orderly.yml"),

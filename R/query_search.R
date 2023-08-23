@@ -36,6 +36,7 @@ orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
   root <- root_open(root, locate = TRUE, require_orderly = FALSE)
   query <- as_orderly_query(...)
   options <- as_orderly_search_options(options)
+  validate_parameters(parameters, environment())
   orderly_query_eval(query, parameters, envir, options, root)
 }
 
@@ -126,7 +127,6 @@ orderly_query_eval <- function(query, parameters, envir, options, root) {
   assert_is(query, "orderly_query")
   assert_is(options, "orderly_search_options")
   assert_is(root, "outpack_root")
-  validate_parameters(parameters)
   assert_is(envir, "environment")
   ## It's simple enough here to pre-compare the provided parameters
   ## with query$info$parameters, but we already have nicer error

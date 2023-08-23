@@ -93,18 +93,40 @@ test_that("require non-default parameters are present in environment", {
 
 
 test_that("parameters must be atomic scalars", {
-  expect_error(
+  err <- expect_error(
     check_parameters(list(a = NULL, b = 2), list(a = NULL, b = NULL)),
-    "Invalid parameters: 'a' - must be scalar")
-  expect_error(
+    "Invalid parameter value\\b")
+  expect_equal(
+    err$body,
+    c("x" = "Values must be scalar, but were not for:",
+      "*" = "a",
+      "x" = "Values must be character, numeric or boolean, but were not for:",
+      "*" = "a"))
+  err <- expect_error(
     check_parameters(list(a = NULL, b = 2:10), list(a = NULL, b = NULL)),
-    "Invalid parameters: 'a', 'b' - must be scalar")
-  expect_error(
+    "Invalid parameter values\\b")
+  expect_equal(
+    err$body,
+    c("x" = "Values must be scalar, but were not for:",
+      "*" = "a",
+      "*" = "b",
+      "x" = "Values must be character, numeric or boolean, but were not for:",
+      "*" = "a"))
+  err <- expect_error(
     check_parameters(list(a = data, b = 2), list(a = NULL, b = NULL)),
-    "Invalid parameters: 'a' - must be character, numeric or logical")
-  expect_error(
+    "Invalid parameter value\\b")
+  expect_equal(
+    err$body,
+    c("x" = "Values must be character, numeric or boolean, but were not for:",
+      "*" = "a"))
+  err <- expect_error(
     check_parameters(list(a = data, b = 2 + 1i), list(a = NULL, b = NULL)),
-    "Invalid parameters: 'a', 'b' - must be character, numeric or logical")
+    "Invalid parameter values\\b")
+  expect_equal(
+    err$body,
+    c("x" = "Values must be character, numeric or boolean, but were not for:",
+      "*" = "a",
+      "*" = "b"))
 })
 
 
@@ -118,10 +140,16 @@ test_that("parse parameter metadata", {
 
 
 test_that("defaults must be valid", {
-  expect_error(
+  err <- expect_error(
     static_orderly_parameters(list(a = 1:2)),
-    "Invalid parameter defaults: 'a' - must be scalar")
-  expect_error(
+    "Invalid parameter default")
+  expect_equal(err$body, c("x" = "Values must be scalar, but were not for:",
+                           "*" = "a"))
+  err <- expect_error(
     static_orderly_parameters(list(a = data)),
-    "Invalid parameter defaults: 'a' - must be character, numeric or logical")
+    "Invalid parameter default")
+  expect_equal(
+    err$body,
+    c("x" = "Values must be character, numeric or boolean, but were not for:",
+      "*" = "a"))
 })
