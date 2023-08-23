@@ -150,7 +150,7 @@ information for the database:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum_orderly_version</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.99.0</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plugins</span><span class="kw">:</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">example.db</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/RtmpoJua97/file1aad27df2535</span></span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/RtmpIwNEdE/file1a1527837ce4</span></span></code></pre></div>
 <p>Our plugin is called <code>example.db</code> and is listed within the
 <code>plugins</code> section, along with its configuration; in this case
 indicating the path where the SQLite file can be loaded from.</p>
@@ -331,13 +331,13 @@ reliably experience.</p>
 <p>Now, we can run the report:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"example"</span>, root <span class="op">=</span> <span class="va">path_root</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">example</span>' `20230822-090946-1d5a63f5` at 2023-08-22 09:09:46.142458</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">example</span>' `20230823-091900-6ed245e8` at 2023-08-23 09:19:00.459408</span></span>
 <span><span class="co">## &gt; example.db::query(sql = "SELECT * FROM mtcars WHERE cyl == 4", as = "dat")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("Summary of data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(summary(dat), "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> Finished 20230822-090946-1d5a63f5 at 2023-08-22 09:09:46.388344 (0.2458861 secs)</span></span>
-<span><span class="co">## [1] "20230822-090946-1d5a63f5"</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> Finished 20230823-091900-6ed245e8 at 2023-08-23 09:19:00.695208 (0.2357993 secs)</span></span>
+<span><span class="co">## [1] "20230823-091900-6ed245e8"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -475,7 +475,7 @@ by running <code>options(outpack.schema_validate = TRUE)</code>).</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">example</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230822-090946-1d5a63f5</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230823-091900-6ed245e8</span></span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
 <span><span class="co">## │           └── <span style="color: #00BB00;">orderly.R</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">draft</span></span></span>
