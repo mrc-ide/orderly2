@@ -960,3 +960,53 @@ test_that("can search for queries using boolean", {
     orderly_search(quote(parameter:a == "F"), root = root),
     character(0))
 })
+
+test_that("query with invalid types errors", {
+  root <- create_temporary_root(use_file_store = TRUE)
+  x <- create_random_packet(root, "x", list(a = TRUE))
+  y <- create_random_packet(root, "y", list(b = "test"))
+  z <- create_random_packet(root, "z", list(c = 2))
+
+  err <- expect_error(
+    orderly_search(quote(parameter:a > TRUE), root = root),
+    "Cannot use test '>' with supplied data type")
+  expect_equal(err$body,
+               c(x = "Search term 'parameter:a' of type 'logical' is invalid",
+                 x = "Literal value 'TRUE' of type 'logical' is invalid",
+                 i = "This test can be used with types:",
+                 "*" = "numeric"))
+
+  err <- expect_error(
+    orderly_search(quote(TRUE > parameter:a), root = root),
+    "Cannot use test '>' with supplied data type"
+  )
+  expect_equal(err$body,
+               c(x = "Literal value 'TRUE' of type 'logical' is invalid",
+                 x = "Search term 'parameter:a' of type 'logical' is invalid",
+                 i = "This test can be used with types:",
+                 "*" = "numeric"))
+
+  err <- expect_error(
+    orderly_search(quote(parameter:a > parameter:b), root = root),
+    "Cannot use test '>' with supplied data type"
+  )
+  expect_equal(err$body,
+               c(x = "Search term 'parameter:a' of type 'logical' is invalid",
+                 x = "Search term 'parameter:b' of type 'character' is invalid",
+                 i = "This test can be used with types:",
+                 "*" = "numeric"))
+
+  err <- expect_error(
+    orderly_search(quote(parameter:a > parameter:z), root = root),
+    "Cannot use test '>' with supplied data type"
+  )
+  expect_equal(err$body,
+               c(x = "Search term 'parameter:a' of type 'logical' is invalid",
+                 i = "This test can be used with types:",
+                 "*" = "numeric"))
+
+  expect_error(
+    orderly_search(quote(parameter:b >= "str"), root = root),
+    "Cannot use test '>=' with supplied data type"
+  )
+})

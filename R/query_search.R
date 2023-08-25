@@ -253,23 +253,77 @@ query_eval_group <- function(query, query_env) {
 
 
 query_eval_test <- function(query, query_env) {
-  args <- lapply(query$args, query_eval, query_env)
-  i <- query_eval_test_binary(query$name, args[[1]], args[[2]])
+  evaluated <- lapply(query$args, query_eval, query_env)
+  query$args[[1]]$value <- evaluated[[1]]
+  query$args[[2]]$value <- evaluated[[2]]
+  i <- query_eval_test_binary(query$name, query$args[[1]], query$args[[2]])
   query_env$index$index$id[i]
+}
+
+test_types <- list("==" = c("character", "numeric", "logical"),
+                   "!=" = c("character", "numeric", "logical"),
+                   "<" = "numeric",
+                   "<=" = "numeric",
+                   ">" = "numeric",
+                   ">=" = "numeric")
+
+
+get_type <- function(x) {
+  if (is.numeric(x)) {
+    type <- "numeric"
+  } else {
+    type <- storage.mode(x)
+  }
+  type
+}
+
+assert_valid_test <- function(a, b, op) {
+
+  valid_types <- test_types[[op]]
+  build_invalid_err <- function(x) {
+    types <- lapply(x$value, get_type)
+    if (x$type == "lookup") {
+      err_text <- sprintf("Search term '%s'", deparse_query(x$expr, NULL, NULL))
+    } else {
+      err_text <- sprintf("Literal value '%s'", x$value)
+    }
+    ## NULL storage type valid because if a lookup then that represents this
+    ## packet having no value for that lookup. In that case we don't want to
+    ## error but instead return no matched packets
+    invalid <- types[!(types == "NULL" | types %in% valid_types)]
+    err <- vcapply(invalid, function(type) {
+      sprintf("%s of type '%s' is invalid", err_text, type)
+    })
+    setNames(err, rep("x", length(err)))
+  }
+
+  err_a <- build_invalid_err(a)
+  err_b <- build_invalid_err(b)
+
+  if (length(err_a) > 0 || length(err_b) > 0) {
+    valid_types_text <- setNames(valid_types, rep("*", length(valid_types)))
+    cli::cli_abort(
+      c("Cannot use test '{op}' with supplied data type",
+        err_a,
+        err_b,
+        i = "This test can be used with types:",
+        "*" = valid_types))
+  }
 }
 
 
 query_eval_test_binary <- function(op, a, b) {
-  op <- match.fun(op)
+  op_fun <- match.fun(op)
   ## Older versions of R do not allow mixing of zero and non-zero
   ## length inputs here, but we can do this ourselves:
-  if (length(a) == 0 || length(b) == 0) {
+  if (length(a$value) == 0 || length(b$value) == 0) {
     return(logical(0))
   }
   run_op <- function(a, b) {
-    !is.null(a) && !is.null(b) && is_same_type(a, b) && op(a, b)
+    !is.null(a) && !is.null(b) && is_same_type(a, b) && op_fun(a, b)
   }
-  vlapply(Map(run_op, a, b, USE.NAMES = FALSE),
+  assert_valid_test(a, b, op)
+  vlapply(Map(run_op, a$value, b$value, USE.NAMES = FALSE),
           identity)
 }
 
