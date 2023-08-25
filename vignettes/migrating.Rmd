@@ -75,6 +75,8 @@ In version 1, we had built-in support for accessing data from SQL databases; thi
 
 `orderly2` no longer requires a separate `orderly_commit()` call after `orderly_run()`; we no longer make a distinction between local draft and archive packets. Instead, we have added finer-grained control over where dependencies are resolved from (locally, or from some subset of your servers), which generalises the way that draft/archive was used in practice.  See `?orderly_run` for more details on how dependencies are resolved.
 
+This has implications for deleting things; the draft directory was always an easy target for deletion, but now after deletion you will need to tell `orderly2` that you have deleted things. See `vignette("introduction")` for details on this (section "Deleting things from the archive").
+
 ## No more testing or development mode
 
 We have had two different, but unsatisfactory, mechanisms for developing an orderly report:
@@ -120,3 +122,5 @@ We will merge `orderly2` into the `orderly` package, so once we are ready for re
 
 * The YAML format is inflexible, error prone for users, and leads to duplication
 * It was too focussed around our initial needs with the [Vaccine Impact Modelling Consortium](https://vaccineimpact.org)
+* It was fairly easy to get your archive and sqlite database into an inconsistent state (e.g., by deleting or moving files from the archive)
+* The SQLite database behaved poorly on shared file systems

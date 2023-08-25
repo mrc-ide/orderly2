@@ -1009,3 +1009,14 @@ test_that("can run example with artefacts and no resources", {
   expect_true(file.exists(
     file.path(path, "archive", "implicit", id, "mygraph.png")))
 })
+
+
+test_that("cope with manually deleted packets, exclude from deps", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  ids <- vcapply(1:3, function(i) {
+    orderly_run_quietly("data", envir = new.env(), root = path)
+  })
+
+  unlink(file.path(path, "archive", "data", ids[[3]]), recursive = TRUE)
+  id2 <- orderly_run("depends", root = path, envir = new.env())
+})

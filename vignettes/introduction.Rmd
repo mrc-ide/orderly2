@@ -382,6 +382,14 @@ orderly2::orderly_gitignore_update("incoming_data", root = path)
 
 This creates (or updates) a `.gitignore` file within the report so that generated files will not be included by git.  If you have already accidentally committed them then the gitignore has no real effect and you should do some git surgery, see the git manuals or this [handy, if profane, guide](https://ohshitgit.com/).
 
+# Deleting things from the archive
+
+If you delete packets from your `archive/` directory then this puts `orderly2` into an inconsistent state with its metadata store. Sometimes this does not matter (e.g., if you delete old copies that would never be candidates for inclusion with `orderly2::orderly_dependency` you will never notice).  However, if you delete the most recent copy of a packet and then try and depend on it, you will get an error.
+
+```{r}
+
+```
+
 # Debugging and coping with errors
 
 (To be written)

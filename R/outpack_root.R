@@ -54,7 +54,7 @@ file_export <- function(root, id, there, here, dest, overwrite) {
                      meta$name, meta$id, there)
     if (!all(file.exists(there_full))) {
       missing <- hash[!file.exists(there_full)]
-      message <- paste("File not found in archive:\n%s",
+      message <- paste("File not found in archive:\n",
                        paste(sprintf("  - %s", missing), collapse = "\n"))
       stop(not_found_error(message, missing))
     }
