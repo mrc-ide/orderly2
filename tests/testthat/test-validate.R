@@ -103,7 +103,41 @@ test_that("invalidate all children of corrupt parent", {
   re <- "^.+ ([0-9]{8}-[0-9]{6}-[[:xdigit:]]{8}) \\([a-z]+\\) is valid\\n$"
   expect_match(res$messages, re, all = TRUE)
   expect_equal(sub(re, "\\1", res$messages), c(id1, id2, id3))
-  ## Same if we start from the end
+  ## Same if we start from the end; all 5 in the same order
+  expect_equal(
+    evaluate_promise(orderly_validate_archive(id3, root = root)),
+    res)
+
+  file.create(file.path(root$path, "archive", "child", id2[[1]], "data.rds"))
+  res <- evaluate_promise(orderly_validate_archive(id3, root = root))
+  expect_match(res$messages[c(1, 3, 4)], re, all = TRUE)
+  expect_match(res$messages[[2]],
+               sprintf("%s (child) is invalid due to its files", id2[[1]]),
+               fixed = TRUE)
+  expect_match(
+    res$messages[[5]],
+    sprintf("%s (grandchild) is invalid due to its upstream packets", id3),
+    fixed = TRUE)
+})
+
+
+test_that("don't invalidate children when complete tree off", {
+  root <- create_temporary_root(require_complete_tree = FALSE)
+  id1 <- create_random_packet(root)
+  id2 <- replicate(3, create_random_dependent_packet(root, "child", id1))
+  id3 <- create_random_dependent_packet(root, "grandchild", id2)
+  res <- evaluate_promise(orderly_validate_archive(root = root))
+  expect_equal(res$result, character())
+  expect_length(res$messages, 5)
+  re <- "^.+ ([0-9]{8}-[0-9]{6}-[[:xdigit:]]{8}) \\([a-z]+\\) is valid\\n$"
+  expect_match(res$messages, re, all = TRUE)
+  expect_equal(sub(re, "\\1", res$messages), c(id1, id2, id3))
+  ## No longer recurses if called from the end
+  res <- evaluate_promise(orderly_validate_archive(id3, root = root))
+  expect_length(res$messages, 1)
+
+  ## We no longer know, or care, if this is invalid due to children
+  file.create(file.path(root$path, "archive", "child", id2[[1]], "data.rds"))
   expect_equal(
     evaluate_promise(orderly_validate_archive(id3, root = root)),
     res)

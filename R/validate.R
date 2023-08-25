@@ -105,7 +105,7 @@ orderly_validate_archive_packet_check <- function(id, action, cache, root) {
   path <- file.path(root$path, root$config$core$path_archive, name, id)
 
   depends <- meta$depends
-  depends$valid <- rep(NA, nrow(depends))
+  depends$valid <- rep(TRUE, nrow(depends))
   if (root$config$core$require_complete_tree) {
     for (i in seq_len(nrow(depends))) {
       depends$valid[[i]] <- orderly_validate_archive_packet(
