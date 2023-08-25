@@ -32,6 +32,7 @@ hash_validate_file <- function(path, expected, body = NULL, call = NULL) {
 }
 
 
+
 hash_validate_data <- function(data, expected, name = deparse(substitute(x)),
                                body = NULL, call = NULL) {
   hash_validate(rehash(data, hash_data, expected), expected, name,

@@ -80,3 +80,4 @@ reference:
     contents:
       - orderly_copy_files
       - orderly_example
+      - orderly_validate_archive
