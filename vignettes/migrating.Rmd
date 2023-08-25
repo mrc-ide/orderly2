@@ -122,5 +122,5 @@ We will merge `orderly2` into the `orderly` package, so once we are ready for re
 
 * The YAML format is inflexible, error prone for users, and leads to duplication
 * It was too focussed around our initial needs with the [Vaccine Impact Modelling Consortium](https://vaccineimpact.org)
-* It was fairly easy to get your archive and sqlite database into an inconsistent state (e.g., by deleting or moving files from the archive)
+* It was fairly easy to get your archive and SQLite database into an inconsistent state (e.g., by deleting or moving files from the archive)
 * The SQLite database behaved poorly on shared file systems

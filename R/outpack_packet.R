@@ -87,7 +87,7 @@ outpack_packet_end <- function(packet, insert = TRUE) {
   packet$time$end <- Sys.time()
   hash_algorithm <- packet$root$config$core$hash_algorithm
   elapsed_str <- format(packet$time$end - packet$time$start)
-  cli::cli_alert_success(
+  cli::cli_alert_info(
     "Finished {packet$id} at {packet$time$end} ({elapsed_str})")
   json <- outpack_metadata_create(packet$path, packet$name, packet$id,
                                   packet$time,
