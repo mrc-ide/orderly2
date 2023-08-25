@@ -36,7 +36,11 @@ outpack_index <- R6::R6Class(
 
     location = function(name) {
       self$refresh()
-      private$data_$location[private$data_$location$location %in% name, ]
+      if (is.null(name)) {
+        private$data_$location
+      } else {
+        private$data_$location[private$data_$location$location %in% name, ]
+      }
     },
 
     unpacked = function() {

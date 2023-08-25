@@ -152,7 +152,6 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
                  name))
   }
   location_check_exists(root, name)
-  config <- root$config
 
   index <- root$index$data()
   known_here <- index$location$packet[index$location$location == name]
@@ -160,13 +159,6 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   only_here <- setdiff(known_here, known_elsewhere)
 
   if (length(only_here) > 0) {
-    if (!location_exists(root, "orphan")) {
-      config$location <- rbind(
-        config$location,
-        new_location_entry(orphan, "orphan", NULL))
-      rownames(config$location) <- NULL
-    }
-
     mark_packets_orphaned(name, only_here, root)
   }
 
@@ -178,6 +170,7 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   ## rebuild() anywhere; it can probably be relaxed if the refresh was
   ## more careful, but this is a rare operation.
   root$index$rebuild()
+  config <- root$config
   config$location <- config$location[config$location$name != name, ]
   config_update(config, root)
   invisible()
@@ -728,10 +721,27 @@ location_exists <- function(root, name) {
 
 
 mark_packets_orphaned <- function(location, packet_id, root) {
+  if (!location_exists(root, "orphan")) {
+    config <- root$config
+    config$location <- rbind(
+      config$location,
+      new_location_entry(orphan, "orphan", NULL))
+    rownames(config$location) <- NULL
+    config_update(config, root)
+  }
   src <- file.path(root$path, ".outpack", "location", location, packet_id)
   dest <- file.path(root$path, ".outpack", "location", "orphan", packet_id)
   fs::dir_create(dirname(dest))
   fs::file_move(src, dest)
+}
+
+
+drop_local_packet <- function(packet_id, root) {
+  location <- root$index$location(NULL)
+  known_at <- location$location[location$packet == packet_id]
+  if (!any(known_at != local)) {
+    mark_packets_orphaned(local, packet_id, root)
+  }
 }
 
 
