@@ -149,24 +149,24 @@ files then compare that with the directory.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a simple example:</span></span></span>
 <span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_example.html">orderly_example</a></span><span class="op">(</span><span class="st">"default"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/Rtmpz9LPCi/file15eb601ff63e'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/Rtmp6YOrPe/file15cc5afdae56'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># We simulate running a packet interactively by using 'source';</span></span></span>
 <span class="r-in"><span><span class="co"># you might have run this line-by-line, or with the "Source"</span></span></span>
 <span class="r-in"><span><span class="co"># button in Rstudio.</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">path</span>, <span class="st">"src/data/orderly.R"</span><span class="op">)</span>, chdir <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>cannot open file '/tmp/Rtmpz9LPCi/file15eb601ff63e/src/data/orderly.R': No such file or directory</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>cannot open file '/tmp/Rtmp6YOrPe/file15cc5afdae56/src/data/orderly.R': No such file or directory</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in file(filename, "r", encoding = encoding):</span> cannot open the connection</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Having run this, the output of the report is present in the</span></span></span>
 <span class="r-in"><span><span class="co"># source directory:</span></span></span>
 <span class="r-in"><span><span class="fu">fs</span><span class="fu">::</span><span class="fu"><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/Rtmpz9LPCi/file15eb601ff63e': no such file or directory</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/Rtmp6YOrPe/file15cc5afdae56': no such file or directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># We can detect what might want cleaning up by running</span></span></span>
 <span class="r-in"><span><span class="co"># "orderly_cleanup_status":</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_cleanup_status</span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/Rtmpz9LPCi/file15eb601ff63e'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/Rtmp6YOrPe/file15cc5afdae56'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Soon this will print more nicely to the screen, but for now you</span></span></span>
 <span class="r-in"><span><span class="co"># can see that the status of "data.rds" is "derived", which means</span></span></span>
@@ -175,7 +175,7 @@ files then compare that with the directory.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Do the actual deletion:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_cleanup</span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/Rtmpz9LPCi/file15eb601ff63e'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/Rtmp6YOrPe/file15cc5afdae56'</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
