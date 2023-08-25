@@ -52,21 +52,23 @@ file_export <- function(root, id, there, here, dest, overwrite, call = NULL) {
   } else {
     there_full <- file.path(root$path, root$config$core$path_archive,
                             meta$name, meta$id, there)
-    hint <- paste(
-      'Consider orderly2::orderly_validate_archive("{id}", action = "orphan")',
-      'to remove this packet from consideration')
     if (!all(file.exists(there_full))) {
       cli::cli_abort(
         c("File not found in archive",
-          set_names(there[!file.exists(there_full)], rep("x", length(missing))),
-          i = hint),
+          set_names(there[!file.exists(there_full)], "x")),
         class = "not_found_error",
         call = call)
     }
     for (i in seq_along(here_full)) {
       tryCatch(
         hash_validate_file(there_full[[i]], hash[[i]]),
-        error = function(e) stop(not_found_error(e$message, there_full[[i]])))
+        error = function(e) {
+          cli::cli_abort(
+            "File '{there}' in '{meta$name}/{meta$id}' is corrupt",
+            parent = e,
+            class = "not_found_error",
+            call = call)
+        })
     }
     fs::file_copy(there_full, here_full, overwrite)
   }

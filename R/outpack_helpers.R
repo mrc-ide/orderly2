@@ -121,9 +121,11 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
     file_export(root, id, plan$there, plan$here, dest, overwrite),
     not_found_error = function(e) {
       if (id %in% root$index$unpacked()) {
+        cmd <- sprintf(
+          'orderly2::orderly_validate_archive("%s", action = "orphan")', id)
         cli::cli_abort(
           c("Unable to copy files, due to corrupt packet {id}",
-            i = "Consider orphaning this packet"),
+            i = "Consider '{cmd}' to remove this packet from consideration"),
           parent = e)
       } else if (!as_orderly_search_options(options)$allow_remote) {
         cli::cli_abort(

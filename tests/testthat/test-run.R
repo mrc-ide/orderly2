@@ -1027,18 +1027,56 @@ test_that("cope with manually deleted packets, exclude from deps", {
     err$parent$message,
     set_names(paste("Unable to copy files, due to corrupt packet", id),
               ""))
-  expect_equal(err$parent$body, c(i = "Consider orphaning this packet"))
+  cmd <- sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
+                 id)
+  expect_equal(
+    err$parent$body,
+    c(i = sprintf("Consider '%s' to remove this packet from consideration",
+                  cmd)))
 
   expect_s3_class(err$parent$parent, "not_found_error")
   expect_equal(
     err$parent$parent$message,
     set_names("File not found in archive", ""))
+  expect_equal(err$parent$parent$body, c(x = "data.rds"))
+
+  suppressMessages(orderly_validate_archive(id, action = "orphan", root = path))
+  id2 <- orderly_run_quietly("depends", root = path, envir = new.env())
+  expect_equal(orderly_metadata(id2, path)$depends$packet, ids[[2]])
+})
+
+
+test_that("cope with corrupted packets, exclude from deps", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  ids <- vcapply(1:3, function(i) {
+    orderly_run_quietly("data", envir = new.env(), root = path)
+  })
+
+  id <- ids[[3]]
+  file.create(file.path(path, "archive", "data", id, "data.rds")) # truncate
+
+  err <- expect_error(
+    orderly_run_quietly("depends", root = path, envir = new.env()),
+    "Failed to run report")
+  expect_equal(
+    err$parent$message,
+    set_names(paste("Unable to copy files, due to corrupt packet", id),
+              ""))
   cmd <- sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
                  id)
   expect_equal(
-    err$parent$parent$body,
-    c(x = "data.rds",
-      i = sprintf('Consider %s to remove this packet from consideration', cmd)))
+    err$parent$body,
+    c(i = sprintf("Consider '%s' to remove this packet from consideration",
+                  cmd)))
+
+  expect_s3_class(err$parent$parent, "not_found_error")
+  expect_equal(
+    err$parent$parent$message,
+    sprintf("File 'data.rds' in 'data/%s' is corrupt", id), "")
+  expect_null(err$parent$parent$body)
+  expect_match(
+    err$parent$parent$parent$message,
+    "Hash of '.+/data.rds' does not match!")
 
   suppressMessages(orderly_validate_archive(id, action = "orphan", root = path))
   id2 <- orderly_run_quietly("depends", root = path, envir = new.env())
