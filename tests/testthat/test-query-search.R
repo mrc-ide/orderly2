@@ -1010,3 +1010,17 @@ test_that("query with invalid types errors", {
     "Cannot use test '>=' with supplied data type"
   )
 })
+
+test_that("query with invalid types errors even when one would satisfy", {
+  root <- create_temporary_root(use_file_store = TRUE)
+  x <- create_random_packet(root, "x", list(a = 2))
+  y <- create_random_packet(root, "y", list(a = "test"))
+
+  err <- expect_error(
+    orderly_search(quote(parameter:a > 1), root = root),
+    "Cannot use test '>' with supplied data type")
+  expect_equal(err$body,
+               c(x = "Search term 'parameter:a' of type 'character' is invalid",
+                 i = "This test can be used with types:",
+                 "*" = "numeric"))
+})
