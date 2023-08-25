@@ -120,13 +120,17 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
   tryCatch(
     file_export(root, id, plan$there, plan$here, dest, overwrite),
     not_found_error = function(e) {
-      if (!as_orderly_search_options(options)$allow_remote) {
-        stop(paste0(
-          "Unable to copy files, as they are not available locally\n",
-          "To fetch from a location, try again with",
-          "  'options = list(allow_remote = TRUE)'\n",
-          "Original error:\n", e$message),
-          call. = FALSE)
+      if (id %in% root$index$unpacked()) {
+        cli::cli_abort(
+          c("Unable to copy files, due to corrupt packet {id}",
+            i = "Consider orphaning this packet"),
+          parent = e)
+      } else if (!as_orderly_search_options(options)$allow_remote) {
+        cli::cli_abort(
+          c("Unable to copy files, as they are not available locally",
+            i = paste("To fetch from a location, try again with",
+                      "options = list(allow_remote = TRUE)")),
+          parent = e)
       }
       copy_files_from_remote(id, plan$there, plan$here, dest, overwrite, root,
                              environment())

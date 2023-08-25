@@ -1017,6 +1017,30 @@ test_that("cope with manually deleted packets, exclude from deps", {
     orderly_run_quietly("data", envir = new.env(), root = path)
   })
 
-  unlink(file.path(path, "archive", "data", ids[[3]]), recursive = TRUE)
-  id2 <- orderly_run("depends", root = path, envir = new.env())
+  id <- ids[[3]]
+  unlink(file.path(path, "archive", "data", id), recursive = TRUE)
+
+  err <- expect_error(
+    orderly_run_quietly("depends", root = path, envir = new.env()),
+    "Failed to run report")
+  expect_equal(
+    err$parent$message,
+    set_names(paste("Unable to copy files, due to corrupt packet", id),
+              ""))
+  expect_equal(err$parent$body, c(i = "Consider orphaning this packet"))
+
+  expect_s3_class(err$parent$parent, "not_found_error")
+  expect_equal(
+    err$parent$parent$message,
+    set_names("File not found in archive", ""))
+  cmd <- sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
+                 id)
+  expect_equal(
+    err$parent$parent$body,
+    c(x = "data.rds",
+      i = sprintf('Consider %s to remove this packet from consideration', cmd)))
+
+  suppressMessages(orderly_validate_archive(id, action = "orphan", root = path))
+  id2 <- orderly_run_quietly("depends", root = path, envir = new.env())
+  expect_equal(orderly_metadata(id2, path)$depends$packet, ids[[2]])
 })

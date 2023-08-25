@@ -26,7 +26,7 @@ outpack_root <- R6::R6Class(
 
 ## Not just for the file store, but this is how we can interact with
 ## the files safely:
-file_export <- function(root, id, there, here, dest, overwrite) {
+file_export <- function(root, id, there, here, dest, overwrite, call = NULL) {
   ## This validation *always* occurs; does the packet even claim to
   ## have this path?
   validate_packet_has_file(root, id, there)
@@ -51,18 +51,18 @@ file_export <- function(root, id, there, here, dest, overwrite) {
     }
   } else {
     there_full <- file.path(root$path, root$config$core$path_archive,
-                     meta$name, meta$id, there)
+                            meta$name, meta$id, there)
+    hint <- paste(
+      'Consider orderly2::orderly_validate_archive("{id}", action = "orphan")',
+      'to remove this packet from consideration')
     if (!all(file.exists(there_full))) {
-      missing <- hash[!file.exists(there_full)]
-      message <- paste("File not found in archive:\n",
-                       paste(sprintf("  - %s", missing), collapse = "\n"))
-      stop(not_found_error(message, missing))
+      cli::cli_abort(
+        c("File not found in archive",
+          set_names(there[!file.exists(there_full)], rep("x", length(missing))),
+          i = hint),
+        class = "not_found_error",
+        call = call)
     }
-    ## TODO: Ideally we would have an argument/option support a faster
-    ## possibility here if requested (e.g., no validation validate just
-    ## size, validate hash); this only applies to this non-file-store
-    ## using branch, so typically would affect users running "draft"
-    ## type analyses
     for (i in seq_along(here_full)) {
       tryCatch(
         hash_validate_file(there_full[[i]], hash[[i]]),
