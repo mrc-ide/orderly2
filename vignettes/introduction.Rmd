@@ -399,7 +399,7 @@ orderly2::orderly_metadata_extract(
   root = path)
 ```
 
-```{include = FALSE}
+```{r include = FALSE}
 id_latest <- orderly2::orderly_search("latest", name = "incoming_data",
                                       root = path)
 unlink(file.path(path, "archive", "incoming_data", id_latest), recursive = TRUE)
@@ -407,7 +407,7 @@ unlink(file.path(path, "archive", "incoming_data", id_latest), recursive = TRUE)
 
 When we run the `analysis` task, it will pull in the most recent version (`r inline(id_latest)`). However, if you had deleted this manually (e.g., to save space or accidentally) or corrupted it (e.g., by opening some output in Excel and letting it save changes) it will not be able to be included, and running `analysis` will fail:
 
-```{r, error = TRUE}
+```{r error = TRUE}
 orderly2::orderly_run("analysis", root = path)
 ```
 
