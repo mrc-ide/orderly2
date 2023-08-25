@@ -63,8 +63,11 @@ orderly_validate_archive <- function(..., action = "inform",
     cache[[id]] <- orderly_validate_archive_packet(id, action, cache, root)
   }
   res <- as.list(cache)
-  valid <- vlapply(res, "[[", "valid")
-  invisible(sort(names(valid)[!valid]))
+  invalid <- sort(names(Filter(function(x) !x$valid, res)))
+  if (length(invalid) > 0) {
+    root$index$rebuild()
+  }
+  invisible(invalid)
 }
 
 

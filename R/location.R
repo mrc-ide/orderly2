@@ -166,9 +166,6 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   if (fs::dir_exists(location_path)) {
     fs::dir_delete(location_path)
   }
-  ## This forces a rebuild of the index, and is the only call with
-  ## rebuild() anywhere; it can probably be relaxed if the refresh was
-  ## more careful, but this is a rare operation.
   root$index$rebuild()
   config <- root$config
   config$location <- config$location[config$location$name != name, ]

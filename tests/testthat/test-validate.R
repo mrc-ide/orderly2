@@ -16,7 +16,7 @@ test_that("Can validate a packet that is invalid", {
   expect_match(res$messages, sprintf("%s (data) is invalid", id), fixed = TRUE)
   expect_equal(res$result, id)
   expect_true(file.exists(path)) # not deleted
-  expect_equal(root$index$rebuild()$unpacked(), id) # still there
+  expect_equal(root$index$unpacked(), id) # still there
 })
 
 
@@ -31,7 +31,7 @@ test_that("Can orphan an invalid packet", {
   expect_match(res$messages, sprintf("%s (data) is invalid", id), fixed = TRUE)
   expect_equal(res$result, id)
   expect_true(file.exists(path)) # not deleted
-  expect_equal(root$index$rebuild()$unpacked(), ids[-2])
+  expect_equal(root$index$unpacked(), ids[-2])
   expect_equal(root$index$location(orphan)$packet, id)
 })
 
@@ -48,7 +48,7 @@ test_that("Can delete an invalid packet", {
                all = FALSE)
   expect_equal(res$result, id)
   expect_false(file.exists(path))
-  expect_equal(root$index$rebuild()$unpacked(), ids[-2])
+  expect_equal(root$index$unpacked(), ids[-2])
   expect_equal(root$index$location(orphan)$packet, id)
 })
 
@@ -87,7 +87,7 @@ test_that("recursively validate, errors in upstream are a problem", {
     orderly_validate_archive(ids[["d"]], action = "orphan", root = root))
   expect_equal(res, res2)
 
-  expect_equal(root$index$rebuild()$unpacked(), unname(ids[-(3:4)]))
+  expect_equal(root$index$unpacked(), unname(ids[-(3:4)]))
   expect_equal(root$index$location(orphan)$packet, unname(ids[3:4]))
 })
 
