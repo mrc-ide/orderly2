@@ -282,3 +282,15 @@ test_that("can print pretty bytes", {
   expect_equal(pretty_bytes(5000000000), "5,000 MB")
   expect_equal(pretty_bytes(5123456789), "5,123.5 MB")
 })
+
+
+test_that("set_names copes with common pathologies", {
+  expect_equal(set_names(character(), "x"),
+               structure(character(), names = character()))
+  expect_equal(set_names("a", "x"),
+               c("x" = "a"))
+  expect_equal(set_names(c("a", "b"), "x"),
+               c("x" = "a", x = "b"))
+  expect_equal(set_names(c("a", "b"), c("x", "y")),
+               c("x" = "a", y = "b"))
+})
