@@ -121,10 +121,16 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
     file_export(root, id, plan$there, plan$here, dest, overwrite),
     not_found_error = function(e) {
       if (id %in% root$index$unpacked()) {
+        ## The most likely reason for things to have failed is that
+        ## the user has deleted part of the archive.
+        name <- outpack_metadata_core(id, root)$name
+        packet_exists <- file.exists(
+          file.path(root$path, root$config$core$path_archive, name, id))
+        reason <- if (packet_exists) "locally modified" else "deleted"
         cmd <- sprintf(
           'orderly2::orderly_validate_archive("%s", action = "orphan")', id)
         cli::cli_abort(
-          c("Unable to copy files, due to corrupt packet {id}",
+          c("Unable to copy files, due to {reason} packet {id}",
             i = "Consider '{cmd}' to remove this packet from consideration"),
           parent = e)
       } else if (!as_orderly_search_options(options)$allow_remote) {

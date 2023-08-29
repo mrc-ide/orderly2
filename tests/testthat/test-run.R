@@ -1025,7 +1025,7 @@ test_that("cope with manually deleted packets, exclude from deps", {
     "Failed to run report")
   expect_equal(
     err$parent$message,
-    set_names(paste("Unable to copy files, due to corrupt packet", id),
+    set_names(paste("Unable to copy files, due to deleted packet", id),
               ""))
   cmd <- sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
                  id)
@@ -1060,7 +1060,7 @@ test_that("cope with corrupted packets, exclude from deps", {
     "Failed to run report")
   expect_equal(
     err$parent$message,
-    set_names(paste("Unable to copy files, due to corrupt packet", id),
+    set_names(paste("Unable to copy files, due to locally modified packet", id),
               ""))
   cmd <- sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
                  id)
@@ -1072,7 +1072,7 @@ test_that("cope with corrupted packets, exclude from deps", {
   expect_s3_class(err$parent$parent, "not_found_error")
   expect_equal(
     err$parent$parent$message,
-    sprintf("File 'data.rds' in 'data/%s' is corrupt", id), "")
+    sprintf("File 'data.rds' in 'data/%s' is corrupt", id))
   expect_null(err$parent$parent$body)
   expect_match(
     err$parent$parent$parent$message,
