@@ -30,6 +30,9 @@ vnapply <- function(X, FUN, ...) { # nolint
 
 
 set_names <- function(x, nms) {
+  if (length(nms) == 1 && length(x) != 1) {
+    nms <- rep_len(nms, length(x))
+  }
   names(x) <- nms
   x
 }

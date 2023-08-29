@@ -22,6 +22,10 @@ orderly_file <- function(...) {
   system.file(..., package = "orderly2", mustWork = TRUE)
 }
 
+inline <- function(x) {
+  sprintf("`%s`", format(x))
+}
+
 knitr::opts_chunk$set(
   collapse = TRUE)
 ```
@@ -64,7 +68,7 @@ An orderly report is a directory `src/<name>` containing a file `orderly.R`. Tha
 
 ```{r, include = FALSE}
 fs::dir_create(file.path(path, "src", "incoming_data"))
-write.csv(data.frame(x = 1:10, y = 1:10 + rnorm(10)), 
+write.csv(data.frame(x = 1:10, y = 1:10 + rnorm(10)),
           file.path(path, "src", "incoming_data", "data.csv"),
           row.names = FALSE)
 writeLines(c(
@@ -227,7 +231,7 @@ This creates a report that has a single parameter `n_samples` with a default val
 orderly2::orderly_parameters(n_samples = NULL)`
 ```
 
-to define a parameter with no default, or defined multiple parameters with 
+to define a parameter with no default, or defined multiple parameters with
 
 ```r
 orderly2::orderly_parameters(n_samples = 10, distribution = "normal")
@@ -381,6 +385,49 @@ orderly2::orderly_gitignore_update("incoming_data", root = path)
 ```
 
 This creates (or updates) a `.gitignore` file within the report so that generated files will not be included by git.  If you have already accidentally committed them then the gitignore has no real effect and you should do some git surgery, see the git manuals or this [handy, if profane, guide](https://ohshitgit.com/).
+
+# Deleting things from the archive
+
+If you delete packets from your `archive/` directory then this puts `orderly2` into an inconsistent state with its metadata store. Sometimes this does not matter (e.g., if you delete old copies that would never be candidates for inclusion with `orderly2::orderly_dependency` you will never notice).  However, if you delete the most recent copy of a packet and then try and depend on it, you will get an error.
+
+At the moment, we have two copies of the `incoming_data` task:
+
+```{r}
+orderly2::orderly_metadata_extract(
+  name = "incoming_data",
+  extract = c(time = "time.start"),
+  root = path)
+```
+
+```{r include = FALSE}
+id_latest <- orderly2::orderly_search("latest", name = "incoming_data",
+                                      root = path)
+unlink(file.path(path, "archive", "incoming_data", id_latest), recursive = TRUE)
+```
+
+When we run the `analysis` task, it will pull in the most recent version (`r inline(id_latest)`). However, if you had deleted this manually (e.g., to save space or accidentally) or corrupted it (e.g., by opening some output in Excel and letting it save changes) it will not be able to be included, and running `analysis` will fail:
+
+```{r error = TRUE}
+orderly2::orderly_run("analysis", root = path)
+```
+
+The error here tries to be fairly informative, telling us that we failed because when copying files from `r inline(id_latest)` we found that the packet was corrupt, because the file `data.rds` was not found in the archive.  It also suggests a fix; we can tell `orderly2` that `r inline(id_latest)` is "orphaned" and should not be considered for inclusion when we look for dependencies.
+
+We can carry out the suggestion and just validate this packet by running
+
+```{r echo = FALSE, results = "asis"}
+r_output(
+  sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
+          id_latest))
+```
+
+or we can validate *all* the packets we have:
+
+```{r}
+orderly2::orderly_validate_archive(action = "orphan", root = path)
+```
+
+If we had the option `core.require_complete_tree` enabled, then this process would also look for any packets that used our now-deleted packet and orphan those too, as we no longer have a complete tree that includes them.
 
 # Debugging and coping with errors
 
