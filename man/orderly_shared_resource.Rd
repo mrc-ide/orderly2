@@ -12,7 +12,11 @@ copy. The name will be the destination filename, while the value
 is the filename within the shared resource directory.}
 }
 \value{
-Undefined
+Invisibly, a character vector of the names of files that
+were copied over (the name that they will have in the running
+report, not the source name). As for
+\link{orderly_resource}, do not rely on the ordering where
+directory expansion was performed.
 }
 \description{
 Copy shared resources into a packet directory. You can use this to

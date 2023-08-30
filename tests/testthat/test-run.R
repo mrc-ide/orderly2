@@ -1108,3 +1108,35 @@ test_that("can read about assigned resources", {
   res <- orderly_read(path_src)
   expect_equal(res$resources, "data")
 })
+
+
+test_that("can read about assigned shared resources", {
+  path <- test_prepare_orderly_example("shared-dir")
+  write.csv(mtcars, file.path(path, "shared/data/mtcars.csv"),
+            row.names = FALSE)
+  write.csv(iris, file.path(path, "shared/data/iris.csv"),
+            row.names = FALSE)
+
+  path_src <- file.path(path, "src", "shared-dir")
+  code <- readLines(file.path(path_src, "orderly.R"))
+  code <- sub("orderly2::orderly_shared_resource",
+              "r <- orderly2::orderly_shared_resource",
+              code)
+  code <- c(code, 'writeLines(r, "resources.txt")')
+  writeLines(code, file.path(path_src, "orderly.R"))
+
+  id <- orderly_run_quietly("shared-dir", root = path)
+  expect_setequal(
+    readLines(file.path(path, "archive", "shared-dir", id, "resources.txt")),
+    c("shared_data/iris.csv", "shared_data/mtcars.csv"))
+
+  res <- withr::with_dir(
+    path_src,
+    withVisible(orderly_shared_resource(shared_data = "data")))
+  expect_equal(res$visible, FALSE)
+  expect_setequal(res$value,
+                  c("shared_data/iris.csv", "shared_data/mtcars.csv"))
+
+  res <- orderly_read(path_src)
+  expect_equal(res$shared_resource, c(shared_data = "data"))
+})

@@ -311,7 +311,12 @@ static_orderly_dependency <- function(args) {
 ##'   copy. The name will be the destination filename, while the value
 ##'   is the filename within the shared resource directory.
 ##'
-##' @return Undefined
+##' @return Invisibly, a character vector of the names of files that
+##'   were copied over (the name that they will have in the running
+##'   report, not the source name). As for
+##'   [orderly2::orderly_resource], do not rely on the ordering where
+##'   directory expansion was performed.
+##'
 ##' @export
 orderly_shared_resource <- function(...) {
   files <- validate_shared_resource(list(...), environment())
@@ -324,7 +329,7 @@ orderly_shared_resource <- function(...) {
       rbind(ctx$packet$orderly2$shared_resources, files)
   }
 
-  invisible()
+  invisible(files$here)
 }
 
 
