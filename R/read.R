@@ -92,10 +92,10 @@ orderly_read_r <- function(path) {
 orderly_read_expr <- function(e, nms) {
   ## We count the following things as top level:
   ##
-  ## orderly2::orderly_fn()
-  ## orderly_fn()
-  ## a <- orderly2::orderly_fn()
-  ## a <- orderly_fn()
+  ## > orderly2::orderly_fn()
+  ## > orderly_fn()
+  ## > a <- orderly2::orderly_fn()
+  ## > a <- orderly_fn()
   if (is_assignment(e)) {
     return(orderly_read_expr(e[[3]], nms))
   } else if (is_orderly_ns_call(e)) {
@@ -105,7 +105,7 @@ orderly_read_expr <- function(e, nms) {
       return(list(is_orderly = TRUE, name = nm, expr = e))
     }
   } else {
-    if (is.recursive(e) && is.name(e)) {
+    if (is.recursive(e) && is.name(e[[1]])) {
       nm <- deparse(e[[1]])
       if (nm %in% nms) {
         return(list(is_orderly = TRUE, name = nm, expr = e))
