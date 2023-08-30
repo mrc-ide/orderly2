@@ -143,7 +143,9 @@ static_orderly_description <- function(args) {
 ##'
 ##' @param files Any number of names of files
 ##'
-##' @return Undefined
+##' @return Invisibly, a character vector of resources included by the
+##'   call. Don't rely on the order of these files if they are
+##'   expanded from directories, as this is likely platform dependent.
 ##'
 ##' @export
 orderly_resource <- function(files) {
@@ -157,6 +159,7 @@ orderly_resource <- function(files) {
   p <- get_active_packet()
   if (is.null(p)) {
     assert_file_exists(files)
+    files_expanded <- expand_dirs(files, ".")
   } else {
     src <- p$orderly2$src
     assert_file_exists(files, workdir = src)
@@ -170,7 +173,7 @@ orderly_resource <- function(files) {
     p$orderly2$resources <- c(p$orderly2$resources, files_expanded)
   }
 
-  invisible()
+  invisible(files_expanded)
 }
 
 

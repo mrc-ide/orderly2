@@ -17,24 +17,18 @@ orderly_read_r <- function(path) {
                 orderly_shared_resource = static_orderly_shared_resource,
                 orderly_artefact = static_orderly_artefact,
                 orderly_dependency = static_orderly_dependency)
-
   dat <- set_names(rep(list(NULL), length(check)), names(check))
 
   single <- c("orderly_strict_mode", "orderly_description")
   top_level <- c("orderly_strict_mode", "orderly_parameters")
 
   for (e in exprs) {
-    if (is_orderly_ns_call(e)) {
-      nm <- deparse(e[[1]][[3]])
-    } else if (is.recursive(e) && is.name(e[[1]])) {
-      nm <- deparse(e[[1]])
+    e <- orderly_read_expr(e, names(check))
+    if (e$is_orderly) {
+      nm <- e$name
+      dat[[nm]] <- c(dat[[nm]], list(static_eval(check[[nm]], e$expr)))
     } else {
-      nm <- ""
-    }
-    if (nm %in% names(check)) {
-      dat[[nm]] <- c(dat[[nm]], list(static_eval(check[[nm]], e)))
-    } else {
-      vars <- all.vars(e, TRUE)
+      vars <- all.vars(e$expr, TRUE)
       ## TODO: As below, it is possible to return line numbers here,
       ## something when we come to tidy up for users.
       if (any(top_level %in% vars)) {
@@ -92,6 +86,33 @@ orderly_read_r <- function(path) {
   }
 
   ret
+}
+
+
+orderly_read_expr <- function(e, nms) {
+  ## We count the following things as top level:
+  ##
+  ## orderly2::orderly_fn()
+  ## orderly_fn()
+  ## a <- orderly2::orderly_fn()
+  ## a <- orderly_fn()
+  if (is_assignment(e)) {
+    return(orderly_read_expr(e[[3]], nms))
+  } else if (is_orderly_ns_call(e)) {
+    args <- e[-1]
+    nm <- deparse(e[[1]][[3]])
+    if (nm %in% nms) {
+      return(list(is_orderly = TRUE, name = nm, expr = e))
+    }
+  } else {
+    if (is.recursive(e) && is.name(e)) {
+      nm <- deparse(e[[1]])
+      if (nm %in% nms) {
+        return(list(is_orderly = TRUE, name = nm, expr = e))
+      }
+    }
+  }
+  list(is_orderly = FALSE, expr = e)
 }
 
 

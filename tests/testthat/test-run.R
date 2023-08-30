@@ -1082,3 +1082,29 @@ test_that("cope with corrupted packets, exclude from deps", {
   id2 <- orderly_run_quietly("depends", root = path, envir = new.env())
   expect_equal(orderly_metadata(id2, path)$depends$packet, ids[[2]])
 })
+
+
+test_that("can read about assigned resources", {
+  path <- test_prepare_orderly_example("directories")
+
+  path_src <- file.path(path, "src", "directories")
+  code <- readLines(file.path(path_src, "orderly.R"))
+  code <- sub("orderly2::orderly_resource", "r <- orderly2::orderly_resource",
+              code)
+  code <- c(code, 'writeLines(r, "resources.txt")')
+  writeLines(code, file.path(path_src, "orderly.R"))
+
+  id <- orderly_run_quietly("directories", root = path)
+  expect_setequal(
+    readLines(file.path(path, "archive", "directories", id, "resources.txt")),
+    c("data/a.csv", "data/b.csv"))
+
+  res <- withr::with_dir(
+    path_src,
+    withVisible(orderly_resource("data")))
+  expect_equal(res$visible, FALSE)
+  expect_setequal(res$value, c("data/a.csv", "data/b.csv"))
+
+  res <- orderly_read(path_src)
+  expect_equal(res$resources, "data")
+})
