@@ -2,8 +2,8 @@ test_that("can copy files from outpack", {
   root <- create_temporary_root(use_file_store = TRUE)
   id <- create_random_packet(root)
   dst <- temp_file()
-  orderly_copy_files(id, files = c("incoming.rds" = "data.rds"), dest = dst,
-                     root = root)
+  res <-  orderly_copy_files(
+    id, files = c("incoming.rds" = "data.rds"), dest = dst, root = root)
   expect_equal(dir(dst), "incoming.rds")
   expect_identical(
     readRDS(file.path(dst, "incoming.rds")),

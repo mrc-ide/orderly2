@@ -116,6 +116,7 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
   }
 
   plan <- plan_copy_files(root, id, files$from, files$to)
+  name <- outpack_metadata_core(id, root)$name
 
   tryCatch(
     file_export(root, id, plan$there, plan$here, dest, overwrite),
@@ -144,7 +145,7 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
                              environment())
     })
 
-  invisible(plan)
+  invisible(list(id = id, name = name, files = plan))
 }
 
 

@@ -208,12 +208,12 @@ outpack_packet_use_dependency <- function(packet, query, files,
   depends <- list(
     packet = id,
     query = query_str,
-    files = data_frame(here = result$here, there = result$there))
+    files = result$files)
   packet$depends <- c(packet$depends, list(depends))
 
-  outpack_packet_file_mark(packet, result$here, "immutable")
+  outpack_packet_file_mark(packet, result$files$here, "immutable")
 
-  invisible(id)
+  invisible(result)
 }
 
 

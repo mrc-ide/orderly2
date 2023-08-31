@@ -1122,21 +1122,55 @@ test_that("can read about assigned shared resources", {
   code <- sub("orderly2::orderly_shared_resource",
               "r <- orderly2::orderly_shared_resource",
               code)
-  code <- c(code, 'writeLines(r, "resources.txt")')
+  code <- c(code, 'saveRDS(r, "resources.rds")')
   writeLines(code, file.path(path_src, "orderly.R"))
 
   id <- orderly_run_quietly("shared-dir", root = path)
-  expect_setequal(
-    readLines(file.path(path, "archive", "shared-dir", id, "resources.txt")),
-    c("shared_data/iris.csv", "shared_data/mtcars.csv"))
+  r <- readRDS(file.path(path, "archive", "shared-dir", id, "resources.rds"))
+  expect_equal(
+    r,
+    data_frame(here = c("shared_data/iris.csv", "shared_data/mtcars.csv"),
+               there = c("data/iris.csv", "data/mtcars.csv")))
 
   res <- withr::with_dir(
     path_src,
     withVisible(orderly_shared_resource(shared_data = "data")))
   expect_equal(res$visible, FALSE)
-  expect_setequal(res$value,
-                  c("shared_data/iris.csv", "shared_data/mtcars.csv"))
+  expect_equal(res$value, r)
 
   res <- orderly_read(path_src)
   expect_equal(res$shared_resource, c(shared_data = "data"))
+})
+
+
+test_that("can read about dependencies", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  id1 <- orderly_run_quietly("data", envir = new.env(), root = path)
+
+  path_src <- file.path(path, "src", "depends")
+  code <- readLines(file.path(path_src, "orderly.R"))
+  code <- sub("orderly2::orderly_dependency",
+              "r <- orderly2::orderly_dependency",
+              code)
+  code <- c(code, 'saveRDS(r, "depends.rds")')
+  writeLines(code, file.path(path_src, "orderly.R"))
+
+  id2 <- orderly_run_quietly("depends", root = path)
+  r <- readRDS(file.path(path, "archive", "depends", id2, "depends.rds"))
+  expect_equal(r$id, id1)
+  expect_equal(r$name, "data")
+  expect_equal(r$files, data_frame(there = "data.rds", here = "input.rds"))
+
+  res <- withr::with_dir(
+    path_src,
+    withVisible(suppressMessages(
+      orderly2::orderly_dependency("data", "latest",
+                                   c(input.rds = "data.rds")))))
+  expect_equal(res$visible, FALSE)
+  expect_equal(res$value, r)
+
+  res <- orderly_read(path_src)
+  expect_equal(res$dependency, list(list(name = "data",
+                                         query = "latest",
+                                         files = c(input.rds = "data.rds"))))
 })

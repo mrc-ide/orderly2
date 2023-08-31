@@ -257,20 +257,20 @@ orderly_dependency <- function(name, query, files) {
   query <- orderly_query(query, name = name, subquery = subquery)
   search_options <- as_orderly_search_options(ctx$search_options)
   if (ctx$is_active) {
-    id <- outpack_packet_use_dependency(ctx$packet, query, files,
-                                        search_options = search_options,
-                                        envir = ctx$envir,
-                                        overwrite = TRUE)
-    cli::cli_alert_info(
-      "Depending on {.pkg {name}} @ {.code {id}} (via {format(query)})")
+    res <- outpack_packet_use_dependency(ctx$packet, query, files,
+                                         search_options = search_options,
+                                         envir = ctx$envir,
+                                         overwrite = TRUE)
   } else {
-    ## TODO: also echo here I think
-    orderly_copy_files(query, files = files, dest = ctx$path, overwrite = TRUE,
-                       parameters = ctx$parameters, options = search_options,
-                       envir = ctx$envir, root = ctx$root)
+    res <- orderly_copy_files(
+      query, files = files, dest = ctx$path, overwrite = TRUE,
+      parameters = ctx$parameters, options = search_options,
+      envir = ctx$envir, root = ctx$root)
   }
 
-  invisible()
+  cli::cli_alert_info(
+    "Depending on {.pkg {res$name}} @ {.code {res$id}} (via {format(query)})")
+  invisible(res)
 }
 
 
@@ -311,11 +311,10 @@ static_orderly_dependency <- function(args) {
 ##'   copy. The name will be the destination filename, while the value
 ##'   is the filename within the shared resource directory.
 ##'
-##' @return Invisibly, a character vector of the names of files that
-##'   were copied over (the name that they will have in the running
-##'   report, not the source name). As for
-##'   [orderly2::orderly_resource], do not rely on the ordering where
-##'   directory expansion was performed.
+##' @return Invisibly, a data.frame with columns `here` (the fileames
+##'   as as copied into the running packet) and `there` (the filenames
+##'   within `shared/`).  As for [orderly2::orderly_resource], do not
+##'   rely on the ordering where directory expansion was performed.
 ##'
 ##' @export
 orderly_shared_resource <- function(...) {
@@ -329,7 +328,7 @@ orderly_shared_resource <- function(...) {
       rbind(ctx$packet$orderly2$shared_resources, files)
   }
 
-  invisible(files$here)
+  invisible(files)
 }
 
 
