@@ -1,6 +1,9 @@
 ##' Add a new location - a place where other packets might be found
-##' and pulled into your local archive.  Currently only file-based
-##' locations are supported.
+##' and pulled into your local archive.  Currently only file and http
+##' based locations are supported, with limited support for custom
+##' locations. Note that adding a location does *not* pull metadata
+##' from it, you need to call
+##' [orderly2::orderly_location_pull_metadata] first.
 ##'
 ##' We currently support two types of locations - `path`, which points
 ##' to an outpack archive accessible by path (e.g., on the same
@@ -131,8 +134,9 @@ orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
 }
 
 
-##' Remove an existing location. Any packets from this location
-##' will now be associated with the 'orphan' location instead.
+##' Remove an existing location. Any packets from this location and
+##' not known elsewhere will now be associated with the 'orphan'
+##' location instead.
 ##'
 ##' @title Remove a location
 ##'
@@ -159,6 +163,7 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   only_here <- setdiff(known_here, known_elsewhere)
 
   if (length(only_here) > 0) {
+    cli::cli_alert_info("Orphaning {length(only_here)} packet{?s}")
     mark_packets_orphaned(name, only_here, root)
   }
 
@@ -218,9 +223,22 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
                     call = environment())
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
+                                          include_orphan = FALSE,
                                           allow_no_locations = TRUE)
   for (name in location_name) {
     location_pull_metadata(name, root, environment())
+  }
+
+  id_deorphan <- intersect(root$index$location(location_name)$packet,
+                           root$index$location(orphan)$packet)
+  if (length(id_deorphan) > 0) {
+    cli::cli_alert_info("De-orphaning {length(id_deorphan)} packet{?s}")
+    fs::file_delete(
+      file.path(root$path, ".outpack", "location", orphan, id_deorphan))
+    ## We could be lazier here, but this won't happen that often. The
+    ## issue is that we need to tell the location data to notice
+    ## deletion.
+    root$index$rebuild()
   }
 }
 
@@ -346,6 +364,7 @@ orderly_location_push <- function(packet_id, location, root = NULL,
                     call = environment())
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
+                                          include_orphan = FALSE,
                                           allow_no_locations = FALSE)
   plan <- location_build_push_plan(packet_id, location_name, root)
 
@@ -498,7 +517,7 @@ location_pull_files_archive <- function(packet_id, store, root) {
 
 
 location_resolve_valid <- function(location, root, include_local,
-                                   allow_no_locations) {
+                                   include_orphan, allow_no_locations) {
   if (is.null(location)) {
     location <- orderly_location_list(root)
   } else if (is.character(location)) {
@@ -513,6 +532,9 @@ location_resolve_valid <- function(location, root, include_local,
   ## In some cases we won't want local, make this easy to do:
   if (!include_local) {
     location <- setdiff(location, local)
+  }
+  if (!include_orphan) {
+    location <- setdiff(location, orphan)
   }
 
   ## We could throw nicer errors here if we included this check (and
@@ -577,7 +599,7 @@ location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
 
 location_build_pull_plan_location <- function(packets, location, root, call) {
   location_name <- location_resolve_valid(
-    location, root, include_local = FALSE,
+    location, root, include_local = FALSE, include_orphan = FALSE,
     allow_no_locations = length(packets$fetch) == 0)
   ## Things that are found in suitable location:
   candidates <- root$index$location(location_name)

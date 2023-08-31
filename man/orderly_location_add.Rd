@@ -35,8 +35,11 @@ Nothing
 }
 \description{
 Add a new location - a place where other packets might be found
-and pulled into your local archive.  Currently only file-based
-locations are supported.
+and pulled into your local archive.  Currently only file and http
+based locations are supported, with limited support for custom
+locations. Note that adding a location does \emph{not} pull metadata
+from it, you need to call
+\link{orderly_location_pull_metadata} first.
 }
 \details{
 We currently support two types of locations - \code{path}, which points
