@@ -925,3 +925,41 @@ test_that("skip files in the file store", {
   expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
                all = FALSE)
 })
+
+
+test_that("can prune orphans from tree", {
+  root <- list()
+  for (name in c("here", "there")) {
+    root[[name]] <- create_temporary_root()
+  }
+  orderly_location_add("there", "path", list(path = root$there$path),
+                       root = root$here)
+  id <- create_random_packet_chain(root$there, 5)
+  orderly_location_pull_metadata(root = root$here)
+  orderly_location_remove("there", root = root$here)
+
+  expect_setequal(orderly_location_list(root = root$here),
+                  c("local", "orphan"))
+  expect_equal(root$here$index$data()$location$location,
+               rep("orphan", 5))
+
+  orderly_prune_orphans(root = root$here)
+
+  
+  
+
+  # remove a location without packets
+  orderly_location_remove("c", root = root$a)
+  expect_setequal(orderly_location_list(root = root$a),
+                  c("local", "b"))
+
+  # remove a location with packets
+  orderly_location_remove("b", root = root$a)
+  expect_setequal(orderly_location_list(root = root$a),
+                  c("local", "orphan"))
+
+  config <- orderly_config(root$a)
+  orphan_id <- "orphan"
+  expect_equal(root$a$index$data()$location$location, orphan_id)
+  
+})
