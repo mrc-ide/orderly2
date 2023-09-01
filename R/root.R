@@ -230,3 +230,41 @@ root_validate_same_configuration <- function(args, config, root, call) {
     }
   }
 }
+
+
+root_check_git <- function(root, call) {
+  path_ok <- file.path(root$path, ".outpack", "r", "git_ok")
+  if (file.exists(path_ok)) {
+    return()
+  }
+  git_root <- git_open(root$path)
+  if (is.null(git_root)) {
+    return()
+  }
+
+  files <- gert::git_ls(git_root)$path
+  files_full <- file.path(gert::git_info(git_root)$path, files)
+  special <- c(".outpack", "draft", root$config$core$path_archive)
+  err <- vapply(special, function(p) {
+    fs::path_has_parent(files_full, file.path(root$path, p))
+  }, logical(length(files)))
+  dim(err) <- c(length(files), length(special))
+
+  if (any(err)) {
+    files_err <- files[rowSums(err) > 0]
+    types_err <- paste0(special[colSums(err) > 0], "/")
+    url <- "https://mrc-ide.github.io/orderly2/articles/troubleshooting.html"
+    cli::cli_abort(
+      c("Detected {length(files_err)} outpack file{?s} committed to git",
+        x = "Detected files were found in {squote(types_err)}",
+        i = "For tips on resolving this, please see {.url {url}}"),
+      call = call)
+  }
+
+  if (!all(gert::git_ignore_path_is_ignored(file.path(root$path, special)))) {
+    orderly_gitignore_update("(root)", root)
+  }
+
+  fs::dir_create(dirname(path_ok))
+  fs::file_create(path_ok)
+}
