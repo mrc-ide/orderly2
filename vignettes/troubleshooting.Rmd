@@ -57,7 +57,7 @@ The rest of this section discusses how you might permanently fix the issue.
 
 ## I don't care about my history at all
 
-This is the case if you have just started a project, and are not yet collaborating on it with anyone else (or if that person is willing to reclone their sources).  The simplest thing to do is:
+This is the case if you have just started a project, and are not yet collaborating on it with anyone else (or if that person is willing to re-clone their sources).  The simplest thing to do is:
 
 1. Delete the `.git` directory entirely
 2. Run `orderly2::orderly_gitignore_update("(root)")` to set up a reasonable `.gitignore` that will prevent this situation happening again
