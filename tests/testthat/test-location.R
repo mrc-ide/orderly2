@@ -947,7 +947,7 @@ test_that("can prune orphans from tree", {
 
   expect_message(
     orderly_prune_orphans(root = root$here),
-    "Deleting 5 orphan packets")
+    "Pruning 5 orphan packets")
 
   expect_setequal(orderly_location_list(root = root$here),
                   c("local", "orphan"))
@@ -971,5 +971,5 @@ test_that("don't prune referenced orphans", {
     "Can't prune 1 orphan packet, as it is referenced by other packets")
   expect_match(
     res$messages[[2]],
-    "Deleting 1 orphan packet")
+    "Pruning 1 orphan packet")
 })
