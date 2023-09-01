@@ -11,6 +11,7 @@ articles:
       - introduction
       - dependencies
       - collaboration
+      - troubleshooting
 
   - title: Advanced topics
     navbar: Advanced topics
