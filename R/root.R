@@ -275,9 +275,7 @@ root_check_git <- function(root, call) {
     }
   }
 
-  if (!all(gert::git_ignore_path_is_ignored(file.path(root$path, special)))) {
-    orderly_gitignore_update("(root)", root)
-  }
+  do_orderly_gitignore_update("(root)", root)
 
   fs::dir_create(dirname(path_ok))
   fs::file_create(path_ok)
