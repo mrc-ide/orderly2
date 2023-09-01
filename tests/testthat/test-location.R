@@ -936,30 +936,40 @@ test_that("can prune orphans from tree", {
                        root = root$here)
   id <- create_random_packet_chain(root$there, 5)
   orderly_location_pull_metadata(root = root$here)
-  orderly_location_remove("there", root = root$here)
+  expect_message(
+    orderly_location_remove("there", root = root$here),
+    "Orphaning 5 packets")
 
   expect_setequal(orderly_location_list(root = root$here),
                   c("local", "orphan"))
   expect_equal(root$here$index$data()$location$location,
                rep("orphan", 5))
 
-  orderly_prune_orphans(root = root$here)
+  expect_message(
+    orderly_prune_orphans(root = root$here),
+    "Deleting 5 orphan packets")
 
-  
-  
-
-  # remove a location without packets
-  orderly_location_remove("c", root = root$a)
-  expect_setequal(orderly_location_list(root = root$a),
-                  c("local", "b"))
-
-  # remove a location with packets
-  orderly_location_remove("b", root = root$a)
-  expect_setequal(orderly_location_list(root = root$a),
+  expect_setequal(orderly_location_list(root = root$here),
                   c("local", "orphan"))
+  expect_equal(root$here$index$data()$location$location,
+               character())
+})
 
-  config <- orderly_config(root$a)
-  orphan_id <- "orphan"
-  expect_equal(root$a$index$data()$location$location, orphan_id)
-  
+
+test_that("don't prune referenced orphans", {
+  root <- create_temporary_root()
+  id <- create_random_packet_chain(root, 3)
+  unlink(file.path(root$path, "archive", "a"), recursive = TRUE)
+  unlink(file.path(root$path, "archive", "c"), recursive = TRUE)
+  suppressMessages(orderly_validate_archive(action = "orphan", root = root))
+  expect_equal(nrow(root$index$location(orphan)), 2)
+  res <- evaluate_promise(orderly_prune_orphans(root = root))
+  expect_equal(res$result, id[[3]])
+  expect_length(res$messages, 2)
+  expect_match(
+    res$messages[[1]],
+    "Can't prune 1 orphan packet, as it is referenced by other packets")
+  expect_match(
+    res$messages[[2]],
+    "Deleting 1 orphan packet")
 })

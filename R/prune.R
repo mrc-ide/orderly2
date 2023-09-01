@@ -10,7 +10,11 @@
 ##' that you know about from elsewhere but not locally, then that is a
 ##' problem for the upstream location (and one that should not
 ##' happen). If you have referenced it in a packet that you have run
-##' locally, thne the metadata is not deleted.
+##' locally, the the metadata is not deleted.
+##'
+##' We expose this function mostly for users who want to expunge
+##' permanently any reference to previously run packets. We hope that
+##' there should never need to really be a reason to run it.
 ##'
 ##' @title Prune orphan packet metadata
 ##'
@@ -23,24 +27,27 @@ orderly_prune_orphans <- function(root = NULL, locate = TRUE) {
   if (length(id) == 0) {
     return(invisible(id))
   }
-  browser()
-  ## I 
+
+  ## What do we do here where orphan packets are used by packets that
+  ## we retain?
   idx <- new_query_index(root, orderly_search_options(location = local))
-  a <- lapply(id, idx$get_packet_uses, Inf)
-  b <- lapply(id, idx$get_packet_depends, Inf)
-  if (any(lengths(a) > 0) || any(lengths(b) > 0)) {
-    browser()
+  is_used <- lengths(lapply(id, idx$get_packet_uses, Inf)) > 0
+  if (any(is_used)) {
+    cli::cli_alert_info(
+      paste("Can't prune {sum(is_used)} orphan packet{?s}, as",
+            "{?it is/they are} referenced by other packets"))
+    id_drop <- id[!is_used]
+  } else {
+    id_drop <- id
   }
 
-  ## loc <- root$index$location(NULL)
-  ## err <- intersect(loc$packet[loc$location != orphan], id)
-  ## if (length(err) > 0) {
-  ##   browser()
-  ## }
-  
-  id_drop <- id
-  cli::cli_alert_info("Orphaning {length(id_drop)} orphan packet{?s}")
-  fs::file.remove(file.path(root$path, "location", orphan, id_drop))
-  fs::file.remove(file.path(root$path, "metadata", id_drop))
+  if (length(id_drop) == 0) {
+    return(invisible(id_drop))
+  }
+
+  cli::cli_alert_info("Pruning {length(id_drop)} orphan packet{?s}")
+  fs::file_delete(file.path(root$path, ".outpack", "location", orphan, id_drop))
+  fs::file_delete(file.path(root$path, ".outpack", "metadata", id_drop))
+  root$index$rebuild()
   invisible(id_drop)
 }
