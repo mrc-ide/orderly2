@@ -21,6 +21,7 @@
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Invisibly, a character vector of orphaned packet ids
+##' @export
 orderly_prune_orphans <- function(root = NULL, locate = TRUE) {
   root <- root_open(root, locate = TRUE, require_orderly = FALSE)
   id <- root$index$location("orphan")$packet
