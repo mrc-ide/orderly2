@@ -23,8 +23,7 @@ orderly2::orderly_run("data", root = path)
 gert::git_init(path)
 gert::git_add(".", repo = path)
 user <- "author <author@example.com>"
-sha <- gert::git_commit("initial", author = user, committer = user,
-                        repo = path)
+gert::git_commit("initial", author = user, committer = user, repo = path)
 ```
 
 ```{r, error = TRUE}

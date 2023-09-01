@@ -91,7 +91,9 @@ test_that("can error with instructions if files are added to git", {
   fs::file_delete(file.path(root$path, ".outpack", "r", "git_ok"))
 
   gert::git_add(".", repo = root$path)
-  gert::git_commit("add everything", repo = root$path)
+  user <- "author <author@example.com>"
+  gert::git_commit("add everything", author = user, committer = user,
+                   repo = root$path)
   err <- expect_error(root_check_git(root, NULL),
                       "Detected \\d+ outpack files committed to git")
   expect_false(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
