@@ -15,6 +15,46 @@ If you were directed here, it is probably because you have ended up with these f
 
 We have now put in guard rails to try and prevent this happening, but it could still happen to you if you modify the `.gitignore` file or force-add files for example.
 
+Once you are in this situation, `orderly2` will shout at you:
+
+```{r, include = FALSE}
+path <- orderly2::orderly_example("default")
+orderly2::orderly_run("data", root = path)
+gert::git_init(path)
+gert::git_add(".", repo = path)
+user <- "author <author@example.com>"
+sha <- gert::git_commit("initial", author = user, committer = user,
+                        repo = path)
+```
+
+```{r, error = TRUE}
+orderly2::orderly_run("data", root = path)
+```
+
+which may have directed you to this very page.  If you just want to continue working anyway, then run the suggested command:
+
+```{r}
+options(orderly_git_error_is_warning = TRUE)
+```
+
+after which things will work with a warning the first time that session:
+
+```{r}
+orderly2::orderly_run("data", root = path)
+```
+
+subsequent calls will not display the warning:
+
+```{r}
+orderly2::orderly_run("data", root = path)
+```
+
+```{r, include = FALSE}
+options(orderly_git_error_is_warning = FALSE)
+```
+
+The rest of this section discusses how you might permanently fix the issue.
+
 ## I don't care about my history at all
 
 This is the case if you have just started a project, and are not yet collaborating on it with anyone else (or if that person is willing to reclone their sources).  The simplest thing to do is:
