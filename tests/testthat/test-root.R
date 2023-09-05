@@ -50,3 +50,70 @@ test_that("pass back a root", {
     root_open(root_outpack, FALSE, TRUE),
     sprintf("Did not find 'orderly_config.yml' in '%s'", root_outpack$path))
 })
+
+
+test_that("can silently detect that git setup is ok", {
+  root <- create_temporary_root()
+  info <- helper_add_git(root$path)
+  unlink(file.path(root$path, ".outpack", "r", "git_ok"))
+  expect_silent(root_check_git(root, NULL))
+  expect_true(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
+})
+
+
+test_that("can silently notice that git is not used", {
+  root <- create_temporary_root()
+  expect_false(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
+  expect_silent(root_check_git(root, NULL))
+  expect_false(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
+  expect_false(file.exists(file.path(root$path, ".gitignore")))
+})
+
+
+test_that("can add gitignore if git setup is ok, but not present", {
+  root <- create_temporary_root()
+  info <- helper_add_git(root$path)
+  fs::file_delete(file.path(root$path, ".gitignore"))
+  unlink(file.path(root$path, ".outpack", "r", "git_ok"))
+  expect_message(root_check_git(root, NULL), "Wrote '.gitignore'")
+  expect_true(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
+  expect_true(file.exists(file.path(root$path, ".gitignore")))
+})
+
+
+test_that("can error with instructions if files are added to git", {
+  root <- create_temporary_root()
+  info <- helper_add_git(root$path)
+  id <- create_random_packet(root)
+
+  ## Need to do some work here to make this fail now:
+  fs::file_delete(file.path(root$path, ".gitignore"))
+  fs::file_delete(file.path(root$path, ".outpack", "r", "git_ok"))
+
+  gert::git_add(".", repo = root$path)
+  user <- "author <author@example.com>"
+  gert::git_commit("add everything", author = user, committer = user,
+                   repo = root$path)
+  err <- expect_error(root_check_git(root, NULL),
+                      "Detected \\d+ outpack files committed to git")
+  expect_false(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
+  expect_equal(err$body[[1]],
+               "Detected files were found in '.outpack/' and 'archive/'")
+  expect_match(err$body[[2]],
+               "For tips on resolving this, please see .+troubleshooting.html")
+  expect_match(err$body[[3]],
+               "To turn this into a warning and continue anyway")
+
+  expect_error(create_random_packet(root$path), err$message, fixed = TRUE)
+
+  withr::with_options(
+    list(orderly_git_error_is_warning = TRUE),
+    expect_warning(id1 <- create_random_packet(root$path),
+                   err$message, fixed = TRUE))
+  expect_type(id1, "character")
+
+  withr::with_options(
+    list(orderly_git_error_is_warning = TRUE),
+    expect_warning(id2 <- create_random_packet(root$path), NA)) # no warning
+  expect_type(id2, "character")
+})

@@ -132,8 +132,10 @@ temp_file <- function() {
 
 
 helper_add_git <- function(path) {
-  ## Note that the git repo is in the src, not in the outpack root
   gert::git_init(path)
+  if (file.exists(file.path(path, ".outpack"))) {
+    suppressMessages(orderly_gitignore_update("(root)", path))
+  }
   gert::git_add(".", repo = path)
   user <- "author <author@example.com>"
   sha <- gert::git_commit("initial", author = user, committer = user,

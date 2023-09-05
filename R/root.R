@@ -127,6 +127,9 @@ empty_config_contents <- function() {
 ##   (this is actually quite hard to get right, but should be done
 ##   before anything is created I think)
 root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
+  if (is.null(call)) {
+    call <- environment()
+  }
   if (inherits(path, "outpack_root")) {
     if (!require_orderly || !is.null(path$config$orderly)) {
       return(path)
@@ -197,6 +200,8 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
         i = "See ?orderly_init for more arguments to this function"))
   }
 
+  root_check_git(root, call)
+
   root
 }
 
@@ -229,4 +234,49 @@ root_validate_same_configuration <- function(args, config, root, call) {
         call = call)
     }
   }
+}
+
+
+root_check_git <- function(root, call) {
+  path_ok <- file.path(root$path, ".outpack", "r", "git_ok")
+  if (file.exists(path_ok)) {
+    return()
+  }
+  git_root <- git_open(root$path)
+  if (is.null(git_root)) {
+    return()
+  }
+
+  files <- gert::git_ls(git_root)$path
+  files_full <- file.path(gert::git_info(git_root)$path, files)
+  special <- c(".outpack", "draft", root$config$core$path_archive)
+  err <- vapply(special, function(p) {
+    fs::path_has_parent(files_full, file.path(root$path, p))
+  }, logical(length(files)))
+  dim(err) <- c(length(files), length(special))
+
+  if (any(err)) {
+    files_err <- files[rowSums(err) > 0]
+    types_err <- paste0(special[colSums(err) > 0], "/")
+    url <- "https://mrc-ide.github.io/orderly2/articles/troubleshooting.html"
+    warn_only <- getOption("orderly_git_error_is_warning", FALSE)
+    msg <- c("Detected {length(files_err)} outpack file{?s} committed to git",
+             x = "Detected files were found in {squote(types_err)}",
+             i = "For tips on resolving this, please see {.url {url}}")
+    if (warn_only) {
+      cli::cli_warn(msg, call = call, .frequency = "once",
+                    .frequency_id = paste0("orderly_git_warning-", root$path))
+    } else {
+      hint_warn_only <- paste(
+        "To turn this into a warning and continue anyway",
+        "set the option 'orderly_git_error_is_warning' to TRUE",
+        "by running options(orderly_git_error_is_warning = TRUE)")
+      cli::cli_abort(c(msg, i = hint_warn_only), call = call)
+    }
+  }
+
+  do_orderly_gitignore_update("(root)", root)
+
+  fs::dir_create(dirname(path_ok))
+  fs::file_create(path_ok)
 }
