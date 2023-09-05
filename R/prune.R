@@ -29,8 +29,6 @@ orderly_prune_orphans <- function(root = NULL, locate = TRUE) {
     return(invisible(id))
   }
 
-  ## What do we do here where orphan packets are used by packets that
-  ## we retain?
   idx <- new_query_index(root, orderly_search_options(location = local))
   is_used <- lengths(lapply(id, idx$get_packet_uses, Inf)) > 0
   if (any(is_used)) {
