@@ -26,6 +26,7 @@ parents until it finds an \code{.outpack} directory or
 Nothing
 }
 \description{
-Remove an existing location. Any packets from this location
-will now be associated with the 'orphan' location instead.
+Remove an existing location. Any packets from this location and
+not known elsewhere will now be associated with the 'orphan'
+location instead.
 }
