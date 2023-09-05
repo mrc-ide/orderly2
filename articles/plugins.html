@@ -48,6 +48,7 @@
     <a class="dropdown-item" href="../articles/introduction.html">Introduction to orderly2</a>
     <a class="dropdown-item" href="../articles/dependencies.html">Dependencies between packets</a>
     <a class="dropdown-item" href="../articles/collaboration.html">Collaborative analysis</a>
+    <a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Advanced topics</h6>
     <a class="dropdown-item" href="../articles/migrating.html">Migrating from orderly (1.x)</a>
@@ -150,7 +151,7 @@ information for the database:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum_orderly_version</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.99.0</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plugins</span><span class="kw">:</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">example.db</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/RtmpD0Q4gm/file1c9220c637c4</span></span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/RtmpjttDRD/file1c98c8aadd4</span></span></code></pre></div>
 <p>Our plugin is called <code>example.db</code> and is listed within the
 <code>plugins</code> section, along with its configuration; in this case
 indicating the path where the SQLite file can be loaded from.</p>
@@ -331,13 +332,13 @@ reliably experience.</p>
 <p>Now, we can run the report:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"example"</span>, root <span class="op">=</span> <span class="va">path_root</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">example</span>' `20230904-160757-5e8b35f1` at 2023-09-04 16:07:57.388772</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">example</span>' `20230905-102022-c878d091` at 2023-09-05 10:20:22.791116</span></span>
 <span><span class="co">## &gt; example.db::query(sql = "SELECT * FROM mtcars WHERE cyl == 4", as = "dat")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("Summary of data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(summary(dat), "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20230904-160757-5e8b35f1 at 2023-09-04 16:07:57.601214 (0.2124419 secs)</span></span>
-<span><span class="co">## [1] "20230904-160757-5e8b35f1"</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20230905-102022-c878d091 at 2023-09-05 10:20:23.04066 (0.2495441 secs)</span></span>
+<span><span class="co">## [1] "20230905-102022-c878d091"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -475,7 +476,7 @@ by running <code>options(outpack.schema_validate = TRUE)</code>).</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">example</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230904-160757-5e8b35f1</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20230905-102022-c878d091</span></span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
 <span><span class="co">## │           └── <span style="color: #00BB00;">orderly.R</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">draft</span></span></span>
