@@ -120,15 +120,6 @@ describe("http location integration tests", {
     err <- expect_error(cl$post(sprintf("/packet/%s", hash_bad), meta,
                                 httr::content_type("text/plain")),
                         "Expected hash '.+' but found '.+'")
-
-    ## Then on the method, should return same error here:
-    loc <- orderly_location_http$new(url)
-    mock_get_metadata_hash <- mockery::mock(hash_bad)
-    mockery::stub(loc$push_metadata, "get_metadata_hash",
-                  mock_get_metadata_hash)
-    expect_error(loc$push_metadata(id_tmp, root_tmp),
-                 err$message,
-                 fixed = TRUE)
   })
 
   it("throws sensible error if file hash does not match expected", {

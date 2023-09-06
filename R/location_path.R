@@ -60,9 +60,7 @@ orderly_location_path <- R6::R6Class(
       location_path_import_file(src, hash, private$root)
     },
 
-    push_metadata = function(packet_id, root) {
-      hash <- get_metadata_hash(packet_id, root)
-      path <- file.path(root$path, ".outpack", "metadata", packet_id)
+    push_metadata = function(packet_id, hash, path) {
       location_path_import_metadata(read_string(path), hash, private$root)
     }
   ))

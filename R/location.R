@@ -375,7 +375,9 @@ orderly_location_push <- function(packet_id, location, root = NULL,
       driver$push_file(find_file_by_hash(root, hash), hash)
     }
     for (id in plan$packet_id) {
-      driver$push_metadata(id, root)
+      path <- file.path(root$path, ".outpack", "metadata", id)
+      hash <- get_metadata_hash(id, root)
+      driver$push_metadata(id, hash, path)
     }
   }
 
