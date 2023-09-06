@@ -35,26 +35,29 @@
 ##' @export
 orderly_gitignore_update <- function(name, root = NULL, locate = TRUE) {
   root <- root_open(root, locate, require_orderly = TRUE, call = environment())
+  do_orderly_gitignore_update(name, root, environment())
+}
+
+## Separate inned function that avoids opening the root, we need this
+## to break a circular dependency as we sometimes call this function
+## while openning the root.
+do_orderly_gitignore_update <- function(name, root, call) {
   assert_scalar_character(name)
 
   if (name == "(root)") {
     path <- ".gitignore"
     value <- gitignore_content_root(root)
   } else {
-    validate_orderly_directory(name, root, environment())
+    validate_orderly_directory(name, root, call)
     path <- file.path("src", name, ".gitignore")
     value <- gitignore_content_src(name, root)
   }
-
-  ## TODO (mrc-4447): check that none of these are _already_ in git,
-  ## and offer help towards fixing this.
 
   if (gitignore_update_file(root$path, path, value)) {
     cli::cli_alert_success("Wrote '{path}'")
   }
   invisible(TRUE)
 }
-
 
 gitignore_content_root <- function(root) {
   c(".outpack",

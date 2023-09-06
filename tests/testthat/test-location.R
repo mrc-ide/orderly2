@@ -126,18 +126,18 @@ test_that("Can remove a location", {
   orderly_location_pull_metadata(root = root$a)
 
   # remove a location without packets
-  orderly_location_remove("c", root = root$a)
+  expect_silent(orderly_location_remove("c", root = root$a))
   expect_setequal(orderly_location_list(root = root$a),
                   c("local", "b"))
 
   # remove a location with packets
-  orderly_location_remove("b", root = root$a)
+  expect_message(orderly_location_remove("b", root = root$a),
+                 "Orphaning 1 packet")
   expect_setequal(orderly_location_list(root = root$a),
                   c("local", "orphan"))
 
   config <- orderly_config(root$a)
-  orphan_id <- "orphan"
-  expect_equal(root$a$index$data()$location$location, orphan_id)
+  expect_equal(root$a$index$data()$location$location, "orphan")
 })
 
 
@@ -168,7 +168,9 @@ test_that("Removing a location orphans packets only from that location", {
   expect_equal(index$location$location[index$location$packet == id2], "b")
 
   # remove location b
-  orderly_location_remove("b", root = root$a)
+  expect_message(
+    orderly_location_remove("b", root = root$a),
+    "Orphaning 1 packet")
   expect_setequal(orderly_location_list(root = root$a),
                   c("local", "orphan", "c"))
 
@@ -178,6 +180,34 @@ test_that("Removing a location orphans packets only from that location", {
 
   # id2 should be orphaned
   expect_equal(index$location$location[index$location$packet == id2], "orphan")
+})
+
+
+test_that("re-adding a location de-orphans packets", {
+  root <- list()
+  for (name in c("a", "b", "c")) {
+    root[[name]] <- create_temporary_root()$path
+  }
+
+  orderly_location_add("b", "path", list(path = root$b), root = root$a)
+  orderly_location_add("c", "path", list(path = root$c), root = root$a)
+
+  id_b <- replicate(2, create_random_packet(root$b))
+  id_c <- replicate(3, create_random_packet(root$c))
+  orderly_location_pull_metadata(root = root$a)
+
+  expect_message(orderly_location_remove("b", root = root$a),
+                 "Orphaning 2 packets")
+  expect_equal(nrow(root_open(root$a, FALSE)$index$location(orphan)), 2)
+  expect_message(orderly_location_remove("c", root = root$a),
+                 "Orphaning 3 packets")
+  expect_equal(nrow(root_open(root$a, FALSE)$index$location(orphan)), 5)
+
+  orderly_location_add("b", "path", list(path = root$b), root = root$a)
+  expect_message(orderly_location_pull_metadata(root = root$a),
+                 "De-orphaning 2 packets")
+
+  expect_equal(nrow(root_open(root$a, FALSE)$index$location(orphan)), 3)
 })
 
 
@@ -528,27 +558,32 @@ test_that("Can resolve locations", {
   }
 
   expect_equal(
-    location_resolve_valid(NULL, root$dst, FALSE, FALSE),
+    location_resolve_valid(NULL, root$dst, FALSE, FALSE, FALSE),
     c("a", "b", "c", "d"))
   expect_equal(
-    location_resolve_valid(NULL, root$dst, TRUE, FALSE),
+    location_resolve_valid(NULL, root$dst, TRUE, FALSE, FALSE),
     c("local", "a", "b", "c", "d"))
   expect_equal(
-    location_resolve_valid(c("a", "b", "local", "d"), root$dst, FALSE, FALSE),
+    location_resolve_valid(NULL, root$dst, TRUE, TRUE, FALSE),
+    c("local", "a", "b", "c", "d"))
+  expect_equal(
+    location_resolve_valid(c("a", "b", "local", "d"), root$dst,
+                           FALSE, FALSE, FALSE),
     c("a", "b", "d"))
   expect_equal(
-    location_resolve_valid(c("a", "b", "local", "d"), root$dst, TRUE, FALSE),
+    location_resolve_valid(c("a", "b", "local", "d"), root$dst,
+                           TRUE, FALSE, FALSE),
     c("a", "b", "local", "d"))
 
   expect_error(
-    location_resolve_valid(TRUE, root$dst, TRUE, FALSE),
+    location_resolve_valid(TRUE, root$dst, TRUE, FALSE, FALSE),
     "Invalid input for 'location'; expected NULL or a character vector")
 
   expect_error(
-    location_resolve_valid("other", root$dst, TRUE, FALSE),
+    location_resolve_valid("other", root$dst, TRUE, FALSE, FALSE),
     "Unknown location: 'other'")
   expect_error(
-    location_resolve_valid(c("a", "b", "f", "g"), root$dst, TRUE, FALSE),
+    location_resolve_valid(c("a", "b", "f", "g"), root$dst, TRUE, FALSE, FALSE),
     "Unknown location: 'f', 'g'")
 })
 
@@ -556,10 +591,10 @@ test_that("Can resolve locations", {
 test_that("informative error message when no locations configured", {
   root <- create_temporary_root()
   expect_equal(
-    location_resolve_valid(NULL, root, FALSE, TRUE),
+    location_resolve_valid(NULL, root, FALSE, FALSE, TRUE),
     character(0))
   expect_error(
-    location_resolve_valid(NULL, root, FALSE, FALSE),
+    location_resolve_valid(NULL, root, FALSE, FALSE, FALSE),
     "No suitable location found")
   expect_error(
     orderly_location_pull_packet(outpack_id(), root = root),
@@ -603,6 +638,7 @@ test_that("Can filter locations", {
   locs <- function(location) {
     location_resolve_valid(location, root$dst,
                            include_local = FALSE,
+                           include_orphan = FALSE,
                            allow_no_locations = FALSE)
   }
 
@@ -888,4 +924,52 @@ test_that("skip files in the file store", {
   expect_match(res$messages, "Found 1 file in the file store", all = FALSE)
   expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
                all = FALSE)
+})
+
+
+test_that("can prune orphans from tree", {
+  root <- list()
+  for (name in c("here", "there")) {
+    root[[name]] <- create_temporary_root()
+  }
+  orderly_location_add("there", "path", list(path = root$there$path),
+                       root = root$here)
+  id <- create_random_packet_chain(root$there, 5)
+  orderly_location_pull_metadata(root = root$here)
+  expect_message(
+    orderly_location_remove("there", root = root$here),
+    "Orphaning 5 packets")
+
+  expect_setequal(orderly_location_list(root = root$here),
+                  c("local", "orphan"))
+  expect_equal(root$here$index$data()$location$location,
+               rep("orphan", 5))
+
+  expect_message(
+    orderly_prune_orphans(root = root$here),
+    "Pruning 5 orphan packets")
+
+  expect_setequal(orderly_location_list(root = root$here),
+                  c("local", "orphan"))
+  expect_equal(root$here$index$data()$location$location,
+               character())
+})
+
+
+test_that("don't prune referenced orphans", {
+  root <- create_temporary_root()
+  id <- create_random_packet_chain(root, 3)
+  unlink(file.path(root$path, "archive", "a"), recursive = TRUE)
+  unlink(file.path(root$path, "archive", "c"), recursive = TRUE)
+  suppressMessages(orderly_validate_archive(action = "orphan", root = root))
+  expect_equal(nrow(root$index$location(orphan)), 2)
+  res <- evaluate_promise(orderly_prune_orphans(root = root))
+  expect_equal(res$result, id[[3]])
+  expect_length(res$messages, 2)
+  expect_match(
+    res$messages[[1]],
+    "Can't prune 1 orphan packet, as it is referenced by other packets")
+  expect_match(
+    res$messages[[2]],
+    "Pruning 1 orphan packet")
 })

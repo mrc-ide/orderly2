@@ -1009,3 +1009,168 @@ test_that("can run example with artefacts and no resources", {
   expect_true(file.exists(
     file.path(path, "archive", "implicit", id, "mygraph.png")))
 })
+
+
+test_that("cope with manually deleted packets, exclude from deps", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  ids <- vcapply(1:3, function(i) {
+    orderly_run_quietly("data", envir = new.env(), root = path)
+  })
+
+  id <- ids[[3]]
+  unlink(file.path(path, "archive", "data", id), recursive = TRUE)
+
+  err <- expect_error(
+    orderly_run_quietly("depends", root = path, envir = new.env()),
+    "Failed to run report")
+  expect_equal(
+    err$parent$message,
+    set_names(paste("Unable to copy files, due to deleted packet", id),
+              ""))
+  cmd <- sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
+                 id)
+  expect_equal(
+    err$parent$body,
+    c(i = sprintf("Consider '%s' to remove this packet from consideration",
+                  cmd)))
+
+  expect_s3_class(err$parent$parent, "not_found_error")
+  expect_equal(
+    err$parent$parent$message,
+    set_names("File not found in archive", ""))
+  expect_equal(err$parent$parent$body, c(x = "data.rds"))
+
+  suppressMessages(orderly_validate_archive(id, action = "orphan", root = path))
+  id2 <- orderly_run_quietly("depends", root = path, envir = new.env())
+  expect_equal(orderly_metadata(id2, path)$depends$packet, ids[[2]])
+})
+
+
+test_that("cope with corrupted packets, exclude from deps", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  ids <- vcapply(1:3, function(i) {
+    orderly_run_quietly("data", envir = new.env(), root = path)
+  })
+
+  id <- ids[[3]]
+  file.create(file.path(path, "archive", "data", id, "data.rds")) # truncate
+
+  err <- expect_error(
+    orderly_run_quietly("depends", root = path, envir = new.env()),
+    "Failed to run report")
+  expect_equal(
+    err$parent$message,
+    set_names(paste("Unable to copy files, due to locally modified packet", id),
+              ""))
+  cmd <- sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
+                 id)
+  expect_equal(
+    err$parent$body,
+    c(i = sprintf("Consider '%s' to remove this packet from consideration",
+                  cmd)))
+
+  expect_s3_class(err$parent$parent, "not_found_error")
+  expect_equal(
+    err$parent$parent$message,
+    sprintf("File 'data.rds' in 'data/%s' is corrupt", id))
+  expect_null(err$parent$parent$body)
+  expect_match(
+    err$parent$parent$parent$message,
+    "Hash of '.+/data.rds' does not match!")
+
+  suppressMessages(orderly_validate_archive(id, action = "orphan", root = path))
+  id2 <- orderly_run_quietly("depends", root = path, envir = new.env())
+  expect_equal(orderly_metadata(id2, path)$depends$packet, ids[[2]])
+})
+
+
+test_that("can read about assigned resources", {
+  path <- test_prepare_orderly_example("directories")
+
+  path_src <- file.path(path, "src", "directories")
+  code <- readLines(file.path(path_src, "orderly.R"))
+  code <- sub("orderly2::orderly_resource", "r <- orderly2::orderly_resource",
+              code)
+  code <- c(code, 'writeLines(r, "resources.txt")')
+  writeLines(code, file.path(path_src, "orderly.R"))
+
+  id <- orderly_run_quietly("directories", root = path)
+  expect_setequal(
+    readLines(file.path(path, "archive", "directories", id, "resources.txt")),
+    c("data/a.csv", "data/b.csv"))
+
+  res <- withr::with_dir(
+    path_src,
+    withVisible(orderly_resource("data")))
+  expect_equal(res$visible, FALSE)
+  expect_setequal(res$value, c("data/a.csv", "data/b.csv"))
+
+  res <- orderly_read(path_src)
+  expect_equal(res$resources, "data")
+})
+
+
+test_that("can read about assigned shared resources", {
+  path <- test_prepare_orderly_example("shared-dir")
+  write.csv(mtcars, file.path(path, "shared/data/mtcars.csv"),
+            row.names = FALSE)
+  write.csv(iris, file.path(path, "shared/data/iris.csv"),
+            row.names = FALSE)
+
+  path_src <- file.path(path, "src", "shared-dir")
+  code <- readLines(file.path(path_src, "orderly.R"))
+  code <- sub("orderly2::orderly_shared_resource",
+              "r <- orderly2::orderly_shared_resource",
+              code)
+  code <- c(code, 'saveRDS(r, "resources.rds")')
+  writeLines(code, file.path(path_src, "orderly.R"))
+
+  id <- orderly_run_quietly("shared-dir", root = path)
+  r <- readRDS(file.path(path, "archive", "shared-dir", id, "resources.rds"))
+  expect_equal(
+    r,
+    data_frame(here = c("shared_data/iris.csv", "shared_data/mtcars.csv"),
+               there = c("data/iris.csv", "data/mtcars.csv")))
+
+  res <- withr::with_dir(
+    path_src,
+    withVisible(orderly_shared_resource(shared_data = "data")))
+  expect_equal(res$visible, FALSE)
+  expect_equal(res$value, r)
+
+  res <- orderly_read(path_src)
+  expect_equal(res$shared_resource, c(shared_data = "data"))
+})
+
+
+test_that("can read about dependencies", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  id1 <- orderly_run_quietly("data", envir = new.env(), root = path)
+
+  path_src <- file.path(path, "src", "depends")
+  code <- readLines(file.path(path_src, "orderly.R"))
+  code <- sub("orderly2::orderly_dependency",
+              "r <- orderly2::orderly_dependency",
+              code)
+  code <- c(code, 'saveRDS(r, "depends.rds")')
+  writeLines(code, file.path(path_src, "orderly.R"))
+
+  id2 <- orderly_run_quietly("depends", root = path)
+  r <- readRDS(file.path(path, "archive", "depends", id2, "depends.rds"))
+  expect_equal(r$id, id1)
+  expect_equal(r$name, "data")
+  expect_equal(r$files, data_frame(there = "data.rds", here = "input.rds"))
+
+  res <- withr::with_dir(
+    path_src,
+    withVisible(suppressMessages(
+      orderly2::orderly_dependency("data", "latest",
+                                   c(input.rds = "data.rds")))))
+  expect_equal(res$visible, FALSE)
+  expect_equal(res$value, r)
+
+  res <- orderly_read(path_src)
+  expect_equal(res$dependency, list(list(name = "data",
+                                         query = "latest",
+                                         files = c(input.rds = "data.rds"))))
+})

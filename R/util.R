@@ -13,6 +13,14 @@ is_call <- function(x, name) {
 }
 
 
+is_assignment <- function(x) {
+  if (!(is.recursive(x) && is.name(x[[1]]))) {
+    return(FALSE)
+  }
+  as.character(x[[1]]) %in% c("<-", "=", "<<-")
+}
+
+
 is_orderly_ns_call <- function(x) {
   is.recursive(x) && is_call(x[[1]], "::") &&
     as.character(x[[1]][[2]]) == "orderly2"
@@ -30,6 +38,9 @@ vnapply <- function(X, FUN, ...) { # nolint
 
 
 set_names <- function(x, nms) {
+  if (length(nms) == 1 && length(x) != 1) {
+    nms <- rep_len(nms, length(x))
+  }
   names(x) <- nms
   x
 }

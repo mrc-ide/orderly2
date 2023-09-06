@@ -11,6 +11,7 @@ articles:
       - introduction
       - dependencies
       - collaboration
+      - troubleshooting
 
   - title: Advanced topics
     navbar: Advanced topics
@@ -80,3 +81,5 @@ reference:
     contents:
       - orderly_copy_files
       - orderly_example
+      - orderly_prune_orphans
+      - orderly_validate_archive

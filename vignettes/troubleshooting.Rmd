@@ -1,0 +1,97 @@
+---
+title: "Troubleshooting"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Troubleshooting}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Outpack files accidentally committed to git
+
+As discussed in [the orderly introduction](/orderly2/articles/introduction.html#interaction-with-version-control), you do not want to commit any files from `.outpack/`, `drafts/` or `archive/` (if used) to git as this will create all sorts of problems down the line.
+
+If you were directed here, it is probably because you have ended up with these files in git and want to undo this situation. The least painful way depends on your situation.
+
+We have now put in guard rails to try and prevent this happening, but it could still happen to you if you modify the `.gitignore` file or force-add files for example.
+
+Once you are in this situation, `orderly2` will shout at you:
+
+```{r, include = FALSE}
+path <- orderly2::orderly_example("default")
+orderly2::orderly_run("data", root = path)
+gert::git_init(path)
+gert::git_add(".", repo = path)
+user <- "author <author@example.com>"
+gert::git_commit("initial", author = user, committer = user, repo = path)
+```
+
+```{r, error = TRUE}
+orderly2::orderly_run("data", root = path)
+```
+
+which may have directed you to this very page.  If you just want to continue working anyway, then run the suggested command:
+
+```{r}
+options(orderly_git_error_is_warning = TRUE)
+```
+
+after which things will work with a warning the first time that session:
+
+```{r}
+orderly2::orderly_run("data", root = path)
+```
+
+subsequent calls will not display the warning:
+
+```{r}
+orderly2::orderly_run("data", root = path)
+```
+
+```{r, include = FALSE}
+options(orderly_git_error_is_warning = FALSE)
+```
+
+The rest of this section discusses how you might permanently fix the issue.
+
+## I don't care about my history at all
+
+This is the case if you have just started a project, and are not yet collaborating on it with anyone else (or if that person is willing to re-clone their sources).  The simplest thing to do is:
+
+1. Delete the `.git` directory entirely
+2. Run `orderly2::orderly_gitignore_update("(root)")` to set up a reasonable `.gitignore` that will prevent this situation happening again
+3. Run `git add .` to add everything back in (review this with `git status` to make sure you're happy)
+4. Run `git commit -m "Initial commit"` to create a single commit that contains all the files in currently in your repo *with no history*, and also with no `.outpack` files
+
+If you have previously pushed this repo to GitHub or similar then you will need to set that up again
+
+5. `git remote add origin https://github.com/user/repo` (replacing `user/repo` with your path, or using `git@github.com:user/repo` if you use ssh to talk with GitHub)
+6. `git branch -M main` assuming you are using `main` for your default branch, which is now most common
+7. `git push --force -u origin main`
+
+Note that this is **destructive** and will require coordination with any collaborators as you have changed history.
+
+## I just want this to go away and nothing I have committed is very large
+
+If you do care about your history, but you also have only committed a few files (e.g., you have committed files from `.outpack/` which are small but not a large 100MB file in `archive/` that is preventing you [pushing to GitHub](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github)) then you could just delete the offending files from git without updating the history, or affecting your local copies.
+
+1. Run `git rm --cached .outpack` (repeating with `draft` and `archive` as needed)
+2. Run `orderly2::orderly_gitignore_update("(root)")` to set up a reasonable `.gitignore` that will prevent this situation happening again
+3. Run `git add .gitignore` to also stage this
+4. Run `git commit -m "Delete unwanted outpack files"`
+
+You can then push this without any issues.
+
+## I care about my history but want this stuff gone
+
+If you are working on a branch, and the unwanted files were committed on that branch, the simplest thing to do is to copy the changes you have made somewhere safe, create a new branch against the current `main` and copy those changes over there. You could do this somewhat automatically by generating and applying a patch:
+
+```
+git diff -- src > changes.patch
+git checkout main
+git checkout -b changes-attempt2
+git apply changes.patch
+git push -u origin changes-attempt2
+```
+
+If the unwanted files have been committed onto your default branch, then you will have to do some potentially gory history rewriting. See [this StackOverflow question](https://stackoverflow.com/questions/10067848/remove-folder-and-its-contents-from-git-githubs-history), the [git docs](https://git-scm.com/docs/git-filter-branch#_warning) and [the currently recommended tool for doing this](https://github.com/newren/git-filter-repo/). Good luck!

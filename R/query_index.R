@@ -95,6 +95,7 @@ new_query_index <- function(root, options) {
   if (!is.null(options$location)) {
     location <- location_resolve_valid(options$location, root,
                                        include_local = TRUE,
+                                       include_orphan = FALSE,
                                        allow_no_locations = FALSE)
     include <- idx$location$packet[idx$location$location %in% location]
     metadata <- metadata[names(metadata) %in% include]

@@ -10,7 +10,9 @@ orderly_resource(files)
 \item{files}{Any number of names of files}
 }
 \value{
-Undefined
+Invisibly, a character vector of resources included by the
+call. Don't rely on the order of these files if they are
+expanded from directories, as this is likely platform dependent.
 }
 \description{
 Declare that a file, or group of files, are an orderly

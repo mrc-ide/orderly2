@@ -12,7 +12,10 @@ copy. The name will be the destination filename, while the value
 is the filename within the shared resource directory.}
 }
 \value{
-Undefined
+Invisibly, a data.frame with columns \code{here} (the fileames
+as as copied into the running packet) and \code{there} (the filenames
+within \verb{shared/}).  As for \link{orderly_resource}, do not
+rely on the ordering where directory expansion was performed.
 }
 \description{
 Copy shared resources into a packet directory. You can use this to

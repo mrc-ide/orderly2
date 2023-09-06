@@ -87,7 +87,7 @@ outpack_packet_end <- function(packet, insert = TRUE) {
   packet$time$end <- Sys.time()
   hash_algorithm <- packet$root$config$core$hash_algorithm
   elapsed_str <- format(packet$time$end - packet$time$start)
-  cli::cli_alert_success(
+  cli::cli_alert_info(
     "Finished {packet$id} at {packet$time$end} ({elapsed_str})")
   json <- outpack_metadata_create(packet$path, packet$name, packet$id,
                                   packet$time,
@@ -208,12 +208,12 @@ outpack_packet_use_dependency <- function(packet, query, files,
   depends <- list(
     packet = id,
     query = query_str,
-    files = data_frame(here = result$here, there = result$there))
+    files = result$files)
   packet$depends <- c(packet$depends, list(depends))
 
-  outpack_packet_file_mark(packet, result$here, "immutable")
+  outpack_packet_file_mark(packet, result$files$here, "immutable")
 
-  invisible(id)
+  invisible(result)
 }
 
 

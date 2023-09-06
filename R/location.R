@@ -1,6 +1,9 @@
 ##' Add a new location - a place where other packets might be found
-##' and pulled into your local archive.  Currently only file-based
-##' locations are supported.
+##' and pulled into your local archive.  Currently only file and http
+##' based locations are supported, with limited support for custom
+##' locations. Note that adding a location does *not* pull metadata
+##' from it, you need to call
+##' [orderly2::orderly_location_pull_metadata] first.
 ##'
 ##' We currently support two types of locations - `path`, which points
 ##' to an outpack archive accessible by path (e.g., on the same
@@ -131,8 +134,9 @@ orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
 }
 
 
-##' Remove an existing location. Any packets from this location
-##' will now be associated with the 'orphan' location instead.
+##' Remove an existing location. Any packets from this location and
+##' not known elsewhere will now be associated with the 'orphan'
+##' location instead.
 ##'
 ##' @title Remove a location
 ##'
@@ -152,7 +156,6 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
                  name))
   }
   location_check_exists(root, name)
-  config <- root$config
 
   index <- root$index$data()
   known_here <- index$location$packet[index$location$location == name]
@@ -160,13 +163,7 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   only_here <- setdiff(known_here, known_elsewhere)
 
   if (length(only_here) > 0) {
-    if (!location_exists(root, "orphan")) {
-      config$location <- rbind(
-        config$location,
-        new_location_entry(orphan, "orphan", NULL))
-      rownames(config$location) <- NULL
-    }
-
+    cli::cli_alert_info("Orphaning {length(only_here)} packet{?s}")
     mark_packets_orphaned(name, only_here, root)
   }
 
@@ -174,10 +171,8 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
   if (fs::dir_exists(location_path)) {
     fs::dir_delete(location_path)
   }
-  ## This forces a rebuild of the index, and is the only call with
-  ## rebuild() anywhere; it can probably be relaxed if the refresh was
-  ## more careful, but this is a rare operation.
   root$index$rebuild()
+  config <- root$config
   config$location <- config$location[config$location$name != name, ]
   config_update(config, root)
   invisible()
@@ -228,9 +223,22 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
                     call = environment())
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
+                                          include_orphan = FALSE,
                                           allow_no_locations = TRUE)
   for (name in location_name) {
     location_pull_metadata(name, root, environment())
+  }
+
+  id_deorphan <- intersect(root$index$location(location_name)$packet,
+                           root$index$location(orphan)$packet)
+  if (length(id_deorphan) > 0) {
+    cli::cli_alert_info("De-orphaning {length(id_deorphan)} packet{?s}")
+    fs::file_delete(
+      file.path(root$path, ".outpack", "location", orphan, id_deorphan))
+    ## We could be lazier here, but this won't happen that often. The
+    ## issue is that we need to tell the location data to notice
+    ## deletion.
+    root$index$rebuild()
   }
 }
 
@@ -356,6 +364,7 @@ orderly_location_push <- function(packet_id, location, root = NULL,
                     call = environment())
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
+                                          include_orphan = FALSE,
                                           allow_no_locations = FALSE)
   plan <- location_build_push_plan(packet_id, location_name, root)
 
@@ -366,7 +375,9 @@ orderly_location_push <- function(packet_id, location, root = NULL,
       driver$push_file(find_file_by_hash(root, hash), hash)
     }
     for (id in plan$packet_id) {
-      driver$push_metadata(id, root)
+      path <- file.path(root$path, ".outpack", "metadata", id)
+      hash <- get_metadata_hash(id, root)
+      driver$push_metadata(id, hash, path)
     }
   }
 
@@ -508,7 +519,7 @@ location_pull_files_archive <- function(packet_id, store, root) {
 
 
 location_resolve_valid <- function(location, root, include_local,
-                                   allow_no_locations) {
+                                   include_orphan, allow_no_locations) {
   if (is.null(location)) {
     location <- orderly_location_list(root)
   } else if (is.character(location)) {
@@ -523,6 +534,9 @@ location_resolve_valid <- function(location, root, include_local,
   ## In some cases we won't want local, make this easy to do:
   if (!include_local) {
     location <- setdiff(location, local)
+  }
+  if (!include_orphan) {
+    location <- setdiff(location, orphan)
   }
 
   ## We could throw nicer errors here if we included this check (and
@@ -587,7 +601,7 @@ location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
 
 location_build_pull_plan_location <- function(packets, location, root, call) {
   location_name <- location_resolve_valid(
-    location, root, include_local = FALSE,
+    location, root, include_local = FALSE, include_orphan = FALSE,
     allow_no_locations = length(packets$fetch) == 0)
   ## Things that are found in suitable location:
   candidates <- root$index$location(location_name)
@@ -728,10 +742,27 @@ location_exists <- function(root, name) {
 
 
 mark_packets_orphaned <- function(location, packet_id, root) {
+  if (!location_exists(root, "orphan")) {
+    config <- root$config
+    config$location <- rbind(
+      config$location,
+      new_location_entry(orphan, "orphan", NULL))
+    rownames(config$location) <- NULL
+    config_update(config, root)
+  }
   src <- file.path(root$path, ".outpack", "location", location, packet_id)
   dest <- file.path(root$path, ".outpack", "location", "orphan", packet_id)
   fs::dir_create(dirname(dest))
   fs::file_move(src, dest)
+}
+
+
+drop_local_packet <- function(packet_id, root) {
+  location <- root$index$location(NULL)
+  known_at <- location$location[location$packet == packet_id]
+  if (!any(known_at != local)) {
+    mark_packets_orphaned(local, packet_id, root)
+  }
 }
 
 
