@@ -253,10 +253,8 @@ query_eval_group <- function(query, query_env) {
 
 
 query_eval_test <- function(query, query_env) {
-  evaluated <- lapply(query$args, query_eval, query_env)
-  query$args[[1]]$value <- evaluated[[1]]
-  query$args[[2]]$value <- evaluated[[2]]
-  i <- query_eval_test_binary(query$name, query$args[[1]], query$args[[2]])
+  args <- lapply(query$args, query_eval, query_env)
+  i <- query_eval_test_binary(query$name, args[[1]], args[[2]])
   query_env$index$index$id[i]
 }
 
@@ -289,13 +287,13 @@ query_eval_test_binary <- function(op, a, b) {
   op_fun <- match.fun(op)
   ## Older versions of R do not allow mixing of zero and non-zero
   ## length inputs here, but we can do this ourselves:
-  if (length(a$value) == 0 || length(b$value) == 0) {
+  if (length(a) == 0 || length(b) == 0) {
     return(logical(0))
   }
   run_op <- function(a, b) {
     !is.null(a) && !is.null(b) && is_valid_test(a, b, op) && op_fun(a, b)
   }
-  vlapply(Map(run_op, a$value, b$value, USE.NAMES = FALSE),
+  vlapply(Map(run_op, a, b, USE.NAMES = FALSE),
           identity)
 }
 
