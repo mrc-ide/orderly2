@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">orderly2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -203,10 +203,10 @@ Alice sees:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_list_src.html">orderly_list_src</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `orderly2::orderly_list_src()`:</span></span></span>
-<span><span class="co">## <span style="color: #BBBB00;">!</span> orderly directory '/tmp/RtmpxNvHFq/file1b9318689470/alice' not</span></span>
+<span><span class="co">## <span style="color: #BBBB00;">!</span> orderly directory '/tmp/RtmpBWKmaS/file1b5138ef306e/alice' not</span></span>
 <span><span class="co">##   initialised</span></span>
 <span><span class="co">## <span style="color: #BB0000;">✖</span> Did not find an '.outpack' directory within path</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please run orderly2::orderly_init("/tmp/RtmpxNvHFq/file1b9318689470/alice")</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please run orderly2::orderly_init("/tmp/RtmpBWKmaS/file1b5138ef306e/alice")</span></span>
 <span><span class="co">##   to initialise</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> See ?orderly_init for more arguments to this function</span></span></code></pre></div>
 <p>Alice needs to run <code>orderly::orderly_init()</code> first:</p>
@@ -225,11 +225,11 @@ so Alice adds that to her <code>orderly2</code> configuration with
 <p>Once done, she can run any analysis:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20230906-095732-45ef6535` at 2023-09-06 09:57:32.284356</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20230906-142232-bbba6ec5` at 2023-09-06 14:22:32.743307</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20230906-095732-45ef6535 at 2023-09-06 09:57:32.377465 (0.09310937 secs)</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20230906-142232-bbba6ec5 at 2023-09-06 14:22:32.825825 (0.0825181 secs)</span></span></code></pre></div>
 <p>Perhaps it takes several goes for Alice to be happy with the
 analysis, but at some point she has something ready to share. She can
 then “push” the final packet up onto their server:</p>
@@ -253,7 +253,7 @@ git’s use of <code>origin</code>.)</p>
 <span>  name <span class="op">=</span> <span class="st">"data"</span>, </span>
 <span>  options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>allow_remote <span class="op">=</span> <span class="cn">TRUE</span>, pull_metadata <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##                         id name parameters</span></span>
-<span><span class="co">## 1 20230906-095732-45ef6535 data</span></span></code></pre></div>
+<span><span class="co">## 1 20230906-142232-bbba6ec5 data</span></span></code></pre></div>
 <p>Having seen there is a new “data” packet here, he can pull this down
 locally (TODO: mrc-4414 makes this nicer):</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -261,10 +261,10 @@ locally (TODO: mrc-4414 makes this nicer):</p>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Looking for suitable files already on disk</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Need to fetch 2 files (1.3 kB) from 1 location</span></span>
 <span><span class="co">## ⠙ Fetching file 1/2 (1.2 kB) from 'server' | ETA:  0s [5ms]</span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> Fetched 2 files (1.3 kB) from 'server' in 34ms.</span></span>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> Fetched 2 files (1.3 kB) from 'server' in 30ms.</span></span>
 <span><span class="co">## </span></span></code></pre></div>
 <p>Now Bob is in a position to develop against the same packet that
-Alice ran (20230906-095732-45ef6535)</p>
+Alice ran (20230906-142232-bbba6ec5)</p>
 </div>
 <div class="section level2">
 <h2 id="possible-working-patterns">Possible working patterns<a class="anchor" aria-label="anchor" href="#possible-working-patterns"></a>
