@@ -83,7 +83,9 @@
 ##'
 ##' @title Run a report
 ##'
-##' @param name Name of the report to run
+##' @param name Name of the report to run. Any leading `./` `src/` or
+##'   trailing `/` path parts will be removed (e.g., if added by
+##'   autocomplete).
 ##'
 ##' @param parameters Parameters passed to the report. A named list of
 ##'   parameters declared in the `orderly.yml`.  Each parameter
