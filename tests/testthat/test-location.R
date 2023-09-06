@@ -925,3 +925,51 @@ test_that("skip files in the file store", {
   expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
                all = FALSE)
 })
+
+
+test_that("can prune orphans from tree", {
+  root <- list()
+  for (name in c("here", "there")) {
+    root[[name]] <- create_temporary_root()
+  }
+  orderly_location_add("there", "path", list(path = root$there$path),
+                       root = root$here)
+  id <- create_random_packet_chain(root$there, 5)
+  orderly_location_pull_metadata(root = root$here)
+  expect_message(
+    orderly_location_remove("there", root = root$here),
+    "Orphaning 5 packets")
+
+  expect_setequal(orderly_location_list(root = root$here),
+                  c("local", "orphan"))
+  expect_equal(root$here$index$data()$location$location,
+               rep("orphan", 5))
+
+  expect_message(
+    orderly_prune_orphans(root = root$here),
+    "Pruning 5 orphan packets")
+
+  expect_setequal(orderly_location_list(root = root$here),
+                  c("local", "orphan"))
+  expect_equal(root$here$index$data()$location$location,
+               character())
+})
+
+
+test_that("don't prune referenced orphans", {
+  root <- create_temporary_root()
+  id <- create_random_packet_chain(root, 3)
+  unlink(file.path(root$path, "archive", "a"), recursive = TRUE)
+  unlink(file.path(root$path, "archive", "c"), recursive = TRUE)
+  suppressMessages(orderly_validate_archive(action = "orphan", root = root))
+  expect_equal(nrow(root$index$location(orphan)), 2)
+  res <- evaluate_promise(orderly_prune_orphans(root = root))
+  expect_equal(res$result, id[[3]])
+  expect_length(res$messages, 2)
+  expect_match(
+    res$messages[[1]],
+    "Can't prune 1 orphan packet, as it is referenced by other packets")
+  expect_match(
+    res$messages[[2]],
+    "Pruning 1 orphan packet")
+})
