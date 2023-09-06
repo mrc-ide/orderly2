@@ -295,3 +295,27 @@ test_that("push overlapping tree", {
   expect_setequal(plan$packet_id, ids)
   expect_setequal(names(server$index$data()$metadata), c(id_base, ids))
 })
+
+
+test_that("Push single packet", {
+  client <- create_temporary_root()
+  id <- create_random_packet(client)
+
+  server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
+  orderly_location_add("server", "path", list(path = server$path),
+                       root = client)
+
+  plan <- orderly_location_push(id, "server", client)
+
+  idx_c <- client$index$data()
+  idx_s <- server$index$data()
+
+  expect_equal(idx_s$metadata, idx_c$metadata)
+  expect_equal(idx_s$unpacked, idx_c$unpacked)
+  expect_equal(idx_s$location$packet, idx_c$location$packet)
+  expect_equal(idx_s$location$hash, idx_c$location$hash)
+
+  expect_equal(plan$packet_id, id)
+  files_used <- lapply(id, function(id) client$index$metadata(id)$files$hash)
+  expect_setequal(plan$files, unique(unlist(files_used, FALSE, FALSE)))
+})
