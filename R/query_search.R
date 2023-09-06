@@ -277,38 +277,11 @@ get_type <- function(x) {
   type
 }
 
-assert_valid_test <- function(a, b, op) {
-
+is_valid_test <- function(a, b, op) {
   valid_types <- test_types[[op]]
-  build_invalid_err <- function(x) {
-    types <- lapply(x$value, get_type)
-    if (x$type == "lookup") {
-      err_text <- sprintf("Search term '%s'", deparse_query(x$expr, NULL, NULL))
-    } else {
-      err_text <- sprintf("Literal value '%s'", x$value)
-    }
-    ## NULL storage type valid because if a lookup then that represents this
-    ## packet having no value for that lookup. In that case we don't want to
-    ## error but instead return no matched packets
-    invalid <- types[!(types == "NULL" | types %in% valid_types)]
-    err <- vcapply(invalid, function(type) {
-      sprintf("%s of type '%s' is invalid", err_text, type)
-    })
-    setNames(err, rep("x", length(err)))
-  }
-
-  err_a <- build_invalid_err(a)
-  err_b <- build_invalid_err(b)
-
-  if (length(err_a) > 0 || length(err_b) > 0) {
-    valid_types_text <- setNames(valid_types, rep("*", length(valid_types)))
-    cli::cli_abort(
-      c("Cannot use test '{op}' with supplied data type",
-        err_a,
-        err_b,
-        i = "This test can be used with types:",
-        "*" = valid_types))
-  }
+  type_a <- get_type(a)
+  type_b <- get_type(b)
+  type_a == type_b && type_a %in% valid_types && type_b %in% valid_types
 }
 
 
@@ -320,9 +293,8 @@ query_eval_test_binary <- function(op, a, b) {
     return(logical(0))
   }
   run_op <- function(a, b) {
-    !is.null(a) && !is.null(b) && is_same_type(a, b) && op_fun(a, b)
+    !is.null(a) && !is.null(b) && is_valid_test(a, b, op) && op_fun(a, b)
   }
-  assert_valid_test(a, b, op)
   vlapply(Map(run_op, a$value, b$value, USE.NAMES = FALSE),
           identity)
 }
