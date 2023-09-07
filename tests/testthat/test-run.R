@@ -148,7 +148,7 @@ test_that("can run orderly with parameters, without orderly, globally", {
   path_src <- file.path(path, "src", "depends-query")
   envir <- list2env(list(a = 10, b = 20, c = 30), parent = globalenv())
   withr::with_dir(path_src,
-                  sys.source("orderly.R", envir))
+                  suppressMessages(sys.source("orderly.R", envir)))
   path_rds <- file.path(path_src, "result.rds")
   expect_true(file.exists(path_rds))
   expect_equal(readRDS(path_rds), list(a = 20, b = 40, c = 60))
@@ -178,7 +178,7 @@ test_that("Can run dependencies case without orderly", {
   envir2 <- new.env()
   path_src <- file.path(path, "src", "depends")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", envir2))
+                  suppressMessages(sys.source("orderly.R", envir2)))
   expect_setequal(dir(path_src), c("orderly.R", "input.rds", "graph.png"))
   expect_equal(
     unname(tools::md5sum(file.path(path_src, "input.rds"))),
@@ -622,7 +622,7 @@ test_that("can fetch information interactively", {
   envir2 <- new.env()
   path_src <- file.path(path, "src", "depends")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", envir2))
+                  suppressMessages(sys.source("orderly.R", envir2)))
 
   path2 <- file.path(path, "src", "depends")
   d <- readRDS(file.path(path2, "info.rds"))
@@ -728,7 +728,7 @@ test_that("can select location when querying dependencies interactively", {
   envir2 <- new.env()
   path_src <- file.path(path[["us"]], "src", "depends")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", envir2))
+                  suppressMessages(sys.source("orderly.R", envir2)))
 
   ## Correct file was pulled in:
   expect_equal(

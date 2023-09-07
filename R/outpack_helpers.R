@@ -115,7 +115,7 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
     }
   }
 
-  plan <- plan_copy_files(root, id, files$from, files$to)
+  plan <- plan_copy_files(root, id, files$there, files$here)
   name <- outpack_metadata_core(id, root)$name
 
   tryCatch(

@@ -551,6 +551,11 @@ is_simple_atomic <- function(x) {
 }
 
 
+is_string <- function(x) {
+  is.character(x) && length(x) == 1L
+}
+
+
 normalise_path <- function(x) {
   normalizePath(x, winslash = "/", mustWork = TRUE)
 }

@@ -78,6 +78,13 @@ validate_file_from_to <- function(x, envir,
                                   name = deparse(substitute(x)),
                                   call = NULL) {
   ## Later, we can expand this to support a data.frame too perhaps?
+  if (is.list(x)) {
+    if (!all(vlapply(x, is_string))) {
+      cli::cli_abort("All elements of '{name}' must be strings", call = call)
+    }
+    x <- list_to_character(x)
+  }
+
   if (is.character(x)) {
     to <- names(x) %||% x
     from <- unname(x)
@@ -102,5 +109,5 @@ validate_file_from_to <- function(x, envir,
       call = call)
   }
 
-  data_frame(from = from, to = to_value)
+  data_frame(here = to_value, there = from)
 }

@@ -963,6 +963,7 @@ test_that("don't prune referenced orphans", {
   unlink(file.path(root$path, "archive", "c"), recursive = TRUE)
   suppressMessages(orderly_validate_archive(action = "orphan", root = root))
   expect_equal(nrow(root$index$location(orphan)), 2)
+
   res <- evaluate_promise(orderly_prune_orphans(root = root))
   expect_equal(res$result, id[[3]])
   expect_length(res$messages, 2)
@@ -972,4 +973,19 @@ test_that("don't prune referenced orphans", {
   expect_match(
     res$messages[[2]],
     "Pruning 1 orphan packet")
+
+  res <- evaluate_promise(orderly_prune_orphans(root = root))
+  expect_equal(res$result, character())
+  expect_length(res$messages, 1)
+  expect_match(
+    res$messages[[1]],
+    "Can't prune 1 orphan packet, as it is referenced by other packets")
+})
+
+
+test_that("early exit if no orphans", {
+  root <- create_temporary_root()
+  id <- create_random_packet_chain(root, 3)
+  expect_silent(res <- orderly_prune_orphans(root = root))
+  expect_equal(res, character())
 })
