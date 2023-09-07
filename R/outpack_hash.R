@@ -1,3 +1,51 @@
+##' Use orderly2's hashing functions.  This is intended for advanced
+##' users, in particular those who want to create hashes that are
+##' consistent with orderly2 from within plugins. The default
+##' behaviour is to use the same algorithm as used in the orderly root
+##' (via the `root` argument, and the usual root location
+##' approach). However, if a string is provided for `algorithm` you
+##' can use an alternative algorithm.
+##'
+##' @title Compute a hash
+##'
+##' @param path The name of the file to hash
+##'
+##' @param algorithm The name of the algorithm to use, overriding that
+##'   in the orderly root.
+##'
+##' @inheritParams orderly_metadata
+##'
+##' @rdname orderly_hash
+##'
+##' @return A string in the format `<algorithm>:<digest>`
+##' @export
+##' @examples
+##' orderly2::orderly_hash_data("hello", "md5")
+orderly_hash_file <- function(path, algorithm = NULL, root = NULL,
+                              locate = TRUE) {
+  if (is.null(algorithm)) {
+    root <- root_open(root, locate = locate, require_orderly = FALSE,
+                      call = environment())
+    algorithm <- root$config$core$hash_algorithm
+  }
+  hash_file(path, algorithm)
+}
+
+
+##' @param data A string to hash
+##' @export
+##' @rdname orderly_hash
+orderly_hash_data <- function(data, algorithm = NULL, root = NULL,
+                              locate = TRUE) {
+  if (is.null(algorithm)) {
+    root <- root_open(root, locate = locate, require_orderly = FALSE,
+                      call = environment())
+    algorithm <- root$config$core$hash_algorithm
+  }
+  hash_data(data, algorithm)
+}
+
+
 hash_file <- function(path, algorithm = "sha256") {
   assert_file_exists(path)
   con <- file(path, open = "rb")
