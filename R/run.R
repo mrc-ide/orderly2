@@ -83,7 +83,9 @@
 ##'
 ##' @title Run a report
 ##'
-##' @param name Name of the report to run
+##' @param name Name of the report to run. Any leading `./` `src/` or
+##'   trailing `/` path parts will be removed (e.g., if added by
+##'   autocomplete).
 ##'
 ##' @param parameters Parameters passed to the report. A named list of
 ##'   parameters declared in the `orderly.yml`.  Each parameter
@@ -129,7 +131,7 @@
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                         search_options = NULL, root = NULL, locate = TRUE) {
   root <- root_open(root, locate, require_orderly = TRUE, call = environment())
-  validate_orderly_directory(name, root, environment())
+  name <- validate_orderly_directory(name, root, environment())
 
   envir <- envir %||% .GlobalEnv
   assert_is(envir, "environment")
@@ -487,6 +489,9 @@ orderly_packet_add_metadata <- function(p) {
 
 validate_orderly_directory <- function(name, root, call) {
   assert_scalar_character(name)
+
+  re <- "^(./)*(src/)?(.+?)/?$"
+  name <- sub(re, "\\3", name)
   if (!file_exists(file.path(root$path, "src", name, "orderly.R"))) {
     src <- file.path(root$path, "src", name)
     err <- sprintf("Did not find orderly report '%s'", name)
@@ -512,6 +517,8 @@ validate_orderly_directory <- function(name, root, call) {
                               root$path))
     cli::cli_abort(err, call = call)
   }
+
+  name
 }
 
 

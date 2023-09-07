@@ -48,7 +48,7 @@ do_orderly_gitignore_update <- function(name, root, call) {
     path <- ".gitignore"
     value <- gitignore_content_root(root)
   } else {
-    validate_orderly_directory(name, root, call)
+    name <- validate_orderly_directory(name, root, call)
     path <- file.path("src", name, ".gitignore")
     value <- gitignore_content_src(name, root)
   }

@@ -113,7 +113,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
       ## This situation would be very odd, just disallow it
       cli::cli_abort("If 'root' is given explicitly, 'name' is required")
     }
-    validate_orderly_directory(name, root, environment())
+    name <- validate_orderly_directory(name, root, environment())
     path <- file.path(root$path, "src", name)
     root <- root$path
   }

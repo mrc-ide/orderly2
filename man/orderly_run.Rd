@@ -15,7 +15,9 @@ orderly_run(
 )
 }
 \arguments{
-\item{name}{Name of the report to run}
+\item{name}{Name of the report to run. Any leading \verb{./} \verb{src/} or
+trailing \code{/} path parts will be removed (e.g., if added by
+autocomplete).}
 
 \item{parameters}{Parameters passed to the report. A named list of
 parameters declared in the \code{orderly.yml}.  Each parameter

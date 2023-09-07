@@ -923,6 +923,53 @@ test_that("validation of orderly directories", {
 })
 
 
+test_that("strip extraneous path components from orderly path", {
+  path <- test_prepare_orderly_example(character())
+  root <- root_open(path, FALSE, TRUE)
+
+  fs::dir_create(file.path(path, "src", "example_a"))
+  file.create(file.path(path, "src", "example_a", "orderly.R"))
+
+  expect_equal(validate_orderly_directory("example_a", root),
+               "example_a")
+  expect_equal(validate_orderly_directory("src/example_a", root),
+               "example_a")
+  expect_equal(validate_orderly_directory("./src/example_a", root),
+               "example_a")
+  expect_equal(validate_orderly_directory("./example_a", root),
+               "example_a")
+  expect_equal(validate_orderly_directory("example_a/", root),
+               "example_a")
+  expect_equal(validate_orderly_directory("src/example_a/", root),
+               "example_a")
+  expect_equal(validate_orderly_directory("./src/example_a/", root),
+               "example_a")
+  expect_equal(validate_orderly_directory("./example_a/", root),
+               "example_a")
+
+  ## Pathalogical case:
+  fs::dir_create(file.path(path, "src", "src"))
+  file.create(file.path(path, "src", "src", "orderly.R"))
+
+  expect_equal(validate_orderly_directory("src", root),
+               "src")
+  expect_equal(validate_orderly_directory("src/src", root),
+               "src")
+  expect_equal(validate_orderly_directory("./src/src", root),
+               "src")
+  expect_equal(validate_orderly_directory("./src", root),
+               "src")
+  expect_equal(validate_orderly_directory("src/", root),
+               "src")
+  expect_equal(validate_orderly_directory("src/src/", root),
+               "src")
+  expect_equal(validate_orderly_directory("./src/src/", root),
+               "src")
+  expect_equal(validate_orderly_directory("./src/", root),
+               "src")
+})
+
+
 test_that("can rename dependencies programmatically", {
   path <- test_prepare_orderly_example("data")
   envir1 <- new.env()
