@@ -41,3 +41,24 @@ test_that("can validate hash", {
   expect_match(err$body[[1]], sprintf("%s.+found", expected_data))
   expect_match(err$body[[2]], sprintf("%s.+want", expected_file))
 })
+
+
+test_that("can use user-facing hash functions", {
+  root <- test_prepare_orderly_example("explicit")
+  path <- file.path(root, "src", "explicit")
+  str <- "hello"
+  tmp <- withr::local_tempfile()
+  writeLines(str, tmp)
+
+  expect_equal(orderly_hash_data(str, "md5"), hash_data(str, "md5"))
+  expect_equal(orderly_hash_data(str, root = root), hash_data(str, "sha256"))
+  expect_equal(orderly_hash_data(str, root = path), hash_data(str, "sha256"))
+  expect_equal(withr::with_dir(path, orderly_hash_data(str)),
+               hash_data(str, "sha256"))
+
+  expect_equal(orderly_hash_file(tmp, "md5"), hash_file(tmp, "md5"))
+  expect_equal(orderly_hash_file(tmp, root = root), hash_file(tmp, "sha256"))
+  expect_equal(orderly_hash_file(tmp, root = path), hash_file(tmp, "sha256"))
+  expect_equal(withr::with_dir(path, orderly_hash_file(tmp)),
+               hash_file(tmp, "sha256"))
+})
