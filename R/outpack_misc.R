@@ -109,5 +109,5 @@ validate_file_from_to <- function(x, envir,
       call = call)
   }
 
-  data_frame(from = from, to = to_value)
+  data_frame(here = to_value, there = from)
 }

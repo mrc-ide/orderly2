@@ -75,16 +75,16 @@ test_that("can validate file renaming inputs", {
   envir <- list2env(list(a = "aaa", b = "bbb"), parent = emptyenv())
   expect_equal(
     validate_file_from_to("a", envir),
-    data_frame(from = "a", to = "a"))
+    data_frame(here = "a", there = "a"))
   expect_equal(
     validate_file_from_to(c("a", B = "b"), envir),
-    data_frame(from = c("a", "b"), to = c("a", "B")))
+    data_frame(here = c("a", "B"), there = c("a", "b")))
   expect_equal(
     validate_file_from_to(c("${a}/a" = "a"), envir),
-    data_frame(from = "a", to = "aaa/a"))
+    data_frame(here = "aaa/a", there = "a"))
   expect_equal(
     validate_file_from_to(list("${a}/a" = "a"), envir),
-    data_frame(from = "a", to = "aaa/a"))
+    data_frame(here = "aaa/a", there = "a"))
 
   err <- expect_error(
     validate_file_from_to(1, envir, "files"),
