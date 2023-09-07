@@ -357,11 +357,6 @@ collector <- function() {
 }
 
 
-is_same_type <- function(a, b) {
-  (is.numeric(a) && is.numeric(b)) || (storage.mode(a) == storage.mode(b))
-}
-
-
 string_starts_with <- function(sub, str) {
   substr(str, 1, nchar(sub)) == sub
 }

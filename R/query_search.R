@@ -258,16 +258,40 @@ query_eval_test <- function(query, query_env) {
   query_env$index$index$id[i]
 }
 
+test_types <- list("==" = c("character", "numeric", "logical"),
+                   "!=" = c("character", "numeric", "logical"),
+                   "<" = "numeric",
+                   "<=" = "numeric",
+                   ">" = "numeric",
+                   ">=" = "numeric")
+
+
+get_type <- function(x) {
+  if (is.numeric(x)) {
+    type <- "numeric"
+  } else {
+    type <- storage.mode(x)
+  }
+  type
+}
+
+is_valid_test <- function(a, b, op) {
+  valid_types <- test_types[[op]]
+  type_a <- get_type(a)
+  type_b <- get_type(b)
+  type_a == type_b && type_a %in% valid_types && type_b %in% valid_types
+}
+
 
 query_eval_test_binary <- function(op, a, b) {
-  op <- match.fun(op)
+  op_fun <- match.fun(op)
   ## Older versions of R do not allow mixing of zero and non-zero
   ## length inputs here, but we can do this ourselves:
   if (length(a) == 0 || length(b) == 0) {
     return(logical(0))
   }
   run_op <- function(a, b) {
-    !is.null(a) && !is.null(b) && is_same_type(a, b) && op(a, b)
+    !is.null(a) && !is.null(b) && is_valid_test(a, b, op) && op_fun(a, b)
   }
   vlapply(Map(run_op, a, b, USE.NAMES = FALSE),
           identity)

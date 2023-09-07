@@ -960,3 +960,36 @@ test_that("can search for queries using boolean", {
     orderly_search(quote(parameter:a == "F"), root = root),
     character(0))
 })
+
+test_that("query with invalid types does no type coersion", {
+  root <- create_temporary_root(use_file_store = TRUE)
+  x <- create_random_packet(root, "x", list(a = TRUE))
+  y <- create_random_packet(root, "y", list(b = "test"))
+  z <- create_random_packet(root, "z", list(c = 2))
+
+  expect_equal(
+    orderly_search(quote(parameter:a > TRUE), root = root),
+    character(0))
+  expect_equal(
+    orderly_search(quote(TRUE > parameter:a), root = root),
+    character(0))
+  expect_equal(
+    orderly_search(quote(parameter:a > parameter:b), root = root),
+    character(0))
+  expect_equal(
+    orderly_search(quote(parameter:a > parameter:z), root = root),
+    character(0))
+  expect_equal(
+    orderly_search(quote(parameter:b >= "str"), root = root),
+    character(0))
+})
+
+test_that("query with mixed types returns results with valid comparison", {
+  root <- create_temporary_root(use_file_store = TRUE)
+  x <- create_random_packet(root, "x", list(a = 2))
+  y <- create_random_packet(root, "y", list(a = "test"))
+
+  expect_equal(
+    orderly_search(quote(parameter:a > 1), root = root),
+    x)
+})
