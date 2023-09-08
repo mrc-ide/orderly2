@@ -25,7 +25,7 @@ test_that("can retrieve simple graph information", {
   expect_equal(g3$packets, ids[[3]])
   expect_equal(nrow(g3$edges), 0)
   expect_equal(g3$edges, g2$edges)
-  
+
   g4 <- orderly_graph_packets(from = ids[["a"]], root = root)
   expect_equal(g4$packets, unname(ids))
   expect_equal(nrow(g4$edges), 2)
