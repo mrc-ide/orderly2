@@ -11,12 +11,12 @@ orderly_graph_packets <- function(from = NULL, to = NULL,
     if (is.null(metadata[[from]])) {
       cli::cli_abort("Packet '{from}' does not exist for 'from'")
     }
-    dat <- graph_packets_from(from, metadata, environment())
+    dat <- graph_packets_from(from, metadata)
   } else {
     if (is.null(metadata[[to]])) {
       cli::cli_abort("Packet '{to}' does not exist for 'to'")
     }
-    dat <- graph_packets_to(to, metadata, environment())
+    dat <- graph_packets_to(to, metadata)
   }
   dat
 }
@@ -70,9 +70,16 @@ graph_packets_from <- function(from, metadata) {
 
 
 graph_edges_to_df <- function(edges) {
-  data_frame(
-    from = unlist_character(lapply(edges, "[[", "from")),
-    to = unlist_character(lapply(edges, "[[", "to")),
-    query = unlist_character(lapply(edges, "[[", "query")),
-    files = I(unname(unlist(lapply(edges, "[[", "files"), FALSE))))
+  if (length(edges) == 0) {
+    data_frame(from = character(),
+               to = character(),
+               query = character(),
+               files = I(list()))
+  } else {
+    data_frame(
+      from = unlist(lapply(edges, "[[", "from"), FALSE, FALSE),
+      to = unlist(lapply(edges, "[[", "to"), FALSE, FALSE),
+      query = unlist(lapply(edges, "[[", "query"), FALSE, FALSE),
+      files = I(unname(unlist(lapply(edges, "[[", "files"), FALSE))))
+  }
 }

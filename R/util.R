@@ -580,8 +580,3 @@ pretty_bytes <- function(n) {
   }
   paste(prettyNum(round(n, 1), big.mark = ","), unit)
 }
-
-
-unlist_character <- function(x) {
-  if (length(x) == 0) character() else unlist(x, FALSE, FALSE)
-}
