@@ -8,16 +8,21 @@ orderly_graph_packets <- function(from = NULL, to = NULL,
 
   metadata <- root$index$data()$metadata
   if (!is.null(from)) {
-    dat <- graph_packets_from(from, metadata)
+    if (is.null(metadata[[from]])) {
+      cli::cli_abort("Packet '{from}' does not exist for 'from'")
+    }
+    dat <- graph_packets_from(from, metadata, environment())
   } else {
-    dat <- graph_packets_to(to, metadata)
+    if (is.null(metadata[[to]])) {
+      cli::cli_abort("Packet '{to}' does not exist for 'to'")
+    }
+    dat <- graph_packets_to(to, metadata, environment())
   }
-
   dat
 }
 
 
-graph_packets_to <- function(to, metadata) {
+graph_packets_to <- function(to, metadata, call) {
   validate_outpack_id(to)
   packets <- to
   edges <- list()
@@ -69,5 +74,5 @@ graph_edges_to_df <- function(edges) {
     from = unlist_character(lapply(edges, "[[", "from")),
     to = unlist_character(lapply(edges, "[[", "to")),
     query = unlist_character(lapply(edges, "[[", "query")),
-    files = I(unname(lapply(edges, "[[", "files"))))
+    files = I(unname(unlist(lapply(edges, "[[", "files"), FALSE))))
 }

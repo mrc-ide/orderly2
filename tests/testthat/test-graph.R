@@ -33,3 +33,43 @@ test_that("can retrieve simple graph information", {
   expect_equal(g4$edges$to, unname(ids[2:3]))
   expect_equal(names(g4$edges), c("from", "to", "query", "files"))
 })
+
+
+test_that("can extract graph from more interesting examples", {
+  ## (a, b) -> c
+  root <- create_temporary_root()
+  ids <- character()
+  ids[["a"]] <- create_random_packet(root, "a")
+  ids[["b"]] <- create_random_packet(root, "b")
+  ids[["c"]] <- create_random_dependent_packet(root, "c", ids[c("a", "b")])
+
+  g <- orderly_graph_packets(to = ids[["c"]], root = root)
+  expect_setequal(g$packets, unname(ids))
+  expect_setequal(
+    sprintf("%s -> %s", g$edges$from, g$edges$to),
+    sprintf("%s -> %s", ids[c("a", "b")], ids[["c"]]))
+
+  ids[["d"]] <- create_random_dependent_packet(root, "d", ids[["a"]])
+  ids[["e"]] <- create_random_dependent_packet(root, "d", ids[c("c", "d")])
+
+  ## Even with more packets present:
+  expect_equal(orderly_graph_packets(to = ids[["c"]], root = root), g)
+
+  g2 <- orderly_graph_packets(to = ids[["e"]], root = root)
+  expect_setequal(
+    sprintf("%s -> %s", g2$edges$from, g2$edges$to),
+    sprintf("%s -> %s",
+            ids[c("a", "b", "a", "c", "d")],
+            ids[c("c", "c", "d", "e", "e")]))
+})
+
+
+test_that("sensible error if leaf packet not found", {
+  root <- create_temporary_root()
+  expect_error(
+    orderly_graph_packets(from = "20230911-154647-532c17ff", root = root),
+    "Packet '20230911-154647-532c17ff' does not exist for 'from'")
+  expect_error(
+    orderly_graph_packets(to = "20230911-154647-532c17ff", root = root),
+    "Packet '20230911-154647-532c17ff' does not exist for 'to'")
+})
