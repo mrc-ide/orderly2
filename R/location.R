@@ -74,11 +74,10 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
   assert_scalar_character(name)
 
   if (name %in% location_reserved_name) {
-    stop(sprintf("Cannot add a location with reserved name '%s'",
-                 name))
+    cli::cli_abort("Cannot add a location with reserved name '{name}'")
   }
 
-  location_check_new_name(root, name)
+  location_check_new_name(root, name, environment())
   match_value(type, setdiff(location_types, location_reserved_name))
 
   loc <- new_location_entry(name, type, args)
@@ -121,11 +120,10 @@ orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
   assert_scalar_character(new)
 
   if (old %in% location_reserved_name) {
-    stop(sprintf("Cannot rename default location '%s'",
-                 old))
+    cli::cli_abort("Cannot rename default location '{old}'")
   }
-  location_check_new_name(root, new)
-  location_check_exists(root, old)
+  location_check_new_name(root, new, environment())
+  location_check_exists(root, old, environment())
 
   config <- root$config
   config$location$name[config$location$name == old] <- new
@@ -152,10 +150,9 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
                     call = environment())
 
   if (name %in% location_reserved_name) {
-    stop(sprintf("Cannot remove default location '%s'",
-                 name))
+    cli::cli_abort("Cannot remove default location '{name}'")
   }
-  location_check_exists(root, name)
+  location_check_exists(root, name, environment())
 
   index <- root$index$data()
   known_here <- index$location$packet[index$location$location == name]
@@ -224,7 +221,8 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
                                           include_orphan = FALSE,
-                                          allow_no_locations = TRUE)
+                                          allow_no_locations = TRUE,
+                                          environment())
   for (name in location_name) {
     location_pull_metadata(name, root, environment())
   }
@@ -365,7 +363,8 @@ orderly_location_push <- function(packet_id, location, root = NULL,
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
                                           include_orphan = FALSE,
-                                          allow_no_locations = FALSE)
+                                          allow_no_locations = FALSE,
+                                          environment())
   plan <- location_build_push_plan(packet_id, location_name, root)
 
   if (length(plan$files) > 0 || length(plan$packet_id) > 0) {
@@ -519,16 +518,21 @@ location_pull_files_archive <- function(packet_id, store, root) {
 
 
 location_resolve_valid <- function(location, root, include_local,
-                                   include_orphan, allow_no_locations) {
+                                   include_orphan, allow_no_locations,
+                                   call = NULL) {
   if (is.null(location)) {
     location <- orderly_location_list(root)
   } else if (is.character(location)) {
+    valid <- orderly_location_list(root)
     err <- setdiff(location, orderly_location_list(root))
     if (length(err) > 0) {
-      stop(sprintf("Unknown location: %s", paste(squote(err), collapse = ", ")))
+      cli::cli_abort(c("Unknown location{?s}: {squote(err)}",
+                       i = "Valid location{?s} are: {squote(valid)}"),
+                     call = call)
     }
   } else {
-    stop("Invalid input for 'location'; expected NULL or a character vector")
+    cli::cli_abort(
+      "Invalid input for 'location'; expected NULL or a character vector")
   }
 
   ## In some cases we won't want local, make this easy to do:
@@ -539,13 +543,8 @@ location_resolve_valid <- function(location, root, include_local,
     location <- setdiff(location, orphan)
   }
 
-  ## We could throw nicer errors here if we included this check (and
-  ## the setdiff) in every one of the above the three branches above,
-  ## but that makes things pretty hard to follow. We'll do some work
-  ## on nicer errors later once we get this ready for people to
-  ## actually use.
   if (length(location) == 0 && !allow_no_locations) {
-    stop("No suitable location found")
+    cli::cli_abort("No suitable location found", call = call)
   }
 
   location
@@ -602,7 +601,8 @@ location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
 location_build_pull_plan_location <- function(packets, location, root, call) {
   location_name <- location_resolve_valid(
     location, root, include_local = FALSE, include_orphan = FALSE,
-    allow_no_locations = length(packets$fetch) == 0)
+    allow_no_locations = length(packets$fetch) == 0,
+    call = call)
   ## Things that are found in suitable location:
   candidates <- root$index$location(location_name)
   missing <- setdiff(packets$fetch, candidates$packet)
@@ -705,8 +705,7 @@ new_location_entry <- function(name, type, args) {
   }
   msg <- setdiff(required, names(args))
   if (length(msg) > 0) {
-    stop(sprintf("Fields missing from args: %s",
-                 paste(squote(msg), collapse = ", ")))
+    cli::cli_abort("Field{?s} missing from args: {squote(msg)}")
   }
 
   if (type == "custom") {
@@ -720,18 +719,20 @@ new_location_entry <- function(name, type, args) {
 }
 
 
-location_check_new_name <- function(root, name) {
+location_check_new_name <- function(root, name, call) {
   if (location_exists(root, name)) {
-    stop(sprintf("A location with name '%s' already exists",
-                 name))
+    cli::cli_abort("A location with name '{name}' already exists",
+                   call = call)
   }
 }
 
 
-location_check_exists <- function(root, name) {
+location_check_exists <- function(root, name, call) {
   if (!location_exists(root, name)) {
-    stop(sprintf("No location with name '%s' exists",
-                 name))
+    valid <- orderly_location_list(root)
+    cli::cli_abort(c("No location with name '{name}' exists",
+                     i = "Possible location{?s} are: {squote(valid)}"),
+                   call = call)
   }
 }
 
