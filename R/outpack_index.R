@@ -22,14 +22,14 @@ outpack_index <- R6::R6Class(
       invisible(self)
     },
 
-    metadata = function(id) {
+    metadata = function(id, call = NULL) {
       ret <- private$data_$metadata[[id]]
       if (is.null(ret)) {
         self$refresh()
         ret <- private$data_$metadata[[id]]
       }
       if (is.null(ret)) {
-        stop(sprintf("id '%s' not found in index", id))
+        cli::cli_abort("Packet '{id}' not found in outpack index", call = call)
       }
       ret
     },

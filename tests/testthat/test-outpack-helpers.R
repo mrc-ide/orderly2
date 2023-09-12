@@ -21,7 +21,7 @@ test_that("can copy files from location, using store", {
   expect_error(
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
                        root = here),
-    "id '.+' not found in index")
+    "Packet '.+' not found in outpack index")
   orderly_location_pull_metadata(root = here)
 
   expect_error(

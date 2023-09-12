@@ -95,7 +95,7 @@ test_that("Can't get nonexistant metadata", {
   id <- outpack_id()
   expect_error(
     orderly_metadata(id, root),
-    sprintf("id '%s' not found in index", id))
+    sprintf("Packet '%s' not found in outpack index", id))
 })
 
 
@@ -112,5 +112,5 @@ test_that("Sensible error if metadata file not found", {
     "Malformed id 'some-id'")
   expect_error(
     orderly_metadata(outpack_id(), root),
-    "id '.+' not found in index")
+    "Packet '.+' not found in outpack index")
 })

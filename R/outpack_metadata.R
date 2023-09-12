@@ -29,7 +29,7 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
                     call = environment())
   path_metadata <- file.path(root$path, ".outpack", "metadata", id)
   if (!file.exists(path_metadata)) {
-    stop(sprintf("id '%s' not found in index", id))
+    cli::cli_abort("Packet '{id}' not found in outpack index")
   }
   outpack_metadata_load(path_metadata)
 }
@@ -162,8 +162,8 @@ outpack_metadata_create <- function(path, name, id, time, files,
 ## that that was read with the outpack_metadata_core_read
 ## function. Only the core fields will be deserialised and stored,
 ## which should save time and space.
-outpack_metadata_core <- function(id, root) {
-  root$index$metadata(id)
+outpack_metadata_core <- function(id, root, call = NULL) {
+  root$index$metadata(id, call)
 }
 
 
