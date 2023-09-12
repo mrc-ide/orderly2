@@ -32,16 +32,18 @@ orderly_read_r <- function(path) {
       ## TODO: As below, it is possible to return line numbers here,
       ## something when we come to tidy up for users.
       if (any(top_level %in% vars)) {
-        stop(sprintf(
-          "orderly function %s can only be used at the top level",
-          paste(squote(intersect(top_level, vars)), collapse = ", ")))
+        err <- intersect(top_level, vars)
+        cli::cli_abort(
+          "orderly function {squote(err)} can only be used at the top level",
+          call = NULL)
       }
     }
   }
 
   for (nm in single) {
     if (length(dat[[nm]]) > 1) {
-      stop(sprintf("Only one call to 'orderly2::%s' is allowed", nm))
+      cli::cli_abort("Only one call to 'orderly2::{nm}' is allowed",
+                     call = NULL)
     }
   }
 
