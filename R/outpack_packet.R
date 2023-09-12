@@ -336,21 +336,21 @@ outpack_packet_file_mark <- function(packet, files, status) {
                              hash_files(files, hash_algorithm, named = TRUE))
 
     if (any(files %in% packet$files$ignored)) {
-      stop(sprintf("Cannot mark ignored files as immutable: %s",
-                   paste(squote(intersect(files, packet$files$ignored)),
-                         collapse = ", ")))
+      err <- intersect(files, packet$files$ignored)
+      cli::cli_abort(c("Cannot mark ignored files as immutable",
+                       set_names(err, "x")))
     }
 
     prev <- names(packet$files$immutable)
-    validate_hashes(value, packet$files$immutable[intersect(files, prev)])
+    validate_hashes(value, packet$files$immutable[intersect(files, prev)],
+                    call = environment())
     value <- value[setdiff(names(value), prev)]
     packet$files$immutable <- c(packet$files$immutable, value)
   } else if (status == "ignored") {
     if (any(files %in% names(packet$files$immutable))) {
-      stop(sprintf(
-        "Cannot mark immutable files as ignored: %s",
-        paste(squote(intersect(files, names(packet$files$immutable))),
-              collapse = ", ")))
+      err <- intersect(files, names(packet$files$immutable))
+      cli::cli_abort(c("Cannot mark immutable files as ignored",
+                       set_names(err, "x")))
     }
 
     packet$files$ignored <- union(packet$files$ignored, files)

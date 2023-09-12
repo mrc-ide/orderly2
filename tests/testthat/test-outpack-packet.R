@@ -426,9 +426,10 @@ test_that("Can detect changes to hashed files", {
   p <- outpack_packet_start_quietly(path_src, "example", root = root)
   outpack_packet_file_mark(p, inputs, "immutable")
   outpack_packet_run(p, "script.R")
-  expect_error(
+  err <- expect_error(
     outpack_packet_end_quietly(p),
-    "File was changed after being added: 'data.csv'")
+    "File was changed after being added")
+  expect_equal(err$body, c(x = "data.csv"))
 })
 
 
@@ -444,8 +445,9 @@ test_that("Re-adding files triggers hash", {
   expect_silent(outpack_packet_file_mark(p, "data.csv", "immutable"))
   expect_length(p$files, 1)
   file.create(file.path(path_src, "data.csv"))
-  expect_error(outpack_packet_file_mark(p, "data.csv", "immutable"),
-               "File was changed after being added: 'data.csv'")
+  err <- expect_error(outpack_packet_file_mark(p, "data.csv", "immutable"),
+                      "File was changed after being added")
+  expect_equal(err$body, c(x = "data.csv"))
 })
 
 
@@ -485,12 +487,14 @@ test_that("Files cannot be immutable and ignored", {
   outpack_packet_file_mark(p, "data.csv", "ignored")
   outpack_packet_file_mark(p, "script.R", "immutable")
 
-  expect_error(
+  err <- expect_error(
     outpack_packet_file_mark(p, "data.csv", "immutable"),
-    "Cannot mark ignored files as immutable: 'data.csv'")
-  expect_error(
+    "Cannot mark ignored files as immutable")
+  expect_equal(err$body, c(x = "data.csv"))
+  err <- expect_error(
     outpack_packet_file_mark(p, "script.R", "ignored"),
-    "Cannot mark immutable files as ignored: 'script.R'")
+    "Cannot mark immutable files as ignored")
+  expect_equal(err$body, c(x = "script.R"))
 })
 
 

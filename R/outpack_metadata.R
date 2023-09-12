@@ -99,7 +99,7 @@ outpack_metadata_create <- function(path, name, id, time, files,
       hash = vcapply(files, hash_file, hash_algorithm, USE.NAMES = FALSE)))
 
   if (!is.null(file_hash)) {
-    validate_hashes(set_names(files$hash, files$path), file_hash)
+    validate_hashes(set_names(files$hash, files$path), file_hash, call = NULL)
   }
 
   ## TODO: best to validate here that all elements of depends are
@@ -206,16 +206,20 @@ outpack_metadata_load <- function(json) {
 }
 
 
-validate_hashes <- function(found, expected) {
+validate_hashes <- function(found, expected, call = NULL) {
   err <- found[names(expected)] != expected
   msg <- is.na(err)
   if (any(msg)) {
-    stop(sprintf("File was deleted after being added: %s",
-                 paste(squote(names(expected)[msg]), collapse = ", ")))
+    cli::cli_abort(
+      c("File{?s} {?was/were} deleted after being added {cli::qty(sum(msg))}",
+        set_names(names(expected)[msg], "x")),
+      call = call)
   }
   if (any(err)) {
-    stop(sprintf("File was changed after being added: %s",
-                 paste(squote(names(expected)[err]), collapse = ", ")))
+    cli::cli_abort(
+      c("File{?s} {?was/were} changed after being added {cli::qty(sum(err))}",
+        set_names(names(expected)[err], "x")),
+      call = call)
   }
 }
 
