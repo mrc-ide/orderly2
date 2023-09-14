@@ -104,18 +104,16 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
 
   if (is.null(name) && is.null(root)) {
     path <- getwd()
-    root <- detect_orderly_interactive_path(path)$path
+    root_path <- detect_orderly_interactive_path(path)
     name <- basename(path)
   } else {
-    root <- root_open(root, locate = locate, require_orderly = TRUE,
-                      call = environment())
+    root_path <- orderly_src_root(root, locate, call = environment())
     if (is.null(name)) {
       ## This situation would be very odd, just disallow it
       cli::cli_abort("If 'root' is given explicitly, 'name' is required")
     }
-    name <- validate_orderly_directory(name, root, environment())
-    path <- file.path(root$path, "src", name)
-    root <- root$path
+    name <- validate_orderly_directory(name, root_path, environment())
+    path <- file.path(root_path, "src", name)
   }
 
   info <- orderly_read(path)
@@ -164,7 +162,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   unknown <- files[!is_source & !to_delete]
 
   structure(list(name = name,
-                 root = root,
+                 root = root_path,
                  path = path,
                  role = role,
                  status = status,

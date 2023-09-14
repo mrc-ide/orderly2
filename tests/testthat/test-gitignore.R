@@ -130,7 +130,7 @@ test_that("can update file with existing contents", {
 test_that("can add a basic root gitignore", {
   path <- test_prepare_orderly_example("data")
   ignore <- c(".outpack", "orderly_envir.yml", "draft", "archive")
-  expect_equal(gitignore_content_root(root_open(path, FALSE, FALSE)), ignore)
+  expect_equal(gitignore_content_root(path), ignore)
   expect_message(
     expect_true(orderly_gitignore_update("(root)", path)),
     "Wrote '.gitignore'")
@@ -143,7 +143,7 @@ test_that("can add a basic root gitignore", {
 test_that("can add a source .gitignore", {
   path <- test_prepare_orderly_example("data")
   ignore <- c("data.rds")
-  expect_equal(gitignore_content_src("data", root_open(path, FALSE, FALSE)),
+  expect_equal(gitignore_content_src("data", path),
                ignore)
   expect_message(
     expect_true(orderly_gitignore_update("data", path)),
@@ -157,7 +157,7 @@ test_that("can add a source .gitignore", {
 test_that("can compute ignore for dependencies", {
   path <- test_prepare_orderly_example("depends")
   expect_equal(
-    gitignore_content_src("depends", root_open(path, FALSE, FALSE)),
+    gitignore_content_src("depends", path),
     c("input.rds", "graph.png"))
 })
 
@@ -165,7 +165,7 @@ test_that("can compute ignore for dependencies", {
 test_that("can compute ignore for dependencies", {
   path <- test_prepare_orderly_example("shared")
   expect_setequal(
-    gitignore_content_src("shared", root_open(path, FALSE, FALSE)),
+    gitignore_content_src("shared", path),
     c("mygraph.png", "shared_data.csv"))
 })
 
@@ -173,6 +173,6 @@ test_that("can compute ignore for dependencies", {
 test_that("don't ignore resources that are artefacts", {
   path <- test_prepare_orderly_example("reexport")
   expect_equal(
-    gitignore_content_src("reexport", root_open(path, FALSE, FALSE)),
+    gitignore_content_src("reexport", path),
     "mygraph.png")
 })

@@ -13,10 +13,8 @@ orderly_context <- function(envir) {
     search_options <- p$orderly2$search_options
   } else {
     path <- getwd()
-    root <- detect_orderly_interactive_path(path)$path
-    config <- root_open(root,
-                        locate = FALSE,
-                        require_orderly = TRUE)$config$orderly
+    root <- detect_orderly_interactive_path(path)
+    config <- orderly_config_read(root)
     src <- path
     parameters <- current_orderly_parameters(src, envir)
     name <- basename(path)

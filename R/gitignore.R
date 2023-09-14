@@ -34,41 +34,45 @@
 ##' @return Nothing, called for its side effects
 ##' @export
 orderly_gitignore_update <- function(name, root = NULL, locate = TRUE) {
-  root <- root_open(root, locate, require_orderly = TRUE, call = environment())
-  do_orderly_gitignore_update(name, root, environment())
+  root_path <- orderly_src_root(root, locate, call = environment())
+  do_orderly_gitignore_update(name, root_path, environment())
 }
 
 ## Separate inned function that avoids opening the root, we need this
 ## to break a circular dependency as we sometimes call this function
 ## while openning the root.
-do_orderly_gitignore_update <- function(name, root, call) {
+do_orderly_gitignore_update <- function(name, root_path, call) {
   assert_scalar_character(name)
 
   if (name == "(root)") {
     path <- ".gitignore"
-    value <- gitignore_content_root(root)
+    value <- gitignore_content_root(root_path)
   } else {
-    name <- validate_orderly_directory(name, root, call)
+    name <- validate_orderly_directory(name, root_path, call)
     path <- file.path("src", name, ".gitignore")
-    value <- gitignore_content_src(name, root)
+    value <- gitignore_content_src(name, root_path)
   }
 
-  if (gitignore_update_file(root$path, path, value)) {
+  if (gitignore_update_file(root_path, path, value)) {
     cli::cli_alert_success("Wrote '{path}'")
   }
   invisible(TRUE)
 }
 
-gitignore_content_root <- function(root) {
+gitignore_content_root <- function(root_path) {
+  path_archive <- NULL
+  if (file.exists(file.path(root_path, ".outpack", "config.json"))) {
+    path_archive <- config_read(root_path)$core$path_archive
+  }
   c(".outpack",
     "orderly_envir.yml",
     "draft",
-    root$config$core$path_archive)
+    path_archive)
 }
 
 
-gitignore_content_src <- function(name, root) {
-  dat <- orderly_read_r(file.path(root$path, "src", name, "orderly.R"))
+gitignore_content_src <- function(name, root_path) {
+  dat <- orderly_read_r(file.path(root_path, "src", name, "orderly.R"))
 
   ignore_deps <- unlist(lapply(dat$dependency, function(x) names(x$files)))
   ignore_artefacts <- unlist(lapply(dat$artefacts, "[[", "files"))
@@ -89,7 +93,7 @@ gitignore_markers <- c(
   "# ---^^^--- added by orderly ---^^^----------------")
 
 
-gitignore_update_contents <- function(content_old, value, path, root) {
+gitignore_update_contents <- function(content_old, value, path, root_path) {
   if (!any(gitignore_markers %in% content_old)) {
     if (length(content_old) > 0) {
       content_old <- c(content_old, "")
@@ -106,7 +110,7 @@ gitignore_update_contents <- function(content_old, value, path, root) {
   if (err) {
     cli::cli_abort(c(
       "Can't edit '{path}', markers are corrupted",
-      i = "(within orderly root '{root}')",
+      i = "(within orderly root '{root_path}')",
       i = "Please see ?orderly_gitignore_update for more details"))
   }
 
@@ -117,11 +121,11 @@ gitignore_update_contents <- function(content_old, value, path, root) {
 }
 
 
-gitignore_update_file <- function(root, path, value) {
-  path_full <- file.path(root, path)
+gitignore_update_file <- function(root_path, path, value) {
+  path_full <- file.path(root_path, path)
   gitignore_exists <- file.exists(path_full)
   content_old <- if (gitignore_exists) readLines(path_full) else character()
-  content_new <- gitignore_update_contents(content_old, value, path, root)
+  content_new <- gitignore_update_contents(content_old, value, path, root_path)
   if (identical(content_old, content_new)) {
     return(FALSE)
   }

@@ -130,19 +130,22 @@
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                         search_options = NULL, root = NULL, locate = TRUE) {
-  root <- root_open(root, locate, require_orderly = TRUE, call = environment())
-  name <- validate_orderly_directory(name, root, environment())
+  root <- root_open(root, locate, require_orderly = TRUE,
+                    call = environment())
+  root_src <- root$path
+
+  name <- validate_orderly_directory(name, root_src, environment())
 
   envir <- envir %||% .GlobalEnv
   assert_is(envir, "environment")
 
-  src <- file.path(root$path, "src", name)
+  src <- file.path(root_src, "src", name)
   dat <- orderly_read(src)
   parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
 
   id <- outpack_id()
-  path <- file.path(root$path, "draft", name, id)
+  path <- file.path(root_src, "draft", name, id)
   fs::dir_create(path)
 
   ## Slightly peculiar formulation here; we're going to use 'path' as
@@ -487,13 +490,13 @@ orderly_packet_add_metadata <- function(p) {
 }
 
 
-validate_orderly_directory <- function(name, root, call) {
+validate_orderly_directory <- function(name, root_path, call) {
   assert_scalar_character(name)
 
   re <- "^(./)*(src/)?(.+?)/?$"
   name <- sub(re, "\\3", name)
-  if (!file_exists(file.path(root$path, "src", name, "orderly.R"))) {
-    src <- file.path(root$path, "src", name)
+  if (!file_exists(file.path(root_path, "src", name, "orderly.R"))) {
+    src <- file.path(root_path, "src", name)
     err <- sprintf("Did not find orderly report '%s'", name)
     if (!file_exists(src)) {
       detail <- sprintf("The path 'src/%s' does not exist", name)
@@ -507,14 +510,14 @@ validate_orderly_directory <- function(name, root, call) {
         name)
     }
     err <- c(err, x = detail)
-    near <- near_match(name, orderly_list_src(root, FALSE))
+    near <- near_match(name, orderly_list_src(root_path, FALSE))
     if (length(near) > 0) {
       hint <- sprintf("Did you mean %s",
                       paste(squote(near), collapse = ", "))
       err <- c(err, i = hint)
     }
     err <- c(err, i = sprintf("Looked relative to orderly root at '%s'",
-                              root$path))
+                              root_path))
     cli::cli_abort(err, call = call)
   }
 

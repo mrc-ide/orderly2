@@ -84,7 +84,7 @@ test_that("can add gitignore if git setup is ok, but not present", {
 test_that("can error with instructions if files are added to git", {
   root <- create_temporary_root()
   info <- helper_add_git(root$path)
-  id <- create_random_packet(root)
+  id <- create_random_packet(root$path)
 
   ## Need to do some work here to make this fail now:
   fs::file_delete(file.path(root$path, ".gitignore"))
