@@ -961,6 +961,7 @@ test_that("can search for queries using boolean", {
     character(0))
 })
 
+
 test_that("query with invalid types does no type coersion", {
   root <- create_temporary_root(use_file_store = TRUE)
   x <- create_random_packet(root, "x", list(a = TRUE))
@@ -984,6 +985,7 @@ test_that("query with invalid types does no type coersion", {
     character(0))
 })
 
+
 test_that("query with mixed types returns results with valid comparison", {
   root <- create_temporary_root(use_file_store = TRUE)
   x <- create_random_packet(root, "x", list(a = 2))
@@ -992,4 +994,29 @@ test_that("query with mixed types returns results with valid comparison", {
   expect_equal(
     orderly_search(quote(parameter:a > 1), root = root),
     x)
+}
+
+
+test_that("&& takes precedence over ||", {
+  ## If we have an expression like A || B && C
+  ## R evaluates this as A || (B && C) so make sure we do this in querying too
+  ## i.e. && has higher precedence
+  ## This difference is clear if A is true, B is true and C is false
+  ## A || (B && C) -> TRUE
+  ## (A || B) && C -> FALSE
+
+  root <- create_temporary_root(use_file_store = TRUE)
+  x1 <- create_random_packet(root, "x", list(a = TRUE))
+  x2 <- create_random_packet(root, "x", list(a = FALSE))
+  y1 <- create_random_packet(root, "y", list(a = "TRUE"))
+
+  expect_equal(
+    orderly_search(quote(name == "y" || parameter:a == TRUE && name == "x"), root = root),
+    c(y1, x1))
+  expect_equal(
+    orderly_search(quote((name == "y" || parameter:a == TRUE) && name == "x"), root = root),
+    x1)
+  expect_equal(
+    orderly_search(quote(parameter:a == TRUE && name == "x" || name == "y"), root = root),
+    c(x1, y1))
 })
