@@ -994,7 +994,7 @@ test_that("query with mixed types returns results with valid comparison", {
   expect_equal(
     orderly_search(quote(parameter:a > 1), root = root),
     x)
-}
+})
 
 
 test_that("&& takes precedence over ||", {
@@ -1011,12 +1011,15 @@ test_that("&& takes precedence over ||", {
   y1 <- create_random_packet(root, "y", list(a = "TRUE"))
 
   expect_equal(
-    orderly_search(quote(name == "y" || parameter:a == TRUE && name == "x"), root = root),
+    orderly_search(quote(name == "y" || parameter:a == TRUE && name == "x"),
+                   root = root),
     c(y1, x1))
   expect_equal(
-    orderly_search(quote((name == "y" || parameter:a == TRUE) && name == "x"), root = root),
+    orderly_search(quote((name == "y" || parameter:a == TRUE) && name == "x"),
+                   root = root),
     x1)
   expect_equal(
-    orderly_search(quote(parameter:a == TRUE && name == "x" || name == "y"), root = root),
+    orderly_search(quote(parameter:a == TRUE && name == "x" || name == "y"),
+                   root = root),
     c(x1, y1))
 })
