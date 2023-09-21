@@ -75,7 +75,7 @@ test_that("Can't get nonexistant metadata", {
   id <- outpack_id()
   expect_error(
     outpack_metadata_core(id, root),
-    sprintf("id '%s' not found in index", id))
+    sprintf("Packet '%s' not found in outpack index", id))
 })
 
 

@@ -115,7 +115,7 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
     }
   }
 
-  plan <- plan_copy_files(root, id, files$there, files$here)
+  plan <- plan_copy_files(root, id, files$there, files$here, environment())
   name <- outpack_metadata_core(id, root)$name
 
   tryCatch(
@@ -149,9 +149,9 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
 }
 
 
-plan_copy_files <- function(root, id, there, here) {
+plan_copy_files <- function(root, id, there, here, call = NULL) {
   assert_relative_path(there, no_dots = TRUE)
-  validate_packet_has_file(root, id, there)
+  validate_packet_has_file(root, id, there, call)
   is_dir <- grepl("/$", there)
   if (any(is_dir)) {
     meta <- outpack_metadata_core(id, root)

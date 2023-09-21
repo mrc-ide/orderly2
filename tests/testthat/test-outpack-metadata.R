@@ -60,17 +60,25 @@ test_that("Validate hashes", {
   expect_silent(validate_hashes(found, found[1]))
   expect_silent(validate_hashes(found, character()))
 
-  expect_error(validate_hashes(found[1:2], found),
-               "File was deleted after being added: 'c'")
-  expect_error(validate_hashes(found[1], found),
-               "File was deleted after being added: 'b', 'c'")
-  expect_error(validate_hashes(character(), found),
-               "File was deleted after being added: 'a', 'b', 'c'")
+  err <- expect_error(validate_hashes(found[1:2], found),
+                      "File was deleted after being added")
+  expect_equal(err$body, c(x = "c"))
 
-  expect_error(validate_hashes(c(a = "x", b = "y", c = "Z"), found),
-               "File was changed after being added: 'c'")
-  expect_error(validate_hashes(c(a = "X", b = "y", c = "Z"), found),
-               "File was changed after being added: 'a', 'c'")
+  err <- expect_error(validate_hashes(found[1], found),
+                      "Files were deleted after being added")
+  expect_equal(err$body, c(x = "b", x = "c"))
+
+  err <- expect_error(validate_hashes(character(), found),
+                      "Files were deleted after being added")
+  expect_equal(err$body, c(x = "a", x = "b", x = "c"))
+
+  err <- expect_error(validate_hashes(c(a = "x", b = "y", c = "Z"), found),
+                      "File was changed after being added")
+  expect_equal(err$body, c(x = "c"))
+
+  err <- expect_error(validate_hashes(c(a = "X", b = "y", c = "Z"), found),
+                      "Files were changed after being added")
+  expect_equal(err$body, c(x = "a", x = "c"))
 })
 
 
@@ -95,7 +103,7 @@ test_that("Can't get nonexistant metadata", {
   id <- outpack_id()
   expect_error(
     orderly_metadata(id, root),
-    sprintf("id '%s' not found in index", id))
+    sprintf("Packet '%s' not found in outpack index", id))
 })
 
 
@@ -112,5 +120,5 @@ test_that("Sensible error if metadata file not found", {
     "Malformed id 'some-id'")
   expect_error(
     orderly_metadata(outpack_id(), root),
-    "id '.+' not found in index")
+    "Packet '.+' not found in outpack index")
 })

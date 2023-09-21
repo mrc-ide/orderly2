@@ -165,7 +165,7 @@ test_that("Can't use nonexistant id as dependency", {
   p2 <- outpack_packet_start_quietly(path_src, "example", root = root)
   expect_error(
     outpack_packet_use_dependency(p2, p1$id, c("a" = "b")),
-    sprintf("Packet '%s' does not contain path 'b'", p1$id))
+    sprintf("Packet '%s' does not contain the requested path", p1$id))
   suppressMessages(outpack_packet_cancel(p2))
 })
 
@@ -186,7 +186,7 @@ test_that("Can't use file that does not exist from dependency", {
   p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   expect_error(
     outpack_packet_use_dependency(p2, p1$id, c("incoming.csv" = "data.csv")),
-    "Packet '.+' does not contain path 'data.csv'")
+    "Packet '.+' does not contain the requested path")
 })
 
 
@@ -426,9 +426,10 @@ test_that("Can detect changes to hashed files", {
   p <- outpack_packet_start_quietly(path_src, "example", root = root)
   outpack_packet_file_mark(p, inputs, "immutable")
   outpack_packet_run(p, "script.R")
-  expect_error(
+  err <- expect_error(
     outpack_packet_end_quietly(p),
-    "File was changed after being added: 'data.csv'")
+    "File was changed after being added")
+  expect_equal(err$body, c(x = "data.csv"))
 })
 
 
@@ -444,8 +445,9 @@ test_that("Re-adding files triggers hash", {
   expect_silent(outpack_packet_file_mark(p, "data.csv", "immutable"))
   expect_length(p$files, 1)
   file.create(file.path(path_src, "data.csv"))
-  expect_error(outpack_packet_file_mark(p, "data.csv", "immutable"),
-               "File was changed after being added: 'data.csv'")
+  err <- expect_error(outpack_packet_file_mark(p, "data.csv", "immutable"),
+                      "File was changed after being added")
+  expect_equal(err$body, c(x = "data.csv"))
 })
 
 
@@ -485,12 +487,14 @@ test_that("Files cannot be immutable and ignored", {
   outpack_packet_file_mark(p, "data.csv", "ignored")
   outpack_packet_file_mark(p, "script.R", "immutable")
 
-  expect_error(
+  err <- expect_error(
     outpack_packet_file_mark(p, "data.csv", "immutable"),
-    "Cannot mark ignored files as immutable: 'data.csv'")
-  expect_error(
+    "Cannot mark ignored files as immutable")
+  expect_equal(err$body, c(x = "data.csv"))
+  err <- expect_error(
     outpack_packet_file_mark(p, "script.R", "ignored"),
-    "Cannot mark immutable files as ignored: 'script.R'")
+    "Cannot mark immutable files as ignored")
+  expect_equal(err$body, c(x = "script.R"))
 })
 
 
@@ -789,19 +793,17 @@ test_that("exporting directories reports on trailing slashes being missing", {
   outpack_packet_end_quietly(p1)
   id <- p1$id
 
-  err <- paste0("Packet '.+' does not contain path 'data'\n",
-                "  Consider adding a trailing slash to 'data'")
-
   dest <- withr::local_tempdir()
-  expect_error(
+  err <- expect_error(
     orderly_copy_files(id, files = c(d = "data"), dest = dest, root = root),
-    err)
+    "Packet '.+' does not contain the requested path")
+  expect_equal(err$body, c(i = "Consider adding a trailing slash to 'data'"))
 
   path_src2 <- withr::local_tempdir()
   p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   expect_error(
     outpack_packet_use_dependency(p2, 'latest(name == "a")', c(d = "data")),
-    err)
+    "Packet '.+' does not contain the requested path")
 })
 
 

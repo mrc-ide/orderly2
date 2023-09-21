@@ -29,7 +29,7 @@ outpack_root <- R6::R6Class(
 file_export <- function(root, id, there, here, dest, overwrite, call = NULL) {
   ## This validation *always* occurs; does the packet even claim to
   ## have this path?
-  validate_packet_has_file(root, id, there)
+  validate_packet_has_file(root, id, there, call)
   ## TODO: log file copy information, including hashes.  Because copy
   ## can be slow for large files, we might want to do this file by
   ## file?
@@ -138,7 +138,7 @@ find_file_by_hash <- function(root, hash) {
 }
 
 
-validate_packet_has_file <- function(root, id, path) {
+validate_packet_has_file <- function(root, id, path, call = NULL) {
   files <- outpack_metadata_core(id, root)$files$path
 
   is_dir <- grepl("/$", path)
@@ -156,15 +156,17 @@ validate_packet_has_file <- function(root, id, path) {
   found_if_dir <- vlapply(with_trailing_slash(msg),
                           function(x) any(string_starts_with(x, files)),
                           USE.NAMES = FALSE)
-
-  err <- sprintf("Packet '%s' does not contain path %s",
-                 id, paste(squote(msg), collapse = ", "))
   if (any(found_if_dir)) {
-    err <- sprintf("%s\n  Consider adding a trailing slash to %s",
-                   err, paste(squote(msg[found_if_dir]), collapse = ", "))
+    hint <- c(
+      i = "Consider adding a trailing slash to {squote(msg[found_if_dir])}")
+  } else {
+    hint <- NULL
   }
 
-  stop(err, call. = FALSE)
+  cli::cli_abort(
+    c("Packet '{id}' does not contain the requested path{?s} {squote(msg)}",
+      hint),
+    call = call)
 }
 
 

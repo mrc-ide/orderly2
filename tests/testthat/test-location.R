@@ -584,7 +584,7 @@ test_that("Can resolve locations", {
     "Unknown location: 'other'")
   expect_error(
     location_resolve_valid(c("a", "b", "f", "g"), root$dst, TRUE, FALSE, FALSE),
-    "Unknown location: 'f', 'g'")
+    "Unknown locations: 'f' and 'g'")
 })
 
 
@@ -733,11 +733,11 @@ test_that("validate arguments to path locations", {
   expect_error(
     orderly_location_add("other", "path", list(root = "mypath"),
                          root = root),
-    "Fields missing from args: 'path'")
+    "Field missing from args: 'path'")
   expect_error(
     orderly_location_add("other", "http", list(server = "example.com"),
                          root = root),
-    "Fields missing from args: 'url'")
+    "Field missing from args: 'url'")
   expect_equal(orderly_location_list(root = root), "local")
 })
 
