@@ -81,6 +81,29 @@
 ##'   functionality was never available in orderly version 1, though
 ##'   we had intended to support it.
 ##'
+##' @section Running with a source tree separate from outpack root:
+##'
+##' Sometimes it is useful to run things from a different place on
+##'   disk to your outpack root. We know of two cases where this has
+##'   come up:
+##'
+##' * when running reports within a runner on a server, we make a
+##'   clean clone of the source tree at a particular git reference
+##'   into a new temporary directory and then run the report there,
+##'   but have it insert into an orderly repo at a fixed and
+##'   non-temporary location.
+##' * we have a user for whom it is more convenient torun their report
+##'   on a hard drive but store the archive and metadata on a (larger)
+##'   shared drive.
+##'
+##' In the first instance, we have a source path at `<src>` which
+##'   contains the file `orderly_config.yml` and the directory `src/`
+##'   with our source reports, and a separate path `<root>` which
+##'   contains the directory `.outpack/` with all the metadata - it
+##'   may also have an unpacked archive, and a `.git/` directory
+##'   depending on the configuration. (Later this will make more sense
+##'   once we support a "bare" outpack layout.)
+##'
 ##' @title Run a report
 ##'
 ##' @param name Name of the report to run. Any leading `./` `src/` or
@@ -113,6 +136,12 @@
 ##'   then orderly looks in the working directory and up through its
 ##'   parents until it finds an `.outpack` directory
 ##'
+##' @param root_src Separately, the root of the orderly source tree,
+##'   if separate from the outpack root (given as `root`). This is
+##'   intended for running reports in situations where the source tree
+##'   is kept in a different place to the outpack root; see Details
+##'   for more information.
+##'
 ##' @return The id of the created report (a string)
 ##'
 ##' @export
@@ -129,10 +158,17 @@
 ##' # and we can query the metadata:
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
-                        search_options = NULL, root = NULL, locate = TRUE) {
-  root <- root_open(root, locate, require_orderly = TRUE,
-                    call = environment())
-  root_src <- root$path
+                        search_options = NULL, root = NULL, locate = TRUE,
+                        root_src = NULL) {
+  if (is.null(root_src)) {
+    root <- root_open(root, locate, require_orderly = TRUE,
+                      call = environment())
+    root_src <- root$path
+  } else {
+    root <- root_open(root, locate, require_orderly = FALSE,
+                      call = environment())
+    root_src <- orderly_src_root(root_src, locate, call = environment())
+  }
 
   name <- validate_orderly_directory(name, root_src, environment())
 
