@@ -321,7 +321,7 @@ orderly_shared_resource <- function(...) {
   files <- validate_shared_resource(list(...), environment())
   ctx <- orderly_context(rlang::caller_env())
 
-  files <- copy_shared_resource(ctx$root, ctx$path, ctx$config, files)
+  files <- copy_shared_resource(ctx$root_src, ctx$path, ctx$config, files)
   if (ctx$is_active) {
     outpack_packet_file_mark(ctx$packet, files$here, "immutable")
     ctx$packet$orderly2$shared_resources <-

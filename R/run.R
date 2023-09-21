@@ -203,8 +203,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                             id = id, root = root)
   outpack_packet_file_mark(p, "orderly.R", "immutable")
   p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
-                     strict = dat$strict, inputs_info = inputs_info,
-                     search_options = search_options)
+                     root = root_src, strict = dat$strict,
+                     inputs_info = inputs_info, search_options = search_options)
   current[[path]] <- p
   on.exit(current[[path]] <- NULL, add = TRUE, after = TRUE)
   if (!is.null(parameters)) {

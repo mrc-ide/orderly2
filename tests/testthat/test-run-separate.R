@@ -9,3 +9,63 @@ test_that("can run simple case in separate directory", {
   expect_true(file.exists(file.path(info$outpack, "archive")))
   expect_true(file.exists(file.path(info$outpack, "archive", "explicit", id)))
 })
+
+
+test_that("can run shared resources case in separate directory", {
+  ## This is worth a separate check as it's important that the shared
+  ## resources are relative to the *source* tree and not the outpack
+  ## root.
+  info <- test_prepare_orderly_example_separate("shared")
+  envir <- new.env()
+  id <- orderly_run_quietly("shared", envir = envir,
+                            root = info$outpack, root_src = info$src)
+  expect_setequal(
+    dir(file.path(info$outpack, "archive", "shared", id)),
+    c("shared_data.csv", "mygraph.png", "orderly.R"))
+})
+
+
+test_that("can use dependencies in separate directory", {
+  ## Ensures that we hit the outpack root for pulling deps in
+  info <- test_prepare_orderly_example_separate(c("data", "depends"))
+  envir1 <- new.env()
+  id1 <- orderly_run_quietly("data", envir = envir1,
+                             root = info$outpack, root_src = info$src)
+  envir2 <- new.env()
+  id2 <- orderly_run_quietly("depends", envir = envir2,
+                             root = info$outpack, root_src = info$src)
+
+  path1 <- file.path(info$outpack, "archive", "data", id1)
+  path2 <- file.path(info$outpack, "archive", "depends", id2)
+
+  expect_true(file.exists(file.path(path2, "input.rds")))
+  expect_equal(
+    unname(tools::md5sum(file.path(path2, "input.rds"))),
+    unname(tools::md5sum(file.path(path1, "data.rds"))))
+})
+
+
+test_that("can get git information in separate directory", {
+  info <- test_prepare_orderly_example_separate("explicit")
+  info$git <- helper_add_git(info$src)
+  id <- orderly_run_quietly("explicit", envir = new.env(),
+                            root = info$outpack, root_src = info$src)
+  meta <- orderly_metadata(id, root = info$outpack)
+  expect_mapequal(meta$git, info$git[c("sha", "branch", "url")])
+})
+
+
+test_that("can't run interactively in separate directory", {
+  ## Picking on depends here because it really requires the outpack
+  ## root
+  info <- test_prepare_orderly_example_separate(c("data", "depends"))
+  envir1 <- new.env()
+  id1 <- orderly_run_quietly("data", envir = envir1,
+                             root = info$outpack, root_src = info$src)
+  envir2 <- new.env()
+  path_src <- file.path(info$src, "src", "depends")
+  expect_error(
+    withr::with_dir(path_src,
+                    sys.source("orderly.R", envir2)),
+    "orderly directory '.+' not initialised")
+})

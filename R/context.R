@@ -4,6 +4,7 @@ orderly_context <- function(envir) {
   if (is_active) {
     path <- p$path
     root <- p$root$path
+    root_src <- p$orderly2$root
     config <- p$orderly2$config
     envir <- p$orderly2$envir
     src <- p$orderly2$src
@@ -13,7 +14,8 @@ orderly_context <- function(envir) {
     search_options <- p$orderly2$search_options
   } else {
     path <- getwd()
-    root <- detect_orderly_interactive_path(path)
+    root_src <- detect_orderly_interactive_path(path)
+    root <- root_src # for now at least
     config <- orderly_config_read(root)
     src <- path
     parameters <- current_orderly_parameters(src, envir)
@@ -22,8 +24,9 @@ orderly_context <- function(envir) {
     search_options <- .interactive$search_options
   }
   list(is_active = is_active, path = path, config = config, envir = envir,
-       root = root, src = src, name = name, id = id, parameters = parameters,
-       search_options = search_options, packet = p)
+       root = root, root_src = root_src, src = src, name = name,
+       id = id, parameters = parameters, search_options = search_options,
+       packet = p)
 }
 
 
