@@ -117,3 +117,29 @@ test_that("can error with instructions if files are added to git", {
     expect_warning(id2 <- create_random_packet(root$path), NA)) # no warning
   expect_type(id2, "character")
 })
+
+
+test_that("can identify a plain source root", {
+  info <- test_prepare_orderly_example_separate("explicit")
+  expect_equal(orderly_src_root(info$src, FALSE), info$src)
+  expect_equal(orderly_src_root(file.path(info$src, "src", "explicit"), TRUE),
+               info$src)
+  expect_error(
+    orderly_src_root(file.path(info$src, "src", "explicit"), FALSE),
+    "Did not find existing orderly source root in")
+
+  p <- file.path(info$outpack, "a", "b", "c")
+  fs::dir_create(p)
+
+  err <- expect_error(
+    orderly_src_root(info$outpack, FALSE),
+    "Did not find existing orderly source root in")
+  expect_equal(err$body, c(i = "Expected to find file 'orderly_config.yml'"))
+
+  err <- expect_error(
+    orderly_src_root(p, TRUE),
+    "Did not find existing orderly source root in")
+  expect_equal(err$body,
+               c(i = "Expected to find file 'orderly_config.yml'",
+                 i = "Looked in parents of this path without success"))
+})

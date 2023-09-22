@@ -18,6 +18,7 @@ test_prepare_orderly_example_separate <- function(examples, ...) {
 
   path_outpack <- file.path(tmp, "outpack")
   suppressMessages(orderly_init(path_outpack, ...))
+  unlink(file.path(path_outpack, "orderly_config.yml"))
 
   path_src <- file.path(tmp, "src")
   copy_examples(examples, path_src)
