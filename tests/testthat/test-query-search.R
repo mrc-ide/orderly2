@@ -1001,9 +1001,9 @@ test_that("&& takes precedence over ||", {
   ## If we have an expression like A || B && C
   ## R evaluates this as A || (B && C) so make sure we do this in querying too
   ## i.e. && has higher precedence
-  ## This difference is clear if A is true, B is true and C is false
-  ## A || (B && C) -> TRUE
-  ## (A || B) && C -> FALSE
+  ## You can see this difference if A is true, B is true and C is false
+  ## Then A || (B && C) -> TRUE
+  ## but  (A || B) && C -> FALSE
 
   root <- create_temporary_root(use_file_store = TRUE)
   x1 <- create_random_packet(root, "x", list(a = TRUE))
