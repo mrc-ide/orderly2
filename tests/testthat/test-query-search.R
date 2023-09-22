@@ -1002,8 +1002,8 @@ test_that("&& takes precedence over ||", {
   ## R evaluates this as A || (B && C) so make sure we do this in querying too
   ## i.e. && has higher precedence
   ## You can see this difference if A is true, B is true and C is false
-  ## Then A || (B && C) -> TRUE
-  ## but  (A || B) && C -> FALSE
+  ## A || (B && C) -> TRUE    # nolint
+  ## (A || B) && C -> FALSE   # nolint
 
   root <- create_temporary_root(use_file_store = TRUE)
   x1 <- create_random_packet(root, "x", list(a = TRUE))
