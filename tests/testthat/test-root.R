@@ -145,3 +145,11 @@ test_that("can identify a plain source root", {
                c(i = "Expected to find file 'orderly_config.yml'",
                  i = "Looked in parents of this path without success"))
 })
+
+
+test_that("can identify a plain source root from a full root", {
+  path <- test_prepare_orderly_example("explicit")
+  root <- root_open(path, FALSE)
+  expect_equal(orderly_src_root(root$path, FALSE), root$path)
+  expect_equal(orderly_src_root(root, FALSE), root$path)
+})
