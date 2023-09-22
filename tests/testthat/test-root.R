@@ -121,9 +121,9 @@ test_that("can error with instructions if files are added to git", {
 
 test_that("can identify a plain source root", {
   info <- test_prepare_orderly_example_separate("explicit")
-  expect_equal(orderly_src_root(info$src, FALSE), info$src)
+  expect_equal(orderly_src_root(info$src, FALSE), normalizePath(info$src))
   expect_equal(orderly_src_root(file.path(info$src, "src", "explicit"), TRUE),
-               info$src)
+               normalizePath(info$src))
   expect_error(
     orderly_src_root(file.path(info$src, "src", "explicit"), FALSE),
     "Did not find existing orderly source root in")
