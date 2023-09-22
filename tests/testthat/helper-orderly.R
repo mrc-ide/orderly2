@@ -8,7 +8,7 @@ test_prepare_orderly_example <- function(examples, ...) {
   withr::defer_parent(unlink(tmp, recursive = TRUE))
   suppressMessages(orderly_init(tmp, ...))
   copy_examples(examples, tmp)
-  tmp
+  as.character(fs::path_norm(tmp))
 }
 
 
