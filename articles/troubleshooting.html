@@ -130,21 +130,21 @@ session:</p>
 <span><span class="co">##   <span style="color: #0000BB; font-style: italic;">&lt;https://mrc-ide.github.io/orderly2/articles/troubleshooting.html&gt;</span></span></span>
 <span><span class="co">## <span style="color: #555555;">This warning is displayed once per session.</span></span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Wrote '.gitignore'</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20230921-123352-a730e094` at 2023-09-21 12:33:52.657379</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20230925-074139-c2b8da0d` at 2023-09-25 07:41:39.76452</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20230921-123352-a730e094 at 2023-09-21 12:33:52.704027 (0.04664874 secs)</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20230921-123352-a730e094"</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20230925-074139-c2b8da0d at 2023-09-25 07:41:39.805617 (0.04109645 secs)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20230925-074139-c2b8da0d"</span></span></code></pre>
 <p>subsequent calls will not display the warning:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20230921-123352-cef1570b` at 2023-09-21 12:33:52.812731</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20230925-074139-e6d2fda9` at 2023-09-25 07:41:39.905352</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20230921-123352-cef1570b at 2023-09-21 12:33:52.843855 (0.03112411 secs)</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20230921-123352-cef1570b"</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20230925-074139-e6d2fda9 at 2023-09-25 07:41:39.932406 (0.02705359 secs)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20230925-074139-e6d2fda9"</span></span></code></pre>
 <p>The rest of this section discusses how you might permanently fix the
 issue.</p>
 <div class="section level3">
