@@ -39,6 +39,9 @@ vnapply <- function(X, FUN, ...) { # nolint
 
 set_names <- function(x, nms) {
   if (length(nms) == 1 && length(x) != 1) {
+    if (is.null(x)) {
+      return(NULL)
+    }
     nms <- rep_len(nms, length(x))
   }
   names(x) <- nms
@@ -367,13 +370,20 @@ string_drop_prefix <- function(sub, str) {
 }
 
 
+## We might want to return information about why these failed, later,
+## so that better error messages can be created.
 near_match <- function(x, possibilities, threshold = 2, max_matches = 5) {
   if (length(possibilities) == 0) {
     return(character())
   }
-  d <- set_names(drop(utils::adist(x, possibilities, ignore.case = TRUE)),
-                 possibilities)
-  utils::head(names(sort(d[d <= threshold])), max_matches)
+  i <- tolower(x) == tolower(possibilities)
+  if (any(i)) {
+    possibilities[i]
+  } else {
+    d <- set_names(drop(utils::adist(x, possibilities, ignore.case = TRUE)),
+                   possibilities)
+    utils::head(names(sort(d[d <= threshold])), max_matches)
+  }
 }
 
 
@@ -411,8 +421,17 @@ check_symbol_from_str <- function(str, name) {
 }
 
 
-collapseq <- function(x) {
-  paste(squote(x), collapse = ", ")
+collapseq <- function(x, last = NULL) {
+  collapse(squote(x), last)
+}
+
+
+collapse <- function(x, last = NULL) {
+  if (!is.null(last) && length(x) > 1) {
+    paste0(x, rep(c(", ", last, ""), c(length(x) - 2, 1, 1)), collapse = "")
+  } else {
+    paste(x, collapse = ", ")
+  }
 }
 
 

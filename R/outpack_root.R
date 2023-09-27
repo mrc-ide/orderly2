@@ -157,16 +157,27 @@ validate_packet_has_file <- function(root, id, path, call = NULL) {
                           function(x) any(string_starts_with(x, files)),
                           USE.NAMES = FALSE)
   if (any(found_if_dir)) {
-    hint <- c(
-      i = "Consider adding a trailing slash to {squote(msg[found_if_dir])}")
+    hint <- "Consider adding a trailing slash to {squote(msg[found_if_dir])}"
   } else {
     hint <- NULL
   }
 
-  cli::cli_abort(
-    c("Packet '{id}' does not contain the requested path{?s} {squote(msg)}",
-      hint),
-    call = call)
+  near <- near_matches(msg[!found_if_dir], files)
+  if (any(i <- lengths(near) > 0)) {
+    suggestion <- vcapply(near[i], collapseq, last = " or ")
+    hint <- c(hint,
+              sprintf("For '%s' did you mean %s", names(near)[i], suggestion))
+    add_hint_case <- any(
+      mapply(function(a, b) any(tolower(a) %in% tolower(b)), names(near), near))
+    if (add_hint_case) {
+      hint <- c(hint, "Remember that all orderly paths are case sensitive")
+    }
+  }
+
+  vmsg <- cli::cli_vec(squote(msg), list("vec-last" = " or "))
+  err <- paste("Packet '{id}' does not contain the requested",
+               "{cli::qty(vmsg)} path{?s} {vmsg}")
+  cli::cli_abort(c(err, set_names(hint, "i")), call = call)
 }
 
 
