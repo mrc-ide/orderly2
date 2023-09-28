@@ -118,7 +118,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
     root <- root$path
   }
 
-  info <- orderly_read(path)
+  info <- orderly_read(path, call = environment())
   files <- withr::with_dir(
     path,
     dir(all.files = TRUE, recursive = TRUE, no.. = TRUE))

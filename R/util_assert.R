@@ -72,6 +72,11 @@ assert_file_exists2 <- function(files, workdir, name, call = NULL) {
       call = call)
   }
 
+  ## TODO: also forbid dots here, these will be important.
+  ##
+  ## TODO: also cope with the case where we return NA (means don't add
+  ## an explanation)
+
   files_canonical <- file_canonical_case(files, workdir)
   err <- fs::path(files) != files_canonical
   if (any(err)) {
