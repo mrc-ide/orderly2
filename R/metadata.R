@@ -149,25 +149,20 @@ static_orderly_description <- function(args) {
 ##'
 ##' @export
 orderly_resource <- function(files) {
-  ## TODO: an error here needs to throw a condition that we can easily
-  ## handle and or defer; that's not too hard to do though - convert
-  ## the error into something with a special class, perhaps make it a
-  ## warning in normal R and then register a handler for it in the
-  ## main run.
-  assert_character(files)
-
   p <- get_active_packet()
-  if (is.null(p)) {
-    assert_file_exists(files)
-    files_expanded <- expand_dirs(files, ".")
-  } else {
-    src <- p$orderly2$src
-    assert_file_exists(files, workdir = src)
-    files_expanded <- expand_dirs(files, src)
+  src <- if (is.null(p)) "." else p$orderly2$src
+  assert_file_exists2(files, workdir = src, name = "Resource file",
+                      call = environment())
+  files_expanded <- expand_dirs(files, src)
+  if (!is.null(p)) {
     if (p$orderly2$strict$enabled) {
       copy_files(src, p$path, files_expanded)
     } else {
-      assert_file_exists(files, workdir = p$path)
+      ## Above we're looking in the underlying source directory, here
+      ## we're looking within the running directory; it's not obvious
+      ## when this second case would fail, really.
+      assert_file_exists2(files, workdir = p$path, name = "Resource file",
+                          call = environment())
     }
     outpack_packet_file_mark(p, files_expanded, "immutable")
     p$orderly2$resources <- c(p$orderly2$resources, files_expanded)
