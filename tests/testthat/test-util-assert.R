@@ -51,6 +51,50 @@ test_that("assert_file_exists", {
 })
 
 
+test_that("assert_file_exists2 works checks if files exist", {
+  tmp <- withr::local_tempdir()
+  file.create(file.path(tmp, "c"))
+  expect_error(assert_file_exists2("a", tmp, "File"),
+               "File does not exist: 'a'")
+  expect_error(assert_file_exists2(c("a", "b"), tmp, "File"),
+               "Files do not exist: 'a', 'b'")
+  expect_error(assert_file_exists2(c("a", "b", "c", "d"), tmp, "File"),
+               "Files do not exist: 'a', 'b', 'd'")
+  expect_silent(assert_file_exists2("c", tmp, "File"))
+})
+
+
+test_that("assert_file_exists2 informs about case mismatch", {
+  testthat::skip_if_not_installed("mockery")
+  mock_file_exists <- mockery::mock(TRUE, cycle = TRUE)
+  mockery::stub(assert_file_exists2, "file_exists", mock_file_exists)
+
+  tmp <- withr::local_tempdir()
+  file.create(file.path(tmp, "a"))
+  fs::dir_create(file.path(tmp, "b/c"))
+  file.create(file.path(tmp, "b/c/d"))
+
+  err <- expect_error(
+    assert_file_exists2("A", tmp, "File"),
+    "File does not exist: 'A'")
+  expect_length(err$body, 3)
+  expect_equal(names(err$body), c("i", "i", "i"))
+  expect_equal(err$body[[1]], "For 'A', did you mean 'a'?")
+  expect_match(err$body[[2]], "If you don't use the canonical case for a file")
+  expect_match(err$body[[3]], "Looked within directory '.+'")
+
+  err <- expect_error(
+    assert_file_exists2(c("A", "b/C/d"), tmp, "File"),
+    "Files do not exist: 'A', 'b/C/d'")
+  expect_length(err$body, 4)
+  expect_equal(names(err$body), c("i", "i", "i", "i"))
+  expect_equal(err$body[[1]], "For 'A', did you mean 'a'?")
+  expect_equal(err$body[[2]], "For 'b/C/d', did you mean 'b/c/d'?")
+  expect_match(err$body[[3]], "If you don't use the canonical case for a file")
+  expect_match(err$body[[4]], "Looked within directory '.+'")
+})
+
+
 test_that("assert_is_directory", {
   path <- tempfile(tmpdir = normalise_path(tempdir()))
   expect_error(assert_is_directory(path), "Directory does not exist")
