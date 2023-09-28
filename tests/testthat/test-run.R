@@ -1221,3 +1221,15 @@ test_that("can read about dependencies", {
                                          query = "latest",
                                          files = c(input.rds = "data.rds"))))
 })
+
+
+test_that("nice error if resource file not found", {
+  path <- test_prepare_orderly_example("explicit")
+  envir <- new.env()
+  unlink(file.path(path, "src", "explicit", "data.csv"))
+  err <- expect_error(
+    orderly_run_quietly("explicit", root = path, envir = envir),
+    "Resource file does not exist: 'data.csv'")
+  expect_match(err$parent$body[[1]],
+               "Looked within directory '.+/src/explicit'")
+})
