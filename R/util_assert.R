@@ -4,9 +4,9 @@ assert_scalar <- function(x, name = deparse(substitute(x))) {
   }
 }
 
-assert_character <- function(x, name = deparse(substitute(x))) {
+assert_character <- function(x, name = deparse(substitute(x)), call = NULL) {
   if (!is.character(x)) {
-    stop(sprintf("'%s' must be character", name), call. = FALSE)
+    cli::cli_abort("'{name}' must be character", call = call)
   }
 }
 
@@ -57,6 +57,34 @@ assert_file_exists <- function(x, workdir = NULL, name = "File") {
     msg <- squote(x[err])
     stop(sprintf("%s does not exist: %s", name, paste(msg, collapse = ", ")),
          call. = FALSE)
+  }
+}
+
+
+assert_file_exists2 <- function(files, workdir, name, call = NULL) {
+  assert_character(files, call = call)
+  err <- !file_exists(files, workdir = workdir)
+  if (any(err)) {
+    n <- cli::qty(sum(err))
+    cli::cli_abort(
+      c("{name}{n}{?s} {?does/do} not exist: {collapseq(files[err])}",
+        i = "Looked within directory '{workdir}'"),
+      call = call)
+  }
+
+  files_canonical <- file_canonical_case(files, workdir)
+  err <- fs::path(files) != files_canonical
+  if (any(err)) {
+    n <- cli::qty(sum(err))
+    hint_case <- sprintf("For '%s', did you mean '%s'?",
+                         files[err], files_canonical[err])
+    cli::cli_abort(
+      c("{name}{n}{?s} {?does/do} not exist: {collapseq(files[err])}",
+        set_names(hint_case, "i"),
+        i = paste("If you don't use the canonical case for a file, your code",
+                  "is not portable across different platforms"),
+        i = "Looked within directory '{workdir}'"),
+      call = call)
   }
 }
 
