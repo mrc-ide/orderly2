@@ -91,6 +91,15 @@ test_that("assert_file_exists_relative informs about case mismatch", {
   expect_equal(err$body[[2]], "For 'b/C/d', did you mean 'b/c/d'?")
   expect_match(err$body[[3]], "If you don't use the canonical case for a file")
   expect_match(err$body[[4]], "Looked within directory '.+'")
+
+  err <- expect_error(
+    assert_file_exists_relative(c("A", "b/X/d"), tmp, "File"),
+    "Files do not exist: 'A', 'b/X/d'")
+  expect_length(err$body, 3)
+  expect_equal(names(err$body), c("i", "i", "i"))
+  expect_equal(err$body[[1]], "For 'A', did you mean 'a'?")
+  expect_match(err$body[[3]], "If you don't use the canonical case for a file")
+  expect_match(err$body[[4]], "Looked within directory '.+'")
 })
 
 

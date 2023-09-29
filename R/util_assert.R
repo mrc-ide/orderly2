@@ -78,12 +78,10 @@ assert_file_exists_relative <- function(files, workdir, name, call = NULL) {
   files_canonical <- file_canonical_case(files, workdir)
   err <- is.na(files_canonical) | fs::path(files) != files_canonical
   if (any(err)) {
-    n <- cli::qty(sum(err))
-    if (any(is.na(files_canonical))) {
-      browser()
-    }
+    i <- err & !is.na(files_canonical)
     hint_case <- sprintf("For '%s', did you mean '%s'?",
-                         files[err], files_canonical[err])
+                         files[i], files_canonical[i])
+    n <- cli::qty(sum(err))
     cli::cli_abort(
       c("{name}{n}{?s} {?does/do} not exist: {collapseq(files[err])}",
         set_names(hint_case, "i"),
