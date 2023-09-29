@@ -109,7 +109,7 @@ assert_relative_path <- function(files, name, workdir, call = NULL) {
     n <- cli::qty(sum(err))
     ## TODO: try and relativise - use path_has_parent and path_rel
     cli::cli_abort(
-      c("{name}{n}{?s} must be relative path{?s}",
+      c("{name}{n}{?s} must be {?a/} relative path{?s}",
         set_names(files[err], "x"),
         i = "Path was relative to directory '{workdir}'"),
       call = call)

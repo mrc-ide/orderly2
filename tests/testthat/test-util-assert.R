@@ -108,7 +108,7 @@ test_that("assert_is_directory", {
 test_that("assert_relative_path", {
   workdir <- getwd()
   expect_error(assert_relative_path(getwd(), "File", workdir),
-               "File must be relative path",
+               "File must be a relative path",
                fixed = TRUE)
   expect_silent(assert_relative_path("relpath", "File", workdir))
   expect_silent(assert_relative_path("a/b/c", "File", workdir))
