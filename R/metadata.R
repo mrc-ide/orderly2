@@ -316,7 +316,9 @@ orderly_shared_resource <- function(...) {
   files <- validate_shared_resource(list(...), environment())
   ctx <- orderly_context(rlang::caller_env())
 
-  files <- copy_shared_resource(ctx$root_src, ctx$path, ctx$config, files)
+  files <- copy_shared_resource(ctx$root_src, ctx$path, ctx$config, files,
+                                environment())
+
   if (ctx$is_active) {
     outpack_packet_file_mark(ctx$packet, files$here, "immutable")
     ctx$packet$orderly2$shared_resources <-
@@ -345,9 +347,7 @@ validate_shared_resource <- function(args, call) {
 }
 
 
-copy_shared_resource <- function(path_root, path_dest, config, files) {
-  ## This used to be configurable in orderly1, but almost everyone
-  ## just kept it as 'global'. We might make it configurable later.
+copy_shared_resource <- function(path_root, path_dest, config, files, call) {
   shared_dir <- "shared"
   shared_path <- file.path(path_root, shared_dir)
   if (!is_directory(shared_path)) {
@@ -359,9 +359,8 @@ copy_shared_resource <- function(path_root, path_dest, config, files) {
   here <- names(files)
   there <- unname(files)
 
-  assert_file_exists(
-    there, workdir = shared_path,
-    name = sprintf("Shared resources in '%s'", shared_path))
+  assert_file_exists2(there, workdir = shared_path, name = "Shared resource",
+                      call = call)
   src <- file.path(shared_path, there)
   dst <- file.path(path_dest, here)
 
