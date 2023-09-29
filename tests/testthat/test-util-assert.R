@@ -98,8 +98,8 @@ test_that("assert_file_exists_relative informs about case mismatch", {
   expect_length(err$body, 3)
   expect_equal(names(err$body), c("i", "i", "i"))
   expect_equal(err$body[[1]], "For 'A', did you mean 'a'?")
-  expect_match(err$body[[3]], "If you don't use the canonical case for a file")
-  expect_match(err$body[[4]], "Looked within directory '.+'")
+  expect_match(err$body[[2]], "If you don't use the canonical case for a file")
+  expect_match(err$body[[3]], "Looked within directory '.+'")
 })
 
 

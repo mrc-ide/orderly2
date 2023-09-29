@@ -105,7 +105,6 @@ assert_relative_path <- function(files, name, workdir, call = NULL) {
   err <- fs::is_absolute_path(files)
   if (any(err)) {
     n <- cli::qty(sum(err))
-    ## TODO: try and relativise - use path_has_parent and path_rel
     cli::cli_abort(
       c("{name}{n}{?s} must be {?a/} relative path{?s}",
         set_names(files[err], "x"),
@@ -116,7 +115,6 @@ assert_relative_path <- function(files, name, workdir, call = NULL) {
   err <- vlapply(fs::path_split(files), function(x) any(x == ".."))
   if (any(err)) {
     n <- cli::qty(sum(err))
-    ## TODO: try and elide these, where possible
     cli::cli_abort(
       c("{name}{n}{?s} must not contain '..' (parent directory) components",
         set_names(files[err], "x"),
