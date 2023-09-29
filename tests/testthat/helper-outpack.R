@@ -161,7 +161,6 @@ outpack_packet_run <- function(packet, script, envir = NULL) {
     envir <- new.env(parent = .GlobalEnv)
   }
   packet <- check_current_packet(packet)
-  assert_file_exists(script, workdir = packet$path, name = "Script")
   withr::with_dir(packet$path,
                   source_echo(script, envir = envir, echo = FALSE))
 }

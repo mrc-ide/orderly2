@@ -151,8 +151,8 @@ static_orderly_description <- function(args) {
 orderly_resource <- function(files) {
   p <- get_active_packet()
   src <- if (is.null(p)) "." else p$orderly2$src
-  assert_file_exists2(files, workdir = src, name = "Resource file",
-                      call = environment())
+  assert_file_exists_relative(files, workdir = src, name = "Resource file",
+                              call = environment())
   files_expanded <- expand_dirs(files, src)
   if (!is.null(p)) {
     if (p$orderly2$strict$enabled) {
@@ -161,8 +161,8 @@ orderly_resource <- function(files) {
       ## Above we're looking in the underlying source directory, here
       ## we're looking within the running directory; it's not obvious
       ## when this second case would fail, really.
-      assert_file_exists2(files, workdir = p$path, name = "Resource file",
-                          call = environment())
+      assert_file_exists_relative(files, workdir = p$path,
+                                  name = "Resource file", call = environment())
     }
     outpack_packet_file_mark(p, files_expanded, "immutable")
     p$orderly2$resources <- c(p$orderly2$resources, files_expanded)
@@ -359,8 +359,8 @@ copy_shared_resource <- function(path_root, path_dest, config, files, call) {
   here <- names(files)
   there <- unname(files)
 
-  assert_file_exists2(there, workdir = shared_path, name = "Shared resource",
-                      call = call)
+  assert_file_exists_relative(there, workdir = shared_path,
+                              name = "Shared resource file", call = call)
   src <- file.path(shared_path, there)
   dst <- file.path(path_dest, here)
 

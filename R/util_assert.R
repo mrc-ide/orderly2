@@ -51,17 +51,18 @@ assert_is <- function(x, what, name = deparse(substitute(x))) {
   }
 }
 
-assert_file_exists <- function(x, workdir = NULL, name = "File") {
-  err <- !file_exists(x, workdir = workdir)
+assert_file_exists <- function(files, name = "File", call = NULL) {
+  err <- !file.exists(files)
   if (any(err)) {
-    msg <- squote(x[err])
-    stop(sprintf("%s does not exist: %s", name, paste(msg, collapse = ", ")),
-         call. = FALSE)
+    n <- cli::qty(sum(err))
+    cli::cli_abort(
+      "{name}{n}{?s} {?does/do} not exist: {collapseq(files[err])}",
+      call = call)
   }
 }
 
 
-assert_file_exists2 <- function(files, workdir, name, call = NULL) {
+assert_file_exists_relative <- function(files, workdir, name, call = NULL) {
   assert_relative_path(files, name, workdir, call)
 
   assert_character(files, call = call)
@@ -93,13 +94,12 @@ assert_file_exists2 <- function(files, workdir, name, call = NULL) {
   }
 }
 
-assert_is_directory <- function(x, workdir = NULL, name = "Directory") {
-  assert_file_exists(x, workdir, name)
-  path <- if (is.null(workdir)) x else file.path(workdir, x)
+assert_is_directory <- function(path, name = "Directory", call = NULL) {
+  assert_scalar_character(path)
+  assert_file_exists(path, name = name, call = call)
   if (!is_directory(path)) {
-    stop(sprintf("Path exists but is not a directory: %s",
-                 paste(x, collapse = ", ")),
-         call. = FALSE)
+    cli::cli_abort("Path exists but is not a directory: {path}",
+                   call = call)
   }
 }
 

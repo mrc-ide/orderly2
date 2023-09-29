@@ -1,7 +1,7 @@
 orderly_config_read <- function(path, call = NULL) {
   filename <- file.path(path, "orderly_config.yml")
-  assert_file_exists2(basename(filename), workdir = path,
-                      name = "Orderly configuration", call)
+  assert_file_exists_relative(basename(filename), workdir = path,
+                              name = "Orderly configuration", call = call)
   raw <- yaml_read(filename)
 
   if (!is.null(raw)) {
