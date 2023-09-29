@@ -1,63 +1,80 @@
-assert_scalar <- function(x, name = deparse(substitute(x))) {
+assert_scalar <- function(x, name = deparse(substitute(x)), arg = name,
+                          call = NULL) {
   if (length(x) != 1) {
-    stop(sprintf("'%s' must be a scalar", name), call. = FALSE)
+    cli::cli_abort(c("'{name}' must be a scalar",
+                     i = "{name} has length {length(x)}"),
+                   call = call, arg = arg)
   }
 }
 
-assert_character <- function(x, name = deparse(substitute(x)), call = NULL) {
+assert_character <- function(x, name = deparse(substitute(x)),
+                             arg = name, call = NULL) {
   if (!is.character(x)) {
-    cli::cli_abort("'{name}' must be character", call = call)
+    cli::cli_abort("'{name}' must be character", call = call, arg = arg)
   }
 }
 
-assert_logical <- function(x, name = deparse(substitute(x))) {
+assert_logical <- function(x, name = deparse(substitute(x)), arg = name,
+                           call = NULL) {
   if (!is.logical(x)) {
-    stop(sprintf("'%s' must be logical", name), call. = FALSE)
+    cli::cli_abort("'{name}' must be logical", call = call, arg = arg)
   }
   invisible(x)
 }
 
-assert_scalar_character <- function(x, name = deparse(substitute(x))) {
-  assert_scalar(x, name)
-  assert_character(x, name)
+assert_scalar_character <- function(x, name = deparse(substitute(x)),
+                                    arg = name, call = NULL) {
+  assert_scalar(x, name, arg = arg, call = call)
+  assert_character(x, name, arg = arg, call = call)
 }
 
-assert_scalar_logical <- function(x, name = deparse(substitute(x))) {
-  assert_scalar(x, name)
-  assert_logical(x, name)
+assert_scalar_logical <- function(x, name = deparse(substitute(x)),
+                                  arg = name, call = NULL) {
+  assert_scalar(x, name, arg = arg, call = call)
+  assert_logical(x, name, arg = arg, call = call)
 }
 
-assert_simple_scalar_atomic <- function(x, name = deparse(substitute(x))) {
+assert_simple_scalar_atomic <- function(x, name = deparse(substitute(x)),
+                                        arg = name, call = NULL) {
   assert_scalar(x, name)
   if (!is_simple_atomic(x)) {
-    stop(sprintf("'%s' must be atomic (string, numeric, logical)", name))
+    cli::cli_abort("'{name}' must be atomic (string, numeric, logical)",
+                   call = call, arg = arg)
   }
   invisible(x)
 }
 
-assert_named <- function(x, unique = FALSE, name = deparse(substitute(x))) {
+assert_named <- function(x, unique = FALSE, name = deparse(substitute(x)),
+                         arg = name, call = NULL) {
   if (is.null(names(x))) {
-    stop(sprintf("'%s' must be named", name), call. = FALSE)
+    cli::cli_abort("'{name}' must be named", call = call, arg = arg)
   }
   if (unique && any(duplicated(names(x)))) {
-    stop(sprintf("'%s' must have unique names", name), call. = FALSE)
+    dups <- unique(names(x)[duplicated(names(x))])
+    cli::cli_abort(
+      c("'{name}' must have unique names",
+        i = "Found {length(dups)} duplicate{?s}: {collapseq(dups)}"),
+      call = call, arg = arg)
   }
 }
 
-assert_is <- function(x, what, name = deparse(substitute(x))) {
+assert_is <- function(x, what, name = deparse(substitute(x)),
+                      arg = name, call = NULL) {
   if (!inherits(x, what)) {
-    stop(sprintf("'%s' must be a %s", name,
-                 paste(what, collapse = " / ")), call. = FALSE)
+    cli::cli_abort(
+      c("'{name}' must be a {paste(what, collapse = ' / ')}",
+        "{name} was a {paste(class(x), collapse = ' / ')}"),
+      call = call, arg = arg)
   }
 }
 
-assert_file_exists <- function(files, name = "File", call = NULL) {
+assert_file_exists <- function(files, name = "File", call = NULL, arg = NULL) {
   err <- !file.exists(files)
   if (any(err)) {
     n <- cli::qty(sum(err))
     cli::cli_abort(
       "{name}{n}{?s} {?does/do} not exist: {collapseq(files[err])}",
-      call = call)
+      call = call, arg = arg)
   }
 }
 
@@ -92,16 +109,18 @@ assert_file_exists_relative <- function(files, workdir, name, call = NULL) {
   }
 }
 
-assert_is_directory <- function(path, name = "Directory", call = NULL) {
-  assert_scalar_character(path)
-  assert_file_exists(path, name = name, call = call)
+assert_is_directory <- function(path, name = "Directory", call = NULL,
+                                arg = NULL) {
+  assert_scalar_character(path, arg = arg, call = call)
+  assert_file_exists(path, name = name, arg = arg, call = call)
   if (!is_directory(path)) {
     cli::cli_abort("Path exists but is not a directory: {path}",
-                   call = call)
+                   call = call, arg = arg)
   }
 }
 
-assert_relative_path <- function(files, name, workdir, call = NULL) {
+assert_relative_path <- function(files, name, workdir, call = NULL,
+                                 arg = NULL) {
   err <- fs::is_absolute_path(files)
   if (any(err)) {
     n <- cli::qty(sum(err))
@@ -109,7 +128,7 @@ assert_relative_path <- function(files, name, workdir, call = NULL) {
       c("{name}{n}{?s} must be {?a/} relative path{?s}",
         set_names(files[err], "x"),
         i = "Path was relative to directory '{workdir}'"),
-      call = call)
+      call = call, arg = arg)
   }
 
   err <- vlapply(fs::path_split(files), function(x) any(x == ".."))
@@ -119,27 +138,30 @@ assert_relative_path <- function(files, name, workdir, call = NULL) {
       c("{name}{n}{?s} must not contain '..' (parent directory) components",
         set_names(files[err], "x"),
         i = "Path was relative to directory '{workdir}'"),
-      call = call)
+      call = call, arg = arg)
   }
 }
 
 
-assert_directory_does_not_exist <- function(x, name = "Directory") {
+assert_directory_does_not_exist <- function(x, name = "Directory", arg = NULL,
+                                            call = NULL) {
   ok <- !fs::dir_exists(x)
   if (!all(ok)) {
-    stop(sprintf("%s already exists: %s",
-                 name, paste(squote(x[!ok]), collapse = ", ")))
+    cli::cli_abort("{name} already exists: {collapseq(x[!ok])}",
+                   call = call, arg = arg)
   }
   invisible(x)
 }
 
 
-match_value <- function(arg, choices, name = deparse(substitute(arg))) {
-  assert_scalar_character(arg)
-  if (!(arg %in% choices)) {
-    stop(sprintf("%s must be one of %s",
-                 name, paste(squote(choices), collapse = ", ")),
-         call. = FALSE)
+match_value <- function(x, choices, name = deparse(substitute(arg)),
+                        arg = name, call = NULL) {
+  assert_scalar_character(x, call = call, arg = arg)
+  if (!(x %in% choices)) {
+    cli::cli_abort(
+      c("'{name}' must be one of {collapseq(choices)}",
+        i = "Instead we were given '{x}'"),
+       call = call, arg = arg)
   }
-  arg
+  x
 }
