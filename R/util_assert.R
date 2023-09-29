@@ -62,6 +62,8 @@ assert_file_exists <- function(x, workdir = NULL, name = "File") {
 
 
 assert_file_exists2 <- function(files, workdir, name, call = NULL) {
+  assert_relative_path(files, name, workdir, call)
+
   assert_character(files, call = call)
   err <- !file_exists(files, workdir = workdir)
   if (any(err)) {
@@ -73,9 +75,12 @@ assert_file_exists2 <- function(files, workdir, name, call = NULL) {
   }
 
   files_canonical <- file_canonical_case(files, workdir)
-  err <- fs::path(files) != files_canonical
+  err <- is.na(files_canonical) | fs::path(files) != files_canonical
   if (any(err)) {
     n <- cli::qty(sum(err))
+    if (any(is.na(files_canonical))) {
+      browser()
+    }
     hint_case <- sprintf("For '%s', did you mean '%s'?",
                          files[err], files_canonical[err])
     cli::cli_abort(
@@ -98,17 +103,27 @@ assert_is_directory <- function(x, workdir = NULL, name = "Directory") {
   }
 }
 
-assert_relative_path <- function(x, no_dots = FALSE,
-                                 name = deparse(substitute(x))) {
-  err <- fs::is_absolute_path(x)
+assert_relative_path <- function(files, name, workdir, call = NULL) {
+  err <- fs::is_absolute_path(files)
   if (any(err)) {
-    stop(sprintf("'%s' must be relative %s",
-                 name, ngettext(length(x), "path", "paths")),
-         call. = FALSE)
+    n <- cli::qty(sum(err))
+    ## TODO: try and relativise - use path_has_parent and path_rel
+    cli::cli_abort(
+      c("{name}{n}{?s} must be relative path{?s}",
+        set_names(files[err], "x"),
+        i = "Path was relative to directory '{workdir}'"),
+      call = call)
   }
-  if (no_dots && any(grepl("..", x, fixed = TRUE))) {
-    stop(sprintf("'%s' must not contain '..' path components", name),
-         call. = FALSE)
+
+  err <- vlapply(fs::path_split(files), function(x) any(x == ".."))
+  if (any(err)) {
+    n <- cli::qty(sum(err))
+    ## TODO: try and elide these, where possible
+    cli::cli_abort(
+      c("{name}{n}{?s} must not contain '..' (parent directory) components",
+        set_names(files[err], "x"),
+        i = "Path was relative to directory '{workdir}'"),
+      call = call)
   }
 }
 

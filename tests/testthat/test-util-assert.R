@@ -106,19 +106,21 @@ test_that("assert_is_directory", {
 
 
 test_that("assert_relative_path", {
-  expect_error(assert_relative_path(getwd()),
-               "'getwd()' must be relative path",
+  workdir <- getwd()
+  expect_error(assert_relative_path(getwd(), "File", workdir),
+               "File must be relative path",
                fixed = TRUE)
-  expect_silent(assert_relative_path("relpath"))
+  expect_silent(assert_relative_path("relpath", "File", workdir))
+  expect_silent(assert_relative_path("a/b/c", "File", workdir))
 
-  expect_silent(
-    assert_relative_path("../my/path"))
   expect_error(
-    assert_relative_path("../my/path", TRUE),
-    "must not contain '..' path components")
+    assert_relative_path("../my/path", "File", workdir),
+    "must not contain '..' (parent directory) components",
+    fixed = TRUE)
   expect_error(
-    assert_relative_path("my/../../path", TRUE),
-    "must not contain '..' path components")
+    assert_relative_path("my/../../path", "File", workdir),
+    "must not contain '..' (parent directory) components",
+    fixed = TRUE)
 })
 
 
