@@ -321,7 +321,8 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
       total = n,
       clear = FALSE)
   }
-  for (id in plan$packet_id) {
+  for (i in seq_along(plan$packet_id)) {
+    id <- plan$packet_id[[i]]
     if (use_archive) {
       cli::cli_progress_update()
       location_pull_files_archive(id, store$value, root)
