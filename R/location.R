@@ -71,7 +71,7 @@
 orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  assert_scalar_character(name, call = call)
+  assert_scalar_character(name, call = environment())
 
   if (name %in% location_reserved_name) {
     cli::cli_abort("Cannot add a location with reserved name '{name}'")
@@ -79,18 +79,20 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
 
   location_check_new_name(root, name, environment())
   match_value(type, setdiff(location_types, location_reserved_name),
-              call = call)
+              call = environment())
 
-  loc <- new_location_entry(name, type, args, call)
+  loc <- new_location_entry(name, type, args, call = environment())
   if (type == "path") {
     ## We won't be necessarily be able to do this _generally_ but
     ## here, let's confirm that we can read from the outpack archive
     ## at the requested path; this will just fail but without
     ## providing the user with anything actionable yet.
-    assert_scalar_character(loc$args[[1]]$path, name = "args$path", call = call)
+    assert_scalar_character(loc$args[[1]]$path, name = "args$path",
+                            call = environment())
     root_open(loc$args[[1]]$path, locate = FALSE, require_orderly = FALSE)
   } else if (type == "http") {
-    assert_scalar_character(loc$args[[1]]$url, name = "args$url", call = call)
+    assert_scalar_character(loc$args[[1]]$url, name = "args$url",
+                            call = environment())
   }
 
   config <- root$config

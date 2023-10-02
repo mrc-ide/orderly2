@@ -155,7 +155,7 @@ assert_directory_does_not_exist <- function(x, name = "Directory", arg = NULL,
 }
 
 
-match_value <- function(x, choices, name = deparse(substitute(arg)),
+match_value <- function(x, choices, name = deparse(substitute(x)),
                         arg = name, call = NULL) {
   assert_scalar_character(x, call = call, arg = arg)
   if (!(x %in% choices)) {

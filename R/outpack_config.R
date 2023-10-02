@@ -198,7 +198,7 @@ config_set_path_archive <- function(value, root, call) {
     path_archive <- file.path(root$path, value)
     assert_relative_path(value, name = "'path_archive'", workdir = root$path,
                          call = call)
-    assert_directory_does_not_exist(path_archive, call)
+    assert_directory_does_not_exist(path_archive, call = call)
     tryCatch({
       fs::dir_create(path_archive)
       invisible(lapply(root$index$unpacked(), function(id) {
