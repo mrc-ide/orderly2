@@ -118,3 +118,42 @@ test_that("require a single id for search", {
   expect_equal(err$explanation,
                orderly_query_explain(NULL, name = "missing", root = root))
 })
+
+
+test_that("good error message if file not found in packet", {
+  dst <- withr::local_tempdir()
+  root <- create_temporary_root(use_file_store = TRUE)
+
+  src <- fs::dir_create(file.path(dst, "src"))
+  file.create(file.path(src, c("a.txt", "b.txt", "c.txt")))
+  p <- outpack_packet_start_quietly(src, "data", root = root)
+  outpack_packet_end_quietly(p)
+
+  id <- p$id
+
+  expect_null(validate_packet_has_file(root, id, "a.txt"))
+
+  err <- expect_error(
+    validate_packet_has_file(root, id, "a.TXT"),
+    "Packet '.+' does not contain the requested path\\s*'a.TXT'")
+  expect_equal(
+    err$body,
+    c(i = "For 'a.TXT' did you mean 'a.txt'",
+      i = "Remember that all orderly paths are case sensitive"))
+
+  err <- expect_error(
+    validate_packet_has_file(root, id, "d.txt"),
+    "Packet '.+' does not contain the requested path\\s*'d.txt'")
+  expect_equal(
+    err$body,
+    c(i = "For 'd.txt' did you mean 'a.txt', 'b.txt' or 'c.txt'"))
+
+  err <- expect_error(
+    validate_packet_has_file(root, id, c("a.txt", "a.TXT", "d.txt")),
+    "Packet '.+' does not contain the requested paths\\s*'a.TXT' or 'd.txt'")
+  expect_equal(
+    err$body,
+    c(i = "For 'a.TXT' did you mean 'a.txt'",
+      i = "For 'd.txt' did you mean 'a.txt', 'b.txt' or 'c.txt'",
+      i = "Remember that all orderly paths are case sensitive"))
+})

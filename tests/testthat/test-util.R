@@ -280,4 +280,15 @@ test_that("set_names copes with common pathologies", {
                c("x" = "a", x = "b"))
   expect_equal(set_names(c("a", "b"), c("x", "y")),
                c("x" = "a", y = "b"))
+  expect_null(set_names(NULL, "x"))
+})
+
+
+test_that("can collapse with special last case", {
+  x <- c("x", "y", "z")
+  expect_equal(collapse(x), "x, y, z")
+  expect_equal(collapse(x, " or "), "x, y or z")
+  expect_equal(collapse(x[1:2], " or "), "x or y")
+  expect_equal(collapse(x[1], " or "), "x")
+  expect_equal(collapse(x[0], " or "), "")
 })
