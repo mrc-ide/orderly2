@@ -11,7 +11,8 @@ test_that("can cleanup explicit things quite well", {
     names(status),
     c("name", "root", "path", "role", "status", "delete", "unknown"))
   expect_equal(status$name, "explicit")
-  expect_equal(status$root, root_open(path, FALSE, FALSE)$path)
+  expect_equal(normalise_path(status$root),
+               normalise_path(root_open(path, FALSE, FALSE)$path))
   expect_equal(normalise_path(status$path),
                normalise_path(file.path(status$root, "src", status$name)))
   paths <- c("data.csv", "mygraph.png", "orderly.R")

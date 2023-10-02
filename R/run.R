@@ -81,6 +81,29 @@
 ##'   functionality was never available in orderly version 1, though
 ##'   we had intended to support it.
 ##'
+##' @section Running with a source tree separate from outpack root:
+##'
+##' Sometimes it is useful to run things from a different place on
+##'   disk to your outpack root. We know of two cases where this has
+##'   come up:
+##'
+##' * when running reports within a runner on a server, we make a
+##'   clean clone of the source tree at a particular git reference
+##'   into a new temporary directory and then run the report there,
+##'   but have it insert into an orderly repo at a fixed and
+##'   non-temporary location.
+##' * we have a user for whom it is more convenient torun their report
+##'   on a hard drive but store the archive and metadata on a (larger)
+##'   shared drive.
+##'
+##' In the first instance, we have a source path at `<src>` which
+##'   contains the file `orderly_config.yml` and the directory `src/`
+##'   with our source reports, and a separate path `<root>` which
+##'   contains the directory `.outpack/` with all the metadata - it
+##'   may also have an unpacked archive, and a `.git/` directory
+##'   depending on the configuration. (Later this will make more sense
+##'   once we support a "bare" outpack layout.)
+##'
 ##' @title Run a report
 ##'
 ##' @param name Name of the report to run. Any leading `./` `src/` or
@@ -113,6 +136,12 @@
 ##'   then orderly looks in the working directory and up through its
 ##'   parents until it finds an `.outpack` directory
 ##'
+##' @param root_src Separately, the root of the orderly source tree,
+##'   if separate from the outpack root (given as `root`). This is
+##'   intended for running reports in situations where the source tree
+##'   is kept in a different place to the outpack root; see Details
+##'   for more information.
+##'
 ##' @return The id of the created report (a string)
 ##'
 ##' @export
@@ -129,20 +158,30 @@
 ##' # and we can query the metadata:
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
-                        search_options = NULL, root = NULL, locate = TRUE) {
-  root <- root_open(root, locate, require_orderly = TRUE, call = environment())
-  name <- validate_orderly_directory(name, root, environment())
+                        search_options = NULL, root = NULL, locate = TRUE,
+                        root_src = NULL) {
+  if (is.null(root_src)) {
+    root <- root_open(root, locate, require_orderly = TRUE,
+                      call = environment())
+    root_src <- root$path
+  } else {
+    root <- root_open(root, locate, require_orderly = FALSE,
+                      call = environment())
+    root_src <- orderly_src_root(root_src, locate, call = environment())
+  }
+
+  name <- validate_orderly_directory(name, root_src, environment())
 
   envir <- envir %||% .GlobalEnv
   assert_is(envir, "environment")
 
-  src <- file.path(root$path, "src", name)
+  src <- file.path(root_src, "src", name)
   dat <- orderly_read(src)
   parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
 
   id <- outpack_id()
-  path <- file.path(root$path, "draft", name, id)
+  path <- file.path(root_src, "draft", name, id)
   fs::dir_create(path)
 
   ## Slightly peculiar formulation here; we're going to use 'path' as
@@ -164,8 +203,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                             id = id, root = root)
   outpack_packet_file_mark(p, "orderly.R", "immutable")
   p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
-                     strict = dat$strict, inputs_info = inputs_info,
-                     search_options = search_options)
+                     root = root_src, strict = dat$strict,
+                     inputs_info = inputs_info, search_options = search_options)
   current[[path]] <- p
   on.exit(current[[path]] <- NULL, add = TRUE, after = TRUE)
   if (!is.null(parameters)) {
@@ -487,13 +526,13 @@ orderly_packet_add_metadata <- function(p) {
 }
 
 
-validate_orderly_directory <- function(name, root, call) {
+validate_orderly_directory <- function(name, root_path, call) {
   assert_scalar_character(name)
 
   re <- "^(./)*(src/)?(.+?)/?$"
   name <- sub(re, "\\3", name)
-  if (!file_exists(file.path(root$path, "src", name, "orderly.R"))) {
-    src <- file.path(root$path, "src", name)
+  if (!file_exists(file.path(root_path, "src", name, "orderly.R"))) {
+    src <- file.path(root_path, "src", name)
     err <- sprintf("Did not find orderly report '%s'", name)
     if (!file_exists(src)) {
       detail <- sprintf("The path 'src/%s' does not exist", name)
@@ -507,14 +546,14 @@ validate_orderly_directory <- function(name, root, call) {
         name)
     }
     err <- c(err, x = detail)
-    near <- near_match(name, orderly_list_src(root, FALSE))
+    near <- near_match(name, orderly_list_src(root_path, FALSE))
     if (length(near) > 0) {
       hint <- sprintf("Did you mean %s",
                       paste(squote(near), collapse = ", "))
       err <- c(err, i = hint)
     }
     err <- c(err, i = sprintf("Looked relative to orderly root at '%s'",
-                              root$path))
+                              root_path))
     cli::cli_abort(err, call = call)
   }
 

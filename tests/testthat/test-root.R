@@ -84,7 +84,7 @@ test_that("can add gitignore if git setup is ok, but not present", {
 test_that("can error with instructions if files are added to git", {
   root <- create_temporary_root()
   info <- helper_add_git(root$path)
-  id <- create_random_packet(root)
+  id <- create_random_packet(root$path)
 
   ## Need to do some work here to make this fail now:
   fs::file_delete(file.path(root$path, ".gitignore"))
@@ -116,4 +116,40 @@ test_that("can error with instructions if files are added to git", {
     list(orderly_git_error_is_warning = TRUE),
     expect_warning(id2 <- create_random_packet(root$path), NA)) # no warning
   expect_type(id2, "character")
+})
+
+
+test_that("can identify a plain source root", {
+  info <- test_prepare_orderly_example_separate("explicit")
+  expect_equal(normalise_path(orderly_src_root(info$src, FALSE)),
+               normalise_path(info$src))
+  expect_equal(
+    orderly_src_root(file.path(info$src, "src", "explicit"), TRUE),
+    orderly_src_root(info$src, FALSE))
+  expect_error(
+    orderly_src_root(file.path(info$src, "src", "explicit"), FALSE),
+    "Did not find existing orderly source root in")
+
+  p <- file.path(info$outpack, "a", "b", "c")
+  fs::dir_create(p)
+
+  err <- expect_error(
+    orderly_src_root(info$outpack, FALSE),
+    "Did not find existing orderly source root in")
+  expect_equal(err$body, c(i = "Expected to find file 'orderly_config.yml'"))
+
+  err <- expect_error(
+    orderly_src_root(p, TRUE),
+    "Did not find existing orderly source root in")
+  expect_equal(err$body,
+               c(i = "Expected to find file 'orderly_config.yml'",
+                 i = "Looked in parents of this path without success"))
+})
+
+
+test_that("can identify a plain source root from a full root", {
+  path <- test_prepare_orderly_example("explicit")
+  root <- root_open(path, FALSE)
+  expect_equal(orderly_src_root(root$path, FALSE), root$path)
+  expect_equal(orderly_src_root(root, FALSE), root$path)
 })

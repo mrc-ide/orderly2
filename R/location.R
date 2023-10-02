@@ -358,7 +358,7 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
 ##' @export
 orderly_location_push <- function(packet_id, location, root = NULL,
                                   locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = TRUE,
+  root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,

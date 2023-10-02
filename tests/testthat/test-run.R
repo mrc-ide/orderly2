@@ -866,10 +866,10 @@ test_that("validation of orderly directories", {
   nms <- sprintf("example_%s", letters[1:8])
   fs::dir_create(file.path(path, "src", nms))
   file.create(file.path(path, "src", nms, "orderly.R"))
-  hint_root <- sprintf("Looked relative to orderly root at '%s'", root$path)
+  hint_root <- sprintf("Looked relative to orderly root at '%s'", path)
 
   err <- expect_error(
-    validate_orderly_directory("foo", root),
+    validate_orderly_directory("foo", path),
     "Did not find orderly report 'foo'")
   expect_equal(err$body,
                c(x = "The path 'src/foo' does not exist",
@@ -877,7 +877,7 @@ test_that("validation of orderly directories", {
 
   file.create(file.path(path, "src", "foo"))
   err <- expect_error(
-    validate_orderly_directory("foo", root),
+    validate_orderly_directory("foo", path),
     "Did not find orderly report 'foo'")
   expect_equal(err$body,
                c(x = "The path 'src/foo' exists but is not a directory",
@@ -885,7 +885,7 @@ test_that("validation of orderly directories", {
 
   fs::dir_create(file.path(path, "src", "bar"))
   err <- expect_error(
-    validate_orderly_directory("bar", root),
+    validate_orderly_directory("bar", path),
     "Did not find orderly report 'bar'")
   expect_equal(
     err$body,
@@ -895,7 +895,7 @@ test_that("validation of orderly directories", {
   hint_close <- sprintf("Did you mean %s",
                         paste(squote(nms[1:5]), collapse = ", "))
   err <- expect_error(
-    validate_orderly_directory("example_z", root),
+    validate_orderly_directory("example_z", path),
     "Did not find orderly report 'example_z'")
   expect_equal(err$body,
                c(x = "The path 'src/example_z' does not exist",
@@ -904,7 +904,7 @@ test_that("validation of orderly directories", {
 
   file.create(file.path(path, "src", "example_z"))
   err <- expect_error(
-    validate_orderly_directory("example_z", root),
+    validate_orderly_directory("example_z", path),
     "Did not find orderly report 'example_z'")
   expect_equal(err$body,
                c(x = "The path 'src/example_z' exists but is not a directory",
@@ -913,7 +913,7 @@ test_that("validation of orderly directories", {
 
   fs::dir_create(file.path(path, "src", "example_x"))
   err <- expect_error(
-    validate_orderly_directory("example_x", root),
+    validate_orderly_directory("example_x", path),
     "Did not find orderly report 'example_x'")
   expect_equal(
     err$body,
@@ -930,42 +930,42 @@ test_that("strip extraneous path components from orderly path", {
   fs::dir_create(file.path(path, "src", "example_a"))
   file.create(file.path(path, "src", "example_a", "orderly.R"))
 
-  expect_equal(validate_orderly_directory("example_a", root),
+  expect_equal(validate_orderly_directory("example_a", path),
                "example_a")
-  expect_equal(validate_orderly_directory("src/example_a", root),
+  expect_equal(validate_orderly_directory("src/example_a", path),
                "example_a")
-  expect_equal(validate_orderly_directory("./src/example_a", root),
+  expect_equal(validate_orderly_directory("./src/example_a", path),
                "example_a")
-  expect_equal(validate_orderly_directory("./example_a", root),
+  expect_equal(validate_orderly_directory("./example_a", path),
                "example_a")
-  expect_equal(validate_orderly_directory("example_a/", root),
+  expect_equal(validate_orderly_directory("example_a/", path),
                "example_a")
-  expect_equal(validate_orderly_directory("src/example_a/", root),
+  expect_equal(validate_orderly_directory("src/example_a/", path),
                "example_a")
-  expect_equal(validate_orderly_directory("./src/example_a/", root),
+  expect_equal(validate_orderly_directory("./src/example_a/", path),
                "example_a")
-  expect_equal(validate_orderly_directory("./example_a/", root),
+  expect_equal(validate_orderly_directory("./example_a/", path),
                "example_a")
 
   ## Pathalogical case:
   fs::dir_create(file.path(path, "src", "src"))
   file.create(file.path(path, "src", "src", "orderly.R"))
 
-  expect_equal(validate_orderly_directory("src", root),
+  expect_equal(validate_orderly_directory("src", path),
                "src")
-  expect_equal(validate_orderly_directory("src/src", root),
+  expect_equal(validate_orderly_directory("src/src", path),
                "src")
-  expect_equal(validate_orderly_directory("./src/src", root),
+  expect_equal(validate_orderly_directory("./src/src", path),
                "src")
-  expect_equal(validate_orderly_directory("./src", root),
+  expect_equal(validate_orderly_directory("./src", path),
                "src")
-  expect_equal(validate_orderly_directory("src/", root),
+  expect_equal(validate_orderly_directory("src/", path),
                "src")
-  expect_equal(validate_orderly_directory("src/src/", root),
+  expect_equal(validate_orderly_directory("src/src/", path),
                "src")
-  expect_equal(validate_orderly_directory("./src/src/", root),
+  expect_equal(validate_orderly_directory("./src/src/", path),
                "src")
-  expect_equal(validate_orderly_directory("./src/", root),
+  expect_equal(validate_orderly_directory("./src/", path),
                "src")
 })
 

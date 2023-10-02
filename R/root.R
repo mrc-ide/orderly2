@@ -206,6 +206,32 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
 }
 
 
+orderly_src_root <- function(path, locate, call = NULL) {
+  if (inherits(path, "outpack_root")) {
+    path <- path$path
+    locate <- FALSE
+  }
+  if (is.null(path)) {
+    path <- getwd()
+  }
+  assert_scalar_character(path)
+  assert_is_directory(path)
+
+  limit <- if (locate) "/" else path
+  path_root <- find_file_descend("orderly_config.yml", path, limit)
+  if (is.null(path_root)) {
+    cli::cli_abort(
+      c(sprintf(
+        "Did not find existing orderly source root in '%s'", path),
+        i = "Expected to find file 'orderly_config.yml'",
+        i = if (locate) "Looked in parents of this path without success"),
+      call = call)
+  }
+
+  path_root
+}
+
+
 ## This is pretty unpleasant, but does the trick.
 root_validate_same_configuration <- function(args, config, root, call) {
   argmap <- list(
@@ -275,7 +301,7 @@ root_check_git <- function(root, call) {
     }
   }
 
-  do_orderly_gitignore_update("(root)", root)
+  do_orderly_gitignore_update("(root)", root$path)
 
   fs::dir_create(dirname(path_ok))
   fs::file_create(path_ok)

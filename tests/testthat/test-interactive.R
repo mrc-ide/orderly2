@@ -10,6 +10,5 @@ test_that("can detect orderly directory", {
     detect_orderly_interactive_path(file.path(path, "src")),
     "Failed to detect orderly path at")
   root <- detect_orderly_interactive_path(file.path(path, "src", "explicit"))
-  expect_s3_class(root, "outpack_root")
-  expect_type(root$config$orderly, "list")
+  expect_equal(path, root)
 })

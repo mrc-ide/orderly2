@@ -6,17 +6,43 @@ options(outpack.schema_validate =
 test_prepare_orderly_example <- function(examples, ...) {
   tmp <- tempfile()
   withr::defer_parent(unlink(tmp, recursive = TRUE))
-  suppressMessages(orderly_init(tmp))
-  config <- readLines(file.path(tmp, "orderly_config.yml"))
+  suppressMessages(orderly_init(tmp, ...))
+  copy_examples(examples, tmp)
+  as.character(fs::path_norm(tmp))
+}
 
+
+test_prepare_orderly_example_separate <- function(examples, ...) {
+  tmp <- tempfile()
+  withr::defer_parent(unlink(tmp, recursive = TRUE))
+
+  path_outpack <- file.path(tmp, "outpack")
+  suppressMessages(orderly_init(path_outpack, ...))
+  unlink(file.path(path_outpack, "orderly_config.yml"))
+
+  path_src <- file.path(tmp, "src")
+  copy_examples(examples, path_src)
+
+  list(src = path_src, outpack = path_outpack)
+}
+
+
+copy_examples <- function(examples, path_src) {
+  if (file.exists(path_src)) {
+    config <- readLines(file.path(path_src, "orderly_config.yml"))
+  } else {
+    config <- empty_config_contents()
+  }
+
+  fs::dir_create(path_src)
   if (any(c("shared", "shared-dir") %in% examples)) {
-    fs::dir_create(file.path(tmp, "shared"))
+    fs::dir_create(file.path(path_src, "shared"))
     if ("shared" %in% examples) {
       fs::file_copy(test_path("examples/explicit/data.csv"),
-                    file.path(tmp, "shared"))
+                    file.path(path_src, "shared"))
     }
     if ("shared-dir" %in% examples) {
-      fs::dir_create(file.path(tmp, "shared", "data"))
+      fs::dir_create(file.path(path_src, "shared", "data"))
     }
   }
 
@@ -28,13 +54,12 @@ test_prepare_orderly_example <- function(examples, ...) {
                 "    distribution:",
                 "      normal")
   }
+  writeLines(config, file.path(path_src, "orderly_config.yml"))
 
-  writeLines(config, file.path(tmp, "orderly_config.yml"))
-  fs::dir_create(file.path(tmp, "src"))
+  fs::dir_create(file.path(path_src, "src"))
   for (i in examples) {
-    fs::dir_copy(test_path("examples", i), file.path(tmp, "src"))
+    fs::dir_copy(test_path("examples", i), file.path(path_src, "src"))
   }
-  tmp
 }
 
 

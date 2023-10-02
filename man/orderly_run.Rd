@@ -11,7 +11,8 @@ orderly_run(
   echo = TRUE,
   search_options = NULL,
   root = NULL,
-  locate = TRUE
+  locate = TRUE,
+  root_src = NULL
 )
 }
 \arguments{
@@ -44,6 +45,12 @@ directory is configured for orderly, and not just outpack (see
 searched for.  If \code{TRUE} and \code{config} is not given,
 then orderly looks in the working directory and up through its
 parents until it finds an \code{.outpack} directory}
+
+\item{root_src}{Separately, the root of the orderly source tree,
+if separate from the outpack root (given as \code{root}). This is
+intended for running reports in situations where the source tree
+is kept in a different place to the outpack root; see Details
+for more information.}
 }
 \value{
 The id of the created report (a string)
@@ -135,6 +142,32 @@ queries against only packets known on that remote, then depends
 on them even if you don't (yet) have them locally.  This
 functionality was never available in orderly version 1, though
 we had intended to support it.
+}
+
+\section{Running with a source tree separate from outpack root}{
+
+
+Sometimes it is useful to run things from a different place on
+disk to your outpack root. We know of two cases where this has
+come up:
+\itemize{
+\item when running reports within a runner on a server, we make a
+clean clone of the source tree at a particular git reference
+into a new temporary directory and then run the report there,
+but have it insert into an orderly repo at a fixed and
+non-temporary location.
+\item we have a user for whom it is more convenient torun their report
+on a hard drive but store the archive and metadata on a (larger)
+shared drive.
+}
+
+In the first instance, we have a source path at \verb{<src>} which
+contains the file \code{orderly_config.yml} and the directory \verb{src/}
+with our source reports, and a separate path \verb{<root>} which
+contains the directory \verb{.outpack/} with all the metadata - it
+may also have an unpacked archive, and a \verb{.git/} directory
+depending on the configuration. (Later this will make more sense
+once we support a "bare" outpack layout.)
 }
 
 \examples{
