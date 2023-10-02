@@ -20,10 +20,10 @@
 ##'
 ##' @export
 orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
-  subquery_envir <- make_subquery_envir(subquery)
+  subquery_envir <- make_subquery_envir(subquery, call = environment())
   expr_parsed <- query_parse(expr, expr, subquery_envir)
   if (!is.null(name)) {
-    assert_scalar_character(name)
+    assert_scalar_character(name, call = environment())
     name_call <- call("==", quote(name), name)
     if (is.null(scope)) {
       scope <- name_call
@@ -433,9 +433,9 @@ query_parse_value <- function(expr, context, subquery_envir) {
 ## between subqueries, though some work will possibly needed to make
 ## this obvious to the users - I think this is hard to accidentally
 ## trigger though.
-make_subquery_envir <- function(subquery) {
+make_subquery_envir <- function(subquery, call = NULL) {
   if (!is.null(subquery)) {
-    assert_named(subquery, unique = TRUE)
+    assert_named(subquery, unique = TRUE, call = call)
   }
   subquery_envir <- new.env()
   for (nm in names(subquery)) {

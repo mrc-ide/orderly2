@@ -42,7 +42,7 @@ orderly_gitignore_update <- function(name, root = NULL, locate = TRUE) {
 ## to break a circular dependency as we sometimes call this function
 ## while openning the root.
 do_orderly_gitignore_update <- function(name, root_path, call) {
-  assert_scalar_character(name)
+  assert_scalar_character(name, call = call)
 
   if (name == "(root)") {
     path <- ".gitignore"

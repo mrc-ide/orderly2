@@ -85,7 +85,8 @@ orderly_init <- function(path,
     }
   }
 
-  config <- config_new(path_archive, use_file_store, require_complete_tree)
+  config <- config_new(path_archive, use_file_store, require_complete_tree,
+                       call = environment())
 
   path_outpack <- file.path(path, ".outpack")
   if (file.exists(path_outpack)) {

@@ -46,6 +46,7 @@ assert_simple_scalar_atomic <- function(x, name = deparse(substitute(x)),
 
 assert_named <- function(x, unique = FALSE, name = deparse(substitute(x)),
                          arg = name, call = NULL) {
+  ## TODO: we get bad quotes here from static_orderly_parameters
   if (is.null(names(x))) {
     cli::cli_abort("'{name}' must be named", call = call, arg = arg)
   }

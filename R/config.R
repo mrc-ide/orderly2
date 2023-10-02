@@ -5,7 +5,7 @@ orderly_config_read <- function(path, call = NULL) {
   raw <- yaml_read(filename)
 
   if (!is.null(raw)) {
-    assert_named(raw)
+    assert_named(raw, call = call)
   }
 
   raw <- resolve_envvar(raw, orderly_envir_read(path, call),
@@ -33,7 +33,7 @@ orderly_config_read <- function(path, call = NULL) {
 
 orderly_config_validate_minimum_orderly_version <- function(value, filename,
                                                             call = NULL) {
-  assert_scalar_character(value)
+  assert_scalar_character(value, call = call)
   version <- numeric_version(value)
   if (version < numeric_version("1.99.0")) {
     cli::cli_abort(
@@ -55,7 +55,8 @@ orderly_config_validate_plugins <- function(plugins, filename, call = NULL) {
   if (is.null(plugins)) {
     return(NULL)
   }
-  assert_named(plugins, unique = TRUE, name = sprintf("%s:plugins", filename))
+  assert_named(plugins, unique = TRUE, name = sprintf("%s:plugins", filename),
+               call = call)
 
   ret <- list()
   for (nm in names(plugins)) {
@@ -78,7 +79,7 @@ orderly_envir_read <- function(path, call = NULL) {
     return(NULL)
   }
 
-  assert_named(dat, TRUE, basename(filename))
+  assert_named(dat, TRUE, basename(filename), call = call)
   n <- lengths(dat)
   nok <- n != 1L
   if (any(nok)) {

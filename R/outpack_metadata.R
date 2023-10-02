@@ -24,7 +24,7 @@
 ##'
 ##' @export
 orderly_metadata <- function(id, root = NULL, locate = FALSE) {
-  validate_outpack_id(id)
+  validate_outpack_id(id, call = environment())
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
   path_metadata <- file.path(root$path, ".outpack", "metadata", id)
@@ -52,7 +52,7 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
 ##'
 ##' @export
 orderly_metadata_read <- function(path) {
-  assert_file_exists(path)
+  assert_file_exists(path, call = environment())
   outpack_metadata_load(path)
 }
 

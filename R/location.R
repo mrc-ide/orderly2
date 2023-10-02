@@ -71,25 +71,26 @@
 orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  assert_scalar_character(name)
+  assert_scalar_character(name, call = call)
 
   if (name %in% location_reserved_name) {
     cli::cli_abort("Cannot add a location with reserved name '{name}'")
   }
 
   location_check_new_name(root, name, environment())
-  match_value(type, setdiff(location_types, location_reserved_name))
+  match_value(type, setdiff(location_types, location_reserved_name),
+              call = call)
 
-  loc <- new_location_entry(name, type, args)
+  loc <- new_location_entry(name, type, args, call)
   if (type == "path") {
     ## We won't be necessarily be able to do this _generally_ but
     ## here, let's confirm that we can read from the outpack archive
     ## at the requested path; this will just fail but without
     ## providing the user with anything actionable yet.
-    assert_scalar_character(loc$args[[1]]$path, name = "args$path")
+    assert_scalar_character(loc$args[[1]]$path, name = "args$path", call = call)
     root_open(loc$args[[1]]$path, locate = FALSE, require_orderly = FALSE)
   } else if (type == "http") {
-    assert_scalar_character(loc$args[[1]]$url, name = "args$url")
+    assert_scalar_character(loc$args[[1]]$url, name = "args$url", call = call)
   }
 
   config <- root$config
@@ -117,7 +118,7 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
 orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  assert_scalar_character(new)
+  assert_scalar_character(new, call = call)
 
   if (old %in% location_reserved_name) {
     cli::cli_abort("Cannot rename default location '{old}'")
@@ -574,7 +575,7 @@ location_build_pull_plan <- function(packet_id, location, recursive, root,
 
 location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
   recursive <- recursive %||% root$config$core$require_complete_tree
-  assert_scalar_logical(recursive)
+  assert_scalar_logical(recursive, call = call)
   if (root$config$core$require_complete_tree && !recursive) {
     cli::cli_abort(
       c("'recursive' must be TRUE (or NULL) with your configuration",
@@ -690,8 +691,8 @@ location_build_push_plan <- function(packet_id, location_name, root) {
 ## This validation probably will need generalising in future as we add
 ## new types. The trick is going to be making sure that we can support
 ## different location types in different target languages effectively.
-new_location_entry <- function(name, type, args) {
-  match_value(type, location_types)
+new_location_entry <- function(name, type, args, call = NULL) {
+  match_value(type, location_types, call = call)
   required <- NULL
   if (type == "path") {
     required <- "path"
@@ -701,8 +702,8 @@ new_location_entry <- function(name, type, args) {
     required <- "driver"
   }
   if (length(args) > 0) {
-    assert_is(args, "list")
-    assert_named(args)
+    assert_is(args, "list", call = call)
+    assert_named(args, call = call)
   }
   msg <- setdiff(required, names(args))
   if (length(msg) > 0) {

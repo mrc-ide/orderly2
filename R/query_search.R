@@ -37,7 +37,8 @@ orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
   query <- as_orderly_query(...)
   options <- as_orderly_search_options(options)
   validate_parameters(parameters, environment())
-  orderly_query_eval(query, parameters, envir, options, root)
+  orderly_query_eval(query, parameters, envir, options, root,
+                     call = environment())
 }
 
 
@@ -76,10 +77,10 @@ orderly_search_options <- function(location = NULL,
   ## TODO: Later, we might allow something like "before" here too to
   ## control searching against some previous time on a location.
   if (!is.null(location)) {
-    assert_character(location)
+    assert_character(location, call = environment())
   }
-  assert_scalar_logical(allow_remote)
-  assert_scalar_logical(pull_metadata)
+  assert_scalar_logical(allow_remote, call = environment())
+  assert_scalar_logical(pull_metadata, call = environment())
   ret <- list(location = location,
               allow_remote = allow_remote,
               pull_metadata = pull_metadata)
@@ -123,11 +124,12 @@ as_orderly_search_options <- function(x, defaults = list(),
 }
 
 
-orderly_query_eval <- function(query, parameters, envir, options, root) {
-  assert_is(query, "orderly_query")
-  assert_is(options, "orderly_search_options")
-  assert_is(root, "outpack_root")
-  assert_is(envir, "environment")
+orderly_query_eval <- function(query, parameters, envir, options, root,
+                               call = NULL) {
+  assert_is(query, "orderly_query", call = call)
+  assert_is(options, "orderly_search_options", call = call)
+  assert_is(root, "outpack_root", call = call)
+  assert_is(envir, "environment", call = call)
   ## It's simple enough here to pre-compare the provided parameters
   ## with query$info$parameters, but we already have nicer error
   ## reporting at runtime that shows the context of where the

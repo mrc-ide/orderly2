@@ -24,7 +24,7 @@ orderly_example <- function(name, ..., dest = NULL) {
   if (is.null(dest)) {
     dest <- withr::local_tempfile(.local_envir = parent.frame())
   } else {
-    assert_scalar_character(dest)
+    assert_scalar_character(dest, call = environment())
   }
   if (file.exists(dest)) {
     cli::cli_abort("The path '{dest}' cannot exist")

@@ -173,7 +173,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   name <- validate_orderly_directory(name, root_src, environment())
 
   envir <- envir %||% .GlobalEnv
-  assert_is(envir, "environment")
+  assert_is(envir, "environment", call = environment())
 
   src <- file.path(root_src, "src", name)
   dat <- orderly_read(src, environment())
@@ -321,7 +321,7 @@ check_produced_artefacts <- function(path, artefacts, call) {
 ## environment etc or not? do they get validated?)
 check_parameters <- function(given, spec, call) {
   if (length(given) > 0) {
-    assert_named(given, unique = TRUE)
+    assert_named(given, unique = TRUE, call = call)
   }
 
   if (length(given) > 0 && is.null(spec)) {
@@ -527,7 +527,7 @@ orderly_packet_add_metadata <- function(p) {
 
 
 validate_orderly_directory <- function(name, root_path, call) {
-  assert_scalar_character(name)
+  assert_scalar_character(name, call = call)
 
   re <- "^(./)*(src/)?(.+?)/?$"
   name <- sub(re, "\\3", name)

@@ -189,11 +189,6 @@ yaml_load <- function(string) {
 }
 
 
-## TODO: to add in real-casing, consider:
-##
-## > withr::with_dir(workdir, fs::path_rel(fs::path_real(files), "."))
-##
-## but do this later (mrc-4375)
 file_exists <- function(..., workdir = NULL) {
   files <- c(...)
   if (!is.null(workdir)) {

@@ -88,7 +88,7 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
   ## Validate files and dest early; it gives a better error where this
   ## was not provided with names.
   files <- validate_file_from_to(files, envir)
-  assert_scalar_character(dest)
+  assert_scalar_character(dest, call = environment())
 
   if (dots_is_literal_id(...)) {
     id <- ..1
@@ -150,7 +150,7 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
 
 
 plan_copy_files <- function(root, id, there, here, call = NULL) {
-  assert_relative_path(there, name = "File", workdir = id, call = NULL)
+  assert_relative_path(there, name = "File", workdir = id, call = call)
   validate_packet_has_file(root, id, there, call)
   is_dir <- grepl("/$", there)
   if (any(is_dir)) {

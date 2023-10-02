@@ -46,7 +46,7 @@
 ##' @export
 orderly_plugin_register <- function(name, config, serialise = NULL,
                                     cleanup = NULL, schema = NULL) {
-  assert_scalar_character(name)
+  assert_scalar_character(name, call = environment())
   plugin <- orderly_plugin(name, config, serialise, cleanup, schema)
   .plugins[[name]] <- plugin
 }
@@ -69,8 +69,9 @@ load_orderly_plugin <- function(name) {
 .plugins <- new.env(parent = emptyenv())
 
 
-orderly_plugin <- function(package, config, serialise, cleanup, schema) {
-  assert_is(config, "function")
+orderly_plugin <- function(package, config, serialise, cleanup, schema,
+                           call = NULL) {
+  assert_is(config, "function", call = call)
   if (is.null(cleanup)) {
     cleanup <- plugin_no_cleanup
   }
@@ -88,7 +89,7 @@ orderly_plugin <- function(package, config, serialise, cleanup, schema) {
   if (is.null(serialise)) {
     serialise <- plugin_no_serialise
   }
-  assert_is(cleanup, "function")
+  assert_is(cleanup, "function", call = call)
   ret <- list(package = package,
               config = config,
               serialise = serialise,
@@ -155,7 +156,7 @@ orderly_plugin <- function(package, config, serialise, cleanup, schema) {
 ##' [orderly2::orderly_plugin_add_metadata]
 ##' @export
 orderly_plugin_context <- function(name, envir) {
-  assert_scalar_character(name)
+  assert_scalar_character(name, call = environment())
   ctx <- orderly_context(envir)
   check_plugin_enabled(name, ctx$config)
   ## Narrower view on configuration - can only see the config for the
@@ -189,19 +190,20 @@ orderly_plugin_context <- function(name, envir) {
 ##'
 ##' @export
 orderly_plugin_add_metadata <- function(name, field, data) {
-  assert_scalar_character(name)
-  assert_scalar_character(field)
+  assert_scalar_character(name, call = environment())
+  assert_scalar_character(field, call = environment())
   p <- get_active_packet()
   if (!is.null(p)) {
-    check_plugin_enabled(name, p$orderly2$config)
+    check_plugin_enabled(name, p$orderly2$config, call = environment())
     p$plugins[[name]][[field]] <- c(p$plugins[[name]][[field]], list(data))
   }
 }
 
 
-check_plugin_enabled <- function(name, config) {
+check_plugin_enabled <- function(name, config, call) {
   if (is.null(config$plugins[[name]])) {
-    stop(sprintf("Plugin '%s' not enabled in 'orderly_config.yml'", name))
+    cli::cli_abort("Plugin '{name}' not enabled in 'orderly_config.yml'",
+                   call = call)
   }
 }
 
