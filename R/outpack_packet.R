@@ -325,8 +325,8 @@ outpack_packet_file_mark <- function(packet, files, status) {
   status <- match_value(status, c("immutable", "ignored"))
   packet <- check_current_packet(packet)
 
-  assert_relative_path(files, no_dots = TRUE)
-  assert_file_exists(files, workdir = packet$path)
+  assert_file_exists_relative(files, workdir = packet$path, name = "File",
+                              call = environment())
 
   ## TODO: these are exclusive categories because we later return a
   ## 1:1 mapping of file to status

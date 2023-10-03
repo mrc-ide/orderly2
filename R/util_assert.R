@@ -4,9 +4,9 @@ assert_scalar <- function(x, name = deparse(substitute(x))) {
   }
 }
 
-assert_character <- function(x, name = deparse(substitute(x))) {
+assert_character <- function(x, name = deparse(substitute(x)), call = NULL) {
   if (!is.character(x)) {
-    stop(sprintf("'%s' must be character", name), call. = FALSE)
+    cli::cli_abort("'{name}' must be character", call = call)
   }
 }
 
@@ -51,36 +51,75 @@ assert_is <- function(x, what, name = deparse(substitute(x))) {
   }
 }
 
-assert_file_exists <- function(x, workdir = NULL, name = "File") {
-  err <- !file_exists(x, workdir = workdir)
+assert_file_exists <- function(files, name = "File", call = NULL) {
+  err <- !file.exists(files)
   if (any(err)) {
-    msg <- squote(x[err])
-    stop(sprintf("%s does not exist: %s", name, paste(msg, collapse = ", ")),
-         call. = FALSE)
+    n <- cli::qty(sum(err))
+    cli::cli_abort(
+      "{name}{n}{?s} {?does/do} not exist: {collapseq(files[err])}",
+      call = call)
   }
 }
 
-assert_is_directory <- function(x, workdir = NULL, name = "Directory") {
-  assert_file_exists(x, workdir, name)
-  path <- if (is.null(workdir)) x else file.path(workdir, x)
+
+assert_file_exists_relative <- function(files, workdir, name, call = NULL) {
+  assert_relative_path(files, name, workdir, call)
+
+  assert_character(files, call = call)
+  err <- !file_exists(files, workdir = workdir)
+  if (any(err)) {
+    n <- cli::qty(sum(err))
+    cli::cli_abort(
+      c("{name}{n}{?s} {?does/do} not exist: {collapseq(files[err])}",
+        i = "Looked within directory '{workdir}'"),
+      call = call)
+  }
+
+  files_canonical <- file_canonical_case(files, workdir)
+  err <- is.na(files_canonical) | fs::path(files) != files_canonical
+  if (any(err)) {
+    i <- err & !is.na(files_canonical)
+    hint_case <- sprintf("For '%s', did you mean '%s'?",
+                         files[i], files_canonical[i])
+    n <- cli::qty(sum(err))
+    cli::cli_abort(
+      c("{name}{n}{?s} {?does/do} not exist: {collapseq(files[err])}",
+        set_names(hint_case, "i"),
+        i = paste("If you don't use the canonical case for a file, your code",
+                  "is not portable across different platforms"),
+        i = "Looked within directory '{workdir}'"),
+      call = call)
+  }
+}
+
+assert_is_directory <- function(path, name = "Directory", call = NULL) {
+  assert_scalar_character(path)
+  assert_file_exists(path, name = name, call = call)
   if (!is_directory(path)) {
-    stop(sprintf("Path exists but is not a directory: %s",
-                 paste(x, collapse = ", ")),
-         call. = FALSE)
+    cli::cli_abort("Path exists but is not a directory: {path}",
+                   call = call)
   }
 }
 
-assert_relative_path <- function(x, no_dots = FALSE,
-                                 name = deparse(substitute(x))) {
-  err <- fs::is_absolute_path(x)
+assert_relative_path <- function(files, name, workdir, call = NULL) {
+  err <- fs::is_absolute_path(files)
   if (any(err)) {
-    stop(sprintf("'%s' must be relative %s",
-                 name, ngettext(length(x), "path", "paths")),
-         call. = FALSE)
+    n <- cli::qty(sum(err))
+    cli::cli_abort(
+      c("{name}{n}{?s} must be {?a/} relative path{?s}",
+        set_names(files[err], "x"),
+        i = "Path was relative to directory '{workdir}'"),
+      call = call)
   }
-  if (no_dots && any(grepl("..", x, fixed = TRUE))) {
-    stop(sprintf("'%s' must not contain '..' path components", name),
-         call. = FALSE)
+
+  err <- vlapply(fs::path_split(files), function(x) any(x == ".."))
+  if (any(err)) {
+    n <- cli::qty(sum(err))
+    cli::cli_abort(
+      c("{name}{n}{?s} must not contain '..' (parent directory) components",
+        set_names(files[err], "x"),
+        i = "Path was relative to directory '{workdir}'"),
+      call = call)
   }
 }
 

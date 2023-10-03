@@ -1,5 +1,6 @@
-orderly_read <- function(path) {
-  assert_file_exists("orderly.R", workdir = path)
+orderly_read <- function(path, call = NULL) {
+  assert_file_exists_relative("orderly.R", name = "Orderly file",
+                              workdir = path, call = call)
   orderly_read_r(file.path(path, "orderly.R"))
 }
 

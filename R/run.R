@@ -176,7 +176,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   assert_is(envir, "environment")
 
   src <- file.path(root_src, "src", name)
-  dat <- orderly_read(src)
+  dat <- orderly_read(src, environment())
   parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
 

@@ -599,3 +599,24 @@ pretty_bytes <- function(n) {
   }
   paste(prettyNum(round(n, 1), big.mark = ","), unit)
 }
+
+
+file_canonical_case <- function(path, workdir) {
+  if (length(path) != 1) {
+    return(vcapply(path, file_canonical_case, workdir, USE.NAMES = FALSE))
+  }
+  stopifnot(!fs::is_absolute_path(path))
+  path_split <- tolower(fs::path_split(path)[[1]])
+  base <- workdir
+  ret <- character(length(path_split))
+  for (i in seq_along(path_split)) {
+    pos <- dir(base)
+    j <- which(path_split[[i]] == tolower(pos))
+    if (length(j) != 1) {
+      return(NA_character_)
+    }
+    ret[[i]] <- pos[[j]]
+    base <- file.path(base, pos[[j]])
+  }
+  paste(ret, collapse = "/")
+}

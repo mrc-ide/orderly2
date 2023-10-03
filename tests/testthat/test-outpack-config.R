@@ -271,7 +271,7 @@ test_that("Archive is not added if file store is corrupt", {
 test_that("Validates path_archive", {
   root <- create_temporary_root(path_archive = NULL, use_file_store = TRUE)
   expect_error(orderly_config_set(core.path_archive = "/archive", root = root),
-               "'path_archive' must be relative path")
+               "'path_archive' must be a relative path")
   expect_null(root$config$core$path_archive)
 
   dir.create(file.path(root$path, "archive"))
@@ -281,7 +281,7 @@ test_that("Validates path_archive", {
 
   orderly_config_set(core.path_archive = "new-archive", root = root)
   expect_error(orderly_config_set(core.path_archive = "/archive", root = root),
-               "'path_archive' must be relative path")
+               "'path_archive' must be a relative path")
   expect_error(orderly_config_set(core.path_archive = "archive", root = root),
                "Directory already exists")
   expect_equal(root$config$core$path_archive, "new-archive")

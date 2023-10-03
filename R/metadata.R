@@ -149,25 +149,20 @@ static_orderly_description <- function(args) {
 ##'
 ##' @export
 orderly_resource <- function(files) {
-  ## TODO: an error here needs to throw a condition that we can easily
-  ## handle and or defer; that's not too hard to do though - convert
-  ## the error into something with a special class, perhaps make it a
-  ## warning in normal R and then register a handler for it in the
-  ## main run.
-  assert_character(files)
-
   p <- get_active_packet()
-  if (is.null(p)) {
-    assert_file_exists(files)
-    files_expanded <- expand_dirs(files, ".")
-  } else {
-    src <- p$orderly2$src
-    assert_file_exists(files, workdir = src)
-    files_expanded <- expand_dirs(files, src)
+  src <- if (is.null(p)) "." else p$orderly2$src
+  assert_file_exists_relative(files, workdir = src, name = "Resource file",
+                              call = environment())
+  files_expanded <- expand_dirs(files, src)
+  if (!is.null(p)) {
     if (p$orderly2$strict$enabled) {
       copy_files(src, p$path, files_expanded)
     } else {
-      assert_file_exists(files, workdir = p$path)
+      ## Above we're looking in the underlying source directory, here
+      ## we're looking within the running directory; it's not obvious
+      ## when this second case would fail, really.
+      assert_file_exists_relative(files, workdir = p$path,
+                                  name = "Resource file", call = environment())
     }
     outpack_packet_file_mark(p, files_expanded, "immutable")
     p$orderly2$resources <- c(p$orderly2$resources, files_expanded)
@@ -321,7 +316,9 @@ orderly_shared_resource <- function(...) {
   files <- validate_shared_resource(list(...), environment())
   ctx <- orderly_context(rlang::caller_env())
 
-  files <- copy_shared_resource(ctx$root_src, ctx$path, ctx$config, files)
+  files <- copy_shared_resource(ctx$root_src, ctx$path, ctx$config, files,
+                                environment())
+
   if (ctx$is_active) {
     outpack_packet_file_mark(ctx$packet, files$here, "immutable")
     ctx$packet$orderly2$shared_resources <-
@@ -350,9 +347,7 @@ validate_shared_resource <- function(args, call) {
 }
 
 
-copy_shared_resource <- function(path_root, path_dest, config, files) {
-  ## This used to be configurable in orderly1, but almost everyone
-  ## just kept it as 'global'. We might make it configurable later.
+copy_shared_resource <- function(path_root, path_dest, config, files, call) {
   shared_dir <- "shared"
   shared_path <- file.path(path_root, shared_dir)
   if (!is_directory(shared_path)) {
@@ -364,9 +359,8 @@ copy_shared_resource <- function(path_root, path_dest, config, files) {
   here <- names(files)
   there <- unname(files)
 
-  assert_file_exists(
-    there, workdir = shared_path,
-    name = sprintf("Shared resources in '%s'", shared_path))
+  assert_file_exists_relative(there, workdir = shared_path,
+                              name = "Shared resource file", call = call)
   src <- file.path(shared_path, there)
   dst <- file.path(path_dest, here)
 

@@ -150,7 +150,7 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
 
 
 plan_copy_files <- function(root, id, there, here, call = NULL) {
-  assert_relative_path(there, no_dots = TRUE)
+  assert_relative_path(there, name = "File", workdir = id, call = NULL)
   validate_packet_has_file(root, id, there, call)
   is_dir <- grepl("/$", there)
   if (any(is_dir)) {
