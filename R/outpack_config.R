@@ -50,8 +50,8 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
     return(invisible())
   }
 
-  assert_is(options, "list")
-  assert_named(options)
+  assert_is(options, "list", call = environment())
+  assert_named(options, call = environment())
 
   setters <- list(
     "core.require_complete_tree" = config_set_require_complete_tree,
@@ -65,7 +65,7 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
   }
 
   for (nm in names(options)) {
-    root <- setters[[nm]](options[[nm]], root)
+    root <- setters[[nm]](options[[nm]], root, call = environment())
   }
 
   invisible()
@@ -118,7 +118,7 @@ orderly_config <- function(root = NULL, locate = TRUE) {
 }
 
 
-config_set_require_complete_tree <- function(value, root) {
+config_set_require_complete_tree <- function(value, root, call) {
   config <- root$config
 
   if (config$core$require_complete_tree == value) {
@@ -136,8 +136,8 @@ config_set_require_complete_tree <- function(value, root) {
 }
 
 
-config_set_use_file_store <- function(value, root) {
-  assert_scalar_logical(value)
+config_set_use_file_store <- function(value, root, call) {
+  assert_scalar_logical(value, call = call)
   config <- root$config
 
   if (config$core$use_file_store == value) {
@@ -166,7 +166,7 @@ config_set_use_file_store <- function(value, root) {
 }
 
 
-config_set_path_archive <- function(value, root) {
+config_set_path_archive <- function(value, root, call) {
   config <- root$config
 
   if (identical(value, config$core$path_archive)) {
@@ -187,16 +187,18 @@ config_set_path_archive <- function(value, root) {
     path_archive_old <- file.path(root$path, config$core$path_archive)
     if (fs::dir_exists(path_archive_old)) {
       path_archive_new <- file.path(root$path, value)
-      assert_relative_path(value, name = "'path_archive'", workdir = root$path)
-      assert_directory_does_not_exist(path_archive_new)
+      assert_relative_path(value, name = "'path_archive'", workdir = root$path,
+                           call = call)
+      assert_directory_does_not_exist(path_archive_new, call = call)
       fs::dir_copy(path_archive_old, path_archive_new)
       fs::dir_delete(path_archive_old)
     }
     config$core$path_archive <- value
   } else {
     path_archive <- file.path(root$path, value)
-    assert_relative_path(value, name = "'path_archive'", workdir = root$path)
-    assert_directory_does_not_exist(path_archive)
+    assert_relative_path(value, name = "'path_archive'", workdir = root$path,
+                         call = call)
+    assert_directory_does_not_exist(path_archive, call = call)
     tryCatch({
       fs::dir_create(path_archive)
       invisible(lapply(root$index$unpacked(), function(id) {
@@ -218,16 +220,17 @@ config_set_path_archive <- function(value, root) {
 }
 
 
-config_new <- function(path_archive, use_file_store, require_complete_tree) {
+config_new <- function(path_archive, use_file_store, require_complete_tree,
+                       call = NULL) {
   if (!is.null(path_archive)) {
-    assert_scalar_character(path_archive)
+    assert_scalar_character(path_archive, call = call)
   }
-  assert_scalar_logical(use_file_store)
+  assert_scalar_logical(use_file_store, call = call)
   if (is.null(path_archive) && !use_file_store) {
     stop("If 'path_archive' is NULL, then 'use_file_store' must be TRUE")
   }
 
-  assert_scalar_logical(require_complete_tree)
+  assert_scalar_logical(require_complete_tree, call = call)
 
   ## TODO: There's a good reason here to wonder if this _should_ be
   ## configurable.  I'll keep it here within the configuration even

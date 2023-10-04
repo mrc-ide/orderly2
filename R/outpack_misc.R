@@ -15,10 +15,10 @@ outpack_id <- function() {
 }
 
 
-validate_outpack_id <- function(id) {
-  assert_scalar_character(id)
+validate_outpack_id <- function(id, call = NULL) {
+  assert_scalar_character(id, call = call)
   if (!grepl(re_id, id)) {
-    stop(sprintf("Malformed id '%s'", id), call. = FALSE)
+    cli::cli_abort("Malformed id '{id}'", call = call)
   }
 }
 
@@ -68,8 +68,8 @@ validate_parameters <- function(parameters, call) {
   if (is.null(parameters) || length(parameters) == 0) {
     return()
   }
-  assert_is(parameters, "list")
-  assert_named(parameters, unique = TRUE)
+  assert_is(parameters, "list", call = call)
+  assert_named(parameters, unique = TRUE, call = call)
   check_parameter_values(parameters, FALSE, call)
 }
 

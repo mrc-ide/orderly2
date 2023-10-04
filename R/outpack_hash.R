@@ -28,7 +28,7 @@ orderly_hash_file <- function(path, algorithm = NULL, root = NULL,
                       call = environment())
     algorithm <- root$config$core$hash_algorithm
   }
-  hash_file(path, algorithm)
+  hash_file(path, algorithm, call = environment())
 }
 
 
@@ -42,15 +42,15 @@ orderly_hash_data <- function(data, algorithm = NULL, root = NULL,
                       call = environment())
     algorithm <- root$config$core$hash_algorithm
   }
-  hash_data(data, algorithm)
+  hash_data(data, algorithm, call = call)
 }
 
 
-hash_file <- function(path, algorithm = "sha256") {
-  assert_file_exists(path)
+hash_file <- function(path, algorithm = "sha256", call = NULL) {
+  assert_file_exists(path, call = call)
   con <- file(path, open = "rb")
   on.exit(close(con))
-  hash_data(con, algorithm)
+  hash_data(con, algorithm, call)
 }
 
 
@@ -59,8 +59,8 @@ hash_files <- function(paths, algorithm = "sha256", named = FALSE) {
 }
 
 
-hash_data <- function(data, algorithm) {
-  assert_scalar_character(algorithm)
+hash_data <- function(data, algorithm, call = NULL) {
+  assert_scalar_character(algorithm, call = call)
   value <- openssl::multihash(data, algorithm)[[algorithm]]
   sprintf("%s:%s", algorithm, as.character(value))
 }

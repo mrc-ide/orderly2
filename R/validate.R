@@ -45,7 +45,8 @@
 orderly_validate_archive <- function(..., action = "inform",
                                      root = NULL, locate = TRUE) {
   root <- root_open(root, locate = TRUE, require_orderly = FALSE)
-  action <- match_value(action, c("inform", "orphan", "delete", "repair"))
+  action <- match_value(action, c("inform", "orphan", "delete", "repair"),
+                        call = environment())
 
   if (is.null(root$config$core$path_archive)) {
     cli::cli_abort("You have no archive to validate")

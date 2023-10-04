@@ -68,7 +68,8 @@ static_orderly_parameters <- function(args, call) {
   if (length(args) == 0L) {
     return(NULL)
   }
-  assert_named(args, unique = TRUE, name = "Arguments to 'orderly_parameters'")
+  assert_named(args, unique = TRUE, name = "Arguments to 'orderly_parameters'",
+               call = call, arg = NULL)
   check_parameter_values(args, TRUE, call)
 
   args
@@ -102,16 +103,17 @@ current_orderly_parameters <- function(src, envir) {
 ##' @export
 orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
   if (!is.null(display)) {
-    assert_scalar_character(display)
+    assert_scalar_character(display, call = environment())
   }
   if (!is.null(long)) {
-    assert_scalar_character(long)
+    assert_scalar_character(long, call = environment())
   }
   if (!is.null(custom)) {
-    assert_named(custom)
-    assert_is(custom, "list")
+    assert_named(custom, unique = TRUE, call = environment())
+    assert_is(custom, "list", call = environment())
     for (i in names(custom)) {
-      assert_simple_scalar_atomic(custom[[i]], sprintf("custom$%s", i))
+      assert_simple_scalar_atomic(custom[[i]], sprintf("custom$%s", i),
+                                  call = environment())
     }
   }
 
@@ -204,8 +206,8 @@ static_orderly_resource <- function(args) {
 ##'
 ##' @export
 orderly_artefact <- function(description, files) {
-  assert_scalar_character(description)
-  assert_character(files) # also check length >0 ?
+  assert_scalar_character(description, call = environment())
+  assert_character(files, call = environment()) # also check length >0 ?
 
   p <- get_active_packet()
   if (!is.null(p)) {
@@ -245,7 +247,7 @@ static_orderly_artefact <- function(args) {
 ##' @return Undefined
 ##' @export
 orderly_dependency <- function(name, query, files) {
-  assert_scalar_character(name)
+  assert_scalar_character(name, call = environment())
 
   ctx <- orderly_context(rlang::caller_env())
   subquery <- NULL
@@ -334,7 +336,7 @@ validate_shared_resource <- function(args, call) {
     cli::cli_abort("'orderly_shared_resource' requires at least one argument",
                    call = call)
   }
-  assert_named(args, unique = TRUE)
+  assert_named(args, unique = TRUE, call = environment())
   is_invalid <- !vlapply(args, function(x) is.character(x) && length(x) == 1)
   if (any(is_invalid)) {
     cli::cli_abort(

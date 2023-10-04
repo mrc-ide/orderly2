@@ -724,7 +724,7 @@ test_that("can't add unknown location type", {
   root <- create_temporary_root()
   expect_error(
     orderly_location_add("other", "magic", list(arg = 1), root = root),
-    "type must be one of 'path', 'http'")
+    "'type' must be one of 'path', 'http'")
 })
 
 

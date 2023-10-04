@@ -11,19 +11,19 @@ orderly_graph_packets <- function(from = NULL, to = NULL,
     if (is.null(metadata[[from]])) {
       cli::cli_abort("Packet '{from}' does not exist for 'from'")
     }
-    dat <- graph_packets_from(from, metadata)
+    dat <- graph_packets_from(from, metadata, call = environment())
   } else {
     if (is.null(metadata[[to]])) {
       cli::cli_abort("Packet '{to}' does not exist for 'to'")
     }
-    dat <- graph_packets_to(to, metadata)
+    dat <- graph_packets_to(to, metadata, call = environment())
   }
   dat
 }
 
 
 graph_packets_to <- function(to, metadata, call) {
-  validate_outpack_id(to)
+  validate_outpack_id(to, call = call)
   packets <- to
   edges <- list()
   i <- 0L
@@ -43,8 +43,8 @@ graph_packets_to <- function(to, metadata, call) {
 }
 
 
-graph_packets_from <- function(from, metadata) {
-  validate_outpack_id(from)
+graph_packets_from <- function(from, metadata, call) {
+  validate_outpack_id(from, call = call)
   uses <- build_packet_uses(lapply(metadata, "[[", "depends"))
   packets <- from
   edges <- list()
