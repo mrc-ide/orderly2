@@ -68,6 +68,7 @@ reference:
       - orderly_location_rename
   - title: Help for developing
     contents:
+      - orderly_new
       - orderly_cleanup
       - orderly_cleanup_status
       - orderly_gitignore_update
