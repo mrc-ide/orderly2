@@ -101,3 +101,12 @@ test_that("allow creation of orderly.R in existing empty dir", {
     "Created 'src/foo/orderly.R'")
   expect_true(file.exists(file.path(path, "src/foo/orderly.R")))
 })
+
+
+test_that("disallow template arguments", {
+  path <- test_prepare_orderly_example(character())
+  expect_error(
+    orderly_new("foo", template = "other", root = path),
+    "'template' must be 'NULL' or 'FALSE' for now")
+  expect_false(file.exists(file.path(path, "src/foo")))
+})
