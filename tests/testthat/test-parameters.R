@@ -84,11 +84,42 @@ test_that("set defaults into environment if missing", {
 })
 
 
+test_that("fill in missing parameters", {
+  envir <- list2env(list(b = 3, c = 4), parent = new.env())
+  mock_get <- mockery::mock({envir$a <- 1})
+  mockery::stub(check_parameters_interactive,
+                "get_missing_parameters_interactive",
+                mock_get)
+  check_parameters_interactive(envir, list(a = NULL, b = NULL, c = NULL), NULL)
+  mockery::expect_called(mock_get, 1)
+  expect_equal(mockery::mock_args(mock_get)[[1]],
+               list(c("a", "b", "c"), envir, NULL))
+  expect_mapequal(as.list(envir), list(a = 1, b = 3, c = 4))
+})
+
+
 test_that("require non-default parameters are present in environment", {
+  withr::local_options(orderly_interactive_parameters_missing_error = TRUE)
   envir <- list2env(list(b = 3, c = 4), parent = new.env())
   expect_error(
-    check_parameters_interactive(envir, list(a = NULL, b = NULL, c = NULL)),
+    get_missing_parameters_interactive(c("a", "b", "c"), envir),
     "Missing parameters: 'a'")
+})
+
+
+test_that("prompt for missing parameters", {
+  withr::local_options(orderly_interactive_parameters_missing_error = NULL)
+  envir <- list2env(list(c = 4), parent = new.env())
+  mock_get <- mockery::mock(1, 2)
+  mockery::stub(get_missing_parameters_interactive, "get_parameter_interactive",
+                mock_get)
+  expect_message(
+    get_missing_parameters_interactive(c("a", "b", "c"), envir),
+    "Please enter values for 2 missing parameters:")
+  mockery::expect_called(mock_get, 2)
+  expect_equal(mockery::mock_args(mock_get),
+               list(list("a", NULL), list("b", NULL)))
+  expect_mapequal(as.list(envir), list(a = 1, b = 2, c = 4))
 })
 
 

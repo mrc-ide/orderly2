@@ -38,3 +38,61 @@ detect_orderly_interactive_path <- function(path = getwd()) {
 orderly_interactive_set_search_options <- function(options = NULL) {
   .interactive$search_options <- options
 }
+
+
+get_parameter_interactive <- function(name, call = NULL) {
+  value <- readline(sprintf("%s > ", name))
+  if (!nzchar(value)) {
+    cli::cli_abort("Expected a value for parameter '{name}'", call = call)
+  }
+  parsed <- tryCatch(parse(text = value)[[1L]], error = identity)
+  explain_string <- paste(
+    "If entering a string, you must use quotes, this helps",
+    'disambiguate numbers and booleans. For example, TRUE and "TRUE" will',
+    "parse as a boolean and a string, respectively")
+  if (inherits(parsed, "error")) {
+    cli::cli_abort(
+      c("Failed to parse value for parameter '{name}'",
+        x = "Was given: {value}",
+        i = explain_string),
+      parent = parsed, call = call)
+  }
+  if (is.name(parsed)) {
+    cli::cli_abort(
+      c("Invalid input for parameter '{name}'",
+        i = 'Did you mean: {.strong "{as.character(parsed)}"} (in quotes)?',
+        i = explain_string),
+      call = call)
+  }
+  if (!is_simple_scalar_atomic(parsed)) {
+    cli::cli_abort(
+      c("Invalid input for parameter '{name}': {value}",
+        i = "Must be a simple boolean, number or string"),
+      call = call)
+  }
+  parsed[[1]]
+}
+
+
+get_missing_parameters_interactive <- function(required, envir, call = NULL) {
+  msg <- setdiff(required, names(envir))
+  if (length(msg) == 0) {
+    return()
+  }
+  if (getOption("orderly_interactive_parameters_missing_error", FALSE)) {
+    cli::cli_abort(
+      c("Missing parameters: {squote(msg)}",
+        i = paste("Erroring because option",
+                  "'orderly_interactive_parameters_missing_error'",
+                  "is 'TRUE'")),
+      call = call)
+  }
+  n <- length(msg)
+  cli::cli_alert(
+    "Please enter values for {n} missing {cli::qty(n)}parameter{?s}:")
+  found <- list()
+  for (nm in msg) {
+    found[[nm]] <- get_parameter_interactive(nm, call)
+  }
+  list2env(found, envir)
+}
