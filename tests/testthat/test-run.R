@@ -1233,3 +1233,28 @@ test_that("nice error if resource file not found", {
   expect_match(err$parent$body[[1]],
                "Looked within directory '.+/src/explicit'")
 })
+
+
+test_that("can add a dependency on an id with no name", {
+  path <- test_prepare_orderly_example(c("data", "depends"))
+  envir1 <- new.env()
+  id1 <- orderly_run_quietly("data", root = path, envir = envir1)
+
+  path_src <- file.path(path, "src", "depends", "orderly.R")
+  code <- readLines(path_src)
+  i <- grep("orderly2::orderly_dependency", code)
+  code[[i]] <- sprintf(
+    "orderly2::orderly_dependency(NULL, '%s', c(input.rds = 'data.rds'))",
+    id1)
+  writeLines(code, path_src)
+  envir2 <- new.env()
+  id2 <- orderly_run_quietly("depends", root = path, envir = envir2)
+
+  meta <- orderly_metadata(id2, root = path)
+  expect_equal(
+    meta$depends,
+    data_frame(
+      packet = id1,
+      query = sprintf('single(id == "%s")', id1),
+      files = I(list(data_frame(here = "input.rds", there = "data.rds")))))
+})
