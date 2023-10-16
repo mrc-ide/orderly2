@@ -86,7 +86,7 @@ test_that("set defaults into environment if missing", {
 
 test_that("fill in missing parameters", {
   envir <- list2env(list(b = 3, c = 4), parent = new.env())
-  mock_get <- mockery::mock({envir$a <- 1})
+  mock_get <- mockery::mock(envir$a <- 1)
   mockery::stub(check_parameters_interactive,
                 "get_missing_parameters_interactive",
                 mock_get)
