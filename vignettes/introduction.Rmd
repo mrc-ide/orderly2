@@ -228,7 +228,7 @@ r_output(readLines(file.path(path, "src/random/orderly.R")))
 This creates a report that has a single parameter `n_samples` with a default value of 10. We could have used
 
 ```r
-orderly2::orderly_parameters(n_samples = NULL)`
+orderly2::orderly_parameters(n_samples = NULL)
 ```
 
 to define a parameter with no default, or defined multiple parameters with
