@@ -44,6 +44,22 @@ static_orderly_strict_mode <- function(args) {
 ##' not come from a variable itself). Provide `NULL` if you do not
 ##' have a default, in which case this parameter will be required.
 ##'
+##' @section Behaviour in interactive sessions:
+##'
+##' When running interactively (i.e., via `source()` or running an
+##'   `orderly.R` session by copy/paste or in Rstudio), the
+##'   `orderly_parameters()` function has different behaviour.
+##'
+##' First, we look in the current environment (most likely the global
+##'   environment) for values of your parameters - that is, variables
+##'   bound to the names of your parameters.  For any parameters that
+##'   are not found we will look at the default values and use these
+##'   if possible, but if not possible then we will either error or
+##'   prompt based on the global option
+##'   `orderly_interactive_parameters_missing_error`. If this is
+##'   `TRUE`, then we will ask you to enter a value for the parameters
+##'   (strings will need to be entered with quotes).
+##'
 ##' @title Declare orderly parameters
 ##'
 ##' @param ... Any number of parameters

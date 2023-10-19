@@ -408,19 +408,8 @@ check_parameters_interactive <- function(envir, spec, call) {
     return()
   }
 
-  is_required <- vlapply(spec, is.null)
-
-  msg <- setdiff(names(spec)[is_required], names(envir))
-  if (length(msg) > 0L) {
-    ## This will change, but we'll need some interactive prompting
-    ## better done in another ticket. See
-    ## https://github.com/r-lib/cli/issues/228 and
-    ## https://github.com/r-lib/cli/issues/488 for context here.
-    ##
-    ## There will be other "interactive mode" functions too that we'll
-    ## try and get a unified interface on.
-    stop("Missing parameters: ", paste(squote(msg), collapse = ", "))
-  }
+  required <- names(spec)[vlapply(spec, is.null)]
+  get_missing_parameters_interactive(required, envir, call)
 
   ## Set any missing values into the environment:
   list2env(spec[setdiff(names(spec), names(envir))], envir)
