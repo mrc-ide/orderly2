@@ -56,6 +56,9 @@ test_that("read dependency", {
   args <- list(name = "a", query = "latest", files = c(x = "y"))
   expect_equal(static_orderly_dependency(args), args)
 
+  args <- list(name = NULL, query = "latest", files = c(x = "y"))
+  expect_equal(static_orderly_dependency(args), args)
+
   expect_null(
     static_orderly_dependency(list(name = quote(a),
                                    query = "latest",

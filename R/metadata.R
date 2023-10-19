@@ -263,7 +263,9 @@ static_orderly_artefact <- function(args) {
 ##' @return Undefined
 ##' @export
 orderly_dependency <- function(name, query, files) {
-  assert_scalar_character(name, call = environment())
+  if (!is.null(name)) {
+    assert_scalar_character(name, call = environment())
+  }
 
   ctx <- orderly_context(rlang::caller_env())
   subquery <- NULL
@@ -292,6 +294,9 @@ static_orderly_dependency <- function(args) {
   query <- args$query
   files <- args$files
 
+  static_name <- static_string(name)
+  has_name <- !is.null(static_name) || is.null(name)
+
   name <- static_string(name)
   files <- static_character_vector(files, TRUE)
 
@@ -304,10 +309,10 @@ static_orderly_dependency <- function(args) {
     query <- NULL
   }
 
-  if (is.null(name) || is.null(files) || is.null(query)) {
+  if (!has_name || is.null(files) || is.null(query)) {
     return(NULL)
   }
-  list(name = name, query = query, files = files)
+  list(name = static_name, query = query, files = files)
 }
 
 
