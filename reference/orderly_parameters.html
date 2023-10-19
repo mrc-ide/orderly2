@@ -22,7 +22,7 @@ have a default, in which case this parameter will be required."><!-- mathjax -->
     
     <a class="navbar-brand me-2" href="../index.html">orderly2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.9</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,6 +99,24 @@ have a default, in which case this parameter will be required.</p>
     
 
 <p>Undefined</p>
+    </div>
+    <div class="section level2">
+    <h2 id="behaviour-in-interactive-sessions">Behaviour in interactive sessions<a class="anchor" aria-label="anchor" href="#behaviour-in-interactive-sessions"></a></h2>
+    
+
+
+<p>When running interactively (i.e., via <code><a href="https://rdrr.io/r/base/source.html" class="external-link">source()</a></code> or running an
+<code>orderly.R</code> session by copy/paste or in Rstudio), the
+<code>orderly_parameters()</code> function has different behaviour.</p>
+<p>First, we look in the current environment (most likely the global
+environment) for values of your parameters - that is, variables
+bound to the names of your parameters.  For any parameters that
+are not found we will look at the default values and use these
+if possible, but if not possible then we will either error or
+prompt based on the global option
+<code>orderly_interactive_parameters_missing_error</code>. If this is
+<code>TRUE</code>, then we will ask you to enter a value for the parameters
+(strings will need to be entered with quotes).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
