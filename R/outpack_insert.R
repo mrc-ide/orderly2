@@ -1,6 +1,6 @@
 outpack_insert_packet <- function(path, json, root = NULL) {
   assert_is(root, "outpack_root")
-  meta <- outpack_metadata_load(json)
+  meta <- outpack_metadata_core_load(json)
   assert_is_directory(path)
 
   hash_algorithm <- root$config$core$hash_algorithm
