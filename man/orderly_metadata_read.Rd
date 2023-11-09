@@ -4,10 +4,13 @@
 \alias{orderly_metadata_read}
 \title{Read outpack metadata json file}
 \usage{
-orderly_metadata_read(path)
+orderly_metadata_read(path, plugins = TRUE)
 }
 \arguments{
 \item{path}{Path to the json file}
+
+\item{plugins}{Try and deserialise data from all loaded plugins
+(see Details).}
 }
 \value{
 A list of outpack metadata; see the schema for details. In
@@ -21,4 +24,15 @@ function can be used to directly read a metadata json file without
 reference to a root which contains it. It may be useful in the
 context of reading a metadata file written out as part of a failed
 run.
+}
+\details{
+Custom metadata saved by plugins may not be deserialised as
+expected when called with this function, as it is designed to
+operate separately from a valid orderly root (i.e., it will load
+data from any file regardless of where it came from). If \code{plugins}
+is \code{TRUE} (the default) then we will deserialise all data that
+matches any loaded plugin.  This means that the behaviour of this
+function depends on if you have loaded the plugin packages. You
+can force this by running \code{orderly2::orderly_config()} within any
+orderly directory, which will load any declared plugins.
 }
