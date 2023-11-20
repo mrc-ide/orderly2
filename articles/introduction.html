@@ -111,9 +111,9 @@ users and this directory should be excluded from version control (see
 <p>Create an orderly2 repository by calling
 <code><a href="../reference/orderly_init.html">orderly2::orderly_init()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># we'll use a temporary directory here</span></span>
+<code class="sourceCode R"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># we'll use a temporary directory here - see note below</span></span>
 <span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_init.html">orderly_init</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpwiXhcT/file1da25bb2030f'</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/Rtmp11Has8/file1ca842e6e0fe'</span></span></code></pre></div>
 <p>which creates a few files:</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">.outpack</span></span></span>
@@ -125,10 +125,24 @@ users and this directory should be excluded from version control (see
 otherwise an error will be thrown. Later, you will re-initialise an
 <code>orderly2</code> repository when cloning to a new machine, such as
 when working with others; this is discussed in
-<code><a href="../articles/collaboration.html">vignette("collaboration")</a></code>l.</p>
+<code><a href="../articles/collaboration.html">vignette("collaboration")</a></code>.</p>
 <p>The <code>orderly_config.yml</code> file contains very little by
 default:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum_orderly_version</span><span class="kw">:</span><span class="at"> </span><span class="st">"1.99.0"</span></span></code></pre></div>
+<p>For this vignette, the created orderly root is in R’s per-session
+temporary directory, which will be deleted once R exits. If you want to
+use a directory that will persist across restarting R (which you would
+certainly want when using <code>orderly2</code> on a real project!) you
+should replace this with a path within your home directory, or other
+location that you control.</p>
+<!-- Some sleight-of-hand is required here, as knitr/rmarkdown do not
+    allow `setwd` calls to have an effect that persists across
+    chunks. We'll tell the user that we've done this, and make sure
+    that in future chunks the working directory is set correctly. -->
+<p>For the rest of the vignette we will evaluate commands from within
+this directory, by changing the directory to the path we’ve created:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="creating-your-first-orderly-report">Creating your first orderly report<a class="anchor" aria-label="anchor" href="#creating-your-first-orderly-report"></a>
@@ -153,22 +167,22 @@ like:</p>
 <span><span class="co">##         ├── data.csv</span></span>
 <span><span class="co">##         └── <span style="color: #00BB00;">orderly.R</span></span></span></code></pre>
 <p>and <code>src/incoming_data/orderly.R</code> contains:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"data.csv"</span><span class="op">)</span></span>
 <span><span class="va">d</span><span class="op">$</span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">resid</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x</span>, <span class="va">d</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">d</span>, <span class="st">"data.rds"</span><span class="op">)</span></span></code></pre></div>
 <p>To run the report and create a new <strong>packet</strong>, use
 <code><a href="../reference/orderly_run.html">orderly2::orderly_run()</a></code>:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"incoming_data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">incoming_data</span>' `20231120-112042-f7b8a143` at 2023-11-20 11:20:42.972603</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"incoming_data"</span><span class="op">)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">incoming_data</span>' `20231120-120606-4a784b12` at 2023-11-20 12:06:06.295813</span></span>
 <span><span class="co">## &gt; d &lt;- read.csv("data.csv")</span></span>
 <span><span class="co">## &gt; d$z &lt;- resid(lm(y ~ x, d))</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-112042-f7b8a143 at 2023-11-20 11:20:43.035946 (0.06334329 secs)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-120606-4a784b12 at 2023-11-20 12:06:06.362424 (0.06661105 secs)</span></span>
 <span><span class="va">id</span></span>
-<span><span class="co">## [1] "20231120-112042-f7b8a143"</span></span></code></pre></div>
+<span><span class="co">## [1] "20231120-120606-4a784b12"</span></span></code></pre></div>
 <p>The <code>id</code> that is created is a new identifier for the
 packet that will be both unique among all packets (within reason) and
 chronologically sortable. A packet that has an id that sorts after
@@ -177,7 +191,7 @@ another packet’s id was started before that packet.</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">incoming_data</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20231120-112042-f7b8a143</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20231120-120606-4a784b12</span></span></span>
 <span><span class="co">## │           ├── data.csv</span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
 <span><span class="co">## │           └── <span style="color: #00BB00;">orderly.R</span></span></span>
@@ -190,7 +204,7 @@ another packet’s id was started before that packet.</p>
 <span><span class="co">##         └── <span style="color: #00BB00;">orderly.R</span></span></span></code></pre>
 <p>A few things have changed here:</p>
 <ul>
-<li>we have a directory archive/incoming_data/20231120-112042-f7b8a143;
+<li>we have a directory archive/incoming_data/20231120-120606-4a784b12;
 this directory contains
 <ul>
 <li>the file that was created when we ran the report
@@ -219,11 +233,11 @@ files wherever you need them, both in the context of another orderly
 report or just to copy to your desktop to email someone. For example, to
 copy the file <code>data.rds</code> that we created to some location
 outside of orderly’s control you could do</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">fs</span><span class="fu">::</span><span class="fu"><a href="https://fs.r-lib.org/reference/create.html" class="external-link">dir_create</a></span><span class="op">(</span><span class="va">dest</span><span class="op">)</span></span>
 <span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_copy_files.html">orderly_copy_files</a></span><span class="op">(</span><span class="va">id</span>, files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"final.rds"</span> <span class="op">=</span> <span class="st">"data.rds"</span><span class="op">)</span>,</span>
-<span>                             dest <span class="op">=</span> <span class="va">dest</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
+<span>                             dest <span class="op">=</span> <span class="va">dest</span><span class="op">)</span></span></code></pre></div>
 <p>which copies <code>data.rds</code> to some new temporary directory
 <code>dest</code> with name <code>final.rds</code>. This uses
 <code>orderly2</code>’s <code>outpack_</code> functions, which are
@@ -246,7 +260,7 @@ you can use from <code>orderly.R</code></p>
 <span><span class="co">##     ├── data.csv</span></span>
 <span><span class="co">##     └── <span style="color: #00BB00;">orderly.R</span></span></span></code></pre>
 <p>and <code>src/analysis/orderly.R</code> contains:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_dependency.html">orderly_dependency</a></span><span class="op">(</span><span class="st">"incoming_data"</span>, <span class="st">"latest()"</span>,</span>
 <span>                             <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"incoming.rds"</span> <span class="op">=</span> <span class="st">"data.rds"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"incoming.rds"</span><span class="op">)</span></span>
@@ -260,12 +274,12 @@ filename <code>incoming.rds</code>, then we’ve used that file as normal
 to make a plot, which we’ve saved as <code>analysis.png</code>.</p>
 <p>We can run this just as before, using
 <code><a href="../reference/orderly_run.html">orderly2::orderly_run()</a></code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"analysis"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20231120-112043-776b49db` at 2023-11-20 11:20:43.469597</span></span>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"analysis"</span><span class="op">)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20231120-120606-cd4dabe9` at 2023-11-20 12:06:06.805268</span></span>
 <span><span class="co">## &gt; orderly2::orderly_dependency("incoming_data", "latest()",</span></span>
 <span><span class="co">## +                              c("incoming.rds" = "data.rds"))</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Depending on <span style="color: #0000BB;">incoming_data</span> @ `20231120-112042-f7b8a143` (via latest(name == "incoming_data"))</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Depending on <span style="color: #0000BB;">incoming_data</span> @ `20231120-120606-4a784b12` (via latest(name == "incoming_data"))</span></span>
 <span><span class="co">## &gt; d &lt;- readRDS("incoming.rds")</span></span>
 <span><span class="co">## &gt; png("analysis.png")</span></span>
 <span><span class="co">## &gt; plot(y ~ x, d)</span></span>
@@ -273,7 +287,7 @@ to make a plot, which we’ve saved as <code>analysis.png</code>.</p>
 <span><span class="co">## agg_png </span></span>
 <span><span class="co">##       2</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-112043-776b49db at 2023-11-20 11:20:43.553267 (0.08367038 secs)</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-120606-cd4dabe9 at 2023-11-20 12:06:06.890665 (0.08539677 secs)</span></span></code></pre></div>
 <p>For more information on dependencies, see
 <code><a href="../articles/dependencies.html">vignette("dependencies")</a></code>.</p>
 </div>
@@ -332,7 +346,7 @@ report will be run in “strict mode” (see below).</li>
 a report that returns information about the currently running report
 (its id, resolved dependencies etc).</p>
 <p>Let’s add some additional annotations to the previous reports:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_strict_mode.html">orderly_strict_mode</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_resource.html">orderly_resource</a></span><span class="op">(</span><span class="st">"data.csv"</span><span class="op">)</span></span>
 <span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_artefact.html">orderly_artefact</a></span><span class="op">(</span><span class="st">"Processed data"</span>, <span class="st">"data.rds"</span><span class="op">)</span></span>
@@ -345,9 +359,9 @@ anywhere, for example above the files that they refer to. If strict mode
 is enabled (see below) then <code><a href="../reference/orderly_resource.html">orderly2::orderly_resource</a></code>
 calls must go before the files are used as they will only be made
 available at that point (see below).</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"incoming_data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">incoming_data</span>' `20231120-112043-c22cd10a` at 2023-11-20 11:20:43.760423</span></span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"incoming_data"</span><span class="op">)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">incoming_data</span>' `20231120-120607-19556728` at 2023-11-20 12:06:07.100894</span></span>
 <span><span class="co">## &gt; orderly2::orderly_strict_mode()</span></span>
 <span><span class="co">## &gt; orderly2::orderly_resource("data.csv")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("Processed data", "data.rds")</span></span>
@@ -355,7 +369,7 @@ available at that point (see below).</p>
 <span><span class="co">## &gt; d$z &lt;- resid(lm(y ~ x, d))</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-112043-c22cd10a at 2023-11-20 11:20:43.790771 (0.03034806 secs)</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-120607-19556728 at 2023-11-20 12:06:07.131608 (0.03071308 secs)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="parameterised-reports">Parameterised reports<a class="anchor" aria-label="anchor" href="#parameterised-reports"></a>
@@ -367,7 +381,7 @@ Downstream reports can depend on a parameterised report and filter based
 on suitable parameters.</p>
 <p>For example, consider a simple report where we generate samples based
 on some parameter:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_parameters.html">orderly_parameters</a></span><span class="op">(</span>n_samples <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_samples</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">x</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_samples</span><span class="op">)</span><span class="op">)</span></span>
@@ -375,11 +389,11 @@ on some parameter:</p>
 <p>This creates a report that has a single parameter
 <code>n_samples</code> with a default value of 10. We could have
 used</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_parameters.html">orderly_parameters</a></span><span class="op">(</span>n_samples <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 <p>to define a parameter with no default, or defined multiple parameters
 with</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_parameters.html">orderly_parameters</a></span><span class="op">(</span>n_samples <span class="op">=</span> <span class="fl">10</span>, distribution <span class="op">=</span> <span class="st">"normal"</span><span class="op">)</span></span></code></pre></div>
 <p>You can do anything in your report that switches on the value of a
 parameter:</p>
@@ -395,9 +409,9 @@ data</li>
 and try to have a consistent set over all packets created from a report.
 In this report we use it to control the size of the generated data
 set.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"random"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_samples <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">random</span>' `20231120-112044-01290c33` at 2023-11-20 11:20:44.007604</span></span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"random"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_samples <span class="op">=</span> <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">random</span>' `20231120-120607-5868f39b` at 2023-11-20 12:06:07.348774</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Parameters:</span></span>
 <span><span class="co">## • n_samples: 15</span></span>
 <span><span class="co">## &gt; orderly2::orderly_parameters(n_samples = 10)</span></span>
@@ -405,51 +419,49 @@ set.</p>
 <span><span class="co">## &gt; d &lt;- data.frame(x = x, y = x + rnorm(n_samples))</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-112044-01290c33 at 2023-11-20 11:20:44.039924 (0.03231955 secs)</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-120607-5868f39b at 2023-11-20 12:06:07.382821 (0.03404713 secs)</span></span></code></pre></div>
 <p>Our resulting file has 15 rows, as the parameter we passed in
 affected the report:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_copy_files.html">orderly_copy_files</a></span><span class="op">(</span><span class="va">id</span>, files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"random.rds"</span> <span class="op">=</span> <span class="st">"data.rds"</span><span class="op">)</span>,</span>
-<span>                             dest <span class="op">=</span> <span class="va">dest</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
+<span>                             dest <span class="op">=</span> <span class="va">dest</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dest</span>, <span class="st">"random.rds"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">##     x           y</span></span>
-<span><span class="co">## 1   1  0.08554663</span></span>
-<span><span class="co">## 2   2  2.23776056</span></span>
-<span><span class="co">## 3   3  3.23559622</span></span>
-<span><span class="co">## 4   4  4.85353465</span></span>
-<span><span class="co">## 5   5  5.15146501</span></span>
-<span><span class="co">## 6   6  6.51695446</span></span>
-<span><span class="co">## 7   7  6.17385884</span></span>
-<span><span class="co">## 8   8  7.51134552</span></span>
-<span><span class="co">## 9   9  9.02122446</span></span>
-<span><span class="co">## 10 10 10.52457516</span></span>
-<span><span class="co">## 11 11 10.44623540</span></span>
-<span><span class="co">## 12 12 13.24811337</span></span>
-<span><span class="co">## 13 13 12.42173019</span></span>
-<span><span class="co">## 14 14 13.98601361</span></span>
-<span><span class="co">## 15 15 16.55113467</span></span></code></pre></div>
+<span><span class="co">##     x          y</span></span>
+<span><span class="co">## 1   1 -0.6613325</span></span>
+<span><span class="co">## 2   2  2.6220810</span></span>
+<span><span class="co">## 3   3  3.8375114</span></span>
+<span><span class="co">## 4   4  2.7674325</span></span>
+<span><span class="co">## 5   5  5.5844157</span></span>
+<span><span class="co">## 6   6  7.5721689</span></span>
+<span><span class="co">## 7   7  6.5778993</span></span>
+<span><span class="co">## 8   8  7.5048158</span></span>
+<span><span class="co">## 9   9 10.0290514</span></span>
+<span><span class="co">## 10 10 11.0672015</span></span>
+<span><span class="co">## 11 11  9.6748169</span></span>
+<span><span class="co">## 12 12 11.5212317</span></span>
+<span><span class="co">## 13 13 11.6972140</span></span>
+<span><span class="co">## 14 14 12.2222090</span></span>
+<span><span class="co">## 15 15 15.7125394</span></span></code></pre></div>
 <p>You can use these parameters in orderly’s search functions. For
 example we can find the most recent version of a packet by running:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_search.html">orderly_search</a></span><span class="op">(</span><span class="st">'latest(name == "random")'</span>,</span>
-<span>                         root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## [1] "20231120-112044-01290c33"</span></span></code></pre></div>
-<p>But we can also pass in parameter queries here:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_search.html">orderly_search</a></span><span class="op">(</span><span class="st">'latest(name == "random" &amp;&amp; parameter:n_samples &gt; 10)'</span>,</span>
-<span>                         root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## [1] "20231120-112044-01290c33"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_search.html">orderly_search</a></span><span class="op">(</span><span class="st">'latest(name == "random")'</span><span class="op">)</span></span>
+<span><span class="co">## [1] "20231120-120607-5868f39b"</span></span></code></pre></div>
+<p>But we can also pass in parameter queries here:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_search.html">orderly_search</a></span><span class="op">(</span><span class="st">'latest(name == "random" &amp;&amp; parameter:n_samples &gt; 10)'</span><span class="op">)</span></span>
+<span><span class="co">## [1] "20231120-120607-5868f39b"</span></span></code></pre></div>
 <p>These can be used within <code><a href="../reference/orderly_dependency.html">orderly2::orderly_dependency()</a></code>
 (the <code>name == "random"</code> part is implied by the first
 <code>name</code> argument), for example</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_dependency.html">orderly_dependency</a></span><span class="op">(</span><span class="st">"random"</span>, <span class="st">"latest(parameter:n_samples &gt; 10)"</span>,</span>
 <span>                             <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"randm.rds"</span> <span class="op">=</span> <span class="st">"data.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>In this case if the report that you are querying <em>from</em> also
 has parameters you can use these within the query, using the
 <code>this</code> prefix. So suppose our downstream report simply uses
 <code>n</code> for the number of samples we might write:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_dependency.html">orderly_dependency</a></span><span class="op">(</span><span class="st">"random"</span>, <span class="st">"latest(parameter:n_samples == this:n)"</span>,</span>
 <span>                             <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"randm.rds"</span> <span class="op">=</span> <span class="st">"data.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>to depend on the most recent packet called <code>random</code> where
@@ -470,21 +482,21 @@ root and put in it any files or directories you might want to share.</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   ├── <span style="color: #0000BB; font-weight: bold;">analysis</span></span></span>
-<span><span class="co">## │   │   └── <span style="color: #0000BB; font-weight: bold;">20231120-112043-776b49db</span></span></span>
+<span><span class="co">## │   │   └── <span style="color: #0000BB; font-weight: bold;">20231120-120606-cd4dabe9</span></span></span>
 <span><span class="co">## │   │       ├── <span style="color: #BB00BB; font-weight: bold;">analysis.png</span></span></span>
 <span><span class="co">## │   │       ├── incoming.rds</span></span>
 <span><span class="co">## │   │       └── <span style="color: #00BB00;">orderly.R</span></span></span>
 <span><span class="co">## │   ├── <span style="color: #0000BB; font-weight: bold;">incoming_data</span></span></span>
-<span><span class="co">## │   │   ├── <span style="color: #0000BB; font-weight: bold;">20231120-112042-f7b8a143</span></span></span>
+<span><span class="co">## │   │   ├── <span style="color: #0000BB; font-weight: bold;">20231120-120606-4a784b12</span></span></span>
 <span><span class="co">## │   │   │   ├── data.csv</span></span>
 <span><span class="co">## │   │   │   ├── data.rds</span></span>
 <span><span class="co">## │   │   │   └── <span style="color: #00BB00;">orderly.R</span></span></span>
-<span><span class="co">## │   │   └── <span style="color: #0000BB; font-weight: bold;">20231120-112043-c22cd10a</span></span></span>
+<span><span class="co">## │   │   └── <span style="color: #0000BB; font-weight: bold;">20231120-120607-19556728</span></span></span>
 <span><span class="co">## │   │       ├── data.csv</span></span>
 <span><span class="co">## │   │       ├── data.rds</span></span>
 <span><span class="co">## │   │       └── <span style="color: #00BB00;">orderly.R</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">random</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20231120-112044-01290c33</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20231120-120607-5868f39b</span></span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
 <span><span class="co">## │           └── <span style="color: #00BB00;">orderly.R</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">draft</span></span></span>
@@ -504,7 +516,7 @@ root and put in it any files or directories you might want to share.</p>
 <span><span class="co">##         └── <span style="color: #00BB00;">orderly.R</span></span></span></code></pre>
 <p>We can then write an orderly report <code>use_shared</code> that uses
 this shared file, with its <code>orderly.R</code> containing:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_shared_resource.html">orderly_shared_resource</a></span><span class="op">(</span>data.csv <span class="op">=</span> <span class="st">"data.csv"</span><span class="op">)</span></span>
 <span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_artefact.html">orderly_artefact</a></span><span class="op">(</span><span class="st">"analysis"</span>, <span class="st">"analysis.png"</span><span class="op">)</span></span>
 <span></span>
@@ -513,9 +525,9 @@ this shared file, with its <code>orderly.R</code> containing:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x</span>, <span class="va">d</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>We can run this:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"use_shared"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">use_shared</span>' `20231120-112044-7e33abff` at 2023-11-20 11:20:44.496305</span></span>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"use_shared"</span><span class="op">)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">use_shared</span>' `20231120-120607-d640da85` at 2023-11-20 12:06:07.840202</span></span>
 <span><span class="co">## &gt; orderly2::orderly_shared_resource(data.csv = "data.csv")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("analysis", "analysis.png")</span></span>
 <span><span class="co">## &gt; d &lt;- read.csv("data.csv")</span></span>
@@ -525,11 +537,11 @@ this shared file, with its <code>orderly.R</code> containing:</p>
 <span><span class="co">## agg_png </span></span>
 <span><span class="co">##       2</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-112044-7e33abff at 2023-11-20 11:20:44.533126 (0.03682137 secs)</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-120607-d640da85 at 2023-11-20 12:06:07.878238 (0.03803635 secs)</span></span></code></pre></div>
 <p>In the resulting archive, the file that was used from the shared
 directory is present:</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">archive/use_shared</span></span></span>
-<span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">20231120-112044-7e33abff</span></span></span>
+<span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">20231120-120607-d640da85</span></span></span>
 <span><span class="co">##     ├── <span style="color: #BB00BB; font-weight: bold;">analysis.png</span></span></span>
 <span><span class="co">##     ├── data.csv</span></span>
 <span><span class="co">##     └── <span style="color: #00BB00;">orderly.R</span></span></span></code></pre>
@@ -547,7 +559,7 @@ strictly declared before a report could be run, so that it was clear
 what was really required in order to run something. From version 2 this
 is relaxed by default, but you can opt into most of the old behaviours
 and checks by adding</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_strict_mode.html">orderly_strict_mode</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>anywhere within your <code>orderly.R</code> script (conventionally at
 the top). We may make this more granular in future, but by adding this
@@ -581,8 +593,8 @@ directory.</p>
 <code>incoming_data/orderly.R</code> script, we would leave behind
 generated files. We can report on this with
 <code><a href="../reference/orderly_cleanup.html">orderly2::orderly_cleanup_status</a></code>:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_cleanup.html">orderly_cleanup_status</a></span><span class="op">(</span><span class="st">"incoming_data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_cleanup.html">orderly_cleanup_status</a></span><span class="op">(</span><span class="st">"incoming_data"</span><span class="op">)</span></span>
 <span><span class="co">## <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">incoming_data</span> is not clean:</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> 1 file can be deleted by running 'orderly2::orderly_cleanup("incoming_data")':</span></span>
 <span><span class="co">##   • data.rds</span></span></code></pre></div>
@@ -590,16 +602,16 @@ generated files. We can report on this with
 about them and prompt you to tell it about them explicitly.</p>
 <p>You can clean up generated files by running (as suggested in the
 message):</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_cleanup.html">orderly_cleanup</a></span><span class="op">(</span><span class="st">"incoming_data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_cleanup.html">orderly_cleanup</a></span><span class="op">(</span><span class="st">"incoming_data"</span><span class="op">)</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Deleting 1 file from 'incoming_data':</span></span>
 <span><span class="co">## • data.rds</span></span></code></pre></div>
 <p>There is a <code>dry_run = TRUE</code> argument you can pass if you
 want to see what would be deleted without using the status function.</p>
 <p>You can also keep these files out of git by using the
 <code><a href="../reference/orderly_gitignore_update.html">orderly2::orderly_gitignore_update</a></code> function:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_gitignore_update.html">orderly_gitignore_update</a></span><span class="op">(</span><span class="st">"incoming_data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_gitignore_update.html">orderly_gitignore_update</a></span><span class="op">(</span><span class="st">"incoming_data"</span><span class="op">)</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Wrote 'src/incoming_data/.gitignore'</span></span></code></pre></div>
 <p>This creates (or updates) a <code>.gitignore</code> file within the
 report so that generated files will not be included by git. If you have
@@ -619,55 +631,54 @@ However, if you delete the most recent copy of a packet and then try and
 depend on it, you will get an error.</p>
 <p>At the moment, we have two copies of the <code>incoming_data</code>
 task:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_metadata_extract.html">orderly_metadata_extract</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"incoming_data"</span>,</span>
-<span>  extract <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>time <span class="op">=</span> <span class="st">"time.start"</span><span class="op">)</span>,</span>
-<span>  root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
+<span>  extract <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>time <span class="op">=</span> <span class="st">"time.start"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##                         id                time</span></span>
-<span><span class="co">## 1 20231120-112042-f7b8a143 2023-11-20 11:20:42</span></span>
-<span><span class="co">## 2 20231120-112043-c22cd10a 2023-11-20 11:20:43</span></span></code></pre></div>
+<span><span class="co">## 1 20231120-120606-4a784b12 2023-11-20 12:06:06</span></span>
+<span><span class="co">## 2 20231120-120607-19556728 2023-11-20 12:06:07</span></span></code></pre></div>
 <p>When we run the <code>analysis</code> task, it will pull in the most
-recent version (<code>20231120-112043-c22cd10a</code>). However, if you
+recent version (<code>20231120-120607-19556728</code>). However, if you
 had deleted this manually (e.g., to save space or accidentally) or
 corrupted it (e.g., by opening some output in Excel and letting it save
 changes) it will not be able to be included, and running
 <code>analysis</code> will fail:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"analysis"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20231120-112045-1b333941` at 2023-11-20 11:20:45.109312</span></span>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"analysis"</span><span class="op">)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20231120-120608-781437ea` at 2023-11-20 12:06:08.472273</span></span>
 <span><span class="co">## &gt; orderly2::orderly_dependency("incoming_data", "latest()",</span></span>
 <span><span class="co">## +                              c("incoming.rds" = "data.rds"))</span></span>
 <span><span class="co">## <span style="color: #BB0000;">✖</span> Error running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-112045-1b333941 at 2023-11-20 11:20:45.213773 (0.1044617 secs)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-120608-781437ea at 2023-11-20 12:06:08.579301 (0.1070282 secs)</span></span>
 <span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `orderly2::orderly_run()`:</span></span></span>
 <span><span class="co">## <span style="color: #BBBB00;">!</span> Failed to run report</span></span>
 <span><span class="co">## <span style="font-weight: bold;">Caused by error in `orderly_copy_files()`:</span></span></span>
-<span><span class="co">## <span style="color: #BBBB00;">!</span> Unable to copy files, due to deleted packet 20231120-112043-c22cd10a</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Consider 'orderly2::orderly_validate_archive("20231120-112043-c22cd10a",</span></span>
+<span><span class="co">## <span style="color: #BBBB00;">!</span> Unable to copy files, due to deleted packet 20231120-120607-19556728</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Consider 'orderly2::orderly_validate_archive("20231120-120607-19556728",</span></span>
 <span><span class="co">##   action = "orphan")' to remove this packet from consideration</span></span>
 <span><span class="co">## <span style="font-weight: bold;">Caused by error:</span></span></span>
 <span><span class="co">## <span style="color: #BBBB00;">!</span> File not found in archive</span></span>
 <span><span class="co">## <span style="color: #BB0000;">✖</span> data.rds</span></span></code></pre></div>
 <p>The error here tries to be fairly informative, telling us that we
 failed because when copying files from
-<code>20231120-112043-c22cd10a</code> we found that the packet was
+<code>20231120-120607-19556728</code> we found that the packet was
 corrupt, because the file <code>data.rds</code> was not found in the
 archive. It also suggests a fix; we can tell <code>orderly2</code> that
-<code>20231120-112043-c22cd10a</code> is “orphaned” and should not be
+<code>20231120-120607-19556728</code> is “orphaned” and should not be
 considered for inclusion when we look for dependencies.</p>
 <p>We can carry out the suggestion and just validate this packet by
 running</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_validate_archive.html">orderly_validate_archive</a></span><span class="op">(</span><span class="st">"20231120-112043-c22cd10a"</span>, action <span class="op">=</span> <span class="st">"orphan"</span><span class="op">)</span></span></code></pre></div>
-<p>or we can validate <em>all</em> the packets we have:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_validate_archive.html">orderly_validate_archive</a></span><span class="op">(</span>action <span class="op">=</span> <span class="st">"orphan"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> 20231120-112042-f7b8a143 (incoming_data) is valid</span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> 20231120-112043-776b49db (analysis) is valid</span></span>
-<span><span class="co">## <span style="color: #BB0000;">✖</span> 20231120-112043-c22cd10a (incoming_data) is invalid due to its files</span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> 20231120-112044-01290c33 (random) is valid</span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> 20231120-112044-7e33abff (use_shared) is valid</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_validate_archive.html">orderly_validate_archive</a></span><span class="op">(</span><span class="st">"20231120-120607-19556728"</span>, action <span class="op">=</span> <span class="st">"orphan"</span><span class="op">)</span></span></code></pre></div>
+<p>or we can validate <em>all</em> the packets we have:</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_validate_archive.html">orderly_validate_archive</a></span><span class="op">(</span>action <span class="op">=</span> <span class="st">"orphan"</span><span class="op">)</span></span>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> 20231120-120606-4a784b12 (incoming_data) is valid</span></span>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> 20231120-120606-cd4dabe9 (analysis) is valid</span></span>
+<span><span class="co">## <span style="color: #BB0000;">✖</span> 20231120-120607-19556728 (incoming_data) is invalid due to its files</span></span>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> 20231120-120607-5868f39b (random) is valid</span></span>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> 20231120-120607-d640da85 (use_shared) is valid</span></span></code></pre></div>
 <p>If we had the option <code>core.require_complete_tree</code> enabled,
 then this process would also look for any packets that used our
 now-deleted packet and orphan those too, as we no longer have a complete
@@ -675,8 +686,8 @@ tree that includes them.</p>
 <p>If you want to remove references to the orphaned packets, you can use
 <code><a href="../reference/orderly_prune_orphans.html">orderly2::orderly_prune_orphans()</a></code> to remove them
 entirely:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_prune_orphans.html">orderly_prune_orphans</a></span><span class="op">(</span>root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_prune_orphans.html">orderly_prune_orphans</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Pruning 1 orphan packet</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -754,16 +765,16 @@ the ideas here.</p>
 <span><span class="co">## │   └── outpack.rds</span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">location</span></span></span>
 <span><span class="co">## │   ├── <span style="color: #0000BB; font-weight: bold;">local</span></span></span>
-<span><span class="co">## │   │   ├── 20231120-112042-f7b8a143</span></span>
-<span><span class="co">## │   │   ├── 20231120-112043-776b49db</span></span>
-<span><span class="co">## │   │   ├── 20231120-112044-01290c33</span></span>
-<span><span class="co">## │   │   └── 20231120-112044-7e33abff</span></span>
+<span><span class="co">## │   │   ├── 20231120-120606-4a784b12</span></span>
+<span><span class="co">## │   │   ├── 20231120-120606-cd4dabe9</span></span>
+<span><span class="co">## │   │   ├── 20231120-120607-5868f39b</span></span>
+<span><span class="co">## │   │   └── 20231120-120607-d640da85</span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">orphan</span></span></span>
 <span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">metadata</span></span></span>
-<span><span class="co">##     ├── 20231120-112042-f7b8a143</span></span>
-<span><span class="co">##     ├── 20231120-112043-776b49db</span></span>
-<span><span class="co">##     ├── 20231120-112044-01290c33</span></span>
-<span><span class="co">##     └── 20231120-112044-7e33abff</span></span></code></pre>
+<span><span class="co">##     ├── 20231120-120606-4a784b12</span></span>
+<span><span class="co">##     ├── 20231120-120606-cd4dabe9</span></span>
+<span><span class="co">##     ├── 20231120-120607-5868f39b</span></span>
+<span><span class="co">##     └── 20231120-120607-d640da85</span></span></code></pre>
 <p>As can be perhaps inferred from the filenames, the files
 <code>.outpack/metadata/&lt;packet-id&gt;</code> are the metadata for
 each packet as it has been run. The files
@@ -779,40 +790,40 @@ directory looks like:</p>
 <span><span class="co">## ├── config.json</span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">files</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">sha256</span></span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">07</span></span></span>
+<span><span class="co">## │       │   └── 7d45f4548aa50eb204cc985b527cecd46962452fb40aac99ec5b906cd3f82e</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">0a</span></span></span>
 <span><span class="co">## │       │   └── a82571c21c4e5f1f435e8bef2328dda5ef47e177d78d63d1c4ec647a5a388a</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">1a</span></span></span>
-<span><span class="co">## │       │   └── 587990ac6b99a46172df68e1027895bae2171e56523906c1ce2d16b7596267</span></span>
+<span><span class="co">## │       │   └── bf2469f64ad03f40daed4d84df8119c016187d27dbb449a5f45fc00b64fb05</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">23</span></span></span>
 <span><span class="co">## │       │   └── 0cb6053c3bc82e67fc339c44b495852c77294bd3b0ccb5c4ba78b06b23e438</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">31</span></span></span>
-<span><span class="co">## │       │   └── 767090cc30c1d59766874709fc54e30aa4b403dde34e8967d6df6685e7e587</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">3b</span></span></span>
-<span><span class="co">## │       │   └── 5480ada82151358c503f817aec1b0e768ee4aa1b18c88a7eab77c7239fd848</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">4b</span></span></span>
-<span><span class="co">## │       │   └── 2b5fcc7cc6e28fb36543b04037f5d72322a1096aaa0d4c14155436f18bd6b0</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">2e</span></span></span>
+<span><span class="co">## │       │   └── b8d2017706a196cf6a5280fcaf78c76b4e4274c2e2dacba7b9583b3d0ef9af</span></span>
 <span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">5f</span></span></span>
 <span><span class="co">## │       │   └── 96f49230c2791c05706f24cb2335cd0fad5d3625dc6bca124c44a51857f3f8</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">7e</span></span></span>
-<span><span class="co">## │       │   └── becc4d494f325fae5923bc19552f249010382ee48155e148d5537413a90441</span></span>
-<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">a8</span></span></span>
-<span><span class="co">## │       │   └── b74567ca9defc495d83e974a12c253c7e92fa7334a44a227ca330d8a7bc49e</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">86</span></span></span>
+<span><span class="co">## │       │   └── 53cdf54f51250db33d7cbca08a40b0a50ff432e26924acdc15456e0cd91fd4</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">b8</span></span></span>
+<span><span class="co">## │       │   └── 81e919c6f00a282ef6311d80554777e22fb57e47cf8371499ad4314f9a6276</span></span>
+<span><span class="co">## │       ├── <span style="color: #0000BB; font-weight: bold;">ba</span></span></span>
+<span><span class="co">## │       │   └── 5c21cbb106b02d12f5cfbf641c8e3073561697b6d22a83319315bf0dbf85c6</span></span>
 <span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">d9</span></span></span>
 <span><span class="co">## │           └── 1699ae410cbd811e1f028f8a732e5162b7df854eec08d921141f965851272d</span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">index</span></span></span>
 <span><span class="co">## │   └── outpack.rds</span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">location</span></span></span>
 <span><span class="co">## │   ├── <span style="color: #0000BB; font-weight: bold;">local</span></span></span>
-<span><span class="co">## │   │   ├── 20231120-112042-f7b8a143</span></span>
-<span><span class="co">## │   │   ├── 20231120-112043-776b49db</span></span>
-<span><span class="co">## │   │   ├── 20231120-112044-01290c33</span></span>
-<span><span class="co">## │   │   └── 20231120-112044-7e33abff</span></span>
+<span><span class="co">## │   │   ├── 20231120-120606-4a784b12</span></span>
+<span><span class="co">## │   │   ├── 20231120-120606-cd4dabe9</span></span>
+<span><span class="co">## │   │   ├── 20231120-120607-5868f39b</span></span>
+<span><span class="co">## │   │   └── 20231120-120607-d640da85</span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">orphan</span></span></span>
 <span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">metadata</span></span></span>
-<span><span class="co">##     ├── 20231120-112042-f7b8a143</span></span>
-<span><span class="co">##     ├── 20231120-112043-776b49db</span></span>
-<span><span class="co">##     ├── 20231120-112044-01290c33</span></span>
-<span><span class="co">##     └── 20231120-112044-7e33abff</span></span></code></pre>
+<span><span class="co">##     ├── 20231120-120606-4a784b12</span></span>
+<span><span class="co">##     ├── 20231120-120606-cd4dabe9</span></span>
+<span><span class="co">##     ├── 20231120-120607-5868f39b</span></span>
+<span><span class="co">##     └── 20231120-120607-d640da85</span></span></code></pre>
 <p>The files under <code>.outpack/files/</code> should never be modified
 or deleted. This approach to storage naturally deduplicates the file
 archive, so that a large file used in many places is only ever stored

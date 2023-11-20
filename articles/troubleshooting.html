@@ -107,7 +107,7 @@ file or force-add files for example.</p>
 <p>Once you are in this situation, <code>orderly2</code> will shout at
 you:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `orderly2::orderly_run()`:</span></span></span>
 <span><span class="co">## <span style="color: #BBBB00;">!</span> Detected 6 outpack files committed to git</span></span>
 <span><span class="co">## <span style="color: #BB0000;">✖</span> Detected files were found in '.outpack/' and 'archive/'</span></span>
@@ -123,28 +123,28 @@ continue working anyway, then run the suggested command:</p>
 <p>after which things will work with a warning the first time that
 session:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning in orderly2::orderly_run("data", root = path): Detected 6 outpack files committed to git</span></span>
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in orderly2::orderly_run("data"): Detected 6 outpack files committed to git</span></span>
 <span><span class="co">## <span style="color: #BB0000;">✖</span> Detected files were found in '.outpack/' and 'archive/'</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> For tips on resolving this, please see</span></span>
 <span><span class="co">##   <span style="color: #0000BB; font-style: italic;">&lt;https://mrc-ide.github.io/orderly2/articles/troubleshooting.html&gt;</span></span></span>
 <span><span class="co">## <span style="color: #555555;">This warning is displayed once per session.</span></span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Wrote '.gitignore'</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20231120-112100-3a997447` at 2023-11-20 11:21:00.232053</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20231120-120624-8fd83da1` at 2023-11-20 12:06:24.565156</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-112100-3a997447 at 2023-11-20 11:21:00.265864 (0.03381062 secs)</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20231120-112100-3a997447"</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-120624-8fd83da1 at 2023-11-20 12:06:24.602547 (0.03739166 secs)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20231120-120624-8fd83da1"</span></span></code></pre>
 <p>subsequent calls will not display the warning:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20231120-112100-59a385cc` at 2023-11-20 11:21:00.353258</span></span></code></pre>
+<code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20231120-120624-af54173a` at 2023-11-20 12:06:24.688102</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-112100-59a385cc at 2023-11-20 11:21:00.375651 (0.02239323 secs)</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20231120-112100-59a385cc"</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20231120-120624-af54173a at 2023-11-20 12:06:24.710555 (0.02245259 secs)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20231120-120624-af54173a"</span></span></code></pre>
 <p>The rest of this section discusses how you might permanently fix the
 issue.</p>
 <div class="section level3">
