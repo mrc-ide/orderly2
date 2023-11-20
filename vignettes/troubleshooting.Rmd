@@ -24,10 +24,20 @@ gert::git_init(path)
 gert::git_add(".", repo = path)
 user <- "author <author@example.com>"
 gert::git_commit("initial", author = user, committer = user, repo = path)
+
+.here <- getwd()
+knitr::knit_hooks$set(inwd = function(before, options) {
+  if (before) {
+    setwd(options$inwd)
+  } else {
+    setwd(.here)
+  }
+  invisible()
+})
 ```
 
-```{r, error = TRUE}
-orderly2::orderly_run("data", root = path)
+```{r, error = TRUE, inwd = path}
+orderly2::orderly_run("data")
 ```
 
 which may have directed you to this very page.  If you just want to continue working anyway, then run the suggested command:
@@ -38,14 +48,14 @@ options(orderly_git_error_is_warning = TRUE)
 
 after which things will work with a warning the first time that session:
 
-```{r}
-orderly2::orderly_run("data", root = path)
+```{r, inwd = path}
+orderly2::orderly_run("data")
 ```
 
 subsequent calls will not display the warning:
 
-```{r}
-orderly2::orderly_run("data", root = path)
+```{r, inwd = path}
+orderly2::orderly_run("data")
 ```
 
 ```{r, include = FALSE}

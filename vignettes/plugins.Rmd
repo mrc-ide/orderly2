@@ -7,17 +7,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-``` {r include = FALSE}
-lang_output <- function(x, lang) {
-  writeLines(c(sprintf("```%s", lang), x, "```"))
-}
-r_output <- function(x) lang_output(x, "r")
-json_output <- function(x) lang_output(x, "json")
-yaml_output <- function(x) lang_output(x, "yaml")
-plain_output <- function(x) lang_output(x, "plain")
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  error = FALSE)
+```{r, include = FALSE}
+source("common.R")
 ```
 
 **You may not need to read this: the intended readers are authors of `orderly2` plugins, not users of such plugins.**
@@ -127,7 +118,8 @@ writeLines(c(
   "License: CC0",
   "Title: Orderly Database Example Plugin",
   "Description: Simple example of an orderly plugin.",
-  "Authors@R: person('Orderly Authors', role = c('aut', 'cre'), email = 'email@example.com')",
+  "Authors@R: person('Orderly Authors', role = c('aut', 'cre'),",
+  "    email = 'email@example.com')",
   "Imports: orderly2"),
   file.path(path_pkg, "DESCRIPTION"))
 
@@ -219,7 +211,7 @@ plain_output(readLines(file.path(path_pkg, "R/plugin.R")))
 
 ### Trying it out
 
-In order to test your package, it needs to be loaded. You can do this by either installing the package or by using `pkgload::load_all()` (you may find doing so with `pkgload::load_all(export_all = FALSE)` gives the most reliably experience.
+In order to test your package, it needs to be loaded. You can do this by either installing the package or by using `pkgload::load_all()` (you may find doing so with `pkgload::load_all(export_all = FALSE)` gives the most reliable experience.
 
 ```{r, eval = FALSE}
 pkgload::load_all()
@@ -305,30 +297,30 @@ Taking this a step further, we can also specify a [schema](https://json-schema.o
 dir.create(file.path(path_pkg, "inst"), FALSE, TRUE)
 path_schema <- file.path(path_pkg, "inst", "schema.json")
 writeLines(c(
-  '{',
+  "{",
   '    "$schema": "http://json-schema.org/draft-07/schema#",',
-  '',
+  "",
   '    "type": "object",',
   '    "additionalProperties": {',
   '        "type": "object",',
   '        "properties": {',
   '            "query": {',
   '                "type": "string"',
-  '            },',
+  "            },",
   '            "rows": {',
   '                "type": "number"',
-  '            },',
+  "            },",
   '            "cols": {',
   '                "type": "array",',
   '                "items": {',
   '                    "type": "character"',
-  '                }',
-  '            }',
-  '        },',
+  "                }",
+  "            }",
+  "        },",
   '        "required": ["query", "rows", "cols"],',
   '        "additionalProperties": false',
-  '    }',
-  '}'),
+  "    }",
+  "}"),
   path_schema)
 json_output(readLines(path_schema))
 ```

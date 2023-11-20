@@ -8,26 +8,7 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-dir_tree <- function(path, sub = ".", ...) {
-  withr::with_dir(path, fs::dir_tree(sub, ...))
-}
-
-lang_output <- function(x, lang) {
-  writeLines(c(sprintf("```%s", lang), x, "```"))
-}
-r_output <- function(x) lang_output(x, "r")
-yaml_output <- function(x) lang_output(x, "yaml")
-plain_output <- function(x) lang_output(x, "plain")
-orderly_file <- function(...) {
-  system.file(..., package = "orderly2", mustWork = TRUE)
-}
-
-inline <- function(x) {
-  sprintf("`%s`", format(x))
-}
-
-knitr::opts_chunk$set(
-  collapse = TRUE)
+source("common.R")
 ```
 
 One of the core aims of `orderly2` is to allow collaborative analysis; to do this the end of one piece of work is an input for another piece of work, perhaps someone else's.  To make this work in practice, one `orderly2` report can "depend" on some completed packet (or several completed packets) in order to pull in files as inputs.
@@ -70,7 +51,7 @@ writeLines(c(
   'd <- readRDS("data.rds")',
   'png("analysis.png")',
   "plot(y ~ x, d)",
-  'dev.off()'),
+  "dev.off()"),
   file.path(path, "src", "analysis", "orderly.R"))
 ```
 
@@ -87,15 +68,15 @@ r_output(readLines(file.path(path, "src/analysis/orderly.R")))
 
 Here, we've used `orderly2::orderly_dependency()` to pull in the file `data.rds` from the most recent version (`latest()`) of the `data` packet, then we've used that file as normal to make a plot, which we've saved as `analysis.png` (this is very similar to the example from `vignette("introduction")`, to get us started).
 
-```{r}
-id1 <- orderly2::orderly_run("data", root = path)
-id2 <- orderly2::orderly_run("analysis", root = path)
+```{r, inwd = path}
+id1 <- orderly2::orderly_run("data")
+id2 <- orderly2::orderly_run("analysis")
 ```
 
 When we look at the metadata for the packet created from the `analysis` report, we can see it has used `r inline(id1)` as its dependency:
 
-```{r}
-orderly2::orderly_metadata(id2, root = path)$depends
+```{r, inwd = path}
+orderly2::orderly_metadata(id2)$depends
 ```
 
 (indeed it had to, there is only one copy of the `data` packet to pick from).
@@ -110,22 +91,22 @@ orderly2::orderly_init(path)
 
 fs::dir_create(file.path(path, "src", "data"))
 writeLines(c(
-  'orderly2::orderly_parameters(cyl = NULL)',
-  'd <- mtcars[mtcars$cyl == cyl, ]',
+  "orderly2::orderly_parameters(cyl = NULL)",
+  "d <- mtcars[mtcars$cyl == cyl, ]",
   'saveRDS(d, "data.rds")'),
   file.path(path, "src", "data", "orderly.R"))
 
 fs::dir_create(file.path(path, "src", "analysis"))
 writeLines(c(
-  'orderly2::orderly_parameters(cyl = NULL)',
-  'orderly2::orderly_dependency(',
+  "orderly2::orderly_parameters(cyl = NULL)",
+  "orderly2::orderly_dependency(",
   '  "data",',
   '  "latest(parameter:cyl == this:cyl)",',
   '  "data.rds")',
   'd <- readRDS("data.rds")',
   'png("analysis.png")',
   "plot(mpg ~ disp, d)",
-  'dev.off()'),
+  "dev.off()"),
   file.path(path, "src", "analysis", "orderly.R"))
 ```
 
@@ -141,10 +122,10 @@ r_output(readLines(file.path(path, "src/data/orderly.R")))
 
 We can run this for several values of `cyl`:
 
-```{r}
-orderly2::orderly_run("data", list(cyl = 4), root = path)
-orderly2::orderly_run("data", list(cyl = 6), root = path)
-orderly2::orderly_run("data", list(cyl = 8), root = path)
+```{r, inwd = path}
+orderly2::orderly_run("data", list(cyl = 4))
+orderly2::orderly_run("data", list(cyl = 6))
+orderly2::orderly_run("data", list(cyl = 8))
 ```
 
 Our follow-on analysis contains:
@@ -155,16 +136,16 @@ r_output(readLines(file.path(path, "src/analysis/orderly.R")))
 
 Here the query `latest(parameter:cyl == this:cyl)` says "find the most recent packet where it's parameter "cyl" (`parameter:cyl`) is the same as the parameter in the currently running report (`this:cyl`).
 
-```{r}
-orderly2::orderly_run("analysis", list(cyl = 4), root = path)
+```{r, inwd = path}
+orderly2::orderly_run("analysis", list(cyl = 4))
 ```
 
 ## Interpreting errors
 
 If your query fails to resolve a candidate it will error:
 
-```{r, error = TRUE}
-orderly2::orderly_run("analysis", list(cyl = 9000), root = path)
+```{r, error = TRUE, inwd = path}
+orderly2::orderly_run("analysis", list(cyl = 9000))
 ```
 
 The error message here tries to be fairly self explanatory; we have failed to find a packet that satisfies our query` latest(parameter:cyl == this:cyl && name == "data")`; note that the report name `data` has become part of this query, so there are two conditions being matched on.
@@ -181,16 +162,16 @@ This tells you that your query can be decomposed into two subqueries `A` (the ma
 
 You can also ask `orderly2` to explain any query for you:
 
-```{r}
+```{r, inwd = path}
 orderly2::orderly_query_explain(
-  quote(latest(parameter:cyl == 9000)), name = "data", root = path)
+  quote(latest(parameter:cyl == 9000)), name = "data")
 ```
 
 If you save this object you can explore it in more detail:
 
-```{r}
+```{r, inwd = path}
 explanation <- orderly2::orderly_query_explain(
-  quote(latest(parameter:cyl == 9000)), name = "data", root = path)
+  quote(latest(parameter:cyl == 9000)), name = "data")
 explanation$parts$B
 ```
 
@@ -198,11 +179,10 @@ explanation$parts$B
 
 You can also use `orderly2::orderly_metadata_extract` to work out what values you might have looked for:
 
-```{r}
+```{r, inwd = path}
 orderly2::orderly_metadata_extract(
   name = "data",
-  extract = c(cyl = "parameters.cyl is number"),
-  root = path)
+  extract = c(cyl = "parameters.cyl is number"))
 ```
 
 ## Filtering candidates in other ways

@@ -8,23 +8,8 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-dir_tree <- function(path, sub = ".", ...) {
-  withr::with_dir(path, fs::dir_tree(sub, ...))
-}
+source("common.R")
 
-lang_output <- function(x, lang) {
-  writeLines(c(sprintf("```%s", lang), x, "```"))
-}
-r_output <- function(x) lang_output(x, "r")
-yaml_output <- function(x) lang_output(x, "yaml")
-plain_output <- function(x) lang_output(x, "plain")
-orderly_file <- function(...) {
-  system.file(..., package = "orderly2", mustWork = TRUE)
-}
-
-knitr::opts_chunk$set(
-  collapse = TRUE)
-  
 path <- tempfile()
 fs::dir_create(path)
 path_git <- file.path(path, "git")
@@ -43,7 +28,7 @@ sha <- gert::git_commit("initial", author = user, committer = user,
 if (gert::git_branch(repo = path_git) == "master") {
   gert::git_branch_move("master", "main", repo = path_git)
 }
-                        
+
 gert::git_clone(path_git, path_alice)
 gert::git_clone(path_git, path_bob)
 gert::git_clone(path_git, path_server)
@@ -53,16 +38,6 @@ knitr::opts_hooks$set(as = function(options) {
   options$class.source <- options$as
   options$class.output <- options$as
   options
-})
-
-.here <- getwd()
-knitr::knit_hooks$set(inwd = function(before, options) {
-  if (before) {
-    setwd(options$inwd)
-  } else {
-    setwd(.here)
-  }
-  invisible()
 })
 ```
 
@@ -197,7 +172,7 @@ Bob can now query for packets available on the server:
 
 ```{r, as = "bob", inwd = path_bob}
 orderly2::orderly_metadata_extract(
-  name = "data", 
+  name = "data",
   options = list(allow_remote = TRUE, pull_metadata = TRUE))
 ```
 
