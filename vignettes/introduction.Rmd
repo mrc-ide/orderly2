@@ -28,6 +28,16 @@ inline <- function(x) {
 
 knitr::opts_chunk$set(
   collapse = TRUE)
+
+.here <- getwd()
+knitr::knit_hooks$set(inwd = function(before, options) {
+  if (before) {
+    setwd(options$inwd)
+  } else {
+    setwd(.here)
+  }
+  invisible()
+})
 ```
 
 This vignette provides a how-to style introduction to `orderly2`, an overview of key ingredients to writing orderly reports, and a summary of key features and ideas. It may be useful to look at `vignette("orderly2")` for a more roundabout discussion of what `orderly2` is trying to achieve, or `vignette("migrating")` if you are familiar with version 1 of orderly as this explains concepts in terms of differences from the previous version.
@@ -39,7 +49,7 @@ The first step is to initialise an empty `orderly2` repository. An `orderly2` re
 Create an orderly2 repository by calling `orderly2::orderly_init()`:
 
 ```{r}
-path <- tempfile() # we'll use a temporary directory here
+path <- tempfile() # we'll use a temporary directory here - see note below
 orderly2::orderly_init(path)
 ```
 
@@ -49,12 +59,25 @@ which creates a few files:
 dir_tree(path, all = TRUE)
 ```
 
-This step should be performed on a completely empty directory, otherwise an error will be thrown.  Later, you will re-initialise an `orderly2` repository when cloning to a new machine, such as when working with others; this is discussed in `vignette("collaboration")`l.
+This step should be performed on a completely empty directory, otherwise an error will be thrown.  Later, you will re-initialise an `orderly2` repository when cloning to a new machine, such as when working with others; this is discussed in `vignette("collaboration")`.
 
 The `orderly_config.yml` file contains very little by default:
 
 ```{r, echo = FALSE, results = "asis"}
 yaml_output(readLines(file.path(path, "orderly_config.yml")))
+```
+
+For this vignette, the created orderly root is in R's per-session temporary directory, which will be deleted once R exits.  If you want to use a directory that will persist across restarting R (which you would certainly want when using `orderly2` on a real project!) you should replace this with a path within your home directory, or other location that you control.
+
+<!-- Some sleight-of-hand is required here, as knitr/rmarkdown do not
+    allow `setwd` calls to have an effect that persists across
+    chunks. We'll tell the user that we've done this, and make sure
+    that in future chunks the working directory is set correctly. -->
+
+For the rest of the vignette we will evaluate commands from within this directory, by changing the directory to the path we've created:
+
+```r
+setwd(path)
 ```
 
 # Creating your first orderly report
@@ -93,8 +116,8 @@ r_output(readLines(file.path(path, "src/incoming_data/orderly.R")))
 
 To run the report and create a new **packet**, use `orderly2::orderly_run()`:
 
-```{r}
-id <- orderly2::orderly_run("incoming_data", root = path)
+```{r, inwd = path}
+id <- orderly2::orderly_run("incoming_data")
 id
 ```
 
@@ -120,11 +143,11 @@ That's it! Notice that the initial script is just a plain R script, and you can 
 
 Once created, you can then refer to this report by id and pull its files wherever you need them, both in the context of another orderly report or just to copy to your desktop to email someone. For example, to copy the file `data.rds` that we created to some location outside of orderly's control you could do
 
-```{r}
+```{r, inwd = path}
 dest <- tempfile()
 fs::dir_create(dest)
 orderly2::orderly_copy_files(id, files = c("final.rds" = "data.rds"),
-                             dest = dest, root = path)
+                             dest = dest)
 ```
 
 which copies `data.rds` to some new temporary directory `dest` with name `final.rds`. This uses `orderly2`'s `outpack_` functions, which are designed to interact with outpack archives regardless of how they were created (`orderly2` is a program that creates `outpack` archives). Typically these are lower-level than `orderly_` functions.
@@ -162,8 +185,8 @@ Here, we've used `orderly2::orderly_dependency()` to pull in the file `data.rds`
 
 We can run this just as before, using `orderly2::orderly_run()`:
 
-```{r}
-id <- orderly2::orderly_run("analysis", root = path)
+```{r, inwd = path}
+id <- orderly2::orderly_run("analysis")
 ```
 
 For more information on dependencies, see `vignette("dependencies")`.
@@ -201,8 +224,8 @@ r_output(readLines(file.path(path, "src/incoming_data/orderly.R")))
 
 Here, we've added a block of special orderly commands; these could go anywhere, for example above the files that they refer to. If strict mode is enabled (see below) then `orderly2::orderly_resource` calls must go before the files are used as they will only be made available at that point (see below).
 
-```{r}
-id <- orderly2::orderly_run("incoming_data", root = path)
+```{r, inwd = path}
+id <- orderly2::orderly_run("incoming_data")
 ```
 
 # Parameterised reports
@@ -247,30 +270,28 @@ You can do anything in your report that switches on the value of a parameter:
 
 However, you should see parameters as relatively heavyweight things and try to have a consistent set over all packets created from a report. In this report we use it to control the size of the generated data set.
 
-```{r}
-id <- orderly2::orderly_run("random", list(n_samples = 15), root = path)
+```{r, inwd = path}
+id <- orderly2::orderly_run("random", list(n_samples = 15))
 ```
 
 Our resulting file has 15 rows, as the parameter we passed in affected the report:
 
-```{r}
+```{r, inwd = path}
 orderly2::orderly_copy_files(id, files = c("random.rds" = "data.rds"),
-                             dest = dest, root = path)
+                             dest = dest)
 readRDS(file.path(dest, "random.rds"))
 ```
 
 You can use these parameters in orderly's search functions. For example we can find the most recent version of a packet by running:
 
-```{r}
-orderly2::orderly_search('latest(name == "random")',
-                         root = path)
+```{r, inwd = path}
+orderly2::orderly_search('latest(name == "random")')
 ```
 
 But we can also pass in parameter queries here:
 
-```{r}
-orderly2::orderly_search('latest(name == "random" && parameter:n_samples > 10)',
-                         root = path)
+```{r, inwd = path}
+orderly2::orderly_search('latest(name == "random" && parameter:n_samples > 10)')
 ```
 
 These can be used within `orderly2::orderly_dependency()` (the `name == "random"` part is implied by the first `name` argument), for example
@@ -324,8 +345,8 @@ r_output(readLines(file.path(path, "src/use_shared/orderly.R")))
 
 We can run this:
 
-```{r}
-id <- orderly2::orderly_run("use_shared", root = path)
+```{r, inwd = path}
+id <- orderly2::orderly_run("use_shared")
 ```
 
 In the resulting archive, the file that was used from the shared directory is present:
@@ -364,24 +385,24 @@ withr::with_dir(file.path(path, "src/incoming_data"),
                 sys.source("orderly.R", new.env(parent = .GlobalEnv)))
 ```
 
-```{r}
-orderly2::orderly_cleanup_status("incoming_data", root = path)
+```{r, inwd = path}
+orderly2::orderly_cleanup_status("incoming_data")
 ```
 
 If you have files here that are unknown to orderly it will tell you about them and prompt you to tell it about them explicitly.
 
 You can clean up generated files by running (as suggested in the message):
 
-```{r}
-orderly2::orderly_cleanup("incoming_data", root = path)
+```{r, inwd = path}
+orderly2::orderly_cleanup("incoming_data")
 ```
 
 There is a `dry_run = TRUE` argument you can pass if you want to see what would be deleted without using the status function.
 
 You can also keep these files out of git by using the `orderly2::orderly_gitignore_update` function:
 
-```{r}
-orderly2::orderly_gitignore_update("incoming_data", root = path)
+```{r, inwd = path}
+orderly2::orderly_gitignore_update("incoming_data")
 ```
 
 This creates (or updates) a `.gitignore` file within the report so that generated files will not be included by git.  If you have already accidentally committed them then the gitignore has no real effect and you should do some git surgery, see the git manuals or this [handy, if profane, guide](https://ohshitgit.com/).
@@ -392,23 +413,21 @@ If you delete packets from your `archive/` directory then this puts `orderly2` i
 
 At the moment, we have two copies of the `incoming_data` task:
 
-```{r}
+```{r, inwd = path}
 orderly2::orderly_metadata_extract(
   name = "incoming_data",
-  extract = c(time = "time.start"),
-  root = path)
+  extract = c(time = "time.start"))
 ```
 
-```{r include = FALSE}
-id_latest <- orderly2::orderly_search("latest", name = "incoming_data",
-                                      root = path)
+```{r include = FALSE, inwd = path}
+id_latest <- orderly2::orderly_search("latest", name = "incoming_data")
 unlink(file.path(path, "archive", "incoming_data", id_latest), recursive = TRUE)
 ```
 
 When we run the `analysis` task, it will pull in the most recent version (`r inline(id_latest)`). However, if you had deleted this manually (e.g., to save space or accidentally) or corrupted it (e.g., by opening some output in Excel and letting it save changes) it will not be able to be included, and running `analysis` will fail:
 
-```{r error = TRUE}
-orderly2::orderly_run("analysis", root = path)
+```{r error = TRUE, inwd = path}
+orderly2::orderly_run("analysis")
 ```
 
 The error here tries to be fairly informative, telling us that we failed because when copying files from `r inline(id_latest)` we found that the packet was corrupt, because the file `data.rds` was not found in the archive.  It also suggests a fix; we can tell `orderly2` that `r inline(id_latest)` is "orphaned" and should not be considered for inclusion when we look for dependencies.
@@ -423,16 +442,16 @@ r_output(
 
 or we can validate *all* the packets we have:
 
-```{r}
-orderly2::orderly_validate_archive(action = "orphan", root = path)
+```{r, inwd = path}
+orderly2::orderly_validate_archive(action = "orphan")
 ```
 
 If we had the option `core.require_complete_tree` enabled, then this process would also look for any packets that used our now-deleted packet and orphan those too, as we no longer have a complete tree that includes them.
 
 If you want to remove references to the orphaned packets, you can use `orderly2::orderly_prune_orphans()` to remove them entirely:
 
-```{r}
-orderly2::orderly_prune_orphans(root = path)
+```{r, inwd = path}
+orderly2::orderly_prune_orphans()
 ```
 
 # Debugging and coping with errors
@@ -476,8 +495,8 @@ As can be perhaps inferred from the filenames, the files `.outpack/metadata/<pac
 
 The default orderly configuration is to store the final files in a directory called `archive/`, but alternatively (or additionally) you can use a [content- addressable](https://en.wikipedia.org/wiki/Content-addressable_storage) file store. With this enabled, the `.outpack` directory looks like:
 
-```{r, echo = FALSE}
-orderly2::orderly_config_set(core.use_file_store = TRUE, root = path)
+```{r, echo = FALSE, inwd = path}
+orderly2::orderly_config_set(core.use_file_store = TRUE)
 dir_tree(path, ".outpack", all = TRUE)
 ```
 

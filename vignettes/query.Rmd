@@ -186,8 +186,7 @@ We can also search up the tree and then down to find `A` from `D` e.g.
 ```
 orderly_query(
   quote(usedby(single(uses(name == "D")))),
-  name = "A",
-  root = root)
+  name = "A")
 ```
 
 note as `E` is the only packet which uses `D` we do not need to add a `name == "E"` clause.
@@ -197,8 +196,7 @@ We can combine `usedby` and `uses` in more complex searches, such as to find `D`
 ```
 orderly_query(
   quote(usedby(single(uses(single(usedby(latest(name == "C")) && name == "A"))) && name == "E"))),
-  name = "D",
-  root = root)
+  name = "D")
 ```
 
 ## Possible future queries and interface improvements

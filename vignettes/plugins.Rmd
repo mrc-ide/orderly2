@@ -219,7 +219,7 @@ plain_output(readLines(file.path(path_pkg, "R/plugin.R")))
 
 ### Trying it out
 
-In order to test your package, it needs to be loaded. You can do this by either installing the package or by using `pkgload::load_all()` (you may find doing so with `pkgload::load_all(export_all = FALSE)` gives the most reliably experience.
+In order to test your package, it needs to be loaded. You can do this by either installing the package or by using `pkgload::load_all()` (you may find doing so with `pkgload::load_all(export_all = FALSE)` gives the most reliable experience.
 
 ```{r, eval = FALSE}
 pkgload::load_all()
