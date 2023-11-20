@@ -8,36 +8,7 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-dir_tree <- function(path, sub = ".", ...) {
-  withr::with_dir(path, fs::dir_tree(sub, ...))
-}
-
-lang_output <- function(x, lang) {
-  writeLines(c(sprintf("```%s", lang), x, "```"))
-}
-r_output <- function(x) lang_output(x, "r")
-yaml_output <- function(x) lang_output(x, "yaml")
-plain_output <- function(x) lang_output(x, "plain")
-orderly_file <- function(...) {
-  system.file(..., package = "orderly2", mustWork = TRUE)
-}
-
-inline <- function(x) {
-  sprintf("`%s`", format(x))
-}
-
-knitr::opts_chunk$set(
-  collapse = TRUE)
-
-.here <- getwd()
-knitr::knit_hooks$set(inwd = function(before, options) {
-  if (before) {
-    setwd(options$inwd)
-  } else {
-    setwd(.here)
-  }
-  invisible()
-})
+source("common.R")
 ```
 
 One of the core aims of `orderly2` is to allow collaborative analysis; to do this the end of one piece of work is an input for another piece of work, perhaps someone else's.  To make this work in practice, one `orderly2` report can "depend" on some completed packet (or several completed packets) in order to pull in files as inputs.

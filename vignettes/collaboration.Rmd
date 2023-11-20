@@ -8,23 +8,8 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-dir_tree <- function(path, sub = ".", ...) {
-  withr::with_dir(path, fs::dir_tree(sub, ...))
-}
+source("common.R")
 
-lang_output <- function(x, lang) {
-  writeLines(c(sprintf("```%s", lang), x, "```"))
-}
-r_output <- function(x) lang_output(x, "r")
-yaml_output <- function(x) lang_output(x, "yaml")
-plain_output <- function(x) lang_output(x, "plain")
-orderly_file <- function(...) {
-  system.file(..., package = "orderly2", mustWork = TRUE)
-}
-
-knitr::opts_chunk$set(
-  collapse = TRUE)
-  
 path <- tempfile()
 fs::dir_create(path)
 path_git <- file.path(path, "git")
@@ -53,16 +38,6 @@ knitr::opts_hooks$set(as = function(options) {
   options$class.source <- options$as
   options$class.output <- options$as
   options
-})
-
-.here <- getwd()
-knitr::knit_hooks$set(inwd = function(before, options) {
-  if (before) {
-    setwd(options$inwd)
-  } else {
-    setwd(.here)
-  }
-  invisible()
 })
 ```
 
