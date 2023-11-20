@@ -28,7 +28,7 @@ sha <- gert::git_commit("initial", author = user, committer = user,
 if (gert::git_branch(repo = path_git) == "master") {
   gert::git_branch_move("master", "main", repo = path_git)
 }
-                        
+
 gert::git_clone(path_git, path_alice)
 gert::git_clone(path_git, path_bob)
 gert::git_clone(path_git, path_server)
@@ -172,7 +172,7 @@ Bob can now query for packets available on the server:
 
 ```{r, as = "bob", inwd = path_bob}
 orderly2::orderly_metadata_extract(
-  name = "data", 
+  name = "data",
   options = list(allow_remote = TRUE, pull_metadata = TRUE))
 ```
 

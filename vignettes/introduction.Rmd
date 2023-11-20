@@ -135,7 +135,7 @@ writeLines(c(
   'd <- readRDS("incoming.rds")',
   'png("analysis.png")',
   "plot(y ~ x, d)",
-  'dev.off()'),
+  "dev.off()"),
   file.path(path, "src", "analysis", "orderly.R"))
 ```
 
@@ -181,7 +181,7 @@ Let's add some additional annotations to the previous reports:
 ```{r, include = FALSE}
 code_data <- readLines(file.path(path, "src", "incoming_data", "orderly.R"))
 writeLines(c(
-  'orderly2::orderly_strict_mode()',
+  "orderly2::orderly_strict_mode()",
   'orderly2::orderly_resource("data.csv")',
   'orderly2::orderly_artefact("Processed data", "data.rds")',
   "",
@@ -309,7 +309,7 @@ writeLines(c(
   'd <- read.csv("data.csv")',
   'png("analysis.png")',
   "plot(y ~ x, d)",
-  'dev.off()'),
+  "dev.off()"),
   file.path(path, "src", "use_shared", "orderly.R"))
 r_output(readLines(file.path(path, "src/use_shared/orderly.R")))
 ```

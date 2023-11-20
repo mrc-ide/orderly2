@@ -2,10 +2,10 @@
 ## user, so be sure not to define functions here that they might want
 ## to use.
 ##
-## Typically, include this in the Rmd with
+## Typically, include this in the Rmd within a block like:
 ##
 ## ```{r, include = FALSE}
-## source("common.R")
+## ...
 ## ```
 
 dir_tree <- function(path, sub = ".", ...) {

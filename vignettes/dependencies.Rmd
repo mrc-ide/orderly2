@@ -51,7 +51,7 @@ writeLines(c(
   'd <- readRDS("data.rds")',
   'png("analysis.png")',
   "plot(y ~ x, d)",
-  'dev.off()'),
+  "dev.off()"),
   file.path(path, "src", "analysis", "orderly.R"))
 ```
 
@@ -91,22 +91,22 @@ orderly2::orderly_init(path)
 
 fs::dir_create(file.path(path, "src", "data"))
 writeLines(c(
-  'orderly2::orderly_parameters(cyl = NULL)',
-  'd <- mtcars[mtcars$cyl == cyl, ]',
+  "orderly2::orderly_parameters(cyl = NULL)",
+  "d <- mtcars[mtcars$cyl == cyl, ]",
   'saveRDS(d, "data.rds")'),
   file.path(path, "src", "data", "orderly.R"))
 
 fs::dir_create(file.path(path, "src", "analysis"))
 writeLines(c(
-  'orderly2::orderly_parameters(cyl = NULL)',
-  'orderly2::orderly_dependency(',
+  "orderly2::orderly_parameters(cyl = NULL)",
+  "orderly2::orderly_dependency(",
   '  "data",',
   '  "latest(parameter:cyl == this:cyl)",',
   '  "data.rds")',
   'd <- readRDS("data.rds")',
   'png("analysis.png")',
   "plot(mpg ~ disp, d)",
-  'dev.off()'),
+  "dev.off()"),
   file.path(path, "src", "analysis", "orderly.R"))
 ```
 

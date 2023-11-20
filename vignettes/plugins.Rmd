@@ -118,7 +118,8 @@ writeLines(c(
   "License: CC0",
   "Title: Orderly Database Example Plugin",
   "Description: Simple example of an orderly plugin.",
-  "Authors@R: person('Orderly Authors', role = c('aut', 'cre'), email = 'email@example.com')",
+  "Authors@R: person('Orderly Authors', role = c('aut', 'cre'),",
+  "    email = 'email@example.com')",
   "Imports: orderly2"),
   file.path(path_pkg, "DESCRIPTION"))
 
@@ -296,30 +297,30 @@ Taking this a step further, we can also specify a [schema](https://json-schema.o
 dir.create(file.path(path_pkg, "inst"), FALSE, TRUE)
 path_schema <- file.path(path_pkg, "inst", "schema.json")
 writeLines(c(
-  '{',
+  "{",
   '    "$schema": "http://json-schema.org/draft-07/schema#",',
-  '',
+  "",
   '    "type": "object",',
   '    "additionalProperties": {',
   '        "type": "object",',
   '        "properties": {',
   '            "query": {',
   '                "type": "string"',
-  '            },',
+  "            },",
   '            "rows": {',
   '                "type": "number"',
-  '            },',
+  "            },",
   '            "cols": {',
   '                "type": "array",',
   '                "items": {',
   '                    "type": "character"',
-  '                }',
-  '            }',
-  '        },',
+  "                }",
+  "            }",
+  "        },",
   '        "required": ["query", "rows", "cols"],',
   '        "additionalProperties": false',
-  '    }',
-  '}'),
+  "    }",
+  "}"),
   path_schema)
 json_output(readLines(path_schema))
 ```
