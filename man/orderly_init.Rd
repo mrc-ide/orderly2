@@ -5,15 +5,18 @@
 \title{Initialise an orderly repository}
 \usage{
 orderly_init(
-  path,
+  root = ".",
   path_archive = "archive",
   use_file_store = FALSE,
   require_complete_tree = FALSE
 )
 }
 \arguments{
-\item{path}{The path to initialise the repository at.  If the
-repository is already initialised, this operation does nothing.}
+\item{root}{The path to initialise the repository root at.  If the
+repository is already initialised, this operation checks that
+the options passed in are the same as those set in the
+repository (erroring if not), but otherwise does nothing.  The
+default path is the current working directory.}
 
 \item{path_archive}{Path to the archive directory, used to store
 human-readable copies of packets.  If \code{NULL}, no such copy is

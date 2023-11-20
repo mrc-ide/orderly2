@@ -4,7 +4,7 @@ test_that("Initialisation requires empty directory", {
   on.exit(unlink(tmp, recursive = TRUE))
   file.create(file.path(tmp, "file"))
   expect_error(orderly_init_quietly(tmp),
-               "'path' exists but is not empty, or an outpack archive")
+               "'root' exists but is not empty, or an outpack archive")
 })
 
 
@@ -99,7 +99,7 @@ test_that("Initialisation can't be done into a file", {
   tmp <- withr::local_tempfile()
   file.create(tmp)
   expect_error(orderly_init_quietly(tmp),
-               "'path' exists but is not a directory")
+               "'root' exists but is not a directory")
 })
 
 
@@ -177,4 +177,12 @@ test_that("inform about weirdly nested roots: orderly in outpack", {
       i = sprintf("outpack was found at '%s/a/b'", root),
       x = "outpack is nested within orderly at 'a/b'",
       i = "How did you even do this? Please let us know!"))
+})
+
+
+test_that("create root in wd by default", {
+  path <- withr::local_tempdir()
+  root <- withr::with_dir(path, suppressMessages(orderly_init()))
+  expect_true(file.exists(file.path(path, ".outpack")))
+  expect_true(file.exists(file.path(path, "orderly_config.yml")))
 })

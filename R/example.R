@@ -31,6 +31,6 @@ orderly_example <- function(name, ..., dest = NULL) {
   }
   src <- orderly2_file("example")
   fs::dir_copy(src, dest)
-  orderly2::orderly_init(..., path = dest)
+  orderly2::orderly_init(..., root = dest)
   invisible(dest)
 }
