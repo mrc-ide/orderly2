@@ -77,7 +77,7 @@ root, along with a directory <code>.outpack/</code> at the same level.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_init</span><span class="op">(</span></span>
-<span>  <span class="va">path</span>,</span>
+<span>  root <span class="op">=</span> <span class="st">"."</span>,</span>
 <span>  path_archive <span class="op">=</span> <span class="st">"archive"</span>,</span>
 <span>  use_file_store <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  require_complete_tree <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -86,9 +86,12 @@ root, along with a directory <code>.outpack/</code> at the same level.</p>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>path</dt>
-<dd><p>The path to initialise the repository at.  If the
-repository is already initialised, this operation does nothing.</p></dd>
+    <dl><dt>root</dt>
+<dd><p>The path to initialise the repository root at.  If the
+repository is already initialised, this operation checks that
+the options passed in are the same as those set in the
+repository (erroring if not), but otherwise does nothing.  The
+default path is the current working directory.</p></dd>
 
 
 <dt>path_archive</dt>
@@ -151,7 +154,7 @@ already initialised with an <code>.outpack</code> directory but not an
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Initialise a new repository, setting an option:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_init</span><span class="op">(</span><span class="va">path</span>, use_file_store <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpD3H7Zj/file18d722a2563'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/Rtmpsi6m8X/file1a202cf70743'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># fs::dir_tree(path, all = TRUE)</span></span></span>
 </code></pre></div>
