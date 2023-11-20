@@ -25,8 +25,11 @@
 ##'
 ##' @title Initialise an orderly repository
 ##'
-##' @param path The path to initialise the repository at.  If the
-##'   repository is already initialised, this operation does nothing.
+##' @param root The path to initialise the repository root at.  If the
+##'   repository is already initialised, this operation checks that
+##'   the options passed in are the same as those set in the
+##'   repository (erroring if not), but otherwise does nothing.  The
+##'   default path is the current working directory.
 ##'
 ##' @param path_archive Path to the archive directory, used to store
 ##'   human-readable copies of packets.  If `NULL`, no such copy is
@@ -59,17 +62,17 @@
 ##' orderly2::orderly_init(path, use_file_store = TRUE)
 ##'
 ##' # fs::dir_tree(path, all = TRUE)
-orderly_init <- function(path,
+orderly_init <- function(root = ".",
                          path_archive = "archive",
                          use_file_store = FALSE,
                          require_complete_tree = FALSE) {
-  assert_scalar_character(path)
-  has_orderly_config <- file.exists(file.path(path, "orderly_config.yml"))
-  if (!has_orderly_config && file.exists(path)) {
-    if (!is_directory(path)) {
-      cli::cli_abort("'path' exists but is not a directory")
+  assert_scalar_character(root)
+  has_orderly_config <- file.exists(file.path(root, "orderly_config.yml"))
+  if (!has_orderly_config && file.exists(root)) {
+    if (!is_directory(root)) {
+      cli::cli_abort("'root' exists but is not a directory")
     }
-    if (!file.exists(file.path(path, ".outpack"))) {
+    if (!file.exists(file.path(root, ".outpack"))) {
       ## We may need to relax this, but it's not really clear to me
       ## how the user gets into this position; they have a bunch of
       ## files there and they want to a root into it?
@@ -77,9 +80,9 @@ orderly_init <- function(path,
       ## One option is provide a boolean arg to proceed anyway in this
       ## case, at the moment there's not a lot that can be done to
       ## undo this situation.
-      if (length(dir(path, all.files = TRUE, no.. = TRUE)) > 0) {
+      if (length(dir(root, all.files = TRUE, no.. = TRUE)) > 0) {
         cli::cli_abort(c(
-          "'path' exists but is not empty, or an outpack archive",
+          "'root' exists but is not empty, or an outpack archive",
           i = "Please have a chat with us if this is something you need to do"))
       }
     }
@@ -88,25 +91,27 @@ orderly_init <- function(path,
   config <- config_new(path_archive, use_file_store, require_complete_tree,
                        call = environment())
 
-  path_outpack <- file.path(path, ".outpack")
+  path_outpack <- file.path(root, ".outpack")
   if (file.exists(path_outpack)) {
-    root <- root_open(path, locate = FALSE, require_orderly = FALSE)
+    root <- root_open(root, locate = FALSE, require_orderly = FALSE)
     root_validate_same_configuration(match.call(), config, root, environment())
   } else {
     fs::dir_create(path_outpack)
     fs::dir_create(file.path(path_outpack, "metadata"))
     fs::dir_create(file.path(path_outpack, "location"))
-    config_write(config, path)
-    root <- outpack_root$new(path)
-    cli::cli_alert_success("Created orderly root at '{path}'")
+    config_write(config, root)
+    root <- outpack_root$new(root)
+    cli::cli_alert_success("Created orderly root at '{root$path}'")
   }
 
   if (!has_orderly_config) {
-    writeLines(empty_config_contents(), file.path(path, "orderly_config.yml"))
+    writeLines(empty_config_contents(),
+               file.path(root$path, "orderly_config.yml"))
   }
 
-  root <- root_open(path, locate = FALSE, require_orderly = TRUE,
+  root <- root_open(root, locate = FALSE, require_orderly = TRUE,
                     call = environment())
+
   invisible(root$path)
 }
 
