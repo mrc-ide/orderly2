@@ -166,9 +166,10 @@ outpack_metadata_core <- function(id, root, call = NULL) {
 }
 
 
+
+metadata_core_names <- c("id", "name", "parameters", "time", "files", "depends")
 outpack_metadata_core_read <- function(path) {
-  keep <- c("id", "name", "parameters", "time", "files", "depends")
-  data <- jsonlite::read_json(path)[keep]
+  data <- jsonlite::read_json(path)[metadata_core_names]
   outpack_metadata_core_deserialise(data)
 }
 
