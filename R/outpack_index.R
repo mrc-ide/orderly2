@@ -72,9 +72,6 @@ index_update <- function(root_path, prev, skip_cache, progress) {
   data$unpacked <- data$location$packet[data$location$location == local]
 
   if (!identical(data, prev)) {
-    if (progress) {
-      cli::cli_progress_message("Writing index to disk")
-    }
     fs::dir_create(dirname(path_index))
     saverds_atomic(data, path_index)
   }
