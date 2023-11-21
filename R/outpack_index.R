@@ -69,7 +69,7 @@ index_update <- function(root_path, prev, skip_cache) {
 
   if (!identical(data, prev)) {
     fs::dir_create(dirname(path_index))
-    saveRDS(data, path_index)
+    saverds_atomic(data, path_index)
   }
 
   data
