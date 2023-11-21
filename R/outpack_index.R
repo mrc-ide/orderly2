@@ -18,7 +18,8 @@ outpack_index <- R6::R6Class(
     },
 
     refresh = function(progress = NULL) {
-      private$data_ <- index_update(private$path_, private$data_, FALSE, progress)
+      private$data_ <- index_update(private$path_, private$data_, FALSE,
+                                    progress)
       invisible(self)
     },
 
@@ -118,8 +119,9 @@ read_locations <- function(root_path, prev, progress) {
   location_path <- fs::dir_ls(file.path(root_path, ".outpack", "location"),
                               type = "directory")
   location_name <- basename(location_path)
-  new <- do.call(rbind,
-                 lapply(location_name, read_location, root_path, prev, progress))
+  new <- do.call(
+    rbind,
+    lapply(location_name, read_location, root_path, prev, progress))
   ret <- rbind(prev, new)
   ## Always sort by location, then id
   ret <- ret[order(match(ret$location, location_name), ret$packet), ]
