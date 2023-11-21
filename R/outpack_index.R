@@ -59,7 +59,10 @@ index_update <- function(root_path, prev, skip_cache) {
   path_index <- file.path(root_path, ".outpack", "index", "outpack.rds")
 
   if (length(prev) == 0 && file.exists(path_index) && !skip_cache) {
-    prev <- readRDS(path_index)
+    prev <- tryCatch(readRDS(path_index), error = function(e) {
+      cli::cli_alert_warning("outpack index corrupted, rebuilding")
+      NULL
+    })
   }
 
   data <- prev

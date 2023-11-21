@@ -122,3 +122,12 @@ test_that("Sensible error if metadata file not found", {
     orderly_metadata(outpack_id(), root),
     "Packet '.+' not found in outpack index")
 })
+
+
+test_that("corrupted metadata is replaced automatically", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root)
+  file.create(file.path(root$path, ".outpack", "index", "outpack.rds"))
+  expect_message(outpack_index$new(root$path)$refresh(),
+                 "outpack index corrupted, rebuilding")
+})
