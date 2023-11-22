@@ -79,13 +79,18 @@ run.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_metadata_read</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orderly_metadata_read</span><span class="op">(</span><span class="va">path</span>, plugins <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>path</dt>
 <dd><p>Path to the json file</p></dd>
+
+
+<dt>plugins</dt>
+<dd><p>Try and deserialise data from all loaded plugins
+(see Details).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -96,6 +101,18 @@ run.</p>
 contrast to reading the json file directly with
 <code><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html" class="external-link">jsonlite::fromJSON</a></code>, this function will take care to convert
 scalar and length-one vectors into the expected types.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Custom metadata saved by plugins may not be deserialised as
+expected when called with this function, as it is designed to
+operate separately from a valid orderly root (i.e., it will load
+data from any file regardless of where it came from). If <code>plugins</code>
+is <code>TRUE</code> (the default) then we will deserialise all data that
+matches any loaded plugin.  This means that the behaviour of this
+function depends on if you have loaded the plugin packages. You
+can force this by running <code><a href="orderly_config.html">orderly2::orderly_config()</a></code> within any
+orderly directory, which will load any declared plugins.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
