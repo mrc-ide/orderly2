@@ -12,10 +12,6 @@ test_that("Can run simple example with plugin", {
 
   meta <- orderly_metadata(id, root = path)
 
-  ## Our nice vectors have become lists here, due to the general pain
-  ## of deserialising json, into R but at least it's all there.
-  ## Probably the most general solution involves plugins being able to
-  ## provide deserialisers that can apply any required simplification?
   expect_equal(
     meta$custom$example.random,
     list(list(as = "dat", mean = mean(cmp), variance = var(cmp))))
@@ -39,6 +35,36 @@ test_that("can run interactive example with plugin", {
   expect_identical(envir$dat, cmp)
   expect_setequal(dir(path_src), c("data.rds", "orderly.R"))
   expect_equal(readRDS(file.path(path_src, "data.rds")), cmp)
+})
+
+
+test_that("Can use custom deserialiser plugin", {
+  clear_plugins()
+  on.exit(clear_plugins())
+  path <- test_prepare_orderly_example("plugin")
+
+  .plugins[["example.random"]]$deserialise <- function(data) {
+    data_frame(
+      as = vcapply(data, "[[", "as"),
+      mean = vnapply(data, "[[", "mean"),
+      variance = vnapply(data, "[[", "variance"))
+  }
+
+  envir <- new.env()
+  set.seed(1)
+  id <- orderly_run_quietly("plugin", root = path, envir = envir)
+
+  set.seed(1)
+  cmp <- rnorm(10)
+  expect_identical(envir$dat, cmp)
+
+  meta <- orderly_metadata(id, root = path)
+
+  root <- root_open(path, locate = FALSE, require_orderly = FALSE)
+  meta <- orderly_metadata(id, root = root)
+  expect_s3_class(meta$custom$example.random, "data.frame")
+  expect_equal(meta$custom$example.random,
+               data_frame(as = "dat", mean = mean(cmp), variance = var(cmp)))
 })
 
 
@@ -122,6 +148,7 @@ test_that("validate that plugins make sense", {
   skip_if_not_installed("mockery")
   config <- function(...) "config"
   serialise <- function(...) "serialise"
+  deserialise <- function(...) "deserialise"
   cleanup <- function(...) "cleanup"
   schema <- withr::local_tempfile(fileext = ".json")
   writeLines("{}", schema)
@@ -129,25 +156,33 @@ test_that("validate that plugins make sense", {
   mock_pkg_root <- mockery::mock(dirname(schema), cycle = TRUE)
   mockery::stub(orderly_plugin, "pkg_root", mock_pkg_root)
 
-  p <- orderly_plugin("pkg", config, NULL, NULL, NULL)
+  p <- orderly_plugin("pkg", config, NULL, NULL, NULL, NULL)
   expect_identical(p$config, config)
   expect_identical(p$serialise, plugin_no_serialise)
+  expect_identical(p$deserialise, plugin_no_deserialise)
   expect_identical(p$cleanup, plugin_no_cleanup)
   expect_null(p$schema)
 
-  p <- orderly_plugin("pkg", config, serialise, cleanup, basename(schema))
+  p <- orderly_plugin("pkg", config, serialise, deserialise, cleanup,
+                      basename(schema))
   expect_identical(p$config, config)
   expect_identical(p$serialise, serialise)
+  expect_identical(p$deserialise, deserialise)
   expect_identical(p$cleanup, cleanup)
   expect_equal(p$schema, file.path("pkg", basename(schema)))
 
   expect_error(
-    orderly_plugin("pkg", config, NULL, NULL, basename(schema)),
+    orderly_plugin("pkg", config, NULL, NULL, NULL, basename(schema)),
     "If 'schema' is given, then 'serialise' must be non-NULL")
+
+  expect_error(
+    orderly_plugin("pkg", config, NULL, deserialise, NULL, NULL),
+    "If 'deserialise' is given, then 'serialise' must be non-NULL")
 
   unlink(schema)
   expect_error(
-    orderly_plugin("pkg", config, serialise, cleanup, basename(schema)),
+    orderly_plugin("pkg", config, serialise, deserialise, cleanup,
+                   basename(schema)),
     sprintf("Expected schema file '%s' to exist in package 'pkg'",
             basename(schema)),
     fixed = TRUE)
@@ -172,4 +207,30 @@ test_that("deal with devmode roots", {
   mockery::stub(pkg_root, "is_dev_package", mock_is_dev_package)
   expect_equal(pkg_root("pkg"), "/path/to/pkg")
   expect_equal(pkg_root("pkg"), file.path("/path/to/pkg", "inst"))
+})
+
+
+test_that("gracefully cope with failed deserialisation", {
+  clear_plugins()
+  on.exit(clear_plugins())
+  path <- test_prepare_orderly_example("plugin")
+
+  .plugins[["example.random"]]$deserialise <- function(data) {
+    stop("some error here")
+  }
+
+  set.seed(1)
+  cmp <- rnorm(10)
+
+  envir <- new.env()
+  set.seed(1)
+  id <- orderly_run_quietly("plugin", root = path, envir = envir)
+  w <- expect_warning(
+    meta <- orderly_metadata(id, root = path),
+    "Deserialising custom metadata 'example.random' for '.+' failed")
+  expect_match(conditionMessage(w), "some error here")
+  expect_type(meta$custom$example.random, "list")
+  expect_equal(
+    meta$custom$example.random,
+    list(list(as = "dat", mean = mean(cmp), variance = var(cmp))))
 })

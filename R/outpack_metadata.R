@@ -31,7 +31,7 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
   if (!file.exists(path_metadata)) {
     cli::cli_abort("Packet '{id}' not found in outpack index")
   }
-  outpack_metadata_load(path_metadata)
+  outpack_metadata_load(path_metadata, root$config$orderly$plugins)
 }
 
 
@@ -41,9 +41,22 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
 ##' context of reading a metadata file written out as part of a failed
 ##' run.
 ##'
+##' Custom metadata saved by plugins may not be deserialised as
+##' expected when called with this function, as it is designed to
+##' operate separately from a valid orderly root (i.e., it will load
+##' data from any file regardless of where it came from). If `plugins`
+##' is `TRUE` (the default) then we will deserialise all data that
+##' matches any loaded plugin.  This means that the behaviour of this
+##' function depends on if you have loaded the plugin packages. You
+##' can force this by running `orderly2::orderly_config()` within any
+##' orderly directory, which will load any declared plugins.
+##'
 ##' @title Read outpack metadata json file
 ##'
 ##' @param path Path to the json file
+##'
+##' @param plugins Try and deserialise data from all loaded plugins
+##'   (see Details).
 ##'
 ##' @return A list of outpack metadata; see the schema for details. In
 ##'   contrast to reading the json file directly with
@@ -51,9 +64,9 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
 ##'   scalar and length-one vectors into the expected types.
 ##'
 ##' @export
-orderly_metadata_read <- function(path) {
+orderly_metadata_read <- function(path, plugins = TRUE) {
   assert_file_exists(path, call = environment())
-  outpack_metadata_load(path)
+  outpack_metadata_load(path, if (plugins) .plugins else NULL)
 }
 
 outpack_metadata_create <- function(path, name, id, time, files,
@@ -166,10 +179,14 @@ outpack_metadata_core <- function(id, root, call = NULL) {
 }
 
 
+outpack_metadata_core_read <- function(path) {
+  outpack_metadata_core_load(read_string(path))
+}
+
 
 metadata_core_names <- c("id", "name", "parameters", "time", "files", "depends")
-outpack_metadata_core_read <- function(path) {
-  data <- jsonlite::read_json(path)[metadata_core_names]
+outpack_metadata_core_load <- function(json) {
+  data <- jsonlite::parse_json(json)[metadata_core_names]
   outpack_metadata_core_deserialise(data)
 }
 
@@ -193,7 +210,7 @@ outpack_metadata_core_deserialise <- function(data) {
 }
 
 
-outpack_metadata_load <- function(json) {
+outpack_metadata_load <- function(json, plugins) {
   if (!inherits(json, "json")) { # could use starts with "{"
     json <- read_string(json)
   }
@@ -201,6 +218,16 @@ outpack_metadata_load <- function(json) {
   data <- outpack_metadata_core_deserialise(data)
   if (!is.null(data$custom$orderly)) {
     data$custom$orderly <- custom_metadata_deserialise(data$custom$orderly)
+  }
+  for (nm in intersect(names(data$custom), names(plugins))) {
+    data$custom[[nm]] <- tryCatch(
+      plugins[[nm]]$deserialise(data$custom[[nm]]),
+      error = function(e) {
+        cli::cli_warn(
+          c("Deserialising custom metadata '{nm}' for '{data$id}' failed",
+            x = e$message))
+        data$custom[[nm]]
+      })
   }
   data
 }

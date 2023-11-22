@@ -8,6 +8,7 @@ orderly_plugin_register(
   name,
   config,
   serialise = NULL,
+  deserialise = NULL,
   cleanup = NULL,
   schema = NULL
 )
@@ -33,6 +34,17 @@ list with names corresponding to the \code{field} argument to
 unnamed list with values corresponding to \code{data}. If \code{NULL},
 then no serialisation is done, and no metadata from your plugin
 will be added.}
+
+\item{deserialise}{A function to deserialise any metadata
+serialised by the \code{serialise} function. This is intended to help
+deal with issues disambiguating unserialising objects from json
+(scalars vs arrays of lenth 1, data.frames vs lists-of-lists
+etc), and will make your plugin nicer to work with
+\code{\link[=orderly_metadata_extract]{orderly_metadata_extract()}}. This function will be
+given a single argument \code{data} which is the data from
+\code{jsonlite::fromJSON(..., simplifyVector = FALSE)} and you should
+apply and required simplifications yourself, returning a
+modified copy of the argument.}
 
 \item{cleanup}{Optionally, a function to clean up any state that
 your plugin uses. You can call \code{orderly_plugin_context} from

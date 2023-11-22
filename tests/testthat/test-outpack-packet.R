@@ -311,7 +311,7 @@ test_that("Can add multiple copies of extra data", {
   outpack_packet_end_quietly(p)
 
   path_metadata <- file.path(root$path, ".outpack", "metadata", p$id)
-  meta <- outpack_metadata_load(path_metadata)
+  meta <- outpack_metadata_load(path_metadata, NULL)
   expect_equal(meta$custom,
                list(app1 = list(a = 1, b = 2),
                     app2 = list(c = list(1, 2, 3))))

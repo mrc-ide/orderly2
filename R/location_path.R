@@ -69,7 +69,7 @@ orderly_location_path <- R6::R6Class(
 ## This split just acts to make the http one easier to think about -
 ## it's not the job of the driver to do validation, but the server.
 location_path_import_metadata <- function(str, hash, root) {
-  meta <- outpack_metadata_load(as_json(str))
+  meta <- outpack_metadata_core_load(as_json(str))
   id <- meta$id
   hash_validate_data(str, hash, sprintf("metadata for '%s'", id))
 

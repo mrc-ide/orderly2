@@ -29,6 +29,17 @@
 ##'   then no serialisation is done, and no metadata from your plugin
 ##'   will be added.
 ##'
+##' @param deserialise A function to deserialise any metadata
+##'   serialised by the `serialise` function. This is intended to help
+##'   deal with issues disambiguating unserialising objects from json
+##'   (scalars vs arrays of lenth 1, data.frames vs lists-of-lists
+##'   etc), and will make your plugin nicer to work with
+##'   [orderly2::orderly_metadata_extract()]. This function will be
+##'   given a single argument `data` which is the data from
+##'   `jsonlite::fromJSON(..., simplifyVector = FALSE)` and you should
+##'   apply any required simplifications yourself, returning a
+##'   modified copy of the argument.
+##'
 ##' @param cleanup Optionally, a function to clean up any state that
 ##'   your plugin uses. You can call `orderly_plugin_context` from
 ##'   within this function and access anything you need from that. If
@@ -45,9 +56,11 @@
 ##'
 ##' @export
 orderly_plugin_register <- function(name, config, serialise = NULL,
-                                    cleanup = NULL, schema = NULL) {
+                                    deserialise = NULL, cleanup = NULL,
+                                    schema = NULL) {
   assert_scalar_character(name, call = environment())
-  plugin <- orderly_plugin(name, config, serialise, cleanup, schema)
+  plugin <- orderly_plugin(name, config, serialise, deserialise, cleanup,
+                           schema)
   .plugins[[name]] <- plugin
 }
 
@@ -69,30 +82,36 @@ load_orderly_plugin <- function(name) {
 .plugins <- new.env(parent = emptyenv())
 
 
-orderly_plugin <- function(package, config, serialise, cleanup, schema,
-                           call = NULL) {
+orderly_plugin <- function(package, config, serialise, deserialise, cleanup,
+                           schema, call = NULL) {
   assert_is(config, "function", call = call)
   if (is.null(cleanup)) {
     cleanup <- plugin_no_cleanup
   }
   if (!is.null(schema)) {
     if (is.null(serialise)) {
-      stop("If 'schema' is given, then 'serialise' must be non-NULL")
+      cli::cli_abort(
+        "If 'schema' is given, then 'serialise' must be non-NULL",
+        call = call)
     }
     path_pkg <- pkg_root(package)
     if (!file.exists(file.path(path_pkg, schema))) {
       cli::cli_abort(
-        "Expected schema file '{schema}' to exist in package '{package}'")
+        "Expected schema file '{schema}' to exist in package '{package}'",
+        call = call)
     }
     schema <- sprintf("%s/%s", package, schema)
   }
-  if (is.null(serialise)) {
-    serialise <- plugin_no_serialise
+  if (!is.null(deserialise) && is.null(serialise)) {
+    cli::cli_abort(
+      "If 'deserialise' is given, then 'serialise' must be non-NULL",
+      call = call)
   }
   assert_is(cleanup, "function", call = call)
   ret <- list(package = package,
               config = config,
-              serialise = serialise,
+              serialise = serialise %||% plugin_no_serialise,
+              deserialise = deserialise %||% plugin_no_deserialise,
               cleanup = cleanup,
               schema = schema)
   class(ret) <- "orderly_plugin"
@@ -226,6 +245,11 @@ plugin_no_serialise <- function(data) {
                "has no serialise method"))
   }
   to_json(NULL, NULL)
+}
+
+
+plugin_no_deserialise <- function(data) {
+  data
 }
 
 
