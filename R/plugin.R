@@ -37,7 +37,7 @@
 ##'   [orderly2::orderly_metadata_extract()]. This function will be
 ##'   given a single argument `data` which is the data from
 ##'   `jsonlite::fromJSON(..., simplifyVector = FALSE)` and you should
-##'   apply and required simplifications yourself, returning a
+##'   apply any required simplifications yourself, returning a
 ##'   modified copy of the argument.
 ##'
 ##' @param cleanup Optionally, a function to clean up any state that
