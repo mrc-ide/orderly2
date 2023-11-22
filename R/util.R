@@ -615,3 +615,20 @@ file_canonical_case <- function(path, workdir) {
   }
   paste(ret, collapse = "/")
 }
+
+
+saverds_atomic <- function(data, path, allow_fail = FALSE) {
+  tmp <- tempfile(pattern = sub("\\.rds", "", basename(path)),
+                  tmpdir = dirname(path),
+                  fileext = ".rds")
+  saveRDS(data, tmp)
+  if (allow_fail) {
+    tryCatch(
+      fs::file_move(tmp, path),
+      error = function(e) unlink(tmp))
+  } else {
+    tryCatch(
+      fs::file_move(tmp, path),
+      finally = unlink(tmp))
+  }
+}

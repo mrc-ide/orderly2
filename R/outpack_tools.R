@@ -208,7 +208,13 @@ orderly_metadata_extract <- function(..., extract = NULL, root = NULL,
   }
   extract <- parse_extract(extract, environment())
 
-  meta <- lapply(ids, orderly_metadata, root = root)
+  is_core_metadata <-
+    vlapply(extract$from, function(el) el[[1]] %in% metadata_core_names)
+  if (all(is_core_metadata)) {
+    meta <- lapply(ids, outpack_metadata_core, root = root)
+  } else {
+    meta <- lapply(ids, orderly_metadata, root = root)
+  }
 
   envir <- environment()
   ret <- data_frame(id = ids)

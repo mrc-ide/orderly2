@@ -306,3 +306,18 @@ test_that("can convert files to canonical case", {
   expect_equal(file_canonical_case("A/win~1/C", tmp), NA_character_)
   expect_equal(file_canonical_case(c("a/b/c", "a/b/d"), tmp), c("a/b/c", NA))
 })
+
+
+test_that("can gracefully cope with rds save failure", {
+  mock_move <- mockery::mock(stop("some error"), cycle = TRUE)
+  mockery::stub(saverds_atomic, "fs::file_move", mock_move)
+  tmp <- withr::local_tempdir()
+  path <- file.path(tmp, "file.rds")
+  expect_silent(
+    saverds_atomic(NULL, path, allow_fail = TRUE))
+  expect_equal(dir(tmp), character())
+  expect_error(
+    saverds_atomic(NULL, path, allow_fail = FALSE),
+    "some error")
+  expect_equal(dir(tmp), character())
+})
