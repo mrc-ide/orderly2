@@ -7,7 +7,8 @@ is_plausible_orderly_report <- function(path) {
 }
 
 rstudio_get_current_active_editor_path <- function() {
-  if (rstudioapi::isAvailable()) {
+  # Avoid looking at the RStudio state when running tests inside of it.
+  if (!is_testing() && rstudioapi::isAvailable()) {
     rstudioapi::getSourceEditorContext()$path
   } else {
     NULL
