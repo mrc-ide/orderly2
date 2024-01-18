@@ -46,9 +46,9 @@ detect_orderly_interactive_path <- function(path = getwd(),
     # doesn't make individual bullet points available in the condition object.
     # The following mimicks cli_abort more closely, making testing easier.
     msg <- c(
-      "Working directory {.path {path}} does not match the report currently open in RStudio.",
-      i = "Use {.code setwd({.str {suggested_wd}})} to switch working directories.")
-    rlang::warn(vcapply(msg, cli::format_inline), use_cli_format = TRUE)
+      cli::format_inline("Working directory {.path {path}} does not match the report currently open in RStudio."),
+      cli::format_inline(i = "Use {.code setwd({.str {suggested_wd}})} to switch working directories."))
+    rlang::warn(msg, use_cli_format = TRUE)
   }
   as.character(fs::path_norm(file.path(path, "../..")))
 }

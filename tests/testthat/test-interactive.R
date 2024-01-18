@@ -2,7 +2,7 @@ test_that("can detect orderly directory", {
   root <- test_prepare_orderly_example("explicit")
   detected_root <- detect_orderly_interactive_path(
     file.path(root, "src", "explicit"))
-  expect_equal(detected_root)
+  expect_equal(detected_root, root)
 })
 
 test_that("errors when working directory is not report", {
