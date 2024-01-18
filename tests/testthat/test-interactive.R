@@ -1,6 +1,7 @@
 test_that("can detect orderly directory", {
   root <- test_prepare_orderly_example("explicit")
-  detected_root <- detect_orderly_interactive_path(file.path(root, "src", "explicit"))
+  detected_root <- detect_orderly_interactive_path(
+    file.path(root, "src", "explicit"))
   expect_equal(detected_root)
 })
 
@@ -18,7 +19,7 @@ test_that("errors when working directory is not report", {
 
 test_that("suggests changing working directory", {
   # Make matching simpler by avoiding line-wrapping.
-  withr::local_options(cli.width=Inf)
+  withr::local_options(cli.width = Inf)
 
   root <- test_prepare_orderly_example(c("explicit", "implicit"))
 
