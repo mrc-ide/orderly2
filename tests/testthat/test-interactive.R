@@ -1,18 +1,58 @@
 test_that("can detect orderly directory", {
-  path <- test_prepare_orderly_example("explicit")
-  envir <- new.env()
-  id <- orderly_run_quietly("explicit", root = path, envir = envir)
-
-  expect_error(
-    detect_orderly_interactive_path(path),
-    "Failed to detect orderly path at")
-  expect_error(
-    detect_orderly_interactive_path(file.path(path, "src")),
-    "Failed to detect orderly path at")
-  root <- detect_orderly_interactive_path(file.path(path, "src", "explicit"))
-  expect_equal(path, root)
+  root <- test_prepare_orderly_example("explicit")
+  detected_root <- detect_orderly_interactive_path(file.path(root, "src", "explicit"))
+  expect_equal(detected_root)
 })
 
+test_that("errors when working directory is not report", {
+  root <- test_prepare_orderly_example("explicit")
+
+  expect_error(
+    detect_orderly_interactive_path(root),
+    "Working directory .* is not a valid orderly report.")
+
+  expect_error(
+    detect_orderly_interactive_path(file.path(root, "src")),
+    "Working directory .* is not a valid orderly report.")
+})
+
+test_that("suggests changing working directory", {
+  # Make matching simpler by avoiding line-wrapping.
+  withr::local_options(cli.width=Inf)
+
+  root <- test_prepare_orderly_example(c("explicit", "implicit"))
+
+  e <- expect_error(detect_orderly_interactive_path(
+    path = file.path(root, "src"),
+    editor_path = file.path(root, "src", "implicit", "orderly.R")),
+    "Working directory .* is not a valid orderly report")
+  expect_match(e$body[[1]], "Use `setwd(.*)` to set the working directory to the report currently open in RStudio")
+
+  w <- expect_warning(detect_orderly_interactive_path(
+    path = file.path(root, "src", "explicit"),
+    editor_path = file.path(root, "src", "implicit", "orderly.R")),
+    "Working directory .* does not match the report currently open in RStudio")
+  expect_match(w$body[[1]], "Use `setwd(.*)` to switch working directories")
+})
+
+test_that("does not unnecessarily suggest changing working directory", {
+  root <- test_prepare_orderly_example("explicit")
+
+  expect_no_warning(detect_orderly_interactive_path(
+    path = file.path(root, "src", "explicit"),
+    editor_path = "Untitled"
+  ))
+
+  expect_no_warning(detect_orderly_interactive_path(
+    path = file.path(root, "src", "explicit"),
+    editor_path = file.path(root, "src", "explicit", "orderly.R")
+  ))
+
+  expect_no_warning(detect_orderly_interactive_path(
+    path = file.path(root, "src", "explicit"),
+    editor_path = file.path(root, "orderly_config.yml")
+  ))
+})
 
 test_that("can validate interactive parameters", {
   mock_readline <- mockery::mock("TRUE", "100", "1.23", '"string"')

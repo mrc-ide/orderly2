@@ -632,3 +632,12 @@ saverds_atomic <- function(data, path, allow_fail = FALSE) {
       finally = unlink(tmp))
   }
 }
+
+
+paths_are_different <- function(x, y) {
+  tryCatch({
+    x_real <- fs::path_real(x)
+    y_real <- fs::path_real(y)
+    x_real != y_real
+  }, error = function(e) FALSE)
+}
