@@ -1,6 +1,6 @@
 options(outpack.schema_validate =
           requireNamespace("jsonvalidate", quietly = TRUE) &&
-          utils::packageVersion("jsonvalidate") >= "1.4.0",
+          packageVersion("jsonvalidate") >= "1.4.0",
         orderly_index_progress = FALSE)
 
 
