@@ -1,9 +1,9 @@
 outpack_server <- function(path, timeout = 10) {
-  outpack_server <- Sys.which("outpack_server")
+  outpack_server <- Sys.which("outpack")
   if (!nzchar(outpack_server)) {
     testthat::skip("outpack_server not installed")
   }
-  args <- c("--root", path)
+  args <- c("start-server", "--root", path)
   px <- processx::process$new(outpack_server, args)
   withr::defer_parent(px$kill())
 
