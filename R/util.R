@@ -641,6 +641,6 @@ paths_are_identical <- function(x, y) {
 
 is_testing <- function() {
   # Copied from testthat, to avoid having the package as a run-time dependency.
-  # https://github.com/r-lib/testthat/blob/fe50a222c62cc8733b397690caf3b2a95856f902/R/test-env.R#L20
+  # https://github.com/r-lib/testthat/blob/fe50a22/R/test-env.R#L20
   identical(Sys.getenv("TESTTHAT"), "true")
 }

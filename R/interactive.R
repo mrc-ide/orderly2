@@ -23,8 +23,7 @@ rstudio_get_current_active_editor_path <- function() {
 ## draft directory too.
 detect_orderly_interactive_path <- function(
   path = getwd(),
-  editor_path = rstudio_get_current_active_editor_path())
-{
+  editor_path = rstudio_get_current_active_editor_path()) {
   is_valid <- is_plausible_orderly_report(path)
   suggested_wd <- NULL
   if (!is.null(editor_path)) {
@@ -54,7 +53,7 @@ detect_orderly_interactive_path <- function(
       cli::format_inline(paste(
         "Working directory {.path {path}} does not match the report currently",
         "open in RStudio.")),
-      i=cli::format_inline(paste(
+      i = cli::format_inline(paste(
         "Use {.code setwd({.str {suggested_wd}})}",
         "to switch working directories.")))
     rlang::warn(msg, use_cli_format = TRUE)
