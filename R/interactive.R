@@ -49,11 +49,12 @@ detect_orderly_interactive_path <- function(
     # For some reason, cli_warn has a different behaviour than cli_abort and
     # doesn't make individual bullet points available in the condition object.
     # The following mimicks cli_abort more closely, making testing easier.
+    # https://github.com/r-lib/cli/issues/666
     msg <- c(
       cli::format_inline(paste(
         "Working directory {.path {path}} does not match the report currently",
         "open in RStudio.")),
-      cli::format_inline(i = paste(
+      i=cli::format_inline(paste(
         "Use {.code setwd({.str {suggested_wd}})}",
         "to switch working directories.")))
     rlang::warn(msg, use_cli_format = TRUE)

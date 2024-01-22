@@ -18,16 +18,15 @@ test_that("errors when working directory is not report", {
 })
 
 test_that("suggests changing working directory", {
-  # Make matching simpler by avoiding line-wrapping.
-  withr::local_options(cli.width = Inf)
-
   root <- test_prepare_orderly_example(c("explicit", "implicit"))
 
   e <- expect_error(detect_orderly_interactive_path(
     path = file.path(root, "src"),
     editor_path = file.path(root, "src", "implicit", "orderly.R")),
     "Working directory .* is not a valid orderly report")
-  expect_match(e$body[[1]], "Use `setwd(.*)` to set the working directory to the report currently open in RStudio")
+  expect_match(e$body[[1]], paste(
+    "Use `setwd(.*)` to set the working directory",
+    "to the report currently open in RStudio"))
 
   w <- expect_warning(detect_orderly_interactive_path(
     path = file.path(root, "src", "explicit"),
@@ -39,19 +38,22 @@ test_that("suggests changing working directory", {
 test_that("does not unnecessarily suggest changing working directory", {
   root <- test_prepare_orderly_example("explicit")
 
-  expect_no_warning(detect_orderly_interactive_path(
-    path = file.path(root, "src", "explicit"),
-    editor_path = "Untitled"
-  ))
-
+  # Editor path is already the current working directory
   expect_no_warning(detect_orderly_interactive_path(
     path = file.path(root, "src", "explicit"),
     editor_path = file.path(root, "src", "explicit", "orderly.R")
   ))
 
+  # Editor path is not an orderly report
   expect_no_warning(detect_orderly_interactive_path(
     path = file.path(root, "src", "explicit"),
     editor_path = file.path(root, "orderly_config.yml")
+  ))
+
+  # Editor path is an unsaved file
+  expect_no_warning(detect_orderly_interactive_path(
+    path = file.path(root, "src", "explicit"),
+    editor_path = "Untitled"
   ))
 })
 
