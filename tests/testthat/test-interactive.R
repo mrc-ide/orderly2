@@ -57,6 +57,44 @@ test_that("does not unnecessarily suggest changing working directory", {
   ))
 })
 
+test_that("rstudio API is not called when unavailable", {
+  testthat::skip_if_not_installed("mockery")
+  mock_rstudio_available <- mockery::mock(FALSE)
+  mock_rstudio_context <- mockery::mock()
+  mockery::stub(
+    rstudio_get_current_active_editor_path,
+    "is_testing",
+    mockery::mock(FALSE))
+  mockery::stub(
+    rstudio_get_current_active_editor_path,
+    "rstudioapi::isAvailable",
+    mock_rstudio_available)
+  mockery::stub(
+    rstudio_get_current_active_editor_path,
+    "rstudioapi::getSourceEditorContext",
+    mockery::mock(FALSE))
+  expect_null(rstudio_get_current_active_editor_path())
+  mockery::expect_called(mock_rstudio_available, 1)
+  mockery::expect_called(mock_rstudio_context, 0)
+})
+
+test_that("rstudio API is used to find current editor path", {
+  testthat::skip_if_not_installed("mockery")
+  mockery::stub(
+    rstudio_get_current_active_editor_path,
+    "is_testing",
+    mockery::mock(FALSE))
+  mockery::stub(
+    rstudio_get_current_active_editor_path,
+    "rstudioapi::isAvailable",
+    mockery::mock(TRUE))
+  mockery::stub(
+    rstudio_get_current_active_editor_path,
+    "rstudioapi::getSourceEditorContext",
+    mockery::mock(list(path = "/path/to/file")))
+  expect_equal(rstudio_get_current_active_editor_path(), "/path/to/file")
+})
+
 test_that("can validate interactive parameters", {
   mock_readline <- mockery::mock("TRUE", "100", "1.23", '"string"')
   mockery::stub(get_parameter_interactive, "readline", mock_readline)
