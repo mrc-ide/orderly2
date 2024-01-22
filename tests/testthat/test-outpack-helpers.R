@@ -150,7 +150,7 @@ test_that("good error message if file not found in packet", {
 
   err <- expect_error(
     validate_packet_has_file(root, id, c("a.txt", "a.TXT", "d.txt")),
-    "Packet '.+' does not contain the requested paths\\s*'a.TXT' or 'd.txt'")
+    "Packet '.+' does not contain the requested paths\\s*'a.TXT' and 'd.txt'")
   expect_equal(
     err$body,
     c(i = "For 'a.TXT' did you mean 'a.txt'",

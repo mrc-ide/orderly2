@@ -174,9 +174,8 @@ validate_packet_has_file <- function(root, id, path, call = NULL) {
     }
   }
 
-  vmsg <- cli::cli_vec(squote(msg), list("vec-last" = " or "))
   err <- paste("Packet '{id}' does not contain the requested",
-               "{cli::qty(vmsg)} path{?s} {vmsg}")
+               "{cli::qty(msg)} path{?s} {.path {msg}}")
   cli::cli_abort(c(err, set_names(hint, "i")), call = call)
 }
 
