@@ -632,3 +632,15 @@ saverds_atomic <- function(data, path, allow_fail = FALSE) {
       finally = unlink(tmp))
   }
 }
+
+
+paths_are_identical <- function(x, y) {
+  fs::path_norm(x) == fs::path_norm(y)
+}
+
+
+is_testing <- function() {
+  # Copied from testthat, to avoid having the package as a run-time dependency.
+  # https://github.com/r-lib/testthat/blob/fe50a22/R/test-env.R#L20
+  identical(Sys.getenv("TESTTHAT"), "true")
+}
