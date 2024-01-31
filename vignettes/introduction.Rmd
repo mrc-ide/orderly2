@@ -13,6 +13,14 @@ source("common.R")
 
 This vignette provides a how-to style introduction to `orderly2`, an overview of key ingredients to writing orderly reports, and a summary of key features and ideas. It may be useful to look at `vignette("orderly2")` for a more roundabout discussion of what `orderly2` is trying to achieve, or `vignette("migrating")` if you are familiar with version 1 of orderly as this explains concepts in terms of differences from the previous version.
 
+# Installation
+
+```r
+install.packages(
+  "orderly2",
+  repos = c("https://mrc-ide.r-universe.dev", "https://cloud.r-project.org"))
+```
+
 # Creating an empty orderly repository
 
 The first step is to initialise an empty `orderly2` repository. An `orderly2` repository is a directory with the file `orderly_config.yml` within it, and since version 2 also a directory `.outpack/`.  Files within the `.outpack/` directory should never be directly modified by users and this directory should be excluded from version control (see `orderly2::orderly_gitignore_update`).
