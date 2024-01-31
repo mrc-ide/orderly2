@@ -249,19 +249,19 @@ once we support a "bare" outpack layout.)</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a simple example:</span></span></span>
 <span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_example.html">orderly_example</a></span><span class="op">(</span><span class="st">"default"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpVH1RMR/file18357867d814'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpsfT4JV/file18147cd31ac9'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the 'data' task:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_run</span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpVH1RMR/file18357867d814'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpsfT4JV/file18147cd31ac9'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># After running, a finished packet appears in the archive:</span></span></span>
 <span class="r-in"><span><span class="fu">fs</span><span class="fu">::</span><span class="fu"><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/RtmpVH1RMR/file18357867d814': no such file or directory</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/RtmpsfT4JV/file18147cd31ac9': no such file or directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># and we can query the metadata:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_metadata_extract.html">orderly_metadata_extract</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpVH1RMR/file18357867d814'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpsfT4JV/file18147cd31ac9'</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
