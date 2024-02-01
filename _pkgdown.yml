@@ -28,7 +28,7 @@ reference:
       - orderly_list_src
   - title: From within a running report
     desc: >-
-      These are the functions that get called from your `orderly.R` file
+      These are the functions that get called from your `<reportname>.R` file
     contents:
       - orderly_strict_mode
       - orderly_parameters
