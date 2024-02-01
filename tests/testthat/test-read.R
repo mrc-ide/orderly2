@@ -1,11 +1,11 @@
 test_that("can read file with no helpers", {
-  expect_equal(orderly_read_r("examples/implicit/orderly.R"),
+  expect_equal(orderly_read_r("examples/implicit/implicit.R", "implicit.R"),
                list(strict = list(enabled = FALSE)))
 })
 
 
 test_that("can read file with helpers", {
-  dat <- orderly_read_r("examples/explicit/orderly.R")
+  dat <- orderly_read_r("examples/explicit/explicit.R", "explicit.R")
   expect_setequal(names(dat), c("strict", "resources", "artefacts"))
   expect_equal(dat$strict, list(enabled = FALSE))
   expect_equal(dat$resources, "data.csv")
@@ -16,7 +16,8 @@ test_that("can read file with helpers", {
 
 
 test_that("Skip over computed resources", {
-  dat <- orderly_read_r("examples/computed-resource/orderly.R")
+  dat <- orderly_read_r("examples/computed-resource/computed-resource.R",
+                        "computed-resource.R")
   expect_null(dat$resources)
 })
 

@@ -22,7 +22,7 @@ test_that("suggests changing working directory", {
 
   e <- expect_error(detect_orderly_interactive_path(
     path = file.path(root, "src"),
-    editor_path = file.path(root, "src", "implicit", "orderly.R")),
+    editor_path = file.path(root, "src", "implicit", "implicit.R")),
     "Working directory .* is not a valid orderly report")
   expect_match(e$body[[1]], paste(
     "Use `setwd(.*)` to set the working directory",
@@ -30,7 +30,7 @@ test_that("suggests changing working directory", {
 
   w <- expect_warning(detect_orderly_interactive_path(
     path = file.path(root, "src", "explicit"),
-    editor_path = file.path(root, "src", "implicit", "orderly.R")),
+    editor_path = file.path(root, "src", "implicit", "implicit.R")),
     "Working directory .* does not match the report currently open in RStudio")
   expect_match(w$body[[1]], "Use `setwd(.*)` to switch working directories")
 })
@@ -41,7 +41,7 @@ test_that("does not unnecessarily suggest changing working directory", {
   # Editor path is already the current working directory
   expect_no_warning(detect_orderly_interactive_path(
     path = file.path(root, "src", "explicit"),
-    editor_path = file.path(root, "src", "explicit", "orderly.R")
+    editor_path = file.path(root, "src", "explicit", "explicit.R")
   ))
 
   # Editor path is not an orderly report

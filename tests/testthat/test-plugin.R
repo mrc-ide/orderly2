@@ -27,13 +27,13 @@ test_that("can run interactive example with plugin", {
   set.seed(1)
   path_src <- file.path(path, "src", "plugin")
   withr::with_dir(path_src,
-                  sys.source("orderly.R", envir))
+                  sys.source("plugin.R", envir))
 
   set.seed(1)
   cmp <- rnorm(10)
 
   expect_identical(envir$dat, cmp)
-  expect_setequal(dir(path_src), c("data.rds", "orderly.R"))
+  expect_setequal(dir(path_src), c("data.rds", "plugin.R"))
   expect_equal(readRDS(file.path(path_src, "data.rds")), cmp)
 })
 

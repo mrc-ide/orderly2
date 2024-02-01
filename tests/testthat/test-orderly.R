@@ -13,10 +13,10 @@ test_that("find expected candidates", {
 })
 
 
-test_that("ignore paths without orderly.R", {
+test_that("ignore paths without <reportname>.R", {
   v <- c("data", "depends", "depends-params", "description")
   path <- test_prepare_orderly_example(v)
-  unlink(file.path(path, "src", v[1], "orderly.R"))
+  unlink(file.path(path, "src", v[1], "data.R"))
   expect_equal(orderly_list_src(path), v[-1])
 })
 
@@ -35,8 +35,8 @@ test_that("can create empty orderly report", {
   path <- test_prepare_orderly_example(character())
   expect_message(
     orderly_new("foo", root = path),
-    "Created 'src/foo/orderly.R'")
-  path_orderly <- file.path(path, "src", "foo", "orderly.R")
+    "Created 'src/foo/foo.R'")
+  path_orderly <- file.path(path, "src", "foo", "foo.R")
   expect_true(file.exists(path_orderly))
   txt <- readLines(path_orderly)
   expect_match(txt[[1]], "This is an orderly script")
@@ -47,19 +47,19 @@ test_that("can create a totally blank orderly report", {
   path <- test_prepare_orderly_example(character())
   expect_message(
     orderly_new("foo", template = FALSE, root = path),
-    "Created 'src/foo/orderly.R'")
-  path_orderly <- file.path(path, "src", "foo", "orderly.R")
+    "Created 'src/foo/foo.R'")
+  path_orderly <- file.path(path, "src", "foo", "foo.R")
   expect_true(file.exists(path_orderly))
   expect_equal(readLines(path_orderly), character())
 })
 
 
-test_that("error if orderly.R exists already", {
+test_that("error if <reportname>.R exists already", {
   path <- test_prepare_orderly_example("data")
   expect_error(orderly_new("data", root = path),
-               "'src/data/orderly.R' already exists")
+               "'src/data/data.R' already exists")
   expect_error(orderly_new("data", force = TRUE, root = path),
-               "'src/data/orderly.R' already exists")
+               "'src/data/data.R' already exists")
 })
 
 
@@ -75,7 +75,7 @@ test_that("error if a non-directory file is found in the src dir", {
 })
 
 
-test_that("allow creation of orderly.R in existing dir if force is given", {
+test_that("allow creation of <reportname>.R in existing dir if force is given", {
   path <- test_prepare_orderly_example(character())
   fs::dir_create(file.path(path, "src", "foo"))
   file.create(file.path(path, "src", "foo", "bar"))
@@ -84,22 +84,22 @@ test_that("allow creation of orderly.R in existing dir if force is given", {
     "'src/foo/' already exists and contains files")
   expect_equal(
     err$body,
-    c(i = paste("If you want to add an orderly.R to this directory,",
+    c(i = paste("If you want to add a foo.R to this directory,",
                 "rerun `orderly_new()` with `force = TRUE`")))
   expect_message(
     orderly_new("foo", force = TRUE, root = path),
-    "Created 'src/foo/orderly.R'")
-  expect_true(file.exists(file.path(path, "src/foo/orderly.R")))
+    "Created 'src/foo/foo.R'")
+  expect_true(file.exists(file.path(path, "src/foo/foo.R")))
 })
 
 
-test_that("allow creation of orderly.R in existing empty dir", {
+test_that("allow creation of <reportname>.R in existing empty dir", {
   path <- test_prepare_orderly_example(character())
   fs::dir_create(file.path(path, "src", "foo"))
   expect_message(
     orderly_new("foo", root = path),
-    "Created 'src/foo/orderly.R'")
-  expect_true(file.exists(file.path(path, "src/foo/orderly.R")))
+    "Created 'src/foo/foo.R'")
+  expect_true(file.exists(file.path(path, "src/foo/foo.R")))
 })
 
 
