@@ -1,11 +1,12 @@
 orderly_read <- function(path, call = NULL) {
-  assert_file_exists_relative("orderly.R", name = "Orderly file",
+  orderly_name <- deprecate_old_orderly_name(path, basename(path))
+  assert_file_exists_relative(orderly_name, name = "Orderly file",
                               workdir = path, call = call)
-  orderly_read_r(file.path(path, "orderly.R"))
+  orderly_read_r(file.path(path, orderly_name), orderly_name)
 }
 
 
-orderly_read_r <- function(path) {
+orderly_read_r <- function(path, orderly_name) {
   exprs <- parse(file = path)
 
   inputs <- list()
@@ -72,11 +73,12 @@ orderly_read_r <- function(path) {
   ## TODO: probably some santisiation required here:
   ##
   ## * what do we do with directories here?
-  ## * discourage people from listing orderly.R
+  ## * discourage people from listing <reportname>.R
   ## * discourage duplicates
+
   if (length(dat$resource) > 0) {
     ret$resources <- setdiff(unique(unlist(dat$resource, TRUE, FALSE)),
-                             "orderly.R")
+                             orderly_name)
   }
   if (length(dat$artefact) > 0) {
     ret$artefacts <- dat$artefact

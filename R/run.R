@@ -191,17 +191,18 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   ## future if we need to support working within subdirectories of
   ## path too, in which case we use something from fs.
   path <- withr::with_dir(path, getwd())
+  orderly_name <- deprecate_old_orderly_name(src, name)
 
   if (dat$strict$enabled) {
     inputs_info <- NULL
-    fs::file_copy(file.path(src, "orderly.R"), path)
+    fs::file_copy(file.path(src, orderly_name), path)
   } else {
     inputs_info <- copy_resources_implicit(src, path, dat$resources,
                                            dat$artefacts)
   }
   p <- outpack_packet_start(path, name, parameters = parameters,
                             id = id, root = root)
-  outpack_packet_file_mark(p, "orderly.R", "immutable")
+  outpack_packet_file_mark(p, orderly_name, "immutable")
   p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
                      root = root_src, strict = dat$strict,
                      inputs_info = inputs_info, search_options = search_options)
@@ -216,7 +217,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   local <- new.env(parent = emptyenv())
   local$warnings <- collector()
   res <- rlang::try_fetch(
-    withr::with_dir(path, source_echo("orderly.R", envir, echo)),
+    withr::with_dir(path, source_echo(orderly_name, envir, echo)),
     warning = function(e) {
       local$warnings$add(e)
       rlang::zap()
@@ -233,9 +234,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   success <- is.null(local$error) && info_end$success
 
   if (success) {
-    cli::cli_alert_success("Finished running {.file orderly.R}")
+    cli::cli_alert_success("Finished running {.file {orderly_name}}")
   } else {
-    cli::cli_alert_danger("Error running {.file orderly.R}")
+    cli::cli_alert_danger("Error running {.file {orderly_name}}")
   }
 
   if (length(local$warnings$get()) > 0) {
@@ -265,9 +266,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
 
 
 custom_metadata <- function(dat) {
+  orderly_name <- deprecate_old_orderly_name(dat$src, basename(dat$src))
   shared <- dat$shared_resources %||% list()
   role <- data_frame(
-    path = c("orderly.R",  dat$resources, shared$here),
+    path = c(orderly_name,  dat$resources, shared$here),
     role = c("orderly",
              rep_along("resource", dat$resources),
              rep_along("shared", shared$here)))
@@ -517,24 +519,27 @@ orderly_packet_add_metadata <- function(p) {
 
 validate_orderly_directory <- function(name, root_path, call) {
   assert_scalar_character(name, call = call)
-
   re <- "^(./)*(src/)?(.+?)/?$"
   name <- sub(re, "\\3", name)
-  if (!file_exists(file.path(root_path, "src", name, "orderly.R"))) {
-    src <- file.path(root_path, "src", name)
-    err <- sprintf("Did not find orderly report '%s'", name)
-    if (!file_exists(src)) {
-      detail <- sprintf("The path 'src/%s' does not exist", name)
-    } else if (is_directory(src)) {
-      detail <- sprintf(
-        "The path 'src/%s' exists but does not contain 'orderly.R'",
-        name)
-    } else {
-      detail <- sprintf(
-        "The path 'src/%s' exists but is not a directory",
-        name)
-    }
-    err <- c(err, x = detail)
+  src <- file.path(root_path, "src", name)
+
+  is_error <- FALSE
+  if (!file_exists(src)) {
+    is_error <- TRUE
+    detail <- sprintf("The path 'src/%s' does not exist", name)
+  } else if (!is_directory(src)) {
+    is_error <- TRUE
+    detail <- sprintf(
+      "The path 'src/%s' exists but is not a directory",
+      name
+    )
+  }
+
+  if (is_error) {
+    err <- c(
+      sprintf("Did not find orderly report '%s'", name),
+      x = detail
+    )
     near <- near_match(name, orderly_list_src(root_path, FALSE))
     if (length(near) > 0) {
       hint <- sprintf("Did you mean %s",
@@ -545,6 +550,10 @@ validate_orderly_directory <- function(name, root_path, call) {
                               root_path))
     cli::cli_abort(err, call = call)
   }
+
+  orderly_name <- deprecate_old_orderly_name(
+    file.path(root_path, "src", name), name
+  )
 
   name
 }

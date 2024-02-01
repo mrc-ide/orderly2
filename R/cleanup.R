@@ -48,7 +48,7 @@
 ##' # We simulate running a packet interactively by using 'source';
 ##' # you might have run this line-by-line, or with the "Source"
 ##' # button in Rstudio.
-##' source(file.path(path, "src/data/orderly.R"), chdir = TRUE)
+##' source(file.path(path, "src/data/data.R"), chdir = TRUE)
 ##'
 ##' # Having run this, the output of the report is present in the
 ##' # source directory:
@@ -137,8 +137,9 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   nms_artefact <- unlist(lapply(info$artefacts, "[[", "files"))
   nms_dependency <- unlist(lapply(info$dependency, function(x) names(x$files)))
   nms_shared_resource <- names(info$shared_resource)
+  orderly_name <- deprecate_old_orderly_name(path, basename(path))
 
-  role <- cbind(orderly = files == "orderly.R",
+  role <- cbind(orderly = files == orderly_name,
                 resource = matches_path(files, nms_resource),
                 shared_resource = matches_path(files, nms_shared_resource),
                 dependency = matches_path(files, nms_dependency, FALSE),

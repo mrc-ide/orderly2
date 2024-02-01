@@ -80,6 +80,36 @@ assert_file_exists <- function(files, name = "File", call = NULL, arg = NULL) {
 }
 
 
+deprecate_old_orderly_name <- function(src, reportname, suppress_errors = FALSE) {
+  names <- c(sprintf("%s.R", reportname), "orderly.R")
+  files_exist <- file.exists(file.path(src, names))
+  if (sum(files_exist) > 1 && !suppress_errors) {
+    cli::cli_abort(
+      paste("Please only create {names[[1]]} file, orderly.R",
+            "has been deprecated")
+    )
+  } else if (sum(files_exist) == 0 && !suppress_errors) {
+    cli::cli_abort(
+      "Please create {names[[1]]} file"
+    )
+  } else if (files_exist[[2]]) {
+    rlang::inform(
+      paste("Naming convention orderly.R will be deprecated",
+            "soon. Please change orderly file name to",
+            "<reportname>.R"),
+      .frequency = "regularly",
+      .frequency_id = "deprecate_orderly_file_name"
+    )
+  }
+
+  if (suppress_errors && sum(files_exist) != 1) {
+    NULL
+  } else {
+    names[files_exist]
+  }
+}
+
+
 assert_file_exists_relative <- function(files, workdir, name, call = NULL) {
   assert_relative_path(files, name, workdir, call)
 

@@ -47,7 +47,7 @@ static_orderly_strict_mode <- function(args) {
 ##' @section Behaviour in interactive sessions:
 ##'
 ##' When running interactively (i.e., via `source()` or running an
-##'   `orderly.R` session by copy/paste or in Rstudio), the
+##'   `<reportname>.R` session by copy/paste or in Rstudio), the
 ##'   `orderly_parameters()` function has different behaviour.
 ##'
 ##' First, we look in the current environment (most likely the global
@@ -454,7 +454,8 @@ prevent_multiple_calls <- function(packet, name, call) {
   if (!is.null(packet$orderly2[[name]])) {
     cli::cli_abort(
       c("Only one call to 'orderly2::orderly_{name}' is allowed",
-        i = "You have already called this function earlier in your orderly.R"),
+        i = paste("You have already called this function earlier",
+                  "in your <reportname>.R")),
       call = call)
   }
 }
