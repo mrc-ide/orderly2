@@ -24,7 +24,7 @@ for passing to \link{orderly_run}
 }
 \description{
 List source reports - that is, directories within \verb{src/} that
-contain a file \code{orderly.R}
+contain a file \verb{<reportname>.R}
 }
 \examples{
 path <- orderly2::orderly_example("default")

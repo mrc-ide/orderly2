@@ -83,12 +83,9 @@ test_that("error if declared artefacts are not produced", {
 
 
 test_that("raises deprecation warning for orderly.R", {
-  skip_if(!identical(Sys.getenv("ON_CI"), "TRUE"),
-          message = paste("Skipping as deprecation warning",
-                          "only appears every 8 hours per R",
-                          "session. Will be tested on CI."))
   path <- test_prepare_orderly_example("deprecated-orderly-name")
   envir <- new.env()
+  rlang::reset_message_verbosity("deprecate_orderly_file_name")
   suppressMessages(
     expect_message(
       orderly_run("deprecated-orderly-name", root = path,
@@ -451,7 +448,8 @@ test_that("can copy resource from directory, implicitly", {
 test_that("fail to copy resource from directory, implicitly, strictly", {
   path <- test_prepare_orderly_example("resource-in-directory")
   envir <- new.env()
-  path_src <- file.path(path, "src", "resource-in-directory", "resource-in-directory.R")
+  path_src <- file.path(path, "src", "resource-in-directory",
+                        "resource-in-directory.R")
   prepend_lines(path_src, "orderly2::orderly_strict_mode()")
   err <- suppressWarnings(tryCatch(read.csv("data/a.csv"), error = identity))
   expect_error(suppressWarnings(
@@ -464,7 +462,8 @@ test_that("fail to copy resource from directory, implicitly, strictly", {
 test_that("can copy resource from directory, included by file", {
   path <- test_prepare_orderly_example("resource-in-directory")
   envir <- new.env()
-  path_src <- file.path(path, "src", "resource-in-directory", "resource-in-directory.R")
+  path_src <- file.path(path, "src", "resource-in-directory",
+                        "resource-in-directory.R")
   prepend_lines(path_src,
                 c('orderly2::orderly_resource("data/a.csv")',
                   'orderly2::orderly_resource("data/b.csv")'))
@@ -482,7 +481,8 @@ test_that("can copy resource from directory, included by file", {
 test_that("can copy resource from directory, included by file, strict mode", {
   path <- test_prepare_orderly_example("resource-in-directory")
   envir <- new.env()
-  path_src <- file.path(path, "src", "resource-in-directory", "resource-in-directory.R")
+  path_src <- file.path(path, "src", "resource-in-directory",
+                        "resource-in-directory.R")
   prepend_lines(path_src,
                 c("orderly2::orderly_strict_mode()",
                   'orderly2::orderly_resource("data/a.csv")',
@@ -501,7 +501,8 @@ test_that("can copy resource from directory, included by file, strict mode", {
 test_that("can copy resource from directory, included by directory", {
   path <- test_prepare_orderly_example("resource-in-directory")
   envir <- new.env()
-  path_src <- file.path(path, "src", "resource-in-directory", "resource-in-directory.R")
+  path_src <- file.path(path, "src", "resource-in-directory",
+                        "resource-in-directory.R")
   prepend_lines(path_src, 'orderly2::orderly_resource("data")')
   id <- orderly_run_quietly("resource-in-directory", root = path, envir = envir)
 
@@ -518,7 +519,8 @@ test_that("can copy resource from directory, included by directory", {
 test_that("can copy resource from directory, included by directory, strictly", {
   path <- test_prepare_orderly_example("resource-in-directory")
   envir <- new.env()
-  path_src <- file.path(path, "src", "resource-in-directory", "resource-in-directory.R")
+  path_src <- file.path(path, "src", "resource-in-directory",
+                        "resource-in-directory.R")
   prepend_lines(path_src,
                 c("orderly2::orderly_strict_mode()",
                   'orderly2::orderly_resource("data")'))
@@ -582,7 +584,8 @@ test_that("can pull resources programmatically", {
 
 test_that("can pull resources programmatically, strictly", {
   path <- test_prepare_orderly_example("programmatic-resource")
-  path_src <- file.path(path, "src", "programmatic-resource", "programmatic-resource.R")
+  path_src <- file.path(path, "src", "programmatic-resource",
+                        "programmatic-resource.R")
   prepend_lines(path_src, "orderly2::orderly_strict_mode()")
   id1 <- orderly_run_quietly("programmatic-resource", list(use = "a"),
                              root = path)

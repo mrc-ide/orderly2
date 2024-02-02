@@ -71,7 +71,7 @@ path <- orderly2::orderly_example("default")
 # We simulate running a packet interactively by using 'source';
 # you might have run this line-by-line, or with the "Source"
 # button in Rstudio.
-source(file.path(path, "src/data/orderly.R"), chdir = TRUE)
+source(file.path(path, "src/data/data.R"), chdir = TRUE)
 
 # Having run this, the output of the report is present in the
 # source directory:

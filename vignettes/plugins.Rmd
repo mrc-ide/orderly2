@@ -34,7 +34,7 @@ With the yaml-less design of `orderly2` (see `vignette("migrating")` if you are 
 As an example, we'll implement a stripped down version of the database plugin that inspired this work (see [`orderly.db](https://github.com/mrc-ide/orderly.db) for a fuller implementation). To make this work we need functions:
 
 * ...that process additional fields in `orderly_config.yml` that describe where to find the database
-* ...that can be called from `orderly.R` that access the database
+* ...that can be called from `<reportname>.R` that access the database
 * ...that can add metadata to the final orderly metadata about what was done
 
 We'll start with the report side of things, describing what we want to happen, then work on the implementation.
@@ -64,7 +64,7 @@ writeLines(c(
   'orderly2::orderly_artefact("Summary of data", "data.rds")',
   "",
   'saveRDS(summary(dat), "data.rds")'),
-  file.path(path_example, "orderly.R"))
+  file.path(path_example, "example.R"))
 
 update_package <- function(key, path_pkg) {
   code <- unname(Filter(
@@ -90,10 +90,10 @@ yaml_output(readLines(file.path(path_root, "orderly_config.yml")))
 
 Our plugin is called `example.db` and is listed within the `plugins` section, along with its configuration; in this case indicating the path where the SQLite file can be loaded from.
 
-The `orderly.R` file contains information about use of the database for this specific report; in this case, making the results of the query `SELECT * from mtcars WHERE cyl == 4` against the database available as some R object `dat`
+The `example.R` file contains information about use of the database for this specific report; in this case, making the results of the query `SELECT * from mtcars WHERE cyl == 4` against the database available as some R object `dat`
 
 ```{r, echo = FALSE, results = "asis"}
-r_output(readLines(file.path(path_example, "orderly.R")))
+r_output(readLines(file.path(path_example, "example.R")))
 ```
 
 Normally, we imagine some calculation here but this is kept minimal for the purpose of demonstration.
@@ -102,7 +102,7 @@ To implement this we need to:
 
 1. create a package
 2. write a function to handle the configuration in `orderly_config.yml`
-3. write a function `query()` used in `orderly.R` to do the query itself
+3. write a function `query()` used in `example.R` to do the query itself
 
 ### Create a tiny package
 

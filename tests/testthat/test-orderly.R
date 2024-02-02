@@ -75,10 +75,10 @@ test_that("error if a non-directory file is found in the src dir", {
 })
 
 
-test_that("allow creation of <reportname>.R in existing dir if force is given", {
+test_that("allow creation of foo.R in existing src/foo if force is given", {
   path <- test_prepare_orderly_example(character())
   fs::dir_create(file.path(path, "src", "foo"))
-  file.create(file.path(path, "src", "foo", "bar"))
+  file.create(file.path(path, "src", "foo", "deprebar"))
   err <- expect_error(
     orderly_new("foo", root = path),
     "'src/foo/' already exists and contains files")
