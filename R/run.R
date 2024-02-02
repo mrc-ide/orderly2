@@ -551,7 +551,7 @@ validate_orderly_directory <- function(name, root_path, call) {
     cli::cli_abort(err, call = call)
   }
 
-  orderly_name <- deprecate_old_orderly_name(
+  deprecate_old_orderly_name(
     file.path(root_path, "src", name), name
   )
 
