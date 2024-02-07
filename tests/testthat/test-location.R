@@ -927,6 +927,26 @@ test_that("skip files in the file store", {
 })
 
 
+test_that("skip files known elsewhere on disk", {
+  root <- list()
+  for (name in c("src", "dst")) {
+    root[[name]] <- create_temporary_root(use_file_store = FALSE)
+  }
+
+  id <- create_random_packet_chain(root$src, 3)
+  orderly_location_add("src", "path", list(path = root$src$path),
+                       root = root$dst)
+  orderly_location_pull_metadata(root = root$dst)
+  suppressMessages(orderly_location_pull_packet(id[[1]], root = root$dst))
+
+  res <- testthat::evaluate_promise(
+    orderly_location_pull_packet(id[[2]], root = root$dst))
+  expect_match(res$messages, "Found 1 file on disk", all = FALSE)
+  expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
+               all = FALSE)
+})
+
+
 test_that("can prune orphans from tree", {
   root <- list()
   for (name in c("here", "there")) {
