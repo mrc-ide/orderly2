@@ -97,6 +97,16 @@ test_that("raises deprecation warning for orderly.R", {
   )
 })
 
+test_that("throws error if orderly.R and <reportname>.R found", {
+  path <- test_prepare_orderly_example("two-orderly-files")
+  envir <- new.env()
+  err <- expect_error(
+    orderly_run_quietly("two-orderly-files", root = path,
+                        envir = envir),
+    paste("Please only create two-orderly-files.R file,",
+          "orderly.R has been deprecated"))
+})
+
 
 test_that("Can run explicit case without orderly", {
   path <- test_prepare_orderly_example("explicit")

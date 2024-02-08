@@ -115,7 +115,10 @@ describe("http location integration tests", {
     meta <- read_string(
       file.path(root_tmp$path, ".outpack", "metadata", id_tmp))
 
-    orderly_location_http$new(url)$push_file(find_file_by_hash(root_tmp, hash), hash)
+    orderly_location_http$new(url)$push_file(
+      find_file_by_hash(root_tmp, hash),
+      hash
+    )
 
     ## Trigger the error directly:
     cl <- outpack_http_client$new(url)
