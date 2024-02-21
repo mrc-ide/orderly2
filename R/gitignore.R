@@ -72,7 +72,6 @@ gitignore_content_root <- function(root_path) {
 
 
 gitignore_content_src <- function(name, root_path) {
-  src <- file.path(root_path, "src", name)
   dat <- orderly_read(file.path(root_path, "src", name))
 
   ignore_deps <- unlist(lapply(dat$dependency, function(x) names(x$files)))
