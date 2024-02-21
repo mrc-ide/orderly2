@@ -22,9 +22,9 @@ orderly_list_src <- function(root = NULL, locate = TRUE) {
   }
   pos <- fs::dir_ls(file.path(root_path, "src"), type = "directory")
   files_exist <- vlapply(pos, function(path) {
-    orderly_name <- deprecate_old_orderly_name(path, basename(path),
+    entrypoint_filename <- find_entrypoint_filename(path, basename(path),
                                                suppress_errors = TRUE)
-    !is.null(orderly_name)
+    !is.null(entrypoint_filename)
   })
   basename(pos)[files_exist]
 }
@@ -54,11 +54,13 @@ orderly_new <- function(name, template = NULL, force = FALSE,
                         root = NULL, locate = TRUE) {
   root <- root_open(root, locate, require_orderly = TRUE, call = environment())
   dest <- file.path(root$path, "src", name)
-  orderly_name <- deprecate_old_orderly_name(dest, name, suppress_errors = TRUE)
-  report_name <- sprintf("%s.R", name)
+  existing_entrypoint_filename <- find_entrypoint_filename(
+    dest, name, suppress_errors = TRUE
+  )
+  new_report_filename <- sprintf("%s.R", name)
 
-  if (!is.null(orderly_name)) {
-    cli::cli_abort("'src/{name}/{orderly_name}' already exists")
+  if (!is.null(existing_entrypoint_filename)) {
+    cli::cli_abort("'src/{name}/{existing_entrypoint_filename}' already exists")
   }
   if (file.exists(dest) && !fs::is_dir(dest)) {
     cli::cli_abort(
@@ -68,8 +70,9 @@ orderly_new <- function(name, template = NULL, force = FALSE,
   if (length(dir(dest, all.files = TRUE, no.. = TRUE)) > 0 && !force) {
     cli::cli_abort(
       c("'src/{name}/' already exists and contains files",
-        i = paste("If you want to add a {report_name} to this directory,",
-                  "rerun {.code orderly_new()} with {.code force = TRUE}")))
+        i = paste("If you want to add a {new_report_filename} to this",
+                  "directory, rerun {.code orderly_new()} with",
+                  "{.code force = TRUE}")))
   }
 
   if (is.null(template)) {
@@ -81,6 +84,6 @@ orderly_new <- function(name, template = NULL, force = FALSE,
   }
 
   fs::dir_create(dest)
-  writeLines(contents, file.path(dest, report_name))
-  cli::cli_alert_success("Created 'src/{name}/{report_name}'")
+  writeLines(contents, file.path(dest, new_report_filename))
+  cli::cli_alert_success("Created 'src/{name}/{new_report_filename}'")
 }

@@ -1,12 +1,14 @@
 test_that("can read file with no helpers", {
   expect_equal(orderly_read_r("examples/implicit/implicit.R", "implicit.R"),
-               list(strict = list(enabled = FALSE)))
+               list(entrypoint_filename = "implicit.R",
+                    strict = list(enabled = FALSE)))
 })
 
 
 test_that("can read file with helpers", {
   dat <- orderly_read_r("examples/explicit/explicit.R", "explicit.R")
-  expect_setequal(names(dat), c("strict", "resources", "artefacts"))
+  expect_setequal(names(dat),
+                  c("entrypoint_filename", "strict", "resources", "artefacts"))
   expect_equal(dat$strict, list(enabled = FALSE))
   expect_equal(dat$resources, "data.csv")
   expect_equal(dat$artefacts,

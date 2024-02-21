@@ -177,6 +177,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
 
   src <- file.path(root_src, "src", name)
   dat <- orderly_read(src, environment())
+  entrypoint_filename <- dat$entrypoint_filename
   parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
 
@@ -191,18 +192,17 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   ## future if we need to support working within subdirectories of
   ## path too, in which case we use something from fs.
   path <- withr::with_dir(path, getwd())
-  orderly_name <- deprecate_old_orderly_name(src, name)
 
   if (dat$strict$enabled) {
     inputs_info <- NULL
-    fs::file_copy(file.path(src, orderly_name), path)
+    fs::file_copy(file.path(src, entrypoint_filename), path)
   } else {
     inputs_info <- copy_resources_implicit(src, path, dat$resources,
                                            dat$artefacts)
   }
   p <- outpack_packet_start(path, name, parameters = parameters,
                             id = id, root = root)
-  outpack_packet_file_mark(p, orderly_name, "immutable")
+  outpack_packet_file_mark(p, entrypoint_filename, "immutable")
   p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
                      root = root_src, strict = dat$strict,
                      inputs_info = inputs_info, search_options = search_options)
@@ -217,7 +217,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   local <- new.env(parent = emptyenv())
   local$warnings <- collector()
   res <- rlang::try_fetch(
-    withr::with_dir(path, source_echo(orderly_name, envir, echo)),
+    withr::with_dir(path, source_echo(entrypoint_filename, envir, echo)),
     warning = function(e) {
       local$warnings$add(e)
       rlang::zap()
@@ -234,9 +234,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   success <- is.null(local$error) && info_end$success
 
   if (success) {
-    cli::cli_alert_success("Finished running {.file {orderly_name}}")
+    cli::cli_alert_success("Finished running {.file {entrypoint_filename}}")
   } else {
-    cli::cli_alert_danger("Error running {.file {orderly_name}}")
+    cli::cli_alert_danger("Error running {.file {entrypoint_filename}}")
   }
 
   if (length(local$warnings$get()) > 0) {
@@ -266,10 +266,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
 
 
 custom_metadata <- function(dat) {
-  orderly_name <- deprecate_old_orderly_name(dat$src, basename(dat$src))
+  entrypoint_filename <- find_entrypoint_filename(dat$src, basename(dat$src))
   shared <- dat$shared_resources %||% list()
   role <- data_frame(
-    path = c(orderly_name,  dat$resources, shared$here),
+    path = c(entrypoint_filename,  dat$resources, shared$here),
     role = c("orderly",
              rep_along("resource", dat$resources),
              rep_along("shared", shared$here)))
@@ -551,7 +551,7 @@ validate_orderly_directory <- function(name, root_path, call) {
     cli::cli_abort(err, call = call)
   }
 
-  deprecate_old_orderly_name(
+  find_entrypoint_filename(
     file.path(root_path, "src", name), name
   )
 

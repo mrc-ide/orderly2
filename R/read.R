@@ -1,12 +1,10 @@
 orderly_read <- function(path, call = NULL) {
-  orderly_name <- deprecate_old_orderly_name(path, basename(path))
-  assert_file_exists_relative(orderly_name, name = "Orderly file",
-                              workdir = path, call = call)
-  orderly_read_r(file.path(path, orderly_name), orderly_name)
+  entrypoint_filename <- find_entrypoint_filename(path, basename(path))
+  orderly_read_r(file.path(path, entrypoint_filename), entrypoint_filename)
 }
 
 
-orderly_read_r <- function(path, orderly_name) {
+orderly_read_r <- function(path, entrypoint_filename) {
   exprs <- parse(file = path)
 
   inputs <- list()
@@ -52,7 +50,7 @@ orderly_read_r <- function(path, orderly_name) {
   ## Rename to make things easier below:
   names(dat) <- sub("^orderly_", "", names(dat))
 
-  ret <- list()
+  ret <- list(entrypoint_filename = entrypoint_filename)
   if (length(dat$strict_mode) > 0) {
     ret$strict <- dat$strict_mode[[1]]
   } else {
@@ -78,7 +76,7 @@ orderly_read_r <- function(path, orderly_name) {
 
   if (length(dat$resource) > 0) {
     ret$resources <- setdiff(unique(unlist(dat$resource, TRUE, FALSE)),
-                             orderly_name)
+                             entrypoint_filename)
   }
   if (length(dat$artefact) > 0) {
     ret$artefacts <- dat$artefact

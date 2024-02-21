@@ -80,7 +80,7 @@ assert_file_exists <- function(files, name = "File", call = NULL, arg = NULL) {
 }
 
 
-deprecate_old_orderly_name <- function(src, reportname,
+find_entrypoint_filename <- function(src, reportname,
                                        suppress_errors = FALSE) {
   names <- c(sprintf("%s.R", reportname), "orderly.R")
   files_exist <- file.exists(file.path(src, names))
