@@ -810,7 +810,7 @@ location_pull_files <- function(files, root) {
     })
     if (any(on_disk)) {
       cli::cli_alert_success("Found {sum(on_disk)} file{?s} on disk")
-      files <- files[!on_disk, ]
+      files <- files[!on_disk, , drop = FALSE]
     }
   }
 
