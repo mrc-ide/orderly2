@@ -17,7 +17,7 @@ If you have never used version 1.x of orderly, you should not read this document
 
 ## So long YAML and thanks for all the whitespace errors
 
-The most obvious user-facing change is that there is (almost) no [YAML](https://en.wikipedia.org/wiki/YAML), with the definition of inputs and outputs for a report now defined within an R script (`<reportname>.R`).  So an orderly report that previously had an `orderly.yml` file that looked like
+The most obvious user-facing change is that there is (almost) no [YAML](https://en.wikipedia.org/wiki/YAML), with the definition of inputs and outputs for a report now defined within an orderly file, `<reportname>.R`.  So an orderly report that previously had an `orderly.yml` file that looked like
 
 ```yaml
 parameters:
@@ -39,7 +39,7 @@ artefacts:
     filenames: data.rds
 ```
 
-would end up within an `<reportname>.R` script that looks like:
+would end up within an orderly file that looks like:
 
 ```r
 orderly2::orderly_parameters(n_min = 10)
@@ -110,7 +110,7 @@ There are two parts to a migration: updating the canonical copy of your orderly 
 
 You should migrate your archive first. Do this for every archive that you want to retain (you might have archives stored locally, on production servers and on staging servers). Archive migration happens *out of place*; that is, we do not modify anything in the original location. If your archive is old and has been used with very old versions of `orderly1` it is possible that this process will have a few hiccups. Please let us know if that is the case.  The result of this process is that you will end up with a new directory that contains a new archive conforming to the `outpack` spec and containing `orderly2` metadata.
 
-Next, migrate your source tree. This will be done *in place* so should be done on a fresh clone of your source git repository. For each report, we will examine your `orderly.yml` files and your script files (often `script.R`), delete these, and then write out a new `<reportname>.R` file that will adapt your report to work for `orderly2`.  It is possible that this will not be perfect and might need some minor tweaking but hopefully it will be reasonable. One thing that is not preserved (and we probably cannot do so) is the comments from the `yaml` but as these often refer to `yaml` formatting or `orderly1` features hopefully this is not too much of a problem.  You will probably want to manually tweak the generated code anyway, to take advantage of some of the new `orderly2` features such as being able to compute dependencies.
+Next, migrate your source tree. This will be done *in place* so should be done on a fresh clone of your source git repository. For each report, we will examine your `orderly.yml` files and your script files (often `script.R`), delete these, and then write out a new orderly file that will adapt your report to work for `orderly2`.  It is possible that this will not be perfect and might need some minor tweaking but hopefully it will be reasonable. One thing that is not preserved (and we probably cannot do so) is the comments from the `yaml` but as these often refer to `yaml` formatting or `orderly1` features hopefully this is not too much of a problem.  You will probably want to manually tweak the generated code anyway, to take advantage of some of the new `orderly2` features such as being able to compute dependencies.
 
 If you are using OrderlyWeb, you probably need to pause before migrating, as the replacement is not yet ready.
 

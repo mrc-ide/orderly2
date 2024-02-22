@@ -28,7 +28,7 @@ Here, we show how to practically use dependencies in a few common scenarios of i
 
 ## Basic use
 
-The primary mechanism for using dependencies is to call `orderly2::orderly_dependency()` from within a `<reportname>.R` script; this finds a suitable completed packet and copies files that are found from within that packet into your current report.
+The primary mechanism for using dependencies is to call `orderly2::orderly_dependency()` from within an orderly file; this finds a suitable completed packet and copies files that are found from within that packet into your current report.
 
 ```{r, include = FALSE}
 path <- tempfile()

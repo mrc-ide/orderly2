@@ -1,5 +1,7 @@
 ##' List source reports - that is, directories within `src/` that
-##' contain a file `<reportname>.R`
+##' look suitable for running with orderly; these will be directories
+##' that contain an entrypoint file - a `.R` file with the same name
+##' as the directory (e.g., `src/data/data.R` corresponds to `data`).
 ##'
 ##' @title List source reports
 ##'
@@ -21,12 +23,11 @@ orderly_list_src <- function(root = NULL, locate = TRUE) {
     return(character())
   }
   pos <- fs::dir_ls(file.path(root_path, "src"), type = "directory")
-  files_exist <- vlapply(pos, function(path) {
-    entrypoint_filename <- find_entrypoint_filename(path, basename(path),
-                                               suppress_errors = TRUE)
-    !is.null(entrypoint_filename)
+  entrypoint <- vcapply(pos, function(path) {
+    find_entrypoint_filename(path, suppress_zero_files = TRUE,
+                             suppress_multiple_files = TRUE)
   })
-  basename(pos)[files_exist]
+  basename(pos)[!is.na(entrypoint)]
 }
 
 
@@ -41,8 +42,8 @@ orderly_list_src <- function(root = NULL, locate = TRUE) {
 ##'   suppresses any default content.  We may support customisable
 ##'   templates in future - let us know if this would be useful.
 ##'
-##' @param force Create a `<reportname>.R` file within an existing
-##'   directory `src/<reportname>`; this may be useful if you have already
+##' @param force Create an orderly file - `<name>.R` within an existing
+##'   directory `src/<name>`; this may be useful if you have already
 ##'   created the directory and some files first but want help
 ##'   creating the orderly file.
 ##'
@@ -55,11 +56,11 @@ orderly_new <- function(name, template = NULL, force = FALSE,
   root <- root_open(root, locate, require_orderly = TRUE, call = environment())
   dest <- file.path(root$path, "src", name)
   existing_entrypoint_filename <- find_entrypoint_filename(
-    dest, name, suppress_errors = TRUE
+    dest, suppress_zero_files = TRUE
   )
   new_report_filename <- sprintf("%s.R", name)
 
-  if (!is.null(existing_entrypoint_filename)) {
+  if (!is.na(existing_entrypoint_filename)) {
     cli::cli_abort("'src/{name}/{existing_entrypoint_filename}' already exists")
   }
   if (file.exists(dest) && !fs::is_dir(dest)) {

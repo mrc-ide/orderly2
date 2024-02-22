@@ -61,7 +61,7 @@ setwd(path)
 
 # Creating your first orderly report
 
-An orderly report is a directory `src/<reportname>` containing a file `<reportname>.R`. That file may have special commands in it, but for now we'll create one that is as simple as possible; we'll create some random data and save it to disk. This seems silly, but imagine this standing in for something like:
+An orderly report is a directory `src/<name>` containing an orderly file `<name>.R`. That file may have special commands in it, but for now we'll create one that is as simple as possible; we'll create some random data and save it to disk. This seems silly, but imagine this standing in for something like:
 
 * downloading file from some external site or resource
 * running a simulation and saving output
@@ -133,7 +133,7 @@ which copies `data.rds` to some new temporary directory `dest` with name `final.
 
 # Depending on packets from another report
 
-Creating a new dataset is mostly useful if someone else can use it. To do this we introduce the first of the special orderly commands that you can use from `<reportname>.R`
+Creating a new dataset is mostly useful if someone else can use it. To do this we introduce the first of the special orderly commands that you can use from an orderly file
 
 ```{r, include = FALSE}
 fs::dir_create(file.path(path, "src", "analysis"))
@@ -344,7 +344,7 @@ The previous version of orderly (`orderly1`; see `vignette("migrating")`) was ve
 orderly2::orderly_strict_mode()
 ```
 
-anywhere within your `<reportname>.R` script (conventionally at the top). We may make this more granular in future, but by adding this we:
+anywhere within your orderly file (conventionally at the top). We may make this more granular in future, but by adding this we:
 
 * only copy files from the source directory (`src/<reportname>/`) to the draft directory where the report runs (`draft/<reportname>/<packet-id>`) that were declared with `orderly2::orderly_resource`; this leaves behind any extra files left over in development
 * warn at the end of running a packet if any files are found that are not part of an artefact

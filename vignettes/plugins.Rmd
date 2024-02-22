@@ -34,7 +34,7 @@ With the yaml-less design of `orderly2` (see `vignette("migrating")` if you are 
 As an example, we'll implement a stripped down version of the database plugin that inspired this work (see [`orderly.db](https://github.com/mrc-ide/orderly.db) for a fuller implementation). To make this work we need functions:
 
 * ...that process additional fields in `orderly_config.yml` that describe where to find the database
-* ...that can be called from `<reportname>.R` that access the database
+* ...that can be called from an orderly file that access the database
 * ...that can add metadata to the final orderly metadata about what was done
 
 We'll start with the report side of things, describing what we want to happen, then work on the implementation.

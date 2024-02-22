@@ -14,8 +14,8 @@ for now are \code{NULL} (uses the built-in default) and \code{FALSE} which
 suppresses any default content.  We may support customisable
 templates in future - let us know if this would be useful.}
 
-\item{force}{Create a \verb{<reportname>.R} file within an existing
-directory \verb{src/<reportname>}; this may be useful if you have already
+\item{force}{Create an orderly file - \verb{<name>.R} within an existing
+directory \verb{src/<name>}; this may be useful if you have already
 created the directory and some files first but want help
 creating the orderly file.}
 

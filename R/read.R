@@ -1,5 +1,5 @@
 orderly_read <- function(path, call = NULL) {
-  entrypoint_filename <- find_entrypoint_filename(path, basename(path))
+  entrypoint_filename <- find_entrypoint_filename(path)
   orderly_read_r(file.path(path, entrypoint_filename), entrypoint_filename)
 }
 
@@ -71,7 +71,7 @@ orderly_read_r <- function(path, entrypoint_filename) {
   ## TODO: probably some santisiation required here:
   ##
   ## * what do we do with directories here?
-  ## * discourage people from listing <reportname>.R
+  ## * discourage people from listing orderly files
   ## * discourage duplicates
 
   if (length(dat$resource) > 0) {

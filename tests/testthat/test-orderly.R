@@ -13,7 +13,7 @@ test_that("find expected candidates", {
 })
 
 
-test_that("ignore paths without <reportname>.R", {
+test_that("ignore paths without orderly file", {
   v <- c("data", "depends", "depends-params", "description")
   path <- test_prepare_orderly_example(v)
   unlink(file.path(path, "src", v[1], "data.R"))
@@ -54,12 +54,20 @@ test_that("can create a totally blank orderly report", {
 })
 
 
-test_that("error if <reportname>.R exists already", {
+test_that("error if orderly file exists already", {
   path <- test_prepare_orderly_example("data")
   expect_error(orderly_new("data", root = path),
                "'src/data/data.R' already exists")
   expect_error(orderly_new("data", force = TRUE, root = path),
                "'src/data/data.R' already exists")
+})
+
+
+test_that("error two orderly file exist already", {
+  path <- test_prepare_orderly_example("two-orderly-files")
+  expect_error(orderly_new("two-orderly-files", force = TRUE, root = path),
+               paste("Please only create two-orderly-files.R file,",
+                     "orderly.R has been deprecated"))
 })
 
 
@@ -93,7 +101,7 @@ test_that("allow creation of foo.R in existing src/foo if force is given", {
 })
 
 
-test_that("allow creation of <reportname>.R in existing empty dir", {
+test_that("allow creation of orderly file in existing empty dir", {
   path <- test_prepare_orderly_example(character())
   fs::dir_create(file.path(path, "src", "foo"))
   expect_message(

@@ -85,9 +85,9 @@ test_that("error if declared artefacts are not produced", {
 test_that("raises deprecation warning for orderly.R", {
   path <- test_prepare_orderly_example("deprecated-orderly-name")
   envir <- new.env()
-  rlang::reset_message_verbosity("deprecate_orderly_file_name")
+  rlang::reset_warning_verbosity("deprecate_orderly_file_name")
   suppressMessages(
-    expect_message(
+    expect_warning(
       orderly_run("deprecated-orderly-name", root = path,
                   envir = envir, echo = FALSE),
       paste("Naming convention orderly.R will be deprecated",

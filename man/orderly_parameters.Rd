@@ -25,7 +25,7 @@ have a default, in which case this parameter will be required.
 
 
 When running interactively (i.e., via \code{source()} or running an
-\verb{<reportname>.R} session by copy/paste or in Rstudio), the
+orderly file session by copy/paste or in Rstudio), the
 \code{orderly_parameters()} function has different behaviour.
 
 First, we look in the current environment (most likely the global

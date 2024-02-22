@@ -266,7 +266,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
 
 
 custom_metadata <- function(dat) {
-  entrypoint_filename <- find_entrypoint_filename(dat$src, basename(dat$src))
+  entrypoint_filename <- find_entrypoint_filename(dat$src)
   shared <- dat$shared_resources %||% list()
   role <- data_frame(
     path = c(entrypoint_filename,  dat$resources, shared$here),
@@ -551,9 +551,9 @@ validate_orderly_directory <- function(name, root_path, call) {
     cli::cli_abort(err, call = call)
   }
 
-  find_entrypoint_filename(
-    file.path(root_path, "src", name), name
-  )
+  # Just being called for the deprecation warning
+  # Should be removed once we deprecate the name
+  find_entrypoint_filename(file.path(root_path, "src", name))
 
   name
 }

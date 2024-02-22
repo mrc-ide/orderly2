@@ -137,7 +137,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
   nms_artefact <- unlist(lapply(info$artefacts, "[[", "files"))
   nms_dependency <- unlist(lapply(info$dependency, function(x) names(x$files)))
   nms_shared_resource <- names(info$shared_resource)
-  entrypoint_filename <- find_entrypoint_filename(path, basename(path))
+  entrypoint_filename <- find_entrypoint_filename(path)
 
   role <- cbind(orderly = files == entrypoint_filename,
                 resource = matches_path(files, nms_resource),

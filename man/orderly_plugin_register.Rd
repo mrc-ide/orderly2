@@ -64,7 +64,7 @@ registering a plugin.
 \description{
 Create an orderly plugin. A plugin is typically defined by a
 package and is used to extend orderly by enabling new
-functionality, declared in \code{orderly_config.yml} and \verb{<reportname>.R}
+functionality, declared in \code{orderly_config.yml} and your orderly file,
 and affecting the running of reports primarily by creating new
 objects in the report environment.  This system is discussed in
 more detail in \code{vignette("plugins")}, but will be expanded (likely
