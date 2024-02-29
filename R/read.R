@@ -21,6 +21,7 @@ orderly_read_r <- function(path, entrypoint_filename) {
 #'
 #' @return Details of orderly script
 #' @export
+#' @keywords internal
 orderly_build_script_details <- function(exprs, entrypoint_filename) {
 
   inputs <- list()

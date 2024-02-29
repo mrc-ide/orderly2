@@ -20,3 +20,4 @@ of any calls to orderly_ in-script functions into intermediate
 representation for downstream use. Also validates calls to
 orderly_ in-script functions are well-formed.
 }
+\keyword{internal}
