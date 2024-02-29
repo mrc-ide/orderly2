@@ -43,7 +43,7 @@ etc), and will make your plugin nicer to work with
 \code{\link[=orderly_metadata_extract]{orderly_metadata_extract()}}. This function will be
 given a single argument \code{data} which is the data from
 \code{jsonlite::fromJSON(..., simplifyVector = FALSE)} and you should
-apply and required simplifications yourself, returning a
+apply any required simplifications yourself, returning a
 modified copy of the argument.}
 
 \item{cleanup}{Optionally, a function to clean up any state that
@@ -64,7 +64,7 @@ registering a plugin.
 \description{
 Create an orderly plugin. A plugin is typically defined by a
 package and is used to extend orderly by enabling new
-functionality, declared in \code{orderly_config.yml} and \code{orderly.R}
+functionality, declared in \code{orderly_config.yml} and your orderly file,
 and affecting the running of reports primarily by creating new
 objects in the report environment.  This system is discussed in
 more detail in \code{vignette("plugins")}, but will be expanded (likely

@@ -21,7 +21,7 @@ test_that("can run shared resources case in separate directory", {
                             root = info$outpack, root_src = info$src)
   expect_setequal(
     dir(file.path(info$outpack, "archive", "shared", id)),
-    c("shared_data.csv", "mygraph.png", "orderly.R"))
+    c("shared_data.csv", "mygraph.png", "shared.R"))
 })
 
 
@@ -66,6 +66,6 @@ test_that("can't run interactively in separate directory", {
   path_src <- file.path(info$src, "src", "depends")
   expect_error(
     withr::with_dir(path_src,
-                    sys.source("orderly.R", envir2)),
+                    sys.source("depends.R", envir2)),
     "orderly directory '.+' not initialised")
 })

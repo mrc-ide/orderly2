@@ -14,7 +14,7 @@ for now are \code{NULL} (uses the built-in default) and \code{FALSE} which
 suppresses any default content.  We may support customisable
 templates in future - let us know if this would be useful.}
 
-\item{force}{Create an \code{orderly.R} file within an existing
+\item{force}{Create an orderly file - \verb{<name>.R} within an existing
 directory \verb{src/<name>}; this may be useful if you have already
 created the directory and some files first but want help
 creating the orderly file.}

@@ -28,7 +28,7 @@ Here, we show how to practically use dependencies in a few common scenarios of i
 
 ## Basic use
 
-The primary mechanism for using dependencies is to call `orderly2::orderly_dependency()` from within an `orderly.R` script; this finds a suitable completed packet and copies files that are found from within that packet into your current report.
+The primary mechanism for using dependencies is to call `orderly2::orderly_dependency()` from within an orderly file; this finds a suitable completed packet and copies files that are found from within that packet into your current report.
 
 ```{r, include = FALSE}
 path <- tempfile()
@@ -42,7 +42,7 @@ writeLines(c(
   'd <- read.csv("data.csv")',
   "d$z <- resid(lm(y ~ x, d))",
   'saveRDS(d, "data.rds")'),
-  file.path(path, "src", "data", "orderly.R"))
+  file.path(path, "src", "data", "data.R"))
 orderly2::orderly_run("data", root = path)
 
 fs::dir_create(file.path(path, "src", "analysis"))
@@ -52,18 +52,18 @@ writeLines(c(
   'png("analysis.png")',
   "plot(y ~ x, d)",
   "dev.off()"),
-  file.path(path, "src", "analysis", "orderly.R"))
+  file.path(path, "src", "analysis", "analysis.R"))
 ```
 
 ```{r, echo = FALSE}
 dir_tree(file.path(path), "src")
 ```
 
-and `src/analysis/orderly.R` contains:
+and `src/analysis/analysis.R` contains:
 
 
 ```{r, echo = FALSE, results = "asis"}
-r_output(readLines(file.path(path, "src/analysis/orderly.R")))
+r_output(readLines(file.path(path, "src/analysis/analysis.R")))
 ```
 
 Here, we've used `orderly2::orderly_dependency()` to pull in the file `data.rds` from the most recent version (`latest()`) of the `data` packet, then we've used that file as normal to make a plot, which we've saved as `analysis.png` (this is very similar to the example from `vignette("introduction")`, to get us started).
@@ -94,7 +94,7 @@ writeLines(c(
   "orderly2::orderly_parameters(cyl = NULL)",
   "d <- mtcars[mtcars$cyl == cyl, ]",
   'saveRDS(d, "data.rds")'),
-  file.path(path, "src", "data", "orderly.R"))
+  file.path(path, "src", "data", "data.R"))
 
 fs::dir_create(file.path(path, "src", "analysis"))
 writeLines(c(
@@ -107,17 +107,17 @@ writeLines(c(
   'png("analysis.png")',
   "plot(mpg ~ disp, d)",
   "dev.off()"),
-  file.path(path, "src", "analysis", "orderly.R"))
+  file.path(path, "src", "analysis", "analysis.R"))
 ```
 
 ```{r, echo = FALSE}
 dir_tree(file.path(path), "src")
 ```
 
-with `src/data/orderly.R` containing:
+with `src/data/data.R` containing:
 
 ```{r, echo = FALSE, results = "asis"}
-r_output(readLines(file.path(path, "src/data/orderly.R")))
+r_output(readLines(file.path(path, "src/data/data.R")))
 ```
 
 We can run this for several values of `cyl`:
@@ -131,7 +131,7 @@ orderly2::orderly_run("data", list(cyl = 8))
 Our follow-on analysis contains:
 
 ```{r, echo = FALSE, results = "asis"}
-r_output(readLines(file.path(path, "src/analysis/orderly.R")))
+r_output(readLines(file.path(path, "src/analysis/analysis.R")))
 ```
 
 Here the query `latest(parameter:cyl == this:cyl)` says "find the most recent packet where it's parameter "cyl" (`parameter:cyl`) is the same as the parameter in the currently running report (`this:cyl`).

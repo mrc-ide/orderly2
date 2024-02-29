@@ -1,5 +1,7 @@
 ##' List source reports - that is, directories within `src/` that
-##' contain a file `orderly.R`
+##' look suitable for running with orderly; these will be directories
+##' that contain an entrypoint file - a `.R` file with the same name
+##' as the directory (e.g., `src/data/data.R` corresponds to `data`).
 ##'
 ##' @title List source reports
 ##'
@@ -21,7 +23,11 @@ orderly_list_src <- function(root = NULL, locate = TRUE) {
     return(character())
   }
   pos <- fs::dir_ls(file.path(root_path, "src"), type = "directory")
-  basename(pos)[file_exists(file.path(pos, "orderly.R"))]
+  entrypoint <- vcapply(pos, function(path) {
+    find_entrypoint_filename(path, suppress_zero_files = TRUE,
+                             suppress_multiple_files = TRUE)
+  })
+  basename(pos)[!is.na(entrypoint)]
 }
 
 
@@ -36,7 +42,7 @@ orderly_list_src <- function(root = NULL, locate = TRUE) {
 ##'   suppresses any default content.  We may support customisable
 ##'   templates in future - let us know if this would be useful.
 ##'
-##' @param force Create an `orderly.R` file within an existing
+##' @param force Create an orderly file - `<name>.R` within an existing
 ##'   directory `src/<name>`; this may be useful if you have already
 ##'   created the directory and some files first but want help
 ##'   creating the orderly file.
@@ -49,9 +55,13 @@ orderly_new <- function(name, template = NULL, force = FALSE,
                         root = NULL, locate = TRUE) {
   root <- root_open(root, locate, require_orderly = TRUE, call = environment())
   dest <- file.path(root$path, "src", name)
+  existing_entrypoint_filename <- find_entrypoint_filename(
+    dest, suppress_zero_files = TRUE
+  )
+  new_report_filename <- sprintf("%s.R", name)
 
-  if (file.exists(file.path(dest, "orderly.R"))) {
-    cli::cli_abort("'src/{name}/orderly.R' already exists")
+  if (!is.na(existing_entrypoint_filename)) {
+    cli::cli_abort("'src/{name}/{existing_entrypoint_filename}' already exists")
   }
   if (file.exists(dest) && !fs::is_dir(dest)) {
     cli::cli_abort(
@@ -61,8 +71,9 @@ orderly_new <- function(name, template = NULL, force = FALSE,
   if (length(dir(dest, all.files = TRUE, no.. = TRUE)) > 0 && !force) {
     cli::cli_abort(
       c("'src/{name}/' already exists and contains files",
-        i = paste("If you want to add an orderly.R to this directory,",
-                  "rerun {.code orderly_new()} with {.code force = TRUE}")))
+        i = paste("If you want to add a {new_report_filename} to this",
+                  "directory, rerun {.code orderly_new()} with",
+                  "{.code force = TRUE}")))
   }
 
   if (is.null(template)) {
@@ -74,6 +85,6 @@ orderly_new <- function(name, template = NULL, force = FALSE,
   }
 
   fs::dir_create(dest)
-  writeLines(contents, file.path(dest, "orderly.R"))
-  cli::cli_alert_success("Created 'src/{name}/orderly.R'")
+  writeLines(contents, file.path(dest, new_report_filename))
+  cli::cli_alert_success("Created 'src/{name}/{new_report_filename}'")
 }

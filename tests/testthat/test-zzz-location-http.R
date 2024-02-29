@@ -111,13 +111,18 @@ describe("http location integration tests", {
     root_tmp <- create_temporary_root(use_file_store = TRUE)
     id_tmp <- create_random_packet(root_tmp)
 
-    hash_bad <- hash_data("", "sha256")
+    hash <- root_tmp$index$metadata(id_tmp)$files$hash
     meta <- read_string(
       file.path(root_tmp$path, ".outpack", "metadata", id_tmp))
 
+    orderly_location_http$new(url)$push_file(
+      find_file_by_hash(root_tmp, hash),
+      hash
+    )
+
     ## Trigger the error directly:
     cl <- outpack_http_client$new(url)
-    err <- expect_error(cl$post(sprintf("/packet/%s", hash_bad), meta,
+    err <- expect_error(cl$post(sprintf("/packet/%s", hash), meta,
                                 httr::content_type("text/plain")),
                         "Expected hash '.+' but found '.+'")
   })
