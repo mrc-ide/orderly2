@@ -159,8 +159,9 @@ plan_copy_files <- function(root, id, there, here, call = NULL) {
     expanded <- lapply(which(is_dir), function(i) {
       p <- there[[i]]
       j <- string_starts_with(p, files)
-      set_names(files[j],
-                file.path(here[[i]], string_drop_prefix(p, files[j])))
+      nms <- file.path(sub("/+$", "", here[[i]]),
+                       string_drop_prefix(p, files[j]))
+      set_names(files[j], nms)
     })
 
     there <- replace_ragged(there, is_dir, lapply(expanded, unname))
