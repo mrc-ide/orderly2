@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">orderly2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.12</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,21 +130,21 @@ session:</p>
 <span><span class="co">##   <span style="color: #0000BB; font-style: italic;">&lt;https://mrc-ide.github.io/orderly2/articles/troubleshooting.html&gt;</span></span></span>
 <span><span class="co">## <span style="color: #555555;">This warning is displayed once per session.</span></span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Wrote '.gitignore'</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240131-171138-546a9269` at 2024-01-31 17:11:38.333069</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240229-161004-4512b31a` at 2024-02-29 16:10:04.272952</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240131-171138-546a9269 at 2024-01-31 17:11:38.36979 (0.03672075 secs)</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20240131-171138-546a9269"</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">data.R</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240229-161004-4512b31a at 2024-02-29 16:10:04.30879 (0.03583765 secs)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20240229-161004-4512b31a"</span></span></code></pre>
 <p>subsequent calls will not display the warning:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240131-171138-7625b02e` at 2024-01-31 17:11:38.464825</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240229-161004-65c128ad` at 2024-02-29 16:10:04.40075</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240131-171138-7625b02e at 2024-01-31 17:11:38.488029 (0.02320361 secs)</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20240131-171138-7625b02e"</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">data.R</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240229-161004-65c128ad at 2024-02-29 16:10:04.424172 (0.023422 secs)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20240229-161004-65c128ad"</span></span></code></pre>
 <p>The rest of this section discusses how you might permanently fix the
 issue.</p>
 <div class="section level3">

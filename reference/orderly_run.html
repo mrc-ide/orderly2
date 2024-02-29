@@ -14,7 +14,7 @@ your script and check that all expected artefacts were created."><!-- mathjax --
     
     <a class="navbar-brand me-2" href="../index.html">orderly2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.12</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -214,7 +214,7 @@ all locations <em>except</em> local
 </ul><p>(this last option was the one most people preferred so is the new
 default behaviour). In addition, you could resolve dependencies
 as they currently exist on production right now with the options:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>location <span class="ot">=</span> <span class="st">"production"</span>, pull_metadata <span class="ot">=</span> <span class="cn">TRUE</span>, require_unpacked <span class="ot">=</span> <span class="cn">FALSE</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>location <span class="ot">=</span> <span class="st">"production"</span>, pull_metadata <span class="ot">=</span> <span class="cn">TRUE</span>, require_unpacked <span class="ot">=</span> <span class="cn">FALSE</span></span></code></pre><p></p></div>
 <p>which updates your current metadata from production, then runs
 queries against only packets known on that remote, then depends
 on them even if you don't (yet) have them locally.  This
@@ -249,19 +249,19 @@ once we support a "bare" outpack layout.)</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a simple example:</span></span></span>
 <span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_example.html">orderly_example</a></span><span class="op">(</span><span class="st">"default"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpsfT4JV/file18147cd31ac9'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpyYH9fB/file199551f7f664'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the 'data' task:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_run</span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpsfT4JV/file18147cd31ac9'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpyYH9fB/file199551f7f664'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># After running, a finished packet appears in the archive:</span></span></span>
 <span class="r-in"><span><span class="fu">fs</span><span class="fu">::</span><span class="fu"><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/RtmpsfT4JV/file18147cd31ac9': no such file or directory</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/RtmpyYH9fB/file199551f7f664': no such file or directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># and we can query the metadata:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_metadata_extract.html">orderly_metadata_extract</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpsfT4JV/file18147cd31ac9'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpyYH9fB/file199551f7f664'</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -1,4 +1,4 @@
-pandoc: 2.19.2
+pandoc: 3.1.11
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
@@ -11,7 +11,7 @@ articles:
   plugins: plugins.html
   query: query.html
   troubleshooting: troubleshooting.html
-last_built: 2024-01-31T17:10Z
+last_built: 2024-02-29T16:09Z
 urls:
   reference: https://mrc-ide.github.io/orderly2/reference
   article: https://mrc-ide.github.io/orderly2/articles

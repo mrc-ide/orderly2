@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">orderly2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.12</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -132,7 +132,7 @@ fuller implementation). To make this work we need functions:</p>
 <ul>
 <li>…that process additional fields in <code>orderly_config.yml</code>
 that describe where to find the database</li>
-<li>…that can be called from <code>orderly.R</code> that access the
+<li>…that can be called from an orderly file that access the
 database</li>
 <li>…that can add metadata to the final orderly metadata about what was
 done</li>
@@ -144,18 +144,18 @@ to happen, then work on the implementation.</p>
 <span><span class="co">## ├── orderly_config.yml</span></span>
 <span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">src</span></span></span>
 <span><span class="co">##     └── <span style="color: #0000BB; font-weight: bold;">example</span></span></span>
-<span><span class="co">##         └── <span style="color: #00BB00;">orderly.R</span></span></span></code></pre>
+<span><span class="co">##         └── <span style="color: #00BB00;">example.R</span></span></span></code></pre>
 <p>The <code>orderly_config.yml</code> file contains the information
 shared by all possible uses of the plugin - in the case the connection
 information for the database:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum_orderly_version</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.99.0</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plugins</span><span class="kw">:</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">example.db</span><span class="kw">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/Rtmp2TVGch/file1c8a63e2f63</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">minimum_orderly_version</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.99.0</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">plugins</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">  </span><span class="fu">example.db</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> /tmp/RtmpwiUahL/file1e14455730a3</span></span></code></pre></div>
 <p>Our plugin is called <code>example.db</code> and is listed within the
 <code>plugins</code> section, along with its configuration; in this case
 indicating the path where the SQLite file can be loaded from.</p>
-<p>The <code>orderly.R</code> file contains information about use of the
+<p>The <code>example.R</code> file contains information about use of the
 database for this specific report; in this case, making the results of
 the query <code>SELECT * from mtcars WHERE cyl == 4</code> against the
 database available as some R object <code>dat</code></p>
@@ -172,7 +172,7 @@ for the purpose of demonstration.</p>
 <li>write a function to handle the configuration in
 <code>orderly_config.yml</code>
 </li>
-<li>write a function <code>query()</code> used in <code>orderly.R</code>
+<li>write a function <code>query()</code> used in <code>example.R</code>
 to do the query itself</li>
 </ol>
 <div class="section level4">
@@ -303,13 +303,13 @@ reliable experience.</p>
 <p>Now, we can run the report:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"example"</span>, root <span class="op">=</span> <span class="va">path_root</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">example</span>' `20240131-171130-732b2f73` at 2024-01-31 17:11:30.454595</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">example</span>' `20240229-160956-a783379a` at 2024-02-29 16:09:56.65906</span></span>
 <span><span class="co">## &gt; dat &lt;- example.db::query("SELECT * FROM mtcars WHERE cyl == 4")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("Summary of data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(summary(dat), "data.rds")</span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240131-171130-732b2f73 at 2024-01-31 17:11:30.552039 (0.09744382 secs)</span></span>
-<span><span class="co">## [1] "20240131-171130-732b2f73"</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">example.R</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240229-160956-a783379a at 2024-02-29 16:09:56.755691 (0.09663129 secs)</span></span>
+<span><span class="co">## [1] "20240229-160956-a783379a"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -399,30 +399,30 @@ length 1 (which will be everything) gets turned into a scalar (so
 <code>TRUE</code>.</p>
 <p>Taking this a step further, we can also specify a <a href="https://json-schema.org/" class="external-link">schema</a> that this metadata will
 conform to</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"$schema"</span><span class="fu">:</span> <span class="st">"http://json-schema.org/draft-07/schema#"</span><span class="fu">,</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"array"</span><span class="fu">,</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"items"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"object"</span><span class="fu">,</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"properties"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"sql"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>                <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"string"</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">},</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"rows"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>                <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"number"</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>            <span class="fu">},</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"cols"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>                <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"array"</span><span class="fu">,</span></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>                <span class="dt">"items"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"string"</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"required"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"sql"</span><span class="ot">,</span> <span class="st">"rows"</span><span class="ot">,</span> <span class="st">"cols"</span><span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"additionalProperties"</span><span class="fu">:</span> <span class="kw">false</span></span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>    <span class="dt">"$schema"</span><span class="fu">:</span> <span class="st">"http://json-schema.org/draft-07/schema#"</span><span class="fu">,</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>    <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"array"</span><span class="fu">,</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>    <span class="dt">"items"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"object"</span><span class="fu">,</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>        <span class="dt">"properties"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>            <span class="dt">"sql"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>                <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"string"</span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>            <span class="fu">},</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>            <span class="dt">"rows"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a>                <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"number"</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a>            <span class="fu">},</span></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a>            <span class="dt">"cols"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a>                <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"array"</span><span class="fu">,</span></span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a>                <span class="dt">"items"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a>                    <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"string"</span></span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a>        <span class="fu">},</span></span>
+<span id="cb17-21"><a href="#cb17-21" tabindex="-1"></a>        <span class="dt">"required"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"sql"</span><span class="ot">,</span> <span class="st">"rows"</span><span class="ot">,</span> <span class="st">"cols"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a>        <span class="dt">"additionalProperties"</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb17-23"><a href="#cb17-23" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb17-24"><a href="#cb17-24" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>We save this file as <code>inst/schema.json</code> within the package
 (any path within <code>inst</code> is fine).</p>
 <p>Finally, we can also add a deserialiation hook to convert the loaded
@@ -449,15 +449,15 @@ by running <code>options(outpack.schema_validate = TRUE)</code>).</p>
 <pre><code><span><span class="co">## <span style="color: #0000BB; font-weight: bold;">.</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">archive</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">example</span></span></span>
-<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20240131-171130-732b2f73</span></span></span>
+<span><span class="co">## │       └── <span style="color: #0000BB; font-weight: bold;">20240229-160956-a783379a</span></span></span>
 <span><span class="co">## │           ├── data.rds</span></span>
-<span><span class="co">## │           └── <span style="color: #00BB00;">orderly.R</span></span></span>
+<span><span class="co">## │           └── <span style="color: #00BB00;">example.R</span></span></span>
 <span><span class="co">## ├── <span style="color: #0000BB; font-weight: bold;">draft</span></span></span>
 <span><span class="co">## │   └── <span style="color: #0000BB; font-weight: bold;">example</span></span></span>
 <span><span class="co">## ├── orderly_config.yml</span></span>
 <span><span class="co">## └── <span style="color: #0000BB; font-weight: bold;">src</span></span></span>
 <span><span class="co">##     └── <span style="color: #0000BB; font-weight: bold;">example</span></span></span>
-<span><span class="co">##         └── <span style="color: #00BB00;">orderly.R</span></span></span></code></pre>
+<span><span class="co">##         └── <span style="color: #00BB00;">example.R</span></span></span></code></pre>
 <p>The <code>DESCRIPTION</code> file and <code>NAMESPACE</code> are
 unchanged from above, and the schema is shown just above.</p>
 <p>The <code>plugin.R</code> file contains the code collected from
@@ -501,12 +501,12 @@ above:</p>
 several).</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"example"</span>, root <span class="op">=</span> <span class="va">path_root</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">example</span>' `20240131-171131-6cc78a72` at 2024-01-31 17:11:31.428216</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">example</span>' `20240229-160957-a105d78e` at 2024-02-29 16:09:57.632264</span></span>
 <span><span class="co">## &gt; dat &lt;- example.db::query("SELECT * FROM mtcars WHERE cyl == 4")</span></span>
 <span><span class="co">## &gt; orderly2::orderly_artefact("Summary of data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(summary(dat), "data.rds")</span></span>
-<span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">orderly.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240131-171131-6cc78a72 at 2024-01-31 17:11:31.468596 (0.04037952 secs)</span></span>
+<span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">example.R</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240229-160957-a105d78e at 2024-02-29 16:09:57.673127 (0.04086351 secs)</span></span>
 <span><span class="va">meta</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_metadata.html">orderly_metadata</a></span><span class="op">(</span><span class="va">id</span>, root <span class="op">=</span> <span class="va">path_root</span><span class="op">)</span></span>
 <span><span class="va">meta</span><span class="op">$</span><span class="va">custom</span><span class="op">$</span><span class="va">example.db</span></span>
 <span><span class="co">##                                   sql rows         cols</span></span>
