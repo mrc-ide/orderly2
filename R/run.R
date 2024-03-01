@@ -104,6 +104,12 @@
 ##'   depending on the configuration. (Later this will make more sense
 ##'   once we support a "bare" outpack layout.)
 ##'
+##' @section Manually setting report source directory:
+##'
+##' To manually set the report source directory, you will need to set
+##'   the path of the directory as the `ORDERLY_REPORT_SRC` environment
+##'   variable.
+##'
 ##' @title Run a report
 ##'
 ##' @param name Name of the report to run. Any leading `./` `src/` or
@@ -136,12 +142,6 @@
 ##'   then orderly looks in the working directory and up through its
 ##'   parents until it finds an `.outpack` directory
 ##'
-##' @param root_src Separately, the root of the orderly source tree,
-##'   if separate from the outpack root (given as `root`). This is
-##'   intended for running reports in situations where the source tree
-##'   is kept in a different place to the outpack root; see Details
-##'   for more information.
-##'
 ##' @return The id of the created report (a string)
 ##'
 ##' @export
@@ -158,16 +158,16 @@
 ##' # and we can query the metadata:
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
-                        search_options = NULL, root = NULL, locate = TRUE,
-                        root_src = NULL) {
-  if (is.null(root_src)) {
-    root <- root_open(root, locate, require_orderly = TRUE,
-                      call = environment())
+                        search_options = NULL, root = NULL, locate = TRUE) {
+  env_src <- Sys.getenv("ORDERLY_REPORT_SRC")
+  is_env_src_empty <- !nzchar(env_src)
+  root <- root_open(root, locate, require_orderly = is_env_src_empty,
+                    call = environment())
+
+  if (is_env_src_empty) {
     root_src <- root$path
   } else {
-    root <- root_open(root, locate, require_orderly = FALSE,
-                      call = environment())
-    root_src <- orderly_src_root(root_src, locate, call = environment())
+    root_src <- orderly_src_root(env_src, locate, call = environment())
   }
 
   name <- validate_orderly_directory(name, root_src, environment())
