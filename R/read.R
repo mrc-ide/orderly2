@@ -1,28 +1,30 @@
 orderly_read <- function(path, call = NULL) {
   entrypoint_filename <- find_entrypoint_filename(path)
-  orderly_read_r(file.path(path, entrypoint_filename), entrypoint_filename)
+  orderly_parse(file.path(path, entrypoint_filename), entrypoint_filename)
 }
 
 
-orderly_read_r <- function(path, entrypoint_filename) {
-  exprs <- parse(file = path)
-  orderly_build_script_details(exprs, entrypoint_filename)
-}
-
-#' Build the details of an orderly source script
+#' Parse the orderly entrypoint script
 #'
-#' Takes the parsed AST from an orderly script, parses details
-#' of any calls to orderly_ in-script functions into intermediate
-#' representation for downstream use. Also validates calls to
+#' For expert use only.
+#'
+#' Takes either a path to the orderly entrypoint script or
+#' the parsed AST from an orderly script, parses details
+#' of any calls to the orderly_ in-script functions into intermediate
+#' representation for downstream use. Also validates that any calls to
 #' orderly_ in-script functions are well-formed.
 #'
-#' @param exprs Parsed AST from orderly script
+#' @param entrypoint_script Path to script or parsed AST from orderly script
 #' @param entrypoint_filename Name of entrypoint file to include in metadata
 #'
-#' @return Details of orderly script
+#' @return Parsed orderly entrypoint script
 #' @export
-#' @keywords internal
-orderly_build_script_details <- function(exprs, entrypoint_filename) {
+orderly_parse <- function(entrypoint_script, entrypoint_filename) {
+  if (!is.expression(entrypoint_script)) {
+    exprs <- parse(file = entrypoint_script)
+  } else {
+    exprs <- entrypoint_script
+  }
 
   inputs <- list()
   artefacts <- list()

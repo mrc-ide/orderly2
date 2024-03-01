@@ -1,12 +1,12 @@
-test_that("can read file with no helpers", {
-  expect_equal(orderly_read_r("examples/implicit/implicit.R", "implicit.R"),
+test_that("can parse file with no helpers", {
+  expect_equal(orderly_parse("examples/implicit/implicit.R", "implicit.R"),
                list(entrypoint_filename = "implicit.R",
                     strict = list(enabled = FALSE)))
 })
 
 
-test_that("can read file with helpers", {
-  dat <- orderly_read_r("examples/explicit/explicit.R", "explicit.R")
+test_that("can parse file with helpers", {
+  dat <- orderly_parse("examples/explicit/explicit.R", "explicit.R")
   expect_setequal(names(dat),
                   c("entrypoint_filename", "strict", "resources", "artefacts"))
   expect_equal(dat$strict, list(enabled = FALSE))
@@ -17,8 +17,15 @@ test_that("can read file with helpers", {
 })
 
 
+test_that("can parse file from expression", {
+  exprs <- parse(file = "examples/explicit/explicit.R")
+  dat <- orderly_parse(exprs, "explicit.R")
+  expect_equal(dat, orderly_parse("examples/explicit/explicit.R", "explicit.R"))
+})
+
+
 test_that("Skip over computed resources", {
-  dat <- orderly_read_r("examples/computed-resource/computed-resource.R",
+  dat <- orderly_parse("examples/computed-resource/computed-resource.R",
                         "computed-resource.R")
   expect_null(dat$resources)
 })
