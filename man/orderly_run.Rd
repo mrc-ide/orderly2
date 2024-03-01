@@ -11,8 +11,7 @@ orderly_run(
   echo = TRUE,
   search_options = NULL,
   root = NULL,
-  locate = TRUE,
-  root_src = NULL
+  locate = TRUE
 )
 }
 \arguments{
@@ -45,12 +44,6 @@ directory is configured for orderly, and not just outpack (see
 searched for.  If \code{TRUE} and \code{config} is not given,
 then orderly looks in the working directory and up through its
 parents until it finds an \code{.outpack} directory}
-
-\item{root_src}{Separately, the root of the orderly source tree,
-if separate from the outpack root (given as \code{root}). This is
-intended for running reports in situations where the source tree
-is kept in a different place to the outpack root; see Details
-for more information.}
 }
 \value{
 The id of the created report (a string)
@@ -168,6 +161,14 @@ contains the directory \verb{.outpack/} with all the metadata - it
 may also have an unpacked archive, and a \verb{.git/} directory
 depending on the configuration. (Later this will make more sense
 once we support a "bare" outpack layout.)
+}
+
+\section{Manually setting report source directory}{
+
+
+To manually set the report source directory, you will need to set
+the path of the directory as the \code{ORDERLY_REPORT_SRC} environment
+variable.
 }
 
 \examples{
