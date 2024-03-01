@@ -590,7 +590,6 @@ location_build_pull_plan_packets <- function(packet_id, recursive, root, call) {
   index <- root$index$data()
   if (recursive) {
     full <- find_all_dependencies(packet_id, index$metadata)
-    n_extra <- length(full) - length(packet_id)
   } else {
     full <- packet_id
   }
@@ -801,10 +800,17 @@ location_pull_files <- function(files, root) {
     cli::cli_alert_info("Looking for suitable files already on disk")
     store <- temporary_filestore(root)
     cleanup <- function() store$destroy()
-    for (hash in files$hash) {
+    on_disk <- vlapply(files$hash, function(hash) {
+      exists <- FALSE
       if (!is.null(path <- find_file_by_hash(root, hash))) {
         store$put(path, hash)
+        exists <- TRUE
       }
+      exists
+    })
+    if (any(on_disk)) {
+      cli::cli_alert_success("Found {sum(on_disk)} file{?s} on disk")
+      files <- files[!on_disk, , drop = FALSE]
     }
   }
 
