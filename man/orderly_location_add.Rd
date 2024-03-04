@@ -44,11 +44,12 @@ from it, you need to call
 \details{
 We currently support two types of locations - \code{path}, which points
 to an outpack archive accessible by path (e.g., on the same
-computer or on a mounted network share) and \code{http}, which requires
+computer or on a mounted network share), \code{http}, which requires
 that an outpack server is running at some url and uses an HTTP API
-to communicate. More types may be added later, and more
-configuration options to these location types will definitely be
-needed in future.
+to communicate, and \code{packit}, which uses Packit as a web
+server.  More types may be added later, and more configuration
+options to these location types will definitely be needed in
+future.
 
 Configuration options for different location types:
 
@@ -68,6 +69,18 @@ authentication.
 \itemize{
 \item \code{url}: The location of the server, including protocol, for
 example \verb{http://example.com:8080}
+}
+
+\strong{Packit locations}:
+
+Packit locations work over HTTPS, and include everything in an
+outpack location but also provide authentication and later will
+have more capabilities we think.
+\itemize{
+\item \code{url}: The location of the server
+\item \code{token}: The value for your your login token (currently this is
+a GitHub token with \code{read:org} scope).  Later we'll expand this
+as other authentication modes are supported.
 }
 
 \strong{Custom locations}:
