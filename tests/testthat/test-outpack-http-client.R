@@ -141,7 +141,7 @@ test_that("can send authentication request", {
 
   auth <- list(
     url = "https://example.com/login",
-    data = list(token = ids::random_id()))
+    data = list(token = "98e02a382db6a3a18e9d2e02c698478b"))
   mock_post <- mockery::mock(
     mock_response(
       to_json(list(token = jsonlite::unbox("mytoken"))),
