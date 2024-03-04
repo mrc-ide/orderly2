@@ -159,15 +159,14 @@
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                         search_options = NULL, root = NULL, locate = TRUE) {
-  env_src <- Sys.getenv("ORDERLY_REPORT_SRC")
-  is_env_src_empty <- !nzchar(env_src)
-  root <- root_open(root, locate, require_orderly = is_env_src_empty,
+  env_root_src <- Sys.getenv("ORDERLY_SRC_ROOT", NA_character_)
+  root <- root_open(root, locate, require_orderly = is.na(env_root_src),
                     call = environment())
 
-  if (is_env_src_empty) {
+  if (is.na(env_root_src)) {
     root_src <- root$path
   } else {
-    root_src <- orderly_src_root(env_src, locate, call = environment())
+    root_src <- orderly_src_root(env_root_src, locate, call = environment())
   }
 
   name <- validate_orderly_directory(name, root_src, environment())

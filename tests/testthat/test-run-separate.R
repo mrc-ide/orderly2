@@ -1,7 +1,7 @@
 test_that("can run simple case in separate directory", {
   info <- test_prepare_orderly_example_separate("explicit")
   id <- withr::with_envvar(
-    c(ORDERLY_REPORT_SRC = info$src),
+    c(ORDERLY_SRC_ROOT = info$src),
     orderly_run_quietly("explicit", envir = new.env(), root = info$outpack)
   )
   expect_type(id, "character")
@@ -19,7 +19,7 @@ test_that("can run shared resources case in separate directory", {
   ## root.
   info <- test_prepare_orderly_example_separate("shared")
   id <- withr::with_envvar(
-    c(ORDERLY_REPORT_SRC = info$src),
+    c(ORDERLY_SRC_ROOT = info$src),
     orderly_run_quietly("shared", envir = new.env(), root = info$outpack)
   )
   expect_setequal(
@@ -32,11 +32,11 @@ test_that("can use dependencies in separate directory", {
   ## Ensures that we hit the outpack root for pulling deps in
   info <- test_prepare_orderly_example_separate(c("data", "depends"))
   id1 <- withr::with_envvar(
-    c(ORDERLY_REPORT_SRC = info$src),
+    c(ORDERLY_SRC_ROOT = info$src),
     orderly_run_quietly("data", envir = new.env(), root = info$outpack)
   )
   id2 <- withr::with_envvar(
-    c(ORDERLY_REPORT_SRC = info$src),
+    c(ORDERLY_SRC_ROOT = info$src),
     orderly_run_quietly("depends", envir = new.env(), root = info$outpack)
   )
   path1 <- file.path(info$outpack, "archive", "data", id1)
@@ -53,7 +53,7 @@ test_that("can get git information in separate directory", {
   info <- test_prepare_orderly_example_separate("explicit")
   info$git <- helper_add_git(info$src)
   id <- withr::with_envvar(
-    c(ORDERLY_REPORT_SRC = info$src),
+    c(ORDERLY_SRC_ROOT = info$src),
     orderly_run_quietly("explicit", envir = new.env(), root = info$outpack)
   )
   meta <- orderly_metadata(id, root = info$outpack)
@@ -66,7 +66,7 @@ test_that("can't run interactively in separate directory", {
   ## root
   info <- test_prepare_orderly_example_separate(c("data", "depends"))
   id1 <- withr::with_envvar(
-    c(ORDERLY_REPORT_SRC = info$src),
+    c(ORDERLY_SRC_ROOT = info$src),
     orderly_run_quietly("data", envir = new.env(), root = info$outpack)
   )
   path_src <- file.path(info$src, "src", "depends")
