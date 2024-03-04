@@ -1,6 +1,6 @@
 orderly_read <- function(path, call = NULL) {
   entrypoint_filename <- find_entrypoint_filename(path)
-  orderly_parse(file.path(path, entrypoint_filename), entrypoint_filename)
+  orderly_parse(file.path(path, entrypoint_filename))
 }
 
 
@@ -12,18 +12,38 @@ orderly_read <- function(path, call = NULL) {
 #' the parsed AST from an orderly script, parses details
 #' of any calls to the orderly_ in-script functions into intermediate
 #' representation for downstream use. Also validates that any calls to
-#' orderly_ in-script functions are well-formed.
+#' `orderly_*` in-script functions are well-formed.
 #'
-#' @param entrypoint_script Path to script or parsed AST from orderly script
-#' @param entrypoint_filename Name of entrypoint file to include in metadata
+#' @param path Path to `orderly_*` script
+#' @param exprs Parsed AST from `orderly_*` script
+#' @param filename Name of `orderly_*` file to include in metadata, required if
+#'   calling with `exprs`. If called with a `path` this can be NULL.
 #'
 #' @return Parsed orderly entrypoint script
 #' @export
-orderly_parse <- function(entrypoint_script, entrypoint_filename) {
-  if (!is.expression(entrypoint_script)) {
-    exprs <- parse(file = entrypoint_script)
+orderly_parse <- function(path, exprs = NULL, filename = NULL) {
+  path_missing <- missing(path)
+  exprs_missing <- missing(exprs)
+  if ((path_missing && exprs_missing) ||
+      (!path_missing && !exprs_missing)) {
+    cli::cli_abort(c("One and only one of 'path' and 'exprs' must be set.",
+                   i = "See {.fun orderly2::orderly_parse} for details."))
+  }
+  if (is.null(filename)) {
+    if (!path_missing) {
+      filename <- basename(path)
+    } else {
+      cli::cli_abort(c(paste(
+        "`filename` must be set if calling",
+        "{.fun orderly2::orderly_parse} with `exprs`"),
+        i = "See {.fun orderly2::orderly_parse} for details."))
+    }
+  }
+  if (!path_missing) {
+    assert_file_exists(path)
+    exprs <- parse(file = path)
   } else {
-    exprs <- entrypoint_script
+    assert_is(exprs, "expression")
   }
 
   inputs <- list()
@@ -69,7 +89,7 @@ orderly_parse <- function(entrypoint_script, entrypoint_filename) {
   ## Rename to make things easier below:
   names(dat) <- sub("^orderly_", "", names(dat))
 
-  ret <- list(entrypoint_filename = entrypoint_filename)
+  ret <- list(entrypoint_filename = filename)
   if (length(dat$strict_mode) > 0) {
     ret$strict <- dat$strict_mode[[1]]
   } else {
@@ -95,7 +115,7 @@ orderly_parse <- function(entrypoint_script, entrypoint_filename) {
 
   if (length(dat$resource) > 0) {
     ret$resources <- setdiff(unique(unlist(dat$resource, TRUE, FALSE)),
-                             entrypoint_filename)
+                             filename)
   }
   if (length(dat$artefact) > 0) {
     ret$artefacts <- dat$artefact

@@ -1,12 +1,12 @@
 test_that("can parse file with no helpers", {
-  expect_equal(orderly_parse("examples/implicit/implicit.R", "implicit.R"),
+  expect_equal(orderly_parse("examples/implicit/implicit.R"),
                list(entrypoint_filename = "implicit.R",
                     strict = list(enabled = FALSE)))
 })
 
 
 test_that("can parse file with helpers", {
-  dat <- orderly_parse("examples/explicit/explicit.R", "explicit.R")
+  dat <- orderly_parse("examples/explicit/explicit.R")
   expect_setequal(names(dat),
                   c("entrypoint_filename", "strict", "resources", "artefacts"))
   expect_equal(dat$strict, list(enabled = FALSE))
@@ -19,14 +19,29 @@ test_that("can parse file with helpers", {
 
 test_that("can parse file from expression", {
   exprs <- parse(file = "examples/explicit/explicit.R")
-  dat <- orderly_parse(exprs, "explicit.R")
-  expect_equal(dat, orderly_parse("examples/explicit/explicit.R", "explicit.R"))
+  dat <- orderly_parse(exprs = exprs, filename = "explicit.R")
+  expect_equal(dat, orderly_parse("examples/explicit/explicit.R"))
+})
+
+
+
+test_that("useful error raised if trying to parse from path and exprs", {
+  expect_error(orderly_parse(path = "p", exprs = "e"),
+               "One and only one of 'path' and 'exprs' must be set.")
+  expect_error(orderly_parse(),
+               "One and only one of 'path' and 'exprs' must be set.")
+})
+
+
+test_that("useful error raised if trying to parse with exprs and no filename", {
+  exprs <- parse(file = "examples/explicit/explicit.R")
+  expect_error(orderly_parse(exprs = exprs),
+               "`filename` must be set if calling")
 })
 
 
 test_that("Skip over computed resources", {
-  dat <- orderly_parse("examples/computed-resource/computed-resource.R",
-                        "computed-resource.R")
+  dat <- orderly_parse("examples/computed-resource/computed-resource.R")
   expect_null(dat$resources)
 })
 

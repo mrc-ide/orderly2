@@ -4,12 +4,15 @@
 \alias{orderly_parse}
 \title{Parse the orderly entrypoint script}
 \usage{
-orderly_parse(entrypoint_script, entrypoint_filename)
+orderly_parse(path, exprs = NULL, filename = NULL)
 }
 \arguments{
-\item{entrypoint_script}{Path to script or parsed AST from orderly script}
+\item{path}{Path to \verb{orderly_*} script}
 
-\item{entrypoint_filename}{Name of entrypoint file to include in metadata}
+\item{exprs}{Parsed AST from \verb{orderly_*} script}
+
+\item{filename}{Name of \verb{orderly_*} file to include in metadata, required if
+calling with \code{exprs}. If called with a \code{path} this can be NULL.}
 }
 \value{
 Parsed orderly entrypoint script
@@ -22,5 +25,5 @@ Takes either a path to the orderly entrypoint script or
 the parsed AST from an orderly script, parses details
 of any calls to the orderly_ in-script functions into intermediate
 representation for downstream use. Also validates that any calls to
-orderly_ in-script functions are well-formed.
+\verb{orderly_*} in-script functions are well-formed.
 }
