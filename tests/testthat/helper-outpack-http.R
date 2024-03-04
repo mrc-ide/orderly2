@@ -29,3 +29,8 @@ json_string <- function(s) {
   class(s) <- "json"
   s
 }
+
+
+clear_auth_cache <- function() {
+  rm(list = ls(auth_cache), envir = auth_cache)
+}

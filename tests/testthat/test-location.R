@@ -734,11 +734,99 @@ test_that("validate arguments to path locations", {
     orderly_location_add("other", "path", list(root = "mypath"),
                          root = root),
     "Field missing from args: 'path'")
+  expect_equal(orderly_location_list(root = root), "local")
+})
+
+
+test_that("validate arguments to http locations", {
+  root <- create_temporary_root()
   expect_error(
     orderly_location_add("other", "http", list(server = "example.com"),
                          root = root),
     "Field missing from args: 'url'")
   expect_equal(orderly_location_list(root = root), "local")
+})
+
+
+test_that("validate arguments to packit locations", {
+  root <- create_temporary_root()
+  expect_error(
+    orderly_location_add("other", "packit", list(server = "example.com"),
+                         root = root),
+    "Fields missing from args: 'url' and 'token'")
+  expect_error(
+    orderly_location_add("other", "packit", list(url = "example.com"),
+                         root = root),
+    "Field missing from args: 'token'")
+  expect_equal(orderly_location_list(root = root), "local")
+})
+
+
+test_that("can add a packit location", {
+  root <- create_temporary_root()
+  orderly_location_add("other", "packit",
+                       list(url = "example.com", token = "abc123"),
+                       root = root)
+  expect_equal(orderly_location_list(root = root), c("local", "other"))
+})
+
+
+test_that("can create a packit location using an environment variable token", {
+  loc <- withr::with_envvar(
+    c("PACKIT_TOKEN" = "abc123"),
+    orderly_location_packit("https://example.com", "$PACKIT_TOKEN"))
+  client <- loc$.__enclos_env__$private$client
+  expect_equal(
+    client$auth,
+    list(enabled = TRUE,
+         url = "https://example.com/packit/api/auth/login/api",
+         data = list(token = scalar("abc123"))))
+  expect_equal(
+    client$url,
+    "https://example.com/packit/api/outpack")
+})
+
+
+test_that("cope with trailing slash in url if needed", {
+  loc <- orderly_location_packit("https://example.com/", "abc123")
+  client <- loc$.__enclos_env__$private$client
+  expect_equal(
+    client$auth,
+    list(enabled = TRUE,
+         url = "https://example.com/packit/api/auth/login/api",
+         data = list(token = scalar("abc123"))))
+  expect_equal(
+    client$url,
+    "https://example.com/packit/api/outpack")
+})
+
+
+test_that("error of token variable not found", {
+  withr::with_envvar(
+    c("PACKIT_TOKEN" = NA_character_),
+    expect_error(
+      orderly_location_packit("https://example.com", "$PACKIT_TOKEN"),
+      "Environment variable 'PACKIT_TOKEN' was not set"))
+})
+
+
+test_that("can create an outpack location, disabling auth", {
+  loc <- orderly_location_http$new("https://example.com", NULL)
+  client <- loc$.__enclos_env__$private$client
+  expect_equal(
+    client$auth,
+    list(enabled = FALSE))
+  expect_equal(
+    client$url,
+    "https://example.com")
+})
+
+
+test_that("strip trailing slash from outpack url", {
+  loc <- orderly_location_http$new("https://example.com/", NULL)
+  expect_equal(
+    loc$.__enclos_env__$private$client$url,
+    "https://example.com")
 })
 
 

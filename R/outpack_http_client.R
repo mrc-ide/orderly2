@@ -1,40 +1,36 @@
 outpack_http_client <- R6::R6Class(
   "outpack_http_client",
 
-  private = list(
-    auth = NULL
-  ),
-
   public = list(
     url = NULL,
-    token = NULL,
+    auth = NULL,
 
     initialize = function(url, auth) {
-      self$url <- url
+      self$url <- sub("/$", "", url)
       if (is.null(auth)) {
-        private$auth <- list(enabled = FALSE)
+        self$auth <- list(enabled = FALSE)
       } else {
-        private$auth <- list(enabled = TRUE, url = auth$url, data = auth$data)
+        self$auth <- list(enabled = TRUE, url = auth$url, data = auth$data)
       }
     },
 
     authorise = function() {
-      needs_auth <- private$auth$enabled && is.null(private$auth$header)
+      needs_auth <- self$auth$enabled && is.null(self$auth$header)
       if (needs_auth) {
-        private$auth$header <- http_client_login(self$url, private$auth)
+        self$auth$header <- http_client_login(self$url, self$auth)
       }
     },
 
     get = function(path, ...) {
       self$authorise()
       http_client_request(httr::GET, paste0(self$url, path), ...,
-                          private$auth$header)
+                          self$auth$header)
     },
 
     post = function(path, body, ...) {
       self$authorise()
       http_client_request(httr::POST, paste0(self$url, path), body = body, ...,
-                          private$auth$header)
+                          self$auth$header)
     }
   ))
 

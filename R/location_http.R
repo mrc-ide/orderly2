@@ -92,10 +92,13 @@ orderly_location_packit <- function(url, token) {
     token <- Sys.getenv(token_variable, NA_character_)
     if (is.na(token)) {
       cli::cli_abort(
-        "Environment value '{token_variable}' was not set")
+        "Environment variable '{token_variable}' was not set")
     }
   }
 
+  if (!grepl("/$", url)) {
+    url <- paste0(url, "/")
+  }
   url_login <- paste0(url, "packit/api/auth/login/api")
   url_outpack <- paste0(url, "packit/api/outpack")
 
