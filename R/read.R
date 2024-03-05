@@ -24,8 +24,7 @@ orderly_parse_file <- function(path) {
 
 
 #' @param exprs Parsed AST from `orderly_*` script
-#' @param filename Name of `orderly_*` file to include in metadata, required if
-#'   calling with `exprs`. If called with a `path` this can be NULL.
+#' @param filename Name of `orderly_*` file to include in metadata
 #'
 #' @rdname orderly_parse_file
 #' @export
