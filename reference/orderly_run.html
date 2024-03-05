@@ -80,8 +80,7 @@ your script and check that all expected artefacts were created.</p>
 <span>  echo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  search_options <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  root <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  locate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  root_src <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  locate <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -129,14 +128,6 @@ directory is configured for orderly, and not just outpack (see
 searched for.  If <code>TRUE</code> and <code>config</code> is not given,
 then orderly looks in the working directory and up through its
 parents until it finds an <code>.outpack</code> directory</p></dd>
-
-
-<dt>root_src</dt>
-<dd><p>Separately, the root of the orderly source tree,
-if separate from the outpack root (given as <code>root</code>). This is
-intended for running reports in situations where the source tree
-is kept in a different place to the outpack root; see Details
-for more information.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -244,24 +235,33 @@ may also have an unpacked archive, and a <code>.git/</code> directory
 depending on the configuration. (Later this will make more sense
 once we support a "bare" outpack layout.)</p>
     </div>
+    <div class="section level2">
+    <h2 id="manually-setting-report-source-directory">Manually setting report source directory<a class="anchor" aria-label="anchor" href="#manually-setting-report-source-directory"></a></h2>
+    
+
+
+<p>To manually set the report source directory, you will need to set
+the path of the directory as the <code>ORDERLY_REPORT_SRC</code> environment
+variable.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a simple example:</span></span></span>
 <span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_example.html">orderly_example</a></span><span class="op">(</span><span class="st">"default"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpM1j0XK/file195e70b205be'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/Rtmp24JYdv/file181b1a8d4267'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the 'data' task:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_run</span><span class="op">(</span><span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpM1j0XK/file195e70b205be'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/Rtmp24JYdv/file181b1a8d4267'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># After running, a finished packet appears in the archive:</span></span></span>
 <span class="r-in"><span><span class="fu">fs</span><span class="fu">::</span><span class="fu"><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/RtmpM1j0XK/file195e70b205be': no such file or directory</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [ENOENT] Failed to search directory '/tmp/Rtmp24JYdv/file181b1a8d4267': no such file or directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># and we can query the metadata:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="orderly_metadata_extract.html">orderly_metadata_extract</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"data"</span>, root <span class="op">=</span> <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/RtmpM1j0XK/file195e70b205be'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Directory does not exist: '/tmp/Rtmp24JYdv/file181b1a8d4267'</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
