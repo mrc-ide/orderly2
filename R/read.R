@@ -1,6 +1,6 @@
 orderly_read <- function(path, call = NULL) {
   entrypoint_filename <- find_entrypoint_filename(path)
-  orderly_parse(file.path(path, entrypoint_filename))
+  orderly_parse_file(file.path(path, entrypoint_filename))
 }
 
 
@@ -8,43 +8,29 @@ orderly_read <- function(path, call = NULL) {
 #'
 #' For expert use only.
 #'
-#' Takes either a path to the orderly entrypoint script or
-#' the parsed AST from an orderly script, parses details
-#' of any calls to the orderly_ in-script functions into intermediate
-#' representation for downstream use. Also validates that any calls to
-#' `orderly_*` in-script functions are well-formed.
+#' Parses details of any calls to the orderly_ in-script functions
+#' into intermediate representation for downstream use. Also validates
+#' that any calls to `orderly_*` in-script functions are well-formed.
 #'
 #' @param path Path to `orderly_*` script
+#'
+#' @return Parsed orderly entrypoint script
+#' @export
+orderly_parse_file <- function(path) {
+  assert_file_exists(path)
+  exprs <- parse(file = path)
+  orderly_parse_expr(exprs, basename(path))
+}
+
+
 #' @param exprs Parsed AST from `orderly_*` script
 #' @param filename Name of `orderly_*` file to include in metadata, required if
 #'   calling with `exprs`. If called with a `path` this can be NULL.
 #'
-#' @return Parsed orderly entrypoint script
+#' @rdname orderly_parse_file
 #' @export
-orderly_parse <- function(path, exprs = NULL, filename = NULL) {
-  path_missing <- missing(path)
-  exprs_missing <- missing(exprs)
-  if ((path_missing && exprs_missing) ||
-      (!path_missing && !exprs_missing)) {
-    cli::cli_abort(c("One and only one of 'path' and 'exprs' must be set.",
-                   i = "See {.fun orderly2::orderly_parse} for details."))
-  }
-  if (is.null(filename)) {
-    if (!path_missing) {
-      filename <- basename(path)
-    } else {
-      cli::cli_abort(c(paste(
-        "`filename` must be set if calling",
-        "{.fun orderly2::orderly_parse} with `exprs`"),
-        i = "See {.fun orderly2::orderly_parse} for details."))
-    }
-  }
-  if (!path_missing) {
-    assert_file_exists(path)
-    exprs <- parse(file = path)
-  } else {
-    assert_is(exprs, "expression")
-  }
+orderly_parse_expr <- function(exprs, filename) {
+  assert_is(exprs, "expression")
 
   inputs <- list()
   artefacts <- list()
