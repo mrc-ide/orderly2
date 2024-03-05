@@ -765,9 +765,18 @@ test_that("validate arguments to packit locations", {
 test_that("can add a packit location", {
   root <- create_temporary_root()
   orderly_location_add("other", "packit",
-                       list(url = "example.com", token = "abc123"),
+                       list(url = "https://example.com", token = "abc123"),
                        root = root)
   expect_equal(orderly_location_list(root = root), c("local", "other"))
+  dr <- location_driver("other", root)
+  expect_s3_class(dr, "orderly_location_http") # not actually packit
+  cl <- dr$.__enclos_env__$private$client
+  expect_equal(cl$url, "https://example.com/packit/api/outpack")
+  expect_equal(
+    cl$auth,
+    list(enabled = TRUE,
+         url = "https://example.com/packit/api/auth/login/api",
+         data = list(token = scalar("abc123"))))
 })
 
 
