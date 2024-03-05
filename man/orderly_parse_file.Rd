@@ -14,8 +14,7 @@ orderly_parse_expr(exprs, filename)
 
 \item{exprs}{Parsed AST from \verb{orderly_*} script}
 
-\item{filename}{Name of \verb{orderly_*} file to include in metadata, required if
-calling with \code{exprs}. If called with a \code{path} this can be NULL.}
+\item{filename}{Name of \verb{orderly_*} file to include in metadata}
 }
 \value{
 Parsed orderly entrypoint script
