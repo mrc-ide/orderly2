@@ -1,11 +1,35 @@
 orderly_read <- function(path, call = NULL) {
   entrypoint_filename <- find_entrypoint_filename(path)
-  orderly_read_r(file.path(path, entrypoint_filename), entrypoint_filename)
+  orderly_parse_file(file.path(path, entrypoint_filename))
 }
 
 
-orderly_read_r <- function(path, entrypoint_filename) {
+#' Parse the orderly entrypoint script
+#'
+#' For expert use only.
+#'
+#' Parses details of any calls to the orderly_ in-script functions
+#' into intermediate representation for downstream use. Also validates
+#' that any calls to `orderly_*` in-script functions are well-formed.
+#'
+#' @param path Path to `orderly_*` script
+#'
+#' @return Parsed orderly entrypoint script
+#' @export
+orderly_parse_file <- function(path) {
+  assert_file_exists(path)
   exprs <- parse(file = path)
+  orderly_parse_expr(exprs, basename(path))
+}
+
+
+#' @param exprs Parsed AST from `orderly_*` script
+#' @param filename Name of `orderly_*` file to include in metadata
+#'
+#' @rdname orderly_parse_file
+#' @export
+orderly_parse_expr <- function(exprs, filename) {
+  assert_is(exprs, "expression")
 
   inputs <- list()
   artefacts <- list()
@@ -50,7 +74,7 @@ orderly_read_r <- function(path, entrypoint_filename) {
   ## Rename to make things easier below:
   names(dat) <- sub("^orderly_", "", names(dat))
 
-  ret <- list(entrypoint_filename = entrypoint_filename)
+  ret <- list(entrypoint_filename = filename)
   if (length(dat$strict_mode) > 0) {
     ret$strict <- dat$strict_mode[[1]]
   } else {
@@ -76,7 +100,7 @@ orderly_read_r <- function(path, entrypoint_filename) {
 
   if (length(dat$resource) > 0) {
     ret$resources <- setdiff(unique(unlist(dat$resource, TRUE, FALSE)),
-                             entrypoint_filename)
+                             filename)
   }
   if (length(dat$artefact) > 0) {
     ret$artefacts <- dat$artefact

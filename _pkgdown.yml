@@ -86,3 +86,5 @@ reference:
       - orderly_validate_archive
       - orderly_hash_data
       - orderly_hash_file
+      - orderly_parse_file
+      - orderly_parse_expr
