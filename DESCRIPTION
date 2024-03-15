@@ -24,7 +24,8 @@ Imports:
     rlang,
     rstudioapi,
     withr,
-    yaml
+    yaml,
+    zip
 Suggests:
     DBI,
     RSQLite,

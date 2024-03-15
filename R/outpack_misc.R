@@ -63,6 +63,10 @@ find_all_dependencies <- function(id, metadata) {
   sort(ret)
 }
 
+## Get all the files for a set of packets, filtering any overlap.
+find_all_files <- function(id, metadata) {
+  unique(unlist(lapply(id, function(i) metadata[[i]]$files$hash)))
+}
 
 validate_parameters <- function(parameters, call) {
   if (is.null(parameters) || length(parameters) == 0) {
