@@ -1,3 +1,5 @@
+##' Export packets into a structure suitable for static hosting.
+##'
 ##' @param path the destination directory where to create the static location
 ##' @param packets One or more packets to export
 ##' @inheritParams orderly_metadata
