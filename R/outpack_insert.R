@@ -39,6 +39,7 @@ outpack_insert_packet <- function(path, json, root = NULL) {
   ## TODO: once we get more flexible remotes, this will get moved into
   ## its own thing.
   hash <- hash_data(json, hash_algorithm)
+
   time <- Sys.time()
   mark_packet_known(id, local, hash, time, root)
 }
