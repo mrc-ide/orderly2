@@ -19,9 +19,9 @@ orderly_export_zip <- function(path, packets, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
 
-  metadata <- root$index$data()$metadata
-  packets <- find_all_dependencies(packets, metadata)
-  files <- find_all_files(packets, metadata)
+  index <- root$index$data()
+  packets <- find_all_dependencies(packets, index$metadata)
+  files <- find_all_files(packets, index$metadata)
 
   dest <- withr::local_tempfile()
   fs::dir_create(dest)
@@ -36,7 +36,16 @@ orderly_export_zip <- function(path, packets, root = NULL, locate = TRUE) {
     store$put(find_file_by_hash(root, hash), hash)
   }
 
-  zip::zip(fs::path_abs(path), root = dest, files = c("metadata", "files"))
+  packet_list <- index$location[
+    match(index$location$packet, packets), c("packet", "hash")]
+  contents <- list(packets = packet_list)
+
+  writeLines(to_json(contents, "orderly/export.json"),
+             file.path(dest, "outpack.json"))
+
+  zip::zip(fs::path_abs(path), root = dest,
+           files = c("outpack.json", "metadata", "files"))
+
   invisible()
 }
 
@@ -51,60 +60,38 @@ orderly_export_zip <- function(path, packets, root = NULL, locate = TRUE) {
 orderly_import_zip <- function(path, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  index <- root$index$data()
-
-  hash_algorithm <- root$config$core$hash_algorithm
 
   src <- withr::local_tempfile()
   zip::unzip(path, exdir = src)
-  store <- file_store$new(file.path(src, "files"))
 
-  ids <- dir(file.path(src, "metadata"))
+  contents <- jsonlite::read_json(file.path(src, "outpack.json"),
+                                  simplifyVector = TRUE)
 
-  # TODO: is using the root's hash algorithm correct? What if the origin had
-  # used a different hash, now there are two hashes for the same packet. We
-  # don't record the hash algorithm anywhere in the zip files, maybe we should.
-  metadata_hashes <- hash_metadata_files(
-    file.path(src, "metadata", ids), hash_algorithm)
+  import_zip_metadata(root, src, contents$packets, call = environment())
+  import_zip_packets(root, src, contents$packets)
 
-  known_packets <- ids %in% names(index$metadata)
-  missing_packets <- !(ids %in% index$unpacked)
-
-  import_check_hashes(src, ids[known_packets], metadata_hashes[known_packets],
-                      root, call = environment())
-
-  fs::file_copy(
-    file.path(src, "metadata", ids[!known_packets]),
-    file.path(root$path, ".outpack", "metadata", ids[!known_packets]))
-
-  if (root$config$core$use_file_store) {
-    # The index needs reloading to take into account the new metadata we just
-    # pulled.
-    index <- root$index$data()
-    files <- find_all_files(ids, index$metadata)
-    files <- files[!root$files$exists(files)]
-    for (hash in files) {
-      file_path <- store$get(hash, root$files$tmp(), overwrite = FALSE)
-      root$files$put(file_path, hash, move = TRUE)
-    }
-  }
-
-  for (i in which(missing_packets)) {
-    if (!is.null(root$config$core$path_archive)) {
-      location_pull_files_archive(ids[[i]], store, root)
-    }
-    mark_packet_known(ids[[i]], local, metadata_hashes[[i]], Sys.time(), root)
-  }
-
-  invisible(ids)
+  invisible(contents$packets$packet)
 }
 
-import_check_hashes <- function(src, ids, hashes, root, call) {
+import_zip_metadata <- function(root, src, packets, call) {
   index <- root$index$data()
-  hash_algorithm <- root$config$core$hash_algorithm
+  new_packets <- !(packets$packet %in% names(index$metadata))
 
-  hash_here <- index$location$hash[match(ids, index$location$packet)]
-  err <- hashes != hash_here
+  ids <- packets$packet[new_packets]
+  src_paths <- file.path(src, "metadata", ids)
+  dst_paths <- file.path(root$path, ".outpack", "metadata", ids)
+  expected_hash <- packets$hash[new_packets]
+
+  for (i in seq_along(src_paths)) {
+    metadata <- read_string(src_paths[[i]])
+    hash_validate_data(metadata, expected_hash[[i]], sprintf("metadata for '%s'", id), call = call)
+    writeLines(metadata, dst_paths[[i]])
+  }
+
+  seen_before <- intersect(packets$packet, index$location$packet)
+  hash_there <- packets$hash[match(seen_before, packets$packet)]
+  hash_here <- index$location$hash[match(seen_before, index$location$packet)]
+  err <- hash_there != hash_here
   if (any(err)) {
     cli::cli_abort(
       c("Imported file has conflicting metadata",
@@ -117,5 +104,29 @@ import_check_hashes <- function(src, ids, hashes, root, call) {
         i = "We would be interested in this case, please let us know"),
       call = call)
   }
+
   invisible()
+}
+
+import_zip_packets <- function(root, src, packets) {
+  store <- file_store$new(file.path(src, "files"))
+  index <- root$index$data()
+  missing_packets <- packets[!(packets$packet %in% index$unpacked), ]
+
+  if (root$config$core$use_file_store) {
+    files <- find_all_files(missing_packets$packet, index$metadata)
+    files <- files[!root$files$exists(files)]
+    for (hash in files) {
+      file_path <- store$get(hash, root$files$tmp(), overwrite = FALSE)
+      root$files$put(file_path, hash, move = TRUE)
+    }
+  }
+
+  for (i in seq_along(missing_packets$packet)) {
+    if (!is.null(root$config$core$path_archive)) {
+      location_pull_files_archive(missing_packets$packet[[i]], store, root)
+    }
+    mark_packet_known(missing_packets$packet[[i]], local,
+                      missing_packets$hash[[i]], Sys.time(), root)
+  }
 }
