@@ -112,11 +112,3 @@ rehash <- function(data, hash_function, expected) {
   algorithm <- hash_parse(expected)$algorithm
   hash_function(data, algorithm)
 }
-
-## metadata files are hashed by ignoring leading and trailing newline
-## characters.
-hash_metadata_files <- function(path, hash_algorithm) {
-  vcapply(path, function(p) {
-    hash_data(read_string(p), hash_algorithm)
-  })
-}
