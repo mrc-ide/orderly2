@@ -121,7 +121,7 @@ describe("http location integration tests", {
     )
 
     ## Trigger the error directly:
-    cl <- outpack_http_client$new(url)
+    cl <- outpack_http_client$new(url, NULL)
     err <- expect_error(cl$post(sprintf("/packet/%s", hash), meta,
                                 httr::content_type("text/plain")),
                         "Expected hash '.+' but found '.+'")

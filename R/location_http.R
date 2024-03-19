@@ -6,8 +6,8 @@ orderly_location_http <- R6::R6Class(
   ),
 
   public = list(
-    initialize = function(url) {
-      private$client <- outpack_http_client$new(url)
+    initialize = function(url, auth = NULL) {
+      private$client <- outpack_http_client$new(url, auth)
     },
 
     list = function() {
@@ -82,3 +82,26 @@ orderly_location_http <- R6::R6Class(
       invisible(NULL)
     }
   ))
+
+
+orderly_location_packit <- function(url, token) {
+  assert_scalar_character(url)
+  assert_scalar_character(token)
+  if (grepl("^\\$", token)) {
+    token_variable <- sub("^\\$", "", token)
+    token <- Sys.getenv(token_variable, NA_character_)
+    if (is.na(token)) {
+      cli::cli_abort(
+        "Environment variable '{token_variable}' was not set")
+    }
+  }
+
+  if (!grepl("/$", url)) {
+    url <- paste0(url, "/")
+  }
+  url_login <- paste0(url, "packit/api/auth/login/api")
+  url_outpack <- paste0(url, "packit/api/outpack")
+
+  auth <- list(url = url_login, data = list(token = scalar(token)))
+  orderly_location_http$new(url_outpack, auth)
+}
