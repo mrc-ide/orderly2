@@ -71,7 +71,7 @@ test_that("Importing an invalid zip fails", {
   fs::file_create(file.path(dir, "hello.txt"))
 
   zipfile <- withr::local_tempfile()
-  zip::zip(zipfile, files=c("hello.txt"), root=dir)
+  zip::zip(zipfile, files = c("hello.txt"), root = dir)
 
   root <- create_temporary_root()
   expect_error(

@@ -67,7 +67,8 @@ orderly_import_zip <- function(path, root = NULL, locate = TRUE) {
   if (!file.exists(file.path(src, "outpack.json"))) {
     cli::cli_abort(
       c("Zip file does not contain an 'outpack.json' file at its root",
-        i = "Are you sure this file was produced by orderly2::orderly_export_zip?"),
+        i = paste("Are you sure this file was produced by",
+                  "orderly2::orderly_export_zip?")),
       call = environment())
   }
 
@@ -91,7 +92,10 @@ import_zip_metadata <- function(root, src, packets, call) {
 
   for (i in seq_along(src_paths)) {
     metadata <- read_string(src_paths[[i]])
-    hash_validate_data(metadata, expected_hash[[i]], sprintf("metadata for '%s'", id), call = call)
+
+    hash_validate_data(metadata, expected_hash[[i]],
+                       sprintf("metadata for '%s'", id), call = call)
+
     writeLines(metadata, dst_paths[[i]])
   }
 
