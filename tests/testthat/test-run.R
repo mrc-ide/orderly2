@@ -828,6 +828,29 @@ test_that("can depend on a directory artefact", {
 })
 
 
+test_that("can depend on a directory artefact with trailing slash", {
+  path <- test_prepare_orderly_example("directories")
+  envir1 <- new.env()
+  id1 <- orderly_run_quietly("directories", root = path, envir = envir1)
+
+  path_src <- file.path(path, "src", "use")
+  fs::dir_create(path_src)
+  writeLines(c(
+    'orderly2::orderly_dependency("directories", "latest()", "output/")',
+    'orderly2::orderly_artefact("data", "d.rds")',
+    'd <- c(readRDS("output/a.rds", "output/b.rds"))',
+    'saveRDS(d, "d.rds")'),
+    file.path(path_src, "orderly.R"))
+  envir2 <- new.env()
+  id2 <- orderly_run_quietly("use", root = path, envir = envir2)
+  meta <- orderly_metadata(id2, root = path)
+  expect_equal(meta$depends$packet, id1)
+  expect_equal(meta$depends$files[[1]],
+               data_frame(here = c("output/a.rds", "output/b.rds"),
+                          there = c("output/a.rds", "output/b.rds")))
+})
+
+
 test_that("can compute dependencies", {
   path <- test_prepare_orderly_example("parameters")
   envir1 <- new.env()
