@@ -42,7 +42,7 @@ test_that("Can export multiple packets", {
 })
 
 test_that("Can export from a file store", {
-  root <- create_temporary_root(use_file_store = TRUE)
+  root <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
   ids <- create_random_packet_chain(root, 3)
 
   path <- withr::local_tempfile()

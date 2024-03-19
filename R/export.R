@@ -32,8 +32,14 @@ orderly_export_zip <- function(path, packets, root = NULL, locate = TRUE) {
     file.path(root$path, ".outpack", "metadata", packets),
     file.path(dest, "metadata", packets))
 
-  for (hash in files) {
-    store$put(find_file_by_hash(root, hash), hash)
+  if (root$config$core$use_file_store) {
+    for (hash in files) {
+      store$put(root$files$filename(hash), hash)
+    }
+  } else {
+    for (hash in files) {
+      store$put(find_file_by_hash(root, hash), hash)
+    }
   }
 
   packet_list <- index$location[
