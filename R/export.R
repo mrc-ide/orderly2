@@ -13,7 +13,7 @@
 ##'
 ##' @inheritParams orderly_metadata
 ##'
-##' @return Nothing
+##' @return Invisibly, the path to the zip file
 ##' @export
 orderly_export_zip <- function(path, packets, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
