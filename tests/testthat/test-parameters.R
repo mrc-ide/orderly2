@@ -144,14 +144,15 @@ test_that("parameters must be atomic scalars", {
       "x" = "Values must be character, numeric or boolean, but were not for:",
       "*" = "a"))
   err <- expect_error(
-    check_parameters(list(a = data, b = 2), list(a = NULL, b = NULL)),
+    check_parameters(list(a = utils::data, b = 2), list(a = NULL, b = NULL)),
     "Invalid parameter value\\b")
   expect_equal(
     err$body,
     c("x" = "Values must be character, numeric or boolean, but were not for:",
       "*" = "a"))
   err <- expect_error(
-    check_parameters(list(a = data, b = 2 + 1i), list(a = NULL, b = NULL)),
+    check_parameters(list(a = utils::data, b = 2 + 1i),
+                     list(a = NULL, b = NULL)),
     "Invalid parameter values\\b")
   expect_equal(
     err$body,
@@ -177,7 +178,7 @@ test_that("defaults must be valid", {
   expect_equal(err$body, c("x" = "Values must be scalar, but were not for:",
                            "*" = "a"))
   err <- expect_error(
-    static_orderly_parameters(list(a = data)),
+    static_orderly_parameters(list(a = utils::data)),
     "Invalid parameter default")
   expect_equal(
     err$body,

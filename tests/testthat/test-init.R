@@ -47,7 +47,8 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
   base <- basename(path)
   unlink(file.path(path, ".outpack"), recursive = TRUE)
   err <- expect_error(
-    withr::with_dir(parent, orderly_run_quietly("data", root = base)),
+    withr::with_dir(parent,
+      orderly_run_quietly("data", root = base, envir = new.env())),
     sprintf("orderly directory '%s' not initialise", base))
   expect_equal(
     err$body,
@@ -60,7 +61,8 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
   root <- root_open(path, FALSE, TRUE)
   expect_true(is_directory(file.path(path, ".outpack")))
 
-  id <- withr::with_dir(parent, orderly_run_quietly("data", root = base))
+  id <- withr::with_dir(parent,
+    orderly_run_quietly("data", root = base, envir = new.env()))
   expect_type(id, "character")
 })
 
