@@ -68,8 +68,8 @@ reference:
       - orderly_location_rename
   - title: Exporting packets
     contents:
-      - orderly_export_zip
-      - orderly_import_zip
+      - orderly_zip_export
+      - orderly_zip_import
   - title: Help for developing
     contents:
       - orderly_new

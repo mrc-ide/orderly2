@@ -16,7 +16,7 @@ test_that("Exporting a packet includes its transitive dependencies", {
   other <- create_random_packet(root)
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, ids[[3]], root = root)
+  orderly_zip_export(path, ids[[3]], root = root)
 
   info <- export_info(path)
   expect_setequal(info$metadata, ids)
@@ -34,7 +34,7 @@ test_that("Can export multiple packets", {
   ids <- c(first, second)
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, ids, root = root)
+  orderly_zip_export(path, ids, root = root)
 
   info <- export_info(path)
   expect_setequal(info$metadata, ids)
@@ -46,7 +46,7 @@ test_that("Can export from a file store", {
   ids <- create_random_packet_chain(root, 3)
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, ids[[3]], root = root)
+  orderly_zip_export(path, ids[[3]], root = root)
 
   info <- export_info(path)
   expect_setequal(info$metadata, ids)
@@ -58,7 +58,7 @@ test_that("Packet files are de-duplicated when exported", {
   ids <- c(create_deterministic_packet(root), create_deterministic_packet(root))
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, ids, root = root)
+  orderly_zip_export(path, ids, root = root)
 
   info <- export_info(path)
   expect_setequal(info$metadata, ids)
@@ -75,7 +75,7 @@ test_that("Importing an invalid zip fails", {
 
   root <- create_temporary_root()
   expect_error(
-    orderly_import_zip(zipfile, root = root),
+    orderly_zip_import(zipfile, root = root),
     "Zip file does not contain an 'outpack.json' file at its root")
 })
 
@@ -86,9 +86,9 @@ test_that("Can import a zip file", {
   id <- create_random_packet(upstream)
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, id, root = upstream)
+  orderly_zip_export(path, id, root = upstream)
 
-  imported <- orderly_import_zip(path, root = downstream)
+  imported <- orderly_zip_import(path, root = downstream)
   expect_equal(imported, id)
 
   index <- downstream$index$data()
@@ -112,8 +112,8 @@ test_that("Can import a zip file to a file store", {
   ids <- create_random_packet_chain(upstream, 3)
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, ids[[3]], root = upstream)
-  orderly_import_zip(path, root = downstream)
+  orderly_zip_export(path, ids[[3]], root = upstream)
+  orderly_zip_import(path, root = downstream)
 
   index <- downstream$index$data()
   expect_setequal(names(index$metadata), ids)
@@ -133,9 +133,9 @@ test_that("Importing a zip file is idempotent", {
   id <- create_random_packet(upstream)
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, id, root = upstream)
-  imported_once <- orderly_import_zip(path, root = downstream)
-  imported_twice <- orderly_import_zip(path, root = downstream)
+  orderly_zip_export(path, id, root = upstream)
+  imported_once <- orderly_zip_import(path, root = downstream)
+  imported_twice <- orderly_zip_import(path, root = downstream)
 
   expect_equal(imported_once, id)
   expect_equal(imported_twice, id)
@@ -151,20 +151,20 @@ test_that("New packets are imported", {
 
   first_id <- create_random_packet(upstream)
   first_zip <- withr::local_tempfile()
-  orderly_export_zip(first_zip, first_id, root = upstream)
+  orderly_zip_export(first_zip, first_id, root = upstream)
 
   second_id <- create_random_packet(upstream)
   second_zip <- withr::local_tempfile()
-  orderly_export_zip(second_zip, c(first_id, second_id), root = upstream)
+  orderly_zip_export(second_zip, c(first_id, second_id), root = upstream)
 
   downstream <- create_temporary_root()
 
-  orderly_import_zip(first_zip, root = downstream)
+  orderly_zip_import(first_zip, root = downstream)
   index <- downstream$index$data()
   expect_setequal(names(index$metadata), first_id)
   expect_setequal(index$unpacked, first_id)
 
-  orderly_import_zip(second_zip, root = downstream)
+  orderly_zip_import(second_zip, root = downstream)
   index <- downstream$index$data()
   expect_setequal(names(index$metadata), c(first_id, second_id))
   expect_mapequal(index$metadata, upstream$index$data()$metadata)
@@ -188,8 +188,8 @@ test_that("Can import packet with existing metadata", {
   expect_equal(length(index$unpacked), 0)
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, id, root = upstream)
-  orderly_import_zip(path, root = downstream)
+  orderly_zip_export(path, id, root = upstream)
+  orderly_zip_import(path, root = downstream)
 
   index <- downstream$index$data()
   expect_setequal(names(index$metadata), id)
@@ -205,9 +205,9 @@ test_that("Importing a zip file with mismatching metadata fails", {
   create_random_packet(downstream, id = id)
 
   path <- withr::local_tempfile()
-  orderly_export_zip(path, id, root = upstream)
+  orderly_zip_export(path, id, root = upstream)
 
   expect_error(
-    orderly_import_zip(path, root = downstream),
+    orderly_zip_import(path, root = downstream),
     "Imported file has conflicting metadata")
 })

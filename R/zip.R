@@ -1,7 +1,7 @@
 ##' Export packets as a zip file.
 ##'
 ##' The packets can be imported into a different repository using the
-##' [orderly2::orderly_import_zip] function.
+##' [orderly2::orderly_zip_import] function.
 ##'
 ##' This is useful as one-time way to publish your results, for example as an
 ##' artefact accompanying a paper. For back-and-forth collaboration, a shared
@@ -15,7 +15,7 @@
 ##'
 ##' @return Invisibly, the path to the zip file
 ##' @export
-orderly_export_zip <- function(path, packets, root = NULL, locate = TRUE) {
+orderly_zip_export <- function(path, packets, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
 
@@ -63,7 +63,7 @@ orderly_export_zip <- function(path, packets, root = NULL, locate = TRUE) {
 ##'
 ##' @return Invisibly, the IDs of the imported packets
 ##' @export
-orderly_import_zip <- function(path, root = NULL, locate = TRUE) {
+orderly_zip_import <- function(path, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
 
@@ -74,20 +74,20 @@ orderly_import_zip <- function(path, root = NULL, locate = TRUE) {
     cli::cli_abort(
       c("Zip file does not contain an 'outpack.json' file at its root",
         i = paste("Are you sure this file was produced by",
-                  "orderly2::orderly_export_zip?")),
+                  "orderly2::orderly_zip_export?")),
       call = environment())
   }
 
   contents <- jsonlite::read_json(file.path(src, "outpack.json"),
                                   simplifyVector = TRUE)
 
-  import_zip_metadata(root, src, contents$packets, call = environment())
-  import_zip_packets(root, src, contents$packets)
+  zip_import_metadata(root, src, contents$packets, call = environment())
+  zip_import_packets(root, src, contents$packets)
 
   invisible(contents$packets$packet)
 }
 
-import_zip_metadata <- function(root, src, packets, call) {
+zip_import_metadata <- function(root, src, packets, call) {
   index <- root$index$data()
   new_packets <- !(packets$packet %in% names(index$metadata))
 
@@ -125,7 +125,7 @@ import_zip_metadata <- function(root, src, packets, call) {
   invisible()
 }
 
-import_zip_packets <- function(root, src, packets) {
+zip_import_packets <- function(root, src, packets) {
   store <- file_store$new(file.path(src, "files"))
   index <- root$index$data()
   missing_packets <- packets[!(packets$packet %in% index$unpacked), ]
