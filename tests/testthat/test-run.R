@@ -375,7 +375,8 @@ test_that("with strict mode, only declared files are copied, running fails", {
   writeLines(c("orderly2::orderly_strict_mode()", code), path_src)
   err <- suppressWarnings(tryCatch(read.csv("data.csv"), error = identity))
   expect_error(
-    suppressWarnings(orderly_run_quietly("implicit", root = path)),
+    suppressWarnings(
+      orderly_run_quietly("implicit", root = path, envir = new.env())),
     err$message,
     fixed = TRUE)
 })
@@ -390,7 +391,7 @@ test_that("with strict mode, indicate unknown files as potential artefacts", {
                code),
              path_src)
   res <- testthat::evaluate_promise(
-    id <- orderly_run("implicit", root = path))
+    id <- orderly_run("implicit", root = path, envir = new.env()))
   expect_match(res$messages,
                "orderly produced unexpected files:\n  - mygraph.png",
                all = FALSE)
@@ -404,7 +405,7 @@ test_that("without strict mode, detect modified files", {
   path <- test_prepare_orderly_example("implicit")
   file.create(file.path(path, "src", "implicit", "mygraph.png"))
   res <- testthat::evaluate_promise(
-    id <- orderly_run("implicit", root = path))
+    id <- orderly_run("implicit", root = path, envir = new.env()))
   expect_match(
     res$messages,
     "inputs modified; these are probably artefacts:\n  - mygraph.png",
@@ -425,7 +426,7 @@ test_that("disallow multiple calls to strict mode", {
                code),
              path_src)
   expect_error(
-    orderly_run_quietly("implicit", root = path),
+    orderly_run_quietly("implicit", root = path, envir = new.env()),
     "orderly function 'orderly_strict_mode' can only be used at the top level")
 
   writeLines(c("orderly2::orderly_strict_mode()",
@@ -433,7 +434,7 @@ test_that("disallow multiple calls to strict mode", {
                code),
              path_src)
   expect_error(
-    orderly_run_quietly("implicit", root = path),
+    orderly_run_quietly("implicit", root = path, envir = new.env()),
     "Only one call to 'orderly2::orderly_strict_mode' is allowed")
 })
 
@@ -573,9 +574,9 @@ test_that("don't copy artefacts over when not needed", {
 test_that("can pull resources programmatically", {
   path <- test_prepare_orderly_example("programmatic-resource")
   id1 <- orderly_run_quietly("programmatic-resource", list(use = "a"),
-                             root = path)
+                             root = path, envir = new.env())
   id2 <- orderly_run_quietly("programmatic-resource", list(use = "b"),
-                             root = path)
+                             root = path, envir = new.env())
   meta1 <- orderly_metadata(id1, root = path)
   meta2 <- orderly_metadata(id2, root = path)
 
@@ -598,9 +599,9 @@ test_that("can pull resources programmatically, strictly", {
                         "programmatic-resource.R")
   prepend_lines(path_src, "orderly2::orderly_strict_mode()")
   id1 <- orderly_run_quietly("programmatic-resource", list(use = "a"),
-                             root = path)
+                             root = path, envir = new.env())
   id2 <- orderly_run_quietly("programmatic-resource", list(use = "b"),
-                             root = path)
+                             root = path, envir = new.env())
   meta1 <- meta <- orderly_metadata(id1, root = path)
   meta2 <- meta <- orderly_metadata(id2, root = path)
 
@@ -697,7 +698,9 @@ test_that("Can select location when querying dependencies for a report", {
   for (nm in c("us", "prod", "dev")) {
     path[[nm]] <- test_prepare_orderly_example(c("data", "depends"))
     if (nm != "us") {
-      ids[[nm]] <- orderly_run_quietly("data", root = path[[nm]])
+      ids[[nm]] <- orderly_run_quietly("data", root = path[[nm]],
+                                       envir = new.env())
+
       orderly_location_add(nm, "path", list(path = path[[nm]]),
                            root = path[["us"]])
       orderly_location_pull_metadata(nm, root = path[["us"]])
@@ -707,24 +710,27 @@ test_that("Can select location when querying dependencies for a report", {
     }
   }
   ## Run extra local copy - this is the most recent.
-  ids[["us"]] <- orderly_run_quietly("data", root = path[["us"]])
+  ids[["us"]] <- orderly_run_quietly("data", root = path[["us"]],
+                                     envir = new.env())
 
   ## Without locations we prefer the local one:
-  id1 <- orderly_run_quietly("depends", root = path[["us"]])
+  id1 <- orderly_run_quietly("depends", root = path[["us"]], envir = new.env())
   expect_equal(orderly_metadata(id1, path[["us"]])$depends$packet,
                ids[["us"]])
 
   ## Filter to only allow prod:
   id2 <- orderly_run_quietly("depends",
                              search_options = list(location = "prod"),
-                             root = path[["us"]])
+                             root = path[["us"]],
+                             envir = new.env())
   expect_equal(orderly_metadata(id2, path[["us"]])$depends$packet,
                ids[["prod"]])
 
   ## Allow any location:
   id3 <- orderly_run_quietly("depends",
                              search_options = list(location = c("prod", "dev")),
-                             root = path[["us"]])
+                             root = path[["us"]],
+                             envir = new.env())
   expect_equal(orderly_metadata(id3, path[["us"]])$depends$packet,
                ids[["dev"]])
 })
@@ -1047,7 +1053,7 @@ test_that("can use quote for queries queries", {
   path_src <- file.path(path, "src", "depends", "depends.R")
   src <- readLines(path_src)
   writeLines(sub('"latest"', "quote(latest())", src, fixed = TRUE), path_src)
-  id2 <- orderly_run_quietly("depends", root = path)
+  id2 <- orderly_run_quietly("depends", root = path, envir = new.env())
   expect_equal(orderly_metadata(id2, root = path)$depends$packet, id1[[2]])
 })
 
@@ -1166,7 +1172,7 @@ test_that("can read about assigned resources", {
   code <- c(code, 'writeLines(r, "resources.txt")')
   writeLines(code, file.path(path_src, "directories.R"))
 
-  id <- orderly_run_quietly("directories", root = path)
+  id <- orderly_run_quietly("directories", root = path, envir = new.env())
   expect_setequal(
     readLines(file.path(path, "archive", "directories", id, "resources.txt")),
     c("data/a.csv", "data/b.csv"))
@@ -1197,7 +1203,7 @@ test_that("can read about assigned shared resources", {
   code <- c(code, 'saveRDS(r, "resources.rds")')
   writeLines(code, file.path(path_src, "shared-dir.R"))
 
-  id <- orderly_run_quietly("shared-dir", root = path)
+  id <- orderly_run_quietly("shared-dir", root = path, envir = new.env())
   r <- readRDS(file.path(path, "archive", "shared-dir", id, "resources.rds"))
   expect_equal(
     r,
@@ -1227,7 +1233,7 @@ test_that("can read about dependencies", {
   code <- c(code, 'saveRDS(r, "depends.rds")')
   writeLines(code, file.path(path_src, "depends.R"))
 
-  id2 <- orderly_run_quietly("depends", root = path)
+  id2 <- orderly_run_quietly("depends", root = path, envir = new.env())
   r <- readRDS(file.path(path, "archive", "depends", id2, "depends.rds"))
   expect_equal(r$id, id1)
   expect_equal(r$name, "data")
