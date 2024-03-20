@@ -52,7 +52,7 @@ orderly_export_zip <- function(path, packets, root = NULL, locate = TRUE) {
   zip::zip(fs::path_abs(path), root = dest,
            files = c("outpack.json", "metadata", "files"))
 
-  invisible()
+  invisible(path)
 }
 
 ##' Import packets from a zip file.
