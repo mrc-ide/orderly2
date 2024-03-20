@@ -151,7 +151,8 @@ test_that("parameters must be atomic scalars", {
     c("x" = "Values must be character, numeric or boolean, but were not for:",
       "*" = "a"))
   err <- expect_error(
-    check_parameters(list(a = utils::data, b = 2 + 1i), list(a = NULL, b = NULL)),
+    check_parameters(list(a = utils::data, b = 2 + 1i),
+                     list(a = NULL, b = NULL)),
     "Invalid parameter values\\b")
   expect_equal(
     err$body,
