@@ -5,7 +5,7 @@
 ##'
 ##' This is useful as one-time way to publish your results, for example as an
 ##' artefact accompanying a paper. For back-and-forth collaboration, a shared
-##' location should be priviledged.
+##' location should be preferred, as this offers more flexibility.
 ##'
 ##' @param path the path where the zip file will be created
 ##'
