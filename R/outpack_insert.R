@@ -34,7 +34,7 @@ outpack_insert_packet <- function(path, json, root = NULL) {
   }
 
   path_meta <- file.path(root$path, ".outpack", "metadata", id)
-  writeLines(json, path_meta)
+  writeLines(json, path_meta, sep="")
 
   ## TODO: once we get more flexible remotes, this will get moved into
   ## its own thing.

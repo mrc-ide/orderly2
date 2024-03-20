@@ -823,3 +823,15 @@ test_that("can overwrite dependencies", {
     hash_file(file.path(path_src, "data.rds")),
     hash_file(file.path(root$path, "archive", "data", id, "data.rds")))
 })
+
+
+test_that("metadata files match their hash", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root)
+
+  location <- root$index$location(local)
+  expected_hash <- location[location$packet == id]$hash
+
+  path <- file.path(root$path, ".outpack", "metadata", id)
+  expect_no_error(hash_validate_file(expected_hash, path))
+})
