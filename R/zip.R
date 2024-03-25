@@ -67,16 +67,15 @@ orderly_zip_import <- function(path, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
 
-  src <- withr::local_tempfile()
-  zip::unzip(path, exdir = src)
-
-  if (!file.exists(file.path(src, "outpack.json"))) {
+  if (!("outpack.json" %in% zip::zip_list(path)$filename)) {
     cli::cli_abort(
       c("Zip file does not contain an 'outpack.json' file at its root",
         i = paste("Are you sure this file was produced by",
-                  "orderly2::orderly_zip_export?")),
-      call = environment())
+                  "orderly2::orderly_zip_export?")))
   }
+
+  src <- withr::local_tempfile()
+  zip::unzip(path, exdir = src)
 
   contents <- jsonlite::read_json(file.path(src, "outpack.json"),
                                   simplifyVector = TRUE)
