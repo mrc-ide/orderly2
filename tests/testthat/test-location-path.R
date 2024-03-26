@@ -319,3 +319,33 @@ test_that("Push single packet", {
   files_used <- lapply(id, function(id) client$index$metadata(id)$files$hash)
   expect_setequal(plan$files, unique(unlist(files_used, FALSE, FALSE)))
 })
+
+
+test_that("Can read metadata files with a trailing newline", {
+  # Past versions of orderly2 wrote metadata files with a trailing newline
+  # character, despite the fact that the newline was not included when hashing.
+  #
+  # This has been fixed by not writing the newline anymore, but for
+  # compatibility we need to ensure we can still read those metadata files and
+  # get a correct hash.
+
+  root <- create_temporary_root()
+  id <- create_random_packet(root)
+  path <- file.path(root$path, ".outpack", "metadata", id)
+
+  # Calling writeLines adds the trailing newline and mimicks the old orderly2
+  # behaviour.
+  old_size <- file.info(path)$size
+  writeLines(read_string(path), path)
+  expect_equal(file.info(path)$size, old_size + 1)
+
+  # Reading the metadata from a location at that path correctly strips the
+  # newline and hashes correctly.
+  loc <- orderly_location_path$new(root$path)
+  packets <- loc$list()
+  data <- loc$metadata(id)
+  expect_equal(nchar(data), old_size, ignore_attr = TRUE)
+
+  expected_hash <- packets[packets$packet == id]$hash
+  expect_no_error(hash_validate_data(data, expected_hash))
+})

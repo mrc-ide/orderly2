@@ -474,7 +474,7 @@ location_pull_metadata <- function(location_name, root, call) {
                     "Please let us know how this might have happened."),
           i = hint_remove),
         call)
-      writeLines(metadata[[i]], filename[[i]])
+      writeLines(metadata[[i]], filename[[i]], sep="")
     }
   }
 
