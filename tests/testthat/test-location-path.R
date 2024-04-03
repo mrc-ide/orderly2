@@ -334,10 +334,11 @@ test_that("Can read metadata files with a trailing newline", {
   path <- file.path(root$path, ".outpack", "metadata", id)
 
   # Calling writeLines adds the trailing newline and mimicks the old orderly2
-  # behaviour.
+  # behaviour. The size will be one or two bytes bigger than the actual data,
+  # depending on whether the newline is `\n` or `\r\n`.
   old_size <- file.info(path)$size
   writeLines(read_string(path), path)
-  expect_equal(file.info(path)$size, old_size + 1)
+  expect_gte(file.info(path)$size, old_size + 1)
 
   # Reading the metadata from a location at that path correctly strips the
   # newline and hashes correctly.

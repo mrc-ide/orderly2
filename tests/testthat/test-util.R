@@ -328,7 +328,8 @@ test_that("read_string strips newlines", {
   writeLines(c("", "12345678"), path)
 
   # 8 characters, a leading newline and a trailing one
-  expect_equal(file.info(path)$size, 10)
+  # Each newline may be one of two bytes each, depending on the platform.
+  expect_gte(file.info(path)$size, 10)
 
   result <- expect_silent(read_string(path))
   expect_equal(result, "12345678")
