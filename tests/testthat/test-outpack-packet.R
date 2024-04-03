@@ -833,5 +833,5 @@ test_that("metadata files match their hash", {
   expected_hash <- location[location$packet == id]$hash
 
   path <- file.path(root$path, ".outpack", "metadata", id)
-  expect_no_error(hash_validate_file(expected_hash, path))
+  expect_no_error(hash_validate_file(path, expected_hash))
 })
