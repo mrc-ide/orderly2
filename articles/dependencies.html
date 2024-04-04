@@ -152,16 +152,16 @@ that file as normal to make a plot, which we’ve saved as
 <code><a href="../articles/introduction.html">vignette("introduction")</a></code>, to get us started).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">id1</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240326-102852-cdb0f2d0` at 2024-03-26 10:28:52.806702</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240404-083024-ba999da2` at 2024-04-04 08:30:24.732329</span></span>
 <span><span class="co">## &gt; d &lt;- read.csv("data.csv")</span></span>
 <span><span class="co">## &gt; d$z &lt;- resid(lm(y ~ x, d))</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">data.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240326-102852-cdb0f2d0 at 2024-03-26 10:28:52.841872 (0.0351696 secs)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240404-083024-ba999da2 at 2024-04-04 08:30:24.770825 (0.03849626 secs)</span></span>
 <span><span class="va">id2</span> <span class="op">&lt;-</span> <span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"analysis"</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20240326-102852-df007fb1` at 2024-03-26 10:28:52.874111</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20240404-083024-cd5a81dc` at 2024-04-04 08:30:24.805401</span></span>
 <span><span class="co">## &gt; orderly2::orderly_dependency("data", "latest()", "data.rds")</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Depending on <span style="color: #0000BB;">data</span> @ `20240326-102852-cdb0f2d0` (via latest(name == "data"))</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Depending on <span style="color: #0000BB;">data</span> @ `20240404-083024-ba999da2` (via latest(name == "data"))</span></span>
 <span><span class="co">## &gt; d &lt;- readRDS("data.rds")</span></span>
 <span><span class="co">## &gt; png("analysis.png")</span></span>
 <span><span class="co">## &gt; plot(y ~ x, d)</span></span>
@@ -169,14 +169,14 @@ that file as normal to make a plot, which we’ve saved as
 <span><span class="co">## agg_png </span></span>
 <span><span class="co">##       2</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">analysis.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240326-102852-df007fb1 at 2024-03-26 10:28:53.003847 (0.1297367 secs)</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240404-083024-cd5a81dc at 2024-04-04 08:30:24.965723 (0.1603217 secs)</span></span></code></pre></div>
 <p>When we look at the metadata for the packet created from the
 <code>analysis</code> report, we can see it has used
-<code>20240326-102852-cdb0f2d0</code> as its dependency:</p>
+<code>20240404-083024-ba999da2</code> as its dependency:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_metadata.html">orderly_metadata</a></span><span class="op">(</span><span class="va">id2</span><span class="op">)</span><span class="op">$</span><span class="va">depends</span></span>
 <span><span class="co">##                     packet                  query        files</span></span>
-<span><span class="co">## 1 20240326-102852-cdb0f2d0 latest(name == "data") data.rds....</span></span></code></pre></div>
+<span><span class="co">## 1 20240404-083024-ba999da2 latest(name == "data") data.rds....</span></span></code></pre></div>
 <p>(indeed it had to, there is only one copy of the <code>data</code>
 packet to pick from).</p>
 </div>
@@ -201,35 +201,35 @@ want to pull in data for a country.</p>
 <p>We can run this for several values of <code>cyl</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cyl <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240326-102853-5f4a8dc0` at 2024-03-26 10:28:53.375361</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240404-083025-56bb1e64` at 2024-04-04 08:30:25.341973</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Parameters:</span></span>
 <span><span class="co">## • cyl: 4</span></span>
 <span><span class="co">## &gt; orderly2::orderly_parameters(cyl = NULL)</span></span>
 <span><span class="co">## &gt; d &lt;- mtcars[mtcars$cyl == cyl, ]</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">data.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240326-102853-5f4a8dc0 at 2024-03-26 10:28:53.405129 (0.02976799 secs)</span></span>
-<span><span class="co">## [1] "20240326-102853-5f4a8dc0"</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240404-083025-56bb1e64 at 2024-04-04 08:30:25.371971 (0.02999783 secs)</span></span>
+<span><span class="co">## [1] "20240404-083025-56bb1e64"</span></span>
 <span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cyl <span class="op">=</span> <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240326-102853-6cf7ce7b` at 2024-03-26 10:28:53.428689</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240404-083025-646eb081` at 2024-04-04 08:30:25.395359</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Parameters:</span></span>
 <span><span class="co">## • cyl: 6</span></span>
 <span><span class="co">## &gt; orderly2::orderly_parameters(cyl = NULL)</span></span>
 <span><span class="co">## &gt; d &lt;- mtcars[mtcars$cyl == cyl, ]</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">data.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240326-102853-6cf7ce7b at 2024-03-26 10:28:53.455681 (0.02699184 secs)</span></span>
-<span><span class="co">## [1] "20240326-102853-6cf7ce7b"</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240404-083025-646eb081 at 2024-04-04 08:30:25.422142 (0.02678275 secs)</span></span>
+<span><span class="co">## [1] "20240404-083025-646eb081"</span></span>
 <span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cyl <span class="op">=</span> <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240326-102853-7a65244d` at 2024-03-26 10:28:53.481173</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240404-083025-7120b78e` at 2024-04-04 08:30:25.448045</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Parameters:</span></span>
 <span><span class="co">## • cyl: 8</span></span>
 <span><span class="co">## &gt; orderly2::orderly_parameters(cyl = NULL)</span></span>
 <span><span class="co">## &gt; d &lt;- mtcars[mtcars$cyl == cyl, ]</span></span>
 <span><span class="co">## &gt; saveRDS(d, "data.rds")</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">data.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240326-102853-7a65244d at 2024-03-26 10:28:53.508787 (0.02761459 secs)</span></span>
-<span><span class="co">## [1] "20240326-102853-7a65244d"</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240404-083025-7120b78e at 2024-04-04 08:30:25.478135 (0.03009057 secs)</span></span>
+<span><span class="co">## [1] "20240404-083025-7120b78e"</span></span></code></pre></div>
 <p>Our follow-on analysis contains:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_parameters.html">orderly_parameters</a></span><span class="op">(</span>cyl <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
@@ -247,7 +247,7 @@ want to pull in data for a country.</p>
 currently running report (<code>this:cyl</code>).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"analysis"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cyl <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20240326-102853-a824ca4a` at 2024-03-26 10:28:53.663022</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20240404-083025-a128adfb` at 2024-04-04 08:30:25.632838</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Parameters:</span></span>
 <span><span class="co">## • cyl: 4</span></span>
 <span><span class="co">## &gt; orderly2::orderly_parameters(cyl = NULL)</span></span>
@@ -255,7 +255,7 @@ currently running report (<code>this:cyl</code>).</p>
 <span><span class="co">## +   "data",</span></span>
 <span><span class="co">## +   "latest(parameter:cyl == this:cyl)",</span></span>
 <span><span class="co">## +   "data.rds")</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Depending on <span style="color: #0000BB;">data</span> @ `20240326-102853-5f4a8dc0` (via latest(parameter:cyl == this:cyl &amp;&amp; name == "data"))</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Depending on <span style="color: #0000BB;">data</span> @ `20240404-083025-56bb1e64` (via latest(parameter:cyl == this:cyl &amp;&amp; name == "data"))</span></span>
 <span><span class="co">## &gt; d &lt;- readRDS("data.rds")</span></span>
 <span><span class="co">## &gt; png("analysis.png")</span></span>
 <span><span class="co">## &gt; plot(mpg ~ disp, d)</span></span>
@@ -263,8 +263,8 @@ currently running report (<code>this:cyl</code>).</p>
 <span><span class="co">## agg_png </span></span>
 <span><span class="co">##       2</span></span>
 <span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">analysis.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240326-102853-a824ca4a at 2024-03-26 10:28:53.71333 (0.05030799 secs)</span></span>
-<span><span class="co">## [1] "20240326-102853-a824ca4a"</span></span></code></pre></div>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240404-083025-a128adfb at 2024-04-04 08:30:25.68827 (0.05543208 secs)</span></span>
+<span><span class="co">## [1] "20240404-083025-a128adfb"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="interpreting-errors">Interpreting errors<a class="anchor" aria-label="anchor" href="#interpreting-errors"></a>
@@ -272,7 +272,7 @@ currently running report (<code>this:cyl</code>).</p>
 <p>If your query fails to resolve a candidate it will error:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"analysis"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cyl <span class="op">=</span> <span class="fl">9000</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20240326-102853-cbd2039f` at 2024-03-26 10:28:53.799244</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">analysis</span>' `20240404-083025-c63552a0` at 2024-04-04 08:30:25.777362</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Parameters:</span></span>
 <span><span class="co">## • cyl: 9000</span></span>
 <span><span class="co">## &gt; orderly2::orderly_parameters(cyl = NULL)</span></span>
@@ -281,7 +281,7 @@ currently running report (<code>this:cyl</code>).</p>
 <span><span class="co">## +   "latest(parameter:cyl == this:cyl)",</span></span>
 <span><span class="co">## +   "data.rds")</span></span>
 <span><span class="co">## <span style="color: #BB0000;">✖</span> Error running <span style="color: #0000BB;">analysis.R</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240326-102853-cbd2039f at 2024-03-26 10:28:53.864053 (0.06480861 secs)</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240404-083025-c63552a0 at 2024-04-04 08:30:25.843449 (0.06608629 secs)</span></span>
 <span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `orderly2::orderly_run()`:</span></span></span>
 <span><span class="co">## <span style="color: #BBBB00;">!</span> Failed to run report</span></span>
 <span><span class="co">## <span style="font-weight: bold;">Caused by error in `outpack_packet_use_dependency()`:</span></span></span>
@@ -338,8 +338,8 @@ you:</p>
 <span><span class="co">## [1] 3</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $found</span></span>
-<span><span class="co">## [1] "20240326-102853-5f4a8dc0" "20240326-102853-6cf7ce7b"</span></span>
-<span><span class="co">## [3] "20240326-102853-7a65244d"</span></span></code></pre></div>
+<span><span class="co">## [1] "20240404-083025-56bb1e64" "20240404-083025-646eb081"</span></span>
+<span><span class="co">## [3] "20240404-083025-7120b78e"</span></span></code></pre></div>
 <p>(this would have worked with
 <code>rlang::last_error()$explanation$parts$A</code> too).</p>
 <p>You can also use <code><a href="../reference/orderly_metadata_extract.html">orderly2::orderly_metadata_extract</a></code> to
@@ -349,9 +349,9 @@ work out what values you might have looked for:</p>
 <span>  name <span class="op">=</span> <span class="st">"data"</span>,</span>
 <span>  extract <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cyl <span class="op">=</span> <span class="st">"parameters.cyl is number"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##                         id cyl</span></span>
-<span><span class="co">## 1 20240326-102853-5f4a8dc0   4</span></span>
-<span><span class="co">## 2 20240326-102853-6cf7ce7b   6</span></span>
-<span><span class="co">## 3 20240326-102853-7a65244d   8</span></span></code></pre></div>
+<span><span class="co">## 1 20240404-083025-56bb1e64   4</span></span>
+<span><span class="co">## 2 20240404-083025-646eb081   6</span></span>
+<span><span class="co">## 3 20240404-083025-7120b78e   8</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="filtering-candidates-in-other-ways">Filtering candidates in other ways<a class="anchor" aria-label="anchor" href="#filtering-candidates-in-other-ways"></a>
@@ -365,7 +365,7 @@ code in a specific parameter value, and used
 <code>latest(parameter:cyl == environment:cyl)</code> to match against
 whatever value <code>cyl</code> took in the evaluating environment.</p>
 <p>Instead of a query, you can provide a single id (e.g,
-<code>20240326-102853-a824ca4a</code>), which would mean that even as
+<code>20240404-083025-a128adfb</code>), which would mean that even as
 new copies of the <code>data</code> packet are created, this dependency
 will always resolve to the same value.</p>
 <p>You can chain together logical operations with
