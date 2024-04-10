@@ -325,9 +325,9 @@ static_orderly_dependency <- function(args) {
 ##'
 ##' @title Copy shared resources into a packet directory
 ##'
-##' @param ... Named arguments corresponding to shared resources to
-##'   copy. The name will be the destination filename, while the value
-##'   is the filename within the shared resource directory.
+##' @param ... The shared resources to copy. If arguments are named, the name
+##'   will be the destination file while the value is the filename within the
+##'   shared resource directory.
 ##'
 ##' @return Invisibly, a data.frame with columns `here` (the fileames
 ##'   as as copied into the running packet) and `there` (the filenames
@@ -351,21 +351,23 @@ orderly_shared_resource <- function(...) {
   invisible(files)
 }
 
-
 validate_shared_resource <- function(args, call) {
   if (length(args) == 0) {
     cli::cli_abort("'orderly_shared_resource' requires at least one argument",
                    call = call)
   }
-  assert_named(args, unique = TRUE, call = environment())
+
   is_invalid <- !vlapply(args, function(x) is.character(x) && length(x) == 1)
   if (any(is_invalid)) {
     cli::cli_abort(
-      sprintf(
-        "Invalid shared resource %s: entries must be strings",
-        paste(squote(names(args)[is_invalid]), collapse = ", ")),
+      "Arguments to 'orderly_shared_resource' must be strings",
       call = call)
   }
+
+  args <- fill_missing_names(args)
+  assert_unique_names(args, call = call,
+                      name = "Arguments to 'orderly_shared_resource'")
+
   list_to_character(args)
 }
 
@@ -405,7 +407,8 @@ copy_shared_resource <- function(path_root, path_dest, config, files, call) {
 
 
 static_orderly_shared_resource <- function(args) {
-  unlist(lapply(args, static_character_vector, TRUE), FALSE, TRUE)
+  list_to_character(
+    fill_missing_names(lapply(args, static_character_vector, TRUE)))
 }
 
 

@@ -261,19 +261,64 @@ test_that("can run manually with shared resources", {
 })
 
 
+test_that("can run with shared resources using shorthand arguments", {
+  path <- test_prepare_orderly_example("shared-shorthand")
+  envir <- new.env()
+  id <- orderly_run_quietly("shared-shorthand", root = path, envir = envir)
+  expect_setequal(
+    dir(file.path(path, "archive", "shared-shorthand", id)),
+    c("data.csv", "mygraph.png", "shared-shorthand.R"))
+  meta <- orderly_metadata(id, root = path)
+  expect_equal(nrow(meta$custom$orderly$shared), 1)
+  expect_equal(meta$custom$orderly$shared,
+               data_frame(here = "data.csv", there = "data.csv"))
+  expect_equal(
+    meta$custom$orderly$role,
+    data_frame(path = c("shared-shorthand.R", "data.csv"),
+               role = c("orderly", "shared")))
+})
+
+
 test_that("can validate shared resource arguments", {
   expect_error(
     validate_shared_resource(list(), NULL),
     "'orderly_shared_resource' requires at least one argument")
+
   expect_error(
     validate_shared_resource(list(input = c("a", "b")), NULL),
-    "Invalid shared resource 'input': entries must be strings")
+    "Arguments to 'orderly_shared_resource' must be strings")
   expect_error(
     validate_shared_resource(list(a = 1, b = TRUE, c = "str"), NULL),
-    "Invalid shared resource 'a', 'b': entries must be strings")
+    "Arguments to 'orderly_shared_resource' must be strings")
+  expect_error(
+    validate_shared_resource(list(1, TRUE, "str"), NULL),
+    "Arguments to 'orderly_shared_resource' must be strings")
+  expect_error(
+    validate_shared_resource(list(a = 1, TRUE, "str"), NULL),
+    "Arguments to 'orderly_shared_resource' must be strings")
+
+  expect_error(
+    validate_shared_resource(list(a = "A", a = "B"), NULL),
+    "'Arguments to 'orderly_shared_resource'' must have unique names")
+  expect_error(
+    validate_shared_resource(list("a", "a"), NULL),
+    "'Arguments to 'orderly_shared_resource'' must have unique names")
+  expect_error(
+    validate_shared_resource(list("a", a = "B"), NULL),
+    "'Arguments to 'orderly_shared_resource'' must have unique names")
+
   expect_equal(
     validate_shared_resource(list(a = "A", b = "B"), NULL),
     c(a = "A", b = "B"))
+  expect_equal(
+    validate_shared_resource(list(a = "A", b = "A"), NULL),
+    c(a = "A", b = "A"))
+  expect_equal(
+    validate_shared_resource(list("a", "b"), NULL),
+    c(a = "a", b = "b"))
+  expect_equal(
+    validate_shared_resource(list("a", b = "B"), NULL),
+    c(a = "a", b = "B"))
 })
 
 
@@ -1241,6 +1286,31 @@ test_that("can read about assigned shared resources", {
 
   res <- orderly_read(path_src)
   expect_equal(res$shared_resource, c(shared_data = "data"))
+})
+
+test_that("can read about shared resources with shorthand syntax", {
+  path <- test_prepare_orderly_example("shared-shorthand")
+  path_src <- file.path(path, "src", "shared-shorthand")
+  code <- readLines(file.path(path_src, "shared-shorthand.R"))
+  code <- sub("orderly2::orderly_shared_resource",
+              "r <- orderly2::orderly_shared_resource",
+              code)
+  code <- c(code, 'saveRDS(r, "resources.rds")')
+  writeLines(code, file.path(path_src, "shared-shorthand.R"))
+
+  id <- orderly_run_quietly("shared-shorthand", root = path, envir = new.env())
+  r <- readRDS(file.path(path, "archive", "shared-shorthand",
+                         id, "resources.rds"))
+  expect_equal(r, data_frame(here = "data.csv", there = "data.csv"))
+
+  res <- withr::with_dir(
+    path_src,
+    withVisible(orderly_shared_resource("data.csv")))
+  expect_equal(res$visible, FALSE)
+  expect_equal(res$value, r)
+
+  res <- orderly_read(path_src)
+  expect_equal(res$shared_resource, c(data.csv = "data.csv"))
 })
 
 

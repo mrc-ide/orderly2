@@ -26,6 +26,14 @@ test_that("assert_simple_scalar_atomic", {
   expect_error(assert_simple_scalar_atomic(list(1)), "must be atomic")
 })
 
+test_that("assert_unique_names", {
+  expect_error(assert_unique_names(setNames(1:3, c("a", "a", "c"))),
+               "must have unique names")
+  expect_error(assert_unique_names(setNames(1:3, c("a", "c", "a"))),
+               "must have unique names")
+  expect_silent(assert_unique_names(setNames(1:3, c("a", "b", "c"))))
+})
+
 
 test_that("assert_named", {
   expect_error(assert_named(1), "must be named")

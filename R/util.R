@@ -644,3 +644,16 @@ is_testing <- function() {
   # https://github.com/r-lib/testthat/blob/fe50a22/R/test-env.R#L20
   identical(Sys.getenv("TESTTHAT"), "true")
 }
+
+#' Given a character vector or list, missing names are filled using the value.
+fill_missing_names <- function(x) {
+  if (!is.null(x)) {
+    if (is.null(names(x))) {
+      names(x) <- list_to_character(x)
+    } else {
+      missing <- is.na(names(x)) | names(x) == ""
+      names(x)[missing] <- x[missing]
+    }
+  }
+  x
+}
