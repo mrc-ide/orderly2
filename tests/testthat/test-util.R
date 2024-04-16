@@ -337,15 +337,7 @@ test_that("read_string strips newlines", {
 
 test_that("fill_missing_names works", {
   expect_equal(fill_missing_names(NULL), NULL)
-
   expect_equal(fill_missing_names(c("a", "b")), c(a = "a", b = "b"))
   expect_equal(fill_missing_names(c("a", "a")), c(a = "a", a = "a"))
   expect_equal(fill_missing_names(c(x = "a", "a")), c(x = "a", a = "a"))
-
-  expect_equal(fill_missing_names(list("a", "a")),
-               list(a = "a", a = "a"))
-  expect_equal(fill_missing_names(list(x = "a", "a")),
-               list(x = "a", a = "a"))
-  expect_equal(fill_missing_names(list(x = "a", y = "a")),
-               list(x = "a", y = "a"))
 })

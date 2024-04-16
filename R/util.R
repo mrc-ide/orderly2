@@ -645,15 +645,12 @@ is_testing <- function() {
   identical(Sys.getenv("TESTTHAT"), "true")
 }
 
-#' Given a character vector or list, missing names are filled using the value.
+#' Given a character vector, missing names are filled using the value.
 fill_missing_names <- function(x) {
-  if (!is.null(x)) {
-    if (is.null(names(x))) {
-      names(x) <- list_to_character(x)
-    } else {
-      missing <- is.na(names(x)) | names(x) == ""
-      names(x)[missing] <- x[missing]
-    }
+  if (is.null(names(x))) {
+    names(x) <- x
+  } else if (any(i <- !nzchar(names(x)))) {
+    names(x)[i] <- x[i]
   }
   x
 }

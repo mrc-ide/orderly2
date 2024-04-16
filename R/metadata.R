@@ -298,7 +298,7 @@ static_orderly_dependency <- function(args) {
   has_name <- !is.null(static_name) || is.null(name)
 
   name <- static_string(name)
-  files <- static_character_vector(files, TRUE)
+  files <- fill_missing_names(static_character_vector(files, TRUE))
 
   if (is.character(args$query)) {
     query <- static_string(query)
@@ -329,14 +329,29 @@ static_orderly_dependency <- function(args) {
 ##'   will be the destination file while the value is the filename within the
 ##'   shared resource directory.
 ##'
+##' You can use a limited form of string interpolation in the names of
+##'   this argument; using `${variable}` will pick up values from
+##'   `envir` and substitute them into your string.  This is similar
+##'   to the interpolation you might be familiar with from
+##'   `glue::glue` or similar, but much simpler with no concatenation
+##'   or other fancy features supported.
+##'
 ##' @return Invisibly, a data.frame with columns `here` (the fileames
 ##'   as as copied into the running packet) and `there` (the filenames
 ##'   within `shared/`).  As for [orderly2::orderly_resource], do not
 ##'   rely on the ordering where directory expansion was performed.
 ##'
 ##' @export
-orderly_shared_resource <- function(...) {
-  files <- validate_shared_resource(list(...), environment())
+orderly_shared_resource <- function(..., envir=parent.frame()) {
+  files <- validate_file_from_to(list(...), envir,
+                                 name="arguments to 'orderly_shared_resource'",
+                                 call=environment())
+
+  if (nrow(files) == 0) {
+    cli::cli_abort("'orderly_shared_resource' requires at least one argument",
+                   call = environment())
+  }
+
   ctx <- orderly_context(rlang::caller_env())
 
   files <- copy_shared_resource(ctx$root_src, ctx$path, ctx$config, files,
@@ -351,27 +366,6 @@ orderly_shared_resource <- function(...) {
   invisible(files)
 }
 
-validate_shared_resource <- function(args, call) {
-  if (length(args) == 0) {
-    cli::cli_abort("'orderly_shared_resource' requires at least one argument",
-                   call = call)
-  }
-
-  is_invalid <- !vlapply(args, function(x) is.character(x) && length(x) == 1)
-  if (any(is_invalid)) {
-    cli::cli_abort(
-      "Arguments to 'orderly_shared_resource' must be strings",
-      call = call)
-  }
-
-  args <- fill_missing_names(args)
-  assert_unique_names(args, call = call,
-                      name = "Arguments to 'orderly_shared_resource'")
-
-  list_to_character(args)
-}
-
-
 copy_shared_resource <- function(path_root, path_dest, config, files, call) {
   shared_dir <- "shared"
   shared_path <- file.path(path_root, shared_dir)
@@ -381,8 +375,8 @@ copy_shared_resource <- function(path_root, path_dest, config, files, call) {
       shared_dir))
   }
 
-  here <- names(files)
-  there <- unname(files)
+  here <- files$here
+  there <- files$there
 
   assert_file_exists_relative(there, workdir = shared_path,
                               name = "Shared resource file", call = call)
@@ -407,8 +401,7 @@ copy_shared_resource <- function(path_root, path_dest, config, files, call) {
 
 
 static_orderly_shared_resource <- function(args) {
-  list_to_character(
-    fill_missing_names(lapply(args, static_character_vector, TRUE)))
+  fill_missing_names(unlist(lapply(args, static_string), FALSE, TRUE))
 }
 
 

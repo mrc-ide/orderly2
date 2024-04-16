@@ -278,49 +278,37 @@ test_that("can run with shared resources using shorthand arguments", {
                role = c("orderly", "shared")))
 })
 
-
 test_that("can validate shared resource arguments", {
   expect_error(
-    validate_shared_resource(list(), NULL),
+    orderly_shared_resource(),
     "'orderly_shared_resource' requires at least one argument")
 
   expect_error(
-    validate_shared_resource(list(input = c("a", "b")), NULL),
-    "Arguments to 'orderly_shared_resource' must be strings")
+    orderly_shared_resource(c("a", "b")),
+    "All elements of 'arguments to 'orderly_shared_resource'' must be strings")
   expect_error(
-    validate_shared_resource(list(a = 1, b = TRUE, c = "str"), NULL),
-    "Arguments to 'orderly_shared_resource' must be strings")
+    orderly_shared_resource(a = 1, b = TRUE, c = "str"),
+    "All elements of 'arguments to 'orderly_shared_resource'' must be strings")
   expect_error(
-    validate_shared_resource(list(1, TRUE, "str"), NULL),
-    "Arguments to 'orderly_shared_resource' must be strings")
+    orderly_shared_resource(1, TRUE, "str"),
+    "All elements of 'arguments to 'orderly_shared_resource'' must be strings")
   expect_error(
-    validate_shared_resource(list(a = 1, TRUE, "str"), NULL),
-    "Arguments to 'orderly_shared_resource' must be strings")
+    orderly_shared_resource(a = 1, TRUE, "str"),
+    "All elements of 'arguments to 'orderly_shared_resource'' must be strings")
 
   expect_error(
-    validate_shared_resource(list(a = "A", a = "B"), NULL),
-    "'Arguments to 'orderly_shared_resource'' must have unique names")
+    orderly_shared_resource(a = "A", a = "B"),
+    "Every destination filename (in 'arguments to 'orderly_shared_resource'') must be unique",
+    fixed=TRUE)
   expect_error(
-    validate_shared_resource(list("a", "a"), NULL),
-    "'Arguments to 'orderly_shared_resource'' must have unique names")
+    orderly_shared_resource("a", "a"),
+    "Every destination filename (in 'arguments to 'orderly_shared_resource'') must be unique",
+    fixed=TRUE)
   expect_error(
-    validate_shared_resource(list("a", a = "B"), NULL),
-    "'Arguments to 'orderly_shared_resource'' must have unique names")
-
-  expect_equal(
-    validate_shared_resource(list(a = "A", b = "B"), NULL),
-    c(a = "A", b = "B"))
-  expect_equal(
-    validate_shared_resource(list(a = "A", b = "A"), NULL),
-    c(a = "A", b = "A"))
-  expect_equal(
-    validate_shared_resource(list("a", "b"), NULL),
-    c(a = "a", b = "b"))
-  expect_equal(
-    validate_shared_resource(list("a", b = "B"), NULL),
-    c(a = "a", b = "B"))
+    orderly_shared_resource("a", a = "B"),
+    "Every destination filename (in 'arguments to 'orderly_shared_resource'') must be unique",
+    fixed=TRUE)
 })
-
 
 test_that("can't use shared resources if not enabled", {
   path <- test_prepare_orderly_example("shared")
