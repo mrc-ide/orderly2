@@ -298,17 +298,21 @@ test_that("can validate shared resource arguments", {
 
   expect_error(
     orderly_shared_resource(a = "A", a = "B"),
-    "Every destination filename (in 'arguments to 'orderly_shared_resource'') must be unique",
-    fixed=TRUE)
+    paste("Every destination filename (in 'arguments to",
+          "'orderly_shared_resource'') must be unique"),
+    fixed = TRUE)
   expect_error(
     orderly_shared_resource("a", "a"),
-    "Every destination filename (in 'arguments to 'orderly_shared_resource'') must be unique",
-    fixed=TRUE)
+    paste("Every destination filename (in 'arguments to",
+          "'orderly_shared_resource'') must be unique"),
+    fixed = TRUE)
   expect_error(
     orderly_shared_resource("a", a = "B"),
-    "Every destination filename (in 'arguments to 'orderly_shared_resource'') must be unique",
-    fixed=TRUE)
+    paste("Every destination filename (in 'arguments to",
+          "'orderly_shared_resource'') must be unique"),
+    fixed = TRUE)
 })
+
 
 test_that("can't use shared resources if not enabled", {
   path <- test_prepare_orderly_example("shared")

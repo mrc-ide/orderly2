@@ -342,10 +342,11 @@ static_orderly_dependency <- function(args) {
 ##'   rely on the ordering where directory expansion was performed.
 ##'
 ##' @export
-orderly_shared_resource <- function(..., envir=parent.frame()) {
-  files <- validate_file_from_to(list(...), envir,
-                                 name="arguments to 'orderly_shared_resource'",
-                                 call=environment())
+orderly_shared_resource <- function(...) {
+  files <- validate_file_from_to(
+    list(...), parent.frame(),
+    name = "arguments to 'orderly_shared_resource'",
+    call = environment())
 
   if (nrow(files) == 0) {
     cli::cli_abort("'orderly_shared_resource' requires at least one argument",
