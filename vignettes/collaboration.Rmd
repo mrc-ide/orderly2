@@ -99,7 +99,7 @@ Packets that are distributed by locations might have been created by `orderly2`,
 * `path`: these are any `orderly2` working copy that you can find on your filesystem. Note that this could be a copy that other people can see (for example on a network share, or on a cloud-synced file system such as Dropbox or OneDrive) see [Sharing packets with collaborators using a shared file system] for more details
 * `http`: these require running an HTTP API, either via [`outpack_server`](https://github.com/mrc-ide/outpack_server) or [`packit`](https://github.com/mrc-ide/packit)
 
-The location system is somewhat extensible, but the details of this are subject to change.  There is [`outpack.sharepoint`](https://github.com/mrc-ide/outpack.sharepoint) for using SharePoint, and we may write other backends later.
+The location system is somewhat extensible, but the details of this are subject to change.
 
 All the documentation below will behave the same regardless of where the location is stored and the mechanism of transport, so we can focus instead on workflows.
 
