@@ -49,6 +49,9 @@
 ##'   location; if `TRUE` you will always have all the packets that
 ##'   you hold metadata about.
 ##'
+##' @param force Logical, indicating if we shold initialise orderly
+##'   even if the directory is not empty.
+##'
 ##' @return The full, normalised, path to the root,
 ##'   invisibly. Typically this is called only for its side effect.
 ##'
@@ -65,25 +68,30 @@
 orderly_init <- function(root = ".",
                          path_archive = "archive",
                          use_file_store = FALSE,
-                         require_complete_tree = FALSE) {
+                         require_complete_tree = FALSE,
+                         force = FALSE) {
   assert_scalar_character(root)
   has_orderly_config <- file.exists(file.path(root, "orderly_config.yml"))
   if (!has_orderly_config && file.exists(root)) {
     if (!is_directory(root)) {
       cli::cli_abort("'root' exists but is not a directory")
     }
-    if (!file.exists(file.path(root, ".outpack"))) {
-      ## We may need to relax this, but it's not really clear to me
-      ## how the user gets into this position; they have a bunch of
-      ## files there and they want to a root into it?
-      ##
-      ## One option is provide a boolean arg to proceed anyway in this
-      ## case, at the moment there's not a lot that can be done to
-      ## undo this situation.
-      if (length(dir(root, all.files = TRUE, no.. = TRUE)) > 0) {
+    if (!file.exists(file.path(root, ".outpack")) && !force) {
+      allowed <- c(".outpack",
+                   ".git", ".gitignore",
+                   ".Rhistory",
+                   "*.Rproj", ".Rproj.user")
+      contents <- dir(root, all.files = TRUE, no.. = TRUE)
+      m <- vapply(glob2rx(allowed), grepl, logical(length(contents)), contents)
+      if (!is.matrix(m)) { # exactly one file to compare
+        m <- rbind(m)
+      }
+      err <- contents[!apply(m, 1, any)]
+      if (length(err) > 0) {
         cli::cli_abort(c(
           "'root' exists but is not empty, or an outpack archive",
-          i = "Please have a chat with us if this is something you need to do"))
+          x = "Found existing file{?s}: {.file {err}}",
+          i = "Use 'force = TRUE' to initialise anyway"))
       }
     }
   }
