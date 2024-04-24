@@ -44,18 +44,25 @@ assert_simple_scalar_atomic <- function(x, name = deparse(substitute(x)),
   invisible(x)
 }
 
+assert_unique_names <- function(x, name = deparse(substitute(x)),
+                                arg = name, call = NULL) {
+  if (any(duplicated(names(x)))) {
+      dups <- unique(names(x)[duplicated(names(x))])
+      cli::cli_abort(
+        c("'{name}' must have unique names",
+          i = "Found {length(dups)} duplicate{?s}: {collapseq(dups)}"),
+        call = call, arg = arg)
+  }
+}
+
 assert_named <- function(x, unique = FALSE, name = deparse(substitute(x)),
                          arg = name, call = NULL) {
   ## TODO: we get bad quotes here from static_orderly_parameters
   if (is.null(names(x))) {
     cli::cli_abort("'{name}' must be named", call = call, arg = arg)
   }
-  if (unique && any(duplicated(names(x)))) {
-    dups <- unique(names(x)[duplicated(names(x))])
-    cli::cli_abort(
-      c("'{name}' must have unique names",
-        i = "Found {length(dups)} duplicate{?s}: {collapseq(dups)}"),
-      call = call, arg = arg)
+  if (unique) {
+    assert_unique_names(x, name = name, arg = arg, call = call)
   }
 }
 

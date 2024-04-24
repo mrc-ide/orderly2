@@ -36,9 +36,9 @@ copy_examples <- function(examples, path_src) {
   }
 
   fs::dir_create(path_src)
-  if (any(c("shared", "shared-dir") %in% examples)) {
+  if (any(c("shared", "shared-shorthand", "shared-dir") %in% examples)) {
     fs::dir_create(file.path(path_src, "shared"))
-    if ("shared" %in% examples) {
+    if (any(c("shared", "shared-shorthand") %in% examples)) {
       fs::file_copy(test_path("examples/explicit/data.csv"),
                     file.path(path_src, "shared"))
     }

@@ -153,6 +153,29 @@ test_that("can clean up shared resources", {
   expect_equal(status$delete, "shared_data.csv")
 })
 
+test_that("can clean up shared resources with shorthand syntax", {
+  path <- test_prepare_orderly_example("shared-shorthand")
+  path_src <- file.path(path, "src", "shared-shorthand")
+  file.create(file.path(path_src, "data.csv"))
+  status <- orderly_cleanup_status("shared-shorthand", root = path)
+
+  files <- c("data.csv", "shared-shorthand.R")
+  expect_setequal(rownames(status$role), files)
+  expect_equal(
+    status$role,
+    cbind(orderly = set_names(c(FALSE, TRUE), files),
+          resource = FALSE,
+          shared_resource = c(TRUE, FALSE),
+          dependency = FALSE,
+          artefact = FALSE))
+  expect_equal(
+    status$status,
+    cbind(source = set_names(c(FALSE, TRUE), files),
+          derived = c(TRUE, FALSE),
+          ignored = NA))
+  expect_equal(status$delete, "data.csv")
+})
+
 
 test_that("can clean up dependencies", {
   path <- test_prepare_orderly_example(c("data", "depends"))

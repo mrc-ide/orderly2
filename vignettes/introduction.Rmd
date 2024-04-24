@@ -311,7 +311,7 @@ We can then write an orderly report `use_shared` that uses this shared file, wit
 ```{r, echo = FALSE, results = "asis"}
 fs::dir_create(file.path(path, "src", "use_shared"))
 writeLines(c(
-  'orderly2::orderly_shared_resource(data.csv = "data.csv")',
+  'orderly2::orderly_shared_resource("data.csv")',
   'orderly2::orderly_artefact("analysis", "analysis.png")',
   "",
   'd <- read.csv("data.csv")',

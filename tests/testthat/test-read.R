@@ -68,6 +68,12 @@ test_that("read dependency", {
   args <- list(name = NULL, query = "latest", files = c(x = "y"))
   expect_equal(static_orderly_dependency(args), args)
 
+  args <- list(name = NULL, query = "latest", files = c("x"))
+  expect_equal(static_orderly_dependency(args)$files, c(x = "x"))
+
+  args <- list(name = NULL, query = "latest", files = c("x", y = "z"))
+  expect_equal(static_orderly_dependency(args)$files, c(x = "x", y = "z"))
+
   expect_null(
     static_orderly_dependency(list(name = quote(a),
                                    query = "latest",
@@ -122,4 +128,14 @@ test_that("can parse expressions that might be interesting", {
     orderly_read_expr(quote(f(a, b, c)), nms),
     list(is_orderly = FALSE,
          expr = quote(f(a, b, c))))
+})
+
+test_that("read shared resource", {
+  expect_equal(static_orderly_shared_resource(list("a", "b")),
+               c(a = "a", b = "b"))
+
+  expect_equal(static_orderly_shared_resource(list(a = "x", "b")),
+               c(a = "x", b = "b"))
+
+  expect_null(static_orderly_shared_resource(list(quote(c("a", "b")))))
 })

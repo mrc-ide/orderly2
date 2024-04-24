@@ -85,13 +85,7 @@ validate_file_from_to <- function(x, envir,
     x <- list_to_character(x)
   }
 
-  if (is.character(x)) {
-    to <- names(x) %||% x
-    from <- unname(x)
-    if (any(i <- !nzchar(to))) {
-      to[i] <- from[i]
-    }
-  } else {
+  if (!is.character(x)) {
     cli::cli_abort(
       c(sprintf("Unexpected object type for '%s'", name),
         x = sprintf("Given object of class %s", collapseq(class(x))),
@@ -99,6 +93,8 @@ validate_file_from_to <- function(x, envir,
       call = call)
   }
 
+  to <- names(fill_missing_names(x))
+  from <- unname(x)
   to_value <- string_interpolate_simple(to, envir, call)
 
   if (any(duplicated(to_value))) {
