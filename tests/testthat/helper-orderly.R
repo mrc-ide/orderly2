@@ -6,7 +6,7 @@ options(outpack.schema_validate =
 
 test_prepare_orderly_example <- function(examples, ...) {
   tmp <- tempfile()
-  withr::defer_parent(unlink(tmp, recursive = TRUE))
+  withr::defer_parent(fs::dir_delete(tmp))
   suppressMessages(orderly_init(tmp, ...))
   copy_examples(examples, tmp)
   as.character(fs::path_norm(tmp))
@@ -15,11 +15,11 @@ test_prepare_orderly_example <- function(examples, ...) {
 
 test_prepare_orderly_example_separate <- function(examples, ...) {
   tmp <- tempfile()
-  withr::defer_parent(unlink(tmp, recursive = TRUE))
+  withr::defer_parent(fs::dir_delete(tmp))
 
   path_outpack <- file.path(tmp, "outpack")
   suppressMessages(orderly_init(path_outpack, ...))
-  unlink(file.path(path_outpack, "orderly_config.yml"))
+  fs::file_delete(file.path(path_outpack, "orderly_config.yml"))
 
   path_src <- file.path(tmp, "src")
   copy_examples(examples, path_src)

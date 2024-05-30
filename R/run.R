@@ -494,7 +494,7 @@ orderly_packet_cleanup_success <- function(p, call = NULL) {
 
   orderly_packet_add_metadata(p)
   outpack_packet_end(p)
-  unlink(path, recursive = TRUE)
+  fs::dir_delete(path)
 }
 
 

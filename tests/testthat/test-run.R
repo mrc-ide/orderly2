@@ -188,6 +188,12 @@ test_that("Can run simple case with dependency", {
   envir2 <- new.env()
   id2 <- orderly_run_quietly("depends", root = path, envir = envir2)
 
+  ## Nothing left in drafts
+  expect_true(is_directory(file.path(path, "draft", "data")))
+  expect_true(is_directory(file.path(path, "draft", "depends")))
+  expect_false(file.exists(file.path(path, "draft", "data", id1)))
+  expect_false(file.exists(file.path(path, "draft", "depends", id2)))
+
   path1 <- file.path(path, "archive", "data", id1)
   path2 <- file.path(path, "archive", "depends", id2)
 
@@ -316,7 +322,7 @@ test_that("can validate shared resource arguments", {
 
 test_that("can't use shared resources if not enabled", {
   path <- test_prepare_orderly_example("shared")
-  unlink(file.path(path, "shared"), recursive = TRUE)
+  fs::dir_delete(file.path(path, "shared"))
   envir <- new.env()
   path_src <- file.path(path, "src", "shared")
   err <- expect_error(
@@ -1156,7 +1162,7 @@ test_that("cope with manually deleted packets, exclude from deps", {
   })
 
   id <- ids[[3]]
-  unlink(file.path(path, "archive", "data", id), recursive = TRUE)
+  fs::dir_delete(file.path(path, "archive", "data", id))
 
   err <- expect_error(
     orderly_run_quietly("depends", root = path, envir = new.env()),
@@ -1191,7 +1197,7 @@ test_that("cope with corrupted packets, exclude from deps", {
   })
 
   id <- ids[[3]]
-  file.create(file.path(path, "archive", "data", id, "data.rds")) # truncate
+  forcibly_truncate_file(file.path(path, "archive", "data", id, "data.rds"))
 
   err <- expect_error(
     orderly_run_quietly("depends", root = path, envir = new.env()),
@@ -1342,7 +1348,7 @@ test_that("can read about dependencies", {
 test_that("nice error if resource file not found", {
   path <- test_prepare_orderly_example("explicit")
   envir <- new.env()
-  unlink(file.path(path, "src", "explicit", "data.csv"))
+  fs::file_delete(file.path(path, "src", "explicit", "data.csv"))
   err <- expect_error(
     orderly_run_quietly("explicit", root = path, envir = envir),
     "Resource file does not exist: 'data.csv'")

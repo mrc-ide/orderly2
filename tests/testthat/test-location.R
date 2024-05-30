@@ -433,7 +433,8 @@ test_that("detect and avoid modified files in source repository", {
   orderly_location_pull_metadata(root = root$dst)
 
   ## Corrupt the file in the first id by truncating it:
-  file.create(file.path(root$src$path, "archive", "data", id[[1]], "a.rds"))
+  forcibly_truncate_file(
+    file.path(root$src$path, "archive", "data", id[[1]], "a.rds"))
 
   ## Then pull
   res <- testthat::evaluate_promise(
@@ -1076,8 +1077,8 @@ test_that("can prune orphans from tree", {
 test_that("don't prune referenced orphans", {
   root <- create_temporary_root()
   id <- create_random_packet_chain(root, 3)
-  unlink(file.path(root$path, "archive", "a"), recursive = TRUE)
-  unlink(file.path(root$path, "archive", "c"), recursive = TRUE)
+  fs::dir_delete(file.path(root$path, "archive", "a"))
+  fs::dir_delete(file.path(root$path, "archive", "c"))
   suppressMessages(orderly_validate_archive(action = "orphan", root = root))
   expect_equal(nrow(root$index$location(orphan)), 2)
 

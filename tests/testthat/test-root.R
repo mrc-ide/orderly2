@@ -1,6 +1,6 @@
 test_that("Configuration must be empty", {
   tmp <- tempfile()
-  on.exit(unlink(tmp, recursive = TRUE))
+  on.exit(fs::dir_delete(tmp))
   fs::dir_create(tmp)
   writeLines(c(empty_config_contents(), "a: 1"),
              file.path(tmp, "orderly_config.yml"))
@@ -11,7 +11,7 @@ test_that("Configuration must be empty", {
 
 test_that("Configuration must exist", {
   tmp <- tempfile()
-  on.exit(unlink(tmp, recursive = TRUE))
+  on.exit(fs::dir_delete(tmp))
   fs::dir_create(tmp)
   outpack_init_no_orderly(tmp)
   expect_error(orderly_config_read(tmp),
@@ -55,7 +55,7 @@ test_that("pass back a root", {
 test_that("can silently detect that git setup is ok", {
   root <- create_temporary_root()
   info <- helper_add_git(root$path)
-  unlink(file.path(root$path, ".outpack", "r", "git_ok"))
+  expect_false(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
   expect_silent(root_check_git(root, NULL))
   expect_true(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
 })
@@ -74,7 +74,7 @@ test_that("can add gitignore if git setup is ok, but not present", {
   root <- create_temporary_root()
   info <- helper_add_git(root$path)
   fs::file_delete(file.path(root$path, ".gitignore"))
-  unlink(file.path(root$path, ".outpack", "r", "git_ok"))
+  expect_false(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
   expect_message(root_check_git(root, NULL), "Wrote '.gitignore'")
   expect_true(file.exists(file.path(root$path, ".outpack", "r", "git_ok")))
   expect_true(file.exists(file.path(root$path, ".gitignore")))

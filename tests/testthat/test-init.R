@@ -1,7 +1,7 @@
 test_that("Initialisation requires empty directory", {
   tmp <- tempfile()
   fs::dir_create(tmp)
-  on.exit(unlink(tmp, recursive = TRUE))
+  on.exit(fs::dir_delete(tmp))
   file.create(file.path(tmp, "file"))
   expect_error(orderly_init_quietly(tmp),
                "'root' exists but is not empty, or an outpack archive")
@@ -10,7 +10,7 @@ test_that("Initialisation requires empty directory", {
 
 test_that("Can initialise a new orderly root", {
   tmp <- tempfile()
-  on.exit(unlink(tmp, recursive = TRUE))
+  on.exit(fs::dir_delete(tmp))
   res <- orderly_init_quietly(tmp)
   expect_true(file.exists(tmp))
   expect_identical(normalise_path(res), normalise_path(tmp))
@@ -45,7 +45,7 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
   path <- test_prepare_orderly_example("data")
   parent <- dirname(path)
   base <- basename(path)
-  unlink(file.path(path, ".outpack"), recursive = TRUE)
+  fs::dir_delete(file.path(path, ".outpack"))
   err <- expect_error(
     withr::with_dir(parent,
       orderly_run_quietly("data", root = base, envir = new.env())),
