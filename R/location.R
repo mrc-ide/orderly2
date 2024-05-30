@@ -392,8 +392,14 @@ orderly_location_push <- function(packet_id, location, root = NULL,
   if (length(plan$files) > 0 || length(plan$packet_id) > 0) {
     driver <- location_driver(location_name, root)
     for (hash in plan$files) {
-      ## TODO: mrc-4505 - needs work
-      driver$push_file(find_file_by_hash(root, hash), hash)
+      src <- find_file_by_hash(root, hash)
+      if (is.null(src)) {
+        cli::cli_abort(
+          c("Did not find suitable file, can't push this packet",
+            i = paste("The original file has been changed or deleted.",
+                      "Details are above")))
+      }
+      driver$push_file(src, hash)
     }
     for (id in plan$packet_id) {
       path <- file.path(root$path, ".outpack", "metadata", id)
