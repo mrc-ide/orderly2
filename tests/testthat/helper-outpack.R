@@ -6,7 +6,7 @@ options(outpack.schema_validate = TRUE)
 create_random_packet <- function(root, name = "data", parameters = NULL,
                                  id = NULL) {
   src <- fs::dir_create(tempfile())
-  on.exit(unlink(src, recursive = TRUE))
+  on.exit(fs::dir_delete(src))
   saveRDS(runif(10), file.path(src, "data.rds"))
   p <- outpack_packet_start_quietly(
     src, name, parameters = parameters, id = id, root = root)
@@ -18,7 +18,7 @@ create_random_packet <- function(root, name = "data", parameters = NULL,
 create_deterministic_packet <- function(root, name = "data",
                                         parameters = NULL) {
   src <- fs::dir_create(tempfile())
-  on.exit(unlink(src, recursive = TRUE))
+  on.exit(fs::dir_delete(src))
   saveRDS(1:10, file.path(src, "data.rds"))
   p <- outpack_packet_start_quietly(
     src, name, parameters = parameters, root = root)
@@ -38,7 +38,7 @@ mock_metadata_depends <- function(id, depends = character(0)) {
 ## other.
 create_random_packet_chain <- function(root, length, base = NULL) {
   src <- fs::dir_create(tempfile())
-  on.exit(unlink(src, recursive = TRUE), add = TRUE)
+  on.exit(fs::dir_delete(src), add = TRUE)
 
   id <- character()
   suppressMessages({
@@ -69,7 +69,7 @@ create_random_packet_chain <- function(root, length, base = NULL) {
 
 create_random_dependent_packet <- function(root, name, dependency_ids) {
   src <- fs::dir_create(tempfile())
-  on.exit(unlink(src, recursive = TRUE), add = TRUE)
+  on.exit(fs::dir_delete(src), add = TRUE)
 
   p <- outpack_packet_start_quietly(src, name, root = root)
 
@@ -96,7 +96,7 @@ create_random_dependent_packet <- function(root, name, dependency_ids) {
 
 create_temporary_root <- function(...) {
   path <- tempfile()
-  withr::defer_parent(unlink(path, recursive = TRUE))
+  withr::defer_parent(fs::dir_delete(path))
   suppressMessages(orderly_init(path, ...))
   root_open(path, locate = FALSE, require_orderly = FALSE)
 }
@@ -105,7 +105,7 @@ create_temporary_root <- function(...) {
 ## A really simple example that we use in a few places
 create_temporary_simple_src <- function() {
   path <- tempfile()
-  withr::defer_parent(unlink(path, recursive = TRUE))
+  withr::defer_parent(fs::dir_delete(path))
   fs::dir_create(path)
 
   path <- tempfile()
@@ -126,7 +126,11 @@ create_temporary_simple_src <- function() {
 
 temp_file <- function() {
   path <- tempfile()
-  withr::defer_parent(unlink(path, recursive = TRUE))
+  withr::defer_parent({
+    if (fs::file_exists(path)) {
+      fs::file_delete(path)
+    }
+  })
   path
 }
 
@@ -173,4 +177,11 @@ outpack_packet_start_quietly <- function(...) {
 
 outpack_packet_end_quietly <- function(...) {
   suppressMessages(outpack_packet_end(...))
+}
+
+forcibly_truncate_file <- function(path) {
+  permissions <- fs::file_info(path)$permissions
+  fs::file_chmod(path, "a+w")
+  file.create(path)
+  fs::file_chmod(path, permissions)
 }

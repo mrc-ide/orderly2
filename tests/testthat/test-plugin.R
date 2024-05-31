@@ -179,7 +179,7 @@ test_that("validate that plugins make sense", {
     orderly_plugin("pkg", config, NULL, deserialise, NULL, NULL),
     "If 'deserialise' is given, then 'serialise' must be non-NULL")
 
-  unlink(schema)
+  fs::file_delete(schema)
   expect_error(
     orderly_plugin("pkg", config, serialise, deserialise, cleanup,
                    basename(schema)),

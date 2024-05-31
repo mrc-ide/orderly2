@@ -91,8 +91,8 @@ orderly_validate_archive_packet <- function(id, action, cache, root) {
       drop_local_packet(id, root)
     } else if (action == "delete") {
       drop_local_packet(id, root)
-      unlink(file.path(root$path, root$config$core$path_archive, res$name, id),
-             recursive = TRUE)
+      fs::dir_delete(
+        file.path(root$path, root$config$core$path_archive, res$name, id))
     }
   }
 

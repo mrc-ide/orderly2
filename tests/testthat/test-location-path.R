@@ -362,7 +362,7 @@ test_that("Fail to push sensibly if files have been changed", {
 
   ## Corrupt one file:
   path <- file.path(client$path, "archive", "b", ids[["b"]], "script.R")
-  append_lines(path, "# anything")
+  forcibly_truncate_file(path)
 
   expect_error(
     suppressMessages(orderly_location_push(ids[[4]], "server", client)),

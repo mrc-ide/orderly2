@@ -106,6 +106,9 @@ file_import_archive <- function(root, path, file_path, name, id) {
   fs::dir_create(dirname(file_path_dest))
   ## overwrite = FALSE; see assertion above
   fs::file_copy(file.path(path, file_path), file_path_dest, overwrite = FALSE)
+  if (length(file_path_dest) > 0) {
+    fs::file_chmod(file_path_dest, "a-w")
+  }
 }
 
 

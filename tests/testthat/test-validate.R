@@ -11,7 +11,7 @@ test_that("Can validate a packet that is invalid", {
   root <- create_temporary_root()
   id <- create_random_packet(root = root)
   path <- file.path(root$path, "archive", "data", id, "data.rds")
-  file.create(path) # truncate file
+  forcibly_truncate_file(path)
   res <- evaluate_promise(orderly_validate_archive(id, root = root))
   expect_match(res$messages, sprintf("%s (data) is invalid", id), fixed = TRUE)
   expect_equal(res$result, id)
@@ -25,7 +25,7 @@ test_that("Can orphan an invalid packet", {
   ids <- replicate(3, create_random_packet(root = root))
   id <- ids[[2]]
   path <- file.path(root$path, "archive", "data", id, "data.rds")
-  file.create(path) # truncate file
+  forcibly_truncate_file(path)
   res <- evaluate_promise(
     orderly_validate_archive(id, action = "orphan", root = root))
   expect_match(res$messages, sprintf("%s (data) is invalid", id), fixed = TRUE)
@@ -41,7 +41,7 @@ test_that("Can delete an invalid packet", {
   ids <- replicate(3, create_random_packet(root = root))
   id <- ids[[2]]
   path <- file.path(root$path, "archive", "data", id, "data.rds")
-  file.create(path) # truncate file
+  forcibly_truncate_file(path)
   res <- evaluate_promise(
     orderly_validate_archive(action = "delete", root = root))
   expect_match(res$messages, sprintf("%s (data) is invalid", id), fixed = TRUE,
@@ -65,7 +65,8 @@ test_that("recursively validate, errors in upstream are a problem", {
   root <- create_temporary_root(require_complete_tree = TRUE)
   ids <- create_random_packet_chain(5, root = root)
 
-  file.create(file.path(root$path, "archive", "c", ids[["c"]], "data.rds"))
+  forcibly_truncate_file(
+    file.path(root$path, "archive", "c", ids[["c"]], "data.rds"))
 
   res <- evaluate_promise(
     orderly_validate_archive(ids[["d"]], root = root))
@@ -108,7 +109,8 @@ test_that("invalidate all children of corrupt parent", {
     evaluate_promise(orderly_validate_archive(id3, root = root)),
     res)
 
-  file.create(file.path(root$path, "archive", "child", id2[[1]], "data.rds"))
+  forcibly_truncate_file(
+    file.path(root$path, "archive", "child", id2[[1]], "data.rds"))
   res <- evaluate_promise(orderly_validate_archive(id3, root = root))
   expect_match(res$messages[c(1, 3, 4)], re, all = TRUE)
   expect_match(res$messages[[2]],
@@ -137,7 +139,8 @@ test_that("don't invalidate children when complete tree off", {
   expect_length(res$messages, 1)
 
   ## We no longer know, or care, if this is invalid due to children
-  file.create(file.path(root$path, "archive", "child", id2[[1]], "data.rds"))
+  forcibly_truncate_file(
+    file.path(root$path, "archive", "child", id2[[1]], "data.rds"))
   expect_equal(
     evaluate_promise(orderly_validate_archive(id3, root = root)),
     res)

@@ -57,7 +57,7 @@ file_store <- R6::R6Class(
         } else {
           fs::file_copy(src, dst, overwrite = FALSE)
         }
-        fs::file_chmod(dst, "a-wx")
+        fs::file_chmod(dst, "a-w")
       } else if (move) {
         unlink(src)
       }

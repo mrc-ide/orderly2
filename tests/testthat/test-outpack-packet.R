@@ -268,10 +268,8 @@ test_that("validate dependencies from archive", {
   outpack_packet_run(p1, "script.R")
   outpack_packet_end_quietly(p1)
 
-  ## Change the value here:
-  write.csv(data.frame(x = 1:10, y = runif(10)),
-            file.path(root$path, "archive", "a", id1, "data.csv"),
-            row.names = FALSE)
+  ## Corrupt the file here.
+  forcibly_truncate_file(file.path(root$path, "archive", "a", id1, "data.csv"))
 
   p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   id2 <- p2$id
@@ -834,4 +832,32 @@ test_that("metadata files match their hash", {
 
   path <- file.path(root$path, ".outpack", "metadata", id)
   expect_no_error(hash_validate_file(path, expected_hash))
+})
+
+
+test_that("Files in the archive are read-only", {
+  src <- temp_file()
+  fs::dir_create(src)
+  writeLines(c(
+    "d <- read.csv('data.csv')",
+    "png('myplot.png')",
+    "plot(d)",
+    "dev.off()"),
+    file.path(src, "script.R"))
+  write.csv(data.frame(x = 1:10, y = runif(10)),
+            file.path(src, "data.csv"),
+            row.names = FALSE)
+
+  root <- create_temporary_root(path_archive = "archive",
+                                use_file_store = FALSE)
+  path <- root$path
+
+  p <- outpack_packet_start_quietly(src, "a", root = root)
+  outpack_packet_run(p, "script.R")
+  outpack_packet_end_quietly(p)
+
+  files <- c("data.csv", "script.R", "myplot.png")
+  files_path <- file.path(path, "archive", "a", p$id, files)
+  expect_true(all(fs::file_access(files_path, "read")))
+  expect_true(all(!fs::file_access(files_path, "write")))
 })
