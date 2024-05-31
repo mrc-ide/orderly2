@@ -350,3 +350,21 @@ test_that("Can read metadata files with a trailing newline", {
   expected_hash <- packets[packets$packet == id]$hash
   expect_no_error(hash_validate_data(data, expected_hash))
 })
+
+
+test_that("Fail to push sensibly if files have been changed", {
+  client <- create_temporary_root()
+  ids <- create_random_packet_chain(client, 4)
+
+  server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
+  orderly_location_add("server", "path", list(path = server$path),
+                       root = client)
+
+  ## Corrupt one file:
+  path <- file.path(client$path, "archive", "b", ids[["b"]], "script.R")
+  append_lines(path, "# anything")
+
+  expect_error(
+    suppressMessages(orderly_location_push(ids[[4]], "server", client)),
+    "Did not find suitable file, can't push this packet")
+})

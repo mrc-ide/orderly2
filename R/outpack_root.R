@@ -120,17 +120,27 @@ find_file_by_hash <- function(root, hash) {
   for (id in index$unpacked) {
     meta <- index$metadata[[id]]
     for (i in which(meta$files$hash == hash)) {
-      path <- file.path(path_archive, meta$name, id, meta$files$path[[i]])
-      if (file.exists(path) && hash_file(path, algorithm) == hash) {
+      filename <- meta$files$path[[i]]
+      path <- file.path(path_archive, meta$name, id, filename)
+      if (!file.exists(path)) {
+        cli::cli_alert_warning(
+          "Missing file from archive '{filename}' in '{meta$name}/{id}'")
+        next
+      }
+      hash_found <- hash_file(path, algorithm)
+      if (file.exists(path) && hash_found == hash) {
         return(path)
       }
-      p <- meta$files$path[[i]]
       ## Not actually a warning; formats in a way that works within
       ## the overal logging. What is not obvious is that this is
       ## potentially coming from a remote and that's not always clear,
       ## so we need a way of nesting output
       cli::cli_alert_warning(
-        "Rejecting file from archive '{p}' in '{meta$name}/{id}'")
+        "Rejecting file from archive '{filename}' in '{meta$name}/{id}'")
+      cli::cli_alert_info(
+        "Expected ({cli::symbol$tick}) and found ({cli::symbol$cross}) hashes:")
+      cli::cli_alert_success(hash)
+      cli::cli_alert_danger(hash_found)
     }
   }
 
