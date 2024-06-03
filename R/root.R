@@ -79,8 +79,8 @@ orderly_init <- function(root = ".",
     if (!file.exists(file.path(root, ".outpack")) && !force) {
       allowed <- c(".outpack",
                    ".git", ".gitignore",
-                   ".Rhistory",
-                   "*.Rproj", ".Rproj.user")
+                   ".vscode",
+                   ".Rhistory", ".RData", "*.Rproj", ".Rproj.user")
       contents <- dir(root, all.files = TRUE, no.. = TRUE)
       m <- vapply(glob2rx(allowed), grepl, logical(length(contents)), contents)
       if (!is.matrix(m)) { # exactly one file to compare
