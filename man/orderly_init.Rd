@@ -8,7 +8,8 @@ orderly_init(
   root = ".",
   path_archive = "archive",
   use_file_store = FALSE,
-  require_complete_tree = FALSE
+  require_complete_tree = FALSE,
+  force = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ always operates in recursive mode.  This is \code{FALSE} by default,
 but set to \code{TRUE} if you want your archive to behave well as a
 location; if \code{TRUE} you will always have all the packets that
 you hold metadata about.}
+
+\item{force}{Logical, indicating if we shold initialise orderly
+even if the directory is not empty.}
 }
 \value{
 The full, normalised, path to the root,

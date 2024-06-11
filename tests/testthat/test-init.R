@@ -188,3 +188,28 @@ test_that("create root in wd by default", {
   expect_true(file.exists(file.path(path, ".outpack")))
   expect_true(file.exists(file.path(path, "orderly_config.yml")))
 })
+
+
+test_that("allow rstudio files to exist for init", {
+  tmp <- withr::local_tempdir()
+  file.create(file.path(tmp, "foo.Rproj"))
+  dir.create(file.path(tmp, ".Rproj.user"))
+  dir.create(file.path(tmp, ".git"))
+  file.create(file.path(tmp, ".Rhistory"))
+  file.create(file.path(tmp, ".gitignore"))
+
+  expect_no_error(orderly_init_quietly(tmp))
+  expect_true(file.exists(file.path(tmp, ".outpack")))
+  expect_true(file.exists(file.path(tmp, "orderly_config.yml")))
+})
+
+
+test_that("force initialisation of non-empty directory", {
+  tmp <- tempfile()
+  fs::dir_create(tmp)
+  on.exit(unlink(tmp, recursive = TRUE))
+  file.create(file.path(tmp, "file"))
+  expect_no_error(orderly_init_quietly(tmp, force = TRUE))
+  expect_true(file.exists(file.path(tmp, ".outpack")))
+  expect_true(file.exists(file.path(tmp, "orderly_config.yml")))
+})
