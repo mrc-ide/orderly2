@@ -16,7 +16,7 @@ root, along with a directory .outpack/ at the same level."><!-- mathjax --><scri
     
     <a class="navbar-brand me-2" href="../index.html">orderly2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.17</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,7 +80,8 @@ root, along with a directory <code>.outpack/</code> at the same level.</p>
 <span>  root <span class="op">=</span> <span class="st">"."</span>,</span>
 <span>  path_archive <span class="op">=</span> <span class="st">"archive"</span>,</span>
 <span>  use_file_store <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  require_complete_tree <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  require_complete_tree <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  force <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -116,6 +117,11 @@ always operates in recursive mode.  This is <code>FALSE</code> by default,
 but set to <code>TRUE</code> if you want your archive to behave well as a
 location; if <code>TRUE</code> you will always have all the packets that
 you hold metadata about.</p></dd>
+
+
+<dt>force</dt>
+<dd><p>Logical, indicating if we shold initialise orderly
+even if the directory is not empty.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -154,7 +160,7 @@ already initialised with an <code>.outpack</code> directory but not an
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Initialise a new repository, setting an option:</span></span></span>
 <span class="r-in"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu">orderly_init</span><span class="op">(</span><span class="va">path</span>, use_file_store <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/RtmpqY7Y9D/file171a1351badb'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Created orderly root at '/tmp/Rtmpxn43nv/file1835617f012e'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># fs::dir_tree(path, all = TRUE)</span></span></span>
 </code></pre></div>

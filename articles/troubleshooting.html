@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">orderly2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.99.17</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,21 +130,21 @@ session:</p>
 <span><span class="co">##   <span style="color: #0000BB; font-style: italic;">&lt;https://mrc-ide.github.io/orderly2/articles/troubleshooting.html&gt;</span></span></span>
 <span><span class="co">## <span style="color: #555555;">This warning is displayed once per session.</span></span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Wrote '.gitignore'</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240531-140542-16532547` at 2024-05-31 14:05:42.090323</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240611-121911-91f695da` at 2024-06-11 12:19:11.573209</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">data.R</span></span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240531-140542-16532547 at 2024-05-31 14:05:42.127548 (0.03722477 secs)</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20240531-140542-16532547"</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240611-121911-91f695da at 2024-06-11 12:19:11.609379 (0.03617024 secs)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20240611-121911-91f695da"</span></span></code></pre>
 <p>subsequent calls will not display the warning:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">orderly2</span><span class="fu">::</span><span class="fu"><a href="../reference/orderly_run.html">orderly_run</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240531-140542-36c29e4b` at 2024-05-31 14:05:42.217086</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Starting packet '<span style="color: #0000BB;">data</span>' `20240611-121911-b19b31c6` at 2024-06-11 12:19:11.696782</span></span></code></pre>
 <pre><code><span><span class="co">## &gt; orderly2::orderly_artefact("Final data", "data.rds")</span></span>
 <span><span class="co">## &gt; saveRDS(mtcars, "data.rds")</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Finished running <span style="color: #0000BB;">data.R</span></span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240531-140542-36c29e4b at 2024-05-31 14:05:42.242944 (0.02585864 secs)</span></span></code></pre>
-<pre><code><span><span class="co">## [1] "20240531-140542-36c29e4b"</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Finished 20240611-121911-b19b31c6 at 2024-06-11 12:19:11.720755 (0.02397323 secs)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "20240611-121911-b19b31c6"</span></span></code></pre>
 <p>The rest of this section discusses how you might permanently fix the
 issue.</p>
 <div class="section level3">
