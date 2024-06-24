@@ -680,6 +680,35 @@ test_that("Can filter locations", {
 })
 
 
+test_that("can pull from multiple locations with multiple files", {
+  root <- list()
+  for (name in c("dst", "a", "b")) {
+    root[[name]] <- create_temporary_root()
+    if (name != "dst") {
+      orderly_location_add(name, "path", list(path = root[[name]]$path),
+                           root = root$dst)
+    }
+  }
+
+  ids_a <- create_random_packet(root$a$path, n_files = 1)
+  ids_b <- create_random_packet(root$b$path, n_files = 2)
+
+  orderly_location_pull_metadata(root = root$dst)
+  suppressMessages(orderly_location_pull_packet(name = "data", root = root$dst))
+
+  ## It has pulled both packets, and correct number of files
+  expect_setequal(
+    list.files(file.path(root$dst$path, "archive", "data")),
+    c(ids_a, ids_b))
+  expect_equal(
+    list.files(file.path(root$dst$path, "archive", "data", ids_a)),
+    "data.rds")
+  expect_setequal(
+    list.files(file.path(root$dst$path, "archive", "data", ids_b)),
+    c("data.rds", "data2.rds"))
+})
+
+
 test_that("nonrecursive pulls are prevented by configuration", {
   root <- list()
   for (name in c("src", "dst")) {

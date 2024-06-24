@@ -4,10 +4,13 @@ options(outpack.schema_validate = TRUE)
 
 
 create_random_packet <- function(root, name = "data", parameters = NULL,
-                                 id = NULL) {
+                                 id = NULL, n_files = 1) {
   src <- fs::dir_create(tempfile())
   on.exit(fs::dir_delete(src))
-  saveRDS(runif(10), file.path(src, "data.rds"))
+  for (n in seq_len(n_files)) {
+    file_name <- sprintf("data%s.rds", if (n > 1) n else "")
+    saveRDS(runif(10), file.path(src, file_name))
+  }
   p <- outpack_packet_start_quietly(
     src, name, parameters = parameters, id = id, root = root)
   outpack_packet_end_quietly(p)
