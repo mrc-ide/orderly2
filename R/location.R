@@ -273,7 +273,7 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##' efficient, as we keep track of files that are copied over even in
 ##' the case of an interrupted pull.
 ##'
-##' @title Pull a single packet from a location
+##' @title Pull one or more packets from a location
 ##'
 ##' @param ... Arguments passed through to
 ##'   [orderly2::orderly_search]. In the special case where the first
