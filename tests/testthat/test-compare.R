@@ -159,3 +159,28 @@ test_that("Cannot compare artefacts of non-orderly packets", {
   expect_no_error(
     orderly_compare_packets(p$id, p$id, what = "files", root = root))
 })
+
+
+test_that("Can compare packets from remote", {
+  here <- create_temporary_root()
+  there <- create_temporary_root()
+
+  p1 <- create_random_packet(there)
+  p2 <- create_random_packet(here)
+
+  orderly_location_add("there", "path", list(path = there$path), root = here)
+  orderly_location_pull_metadata(root = here)
+
+  expect_error(
+    orderly_compare_packets(p1, p2, root = here),
+    "Unable to copy files, as they are not available locally")
+
+  # metadata comparison can be done without holding on to the files.
+  expect_no_error(
+    orderly_compare_packets(p1, p2, what = "metadata", root = here))
+
+  expect_message(
+    orderly_compare_packets(p1, p2, search_options = list(allow_remote = TRUE),
+                            root = here),
+    "Need to fetch 1 file.+from 1 location")
+})
