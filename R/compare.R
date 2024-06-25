@@ -94,6 +94,9 @@ compare_files <- function(target, current, files, root, search_options) {
 ##'   "artefacts", retricting what components of the packet to compare. This is
 ##'   useful when it is known for example that the source code of a report what
 ##'   changed, and one is only interested in the effect on its output.
+##' @param search_options Options for locating packet files. If there are no
+##'   copies of the files locally, they can be downloaded automatically from a
+##'   remote location on-demand if `allow_remote` is `TRUE`.
 ##'
 ##' @inheritParams orderly_metadata
 ##'
@@ -159,7 +162,7 @@ orderly_compare_packets <- function(
 
 
 #' @export
-format.orderly_compare_packets <- function(x) {
+format.orderly_compare_packets <- function(x, ...) {
   cli::cli_format_method({
     if (isTRUE(x)) {
       cli::cli_alert_success("Packets are identical")
