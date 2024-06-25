@@ -37,17 +37,17 @@
       i Comparing packets 19700101-000000-00000001 and 19700101-000000-00000002
       ! The following files exist in both packets but have different contents:
       * data.R
-      < 19700101-000000-00000001/data.R
-      > 19700101-000000-00000002/data.R
-      @@ 1 / 1 @@
-      < writeLines("Hello", "data.txt")
-      > writeLines("World", "data.txt")
+        < 19700101-000000-00000001/data.R
+        > 19700101-000000-00000002/data.R
+        @@ 1 / 1 @@
+        < writeLines("Hello", "data.txt")
+        > writeLines("World", "data.txt")
       * data.txt
-      < 19700101-000000-00000001/data.txt
-      > 19700101-000000-00000002/data.txt
-      @@ 1 / 1 @@
-      < Hello
-      > World
+        < 19700101-000000-00000001/data.txt
+        > 19700101-000000-00000002/data.txt
+        @@ 1 / 1 @@
+        < Hello
+        > World
 
 # Can compare artefacts only
 
@@ -57,14 +57,14 @@
       i Comparing packets 19700101-000000-00000001 and 19700101-000000-00000002
       ! The following files exist in both packets but have different contents:
       * data.R
-      < 19700101-000000-00000001/data.R
-      > 19700101-000000-00000002/data.R
-      @@ 1,4 / 1,4 @@
-        {
-            orderly_artefact("Output", "output.txt")
-      <     writeLines(toString(2 + 1), "output.txt")
-      >     writeLines(toString(1 + 2), "output.txt")
-        }
+        < 19700101-000000-00000001/data.R
+        > 19700101-000000-00000002/data.R
+        @@ 1,4 / 1,4 @@
+          {
+              orderly_artefact("Output", "output.txt")
+        <     writeLines(toString(2 + 1), "output.txt")
+        >     writeLines(toString(1 + 2), "output.txt")
+          }
 
 # Can compare packets with binary contents
 
@@ -75,9 +75,9 @@
       ! The following files exist in both packets but have different contents:
       * data.rds
       * data.txt
-      < 19700101-000000-00000001/data.txt
-      > 19700101-000000-00000002/data.txt
-      @@ 1 / 1 @@
-      < Hello
-      > World
+        < 19700101-000000-00000001/data.txt
+        > 19700101-000000-00000002/data.txt
+        @@ 1 / 1 @@
+        < Hello
+        > World
 
