@@ -23,6 +23,10 @@ orderly_compare_packets(
 useful when it is known for example that the source code of a report what
 changed, and one is only interested in the effect on its output.}
 
+\item{search_options}{Options for locating packet files. If there are no
+copies of the files locally, they can be downloaded automatically from a
+remote location on-demand if \code{allow_remote} is \code{TRUE}.}
+
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working directory if
 \code{locate} is \code{TRUE}. This function does not require that the
