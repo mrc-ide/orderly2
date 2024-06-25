@@ -646,6 +646,7 @@ is_testing <- function() {
 }
 
 #' Given a character vector, missing names are filled using the value.
+#' @noRd
 fill_missing_names <- function(x) {
   if (is.null(names(x))) {
     names(x) <- x
