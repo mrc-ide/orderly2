@@ -198,7 +198,9 @@ format.orderly_compare_packets <- function(x) {
         for (i in seq_len(nrow(modified))) {
           cli::cli_li("{modified$path[[i]]}")
           if (!is.null(modified$diff[[i]])) {
+            cli::cli_div(theme = list(div = list("margin-left" = 2)))
             cli::cli_verbatim(as.character(modified$diff[[i]]))
+            cli::cli_end()
           }
         }
         cli::cli_end()
