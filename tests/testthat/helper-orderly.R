@@ -125,3 +125,10 @@ orderly_init_quietly <- function(...) {
 orderly_run_quietly <- function(..., echo = FALSE) {
   suppressMessages(orderly_run(..., echo = echo))
 }
+
+orderly_run_snippet <- function(root, name, expr, ...) {
+  fs::dir_create(file.path(root$path, "src", name))
+  writeLines(deparse(substitute(expr)),
+             file.path(root$path, "src", name, sprintf("%s.R", name)))
+  orderly_run_quietly(name, root = root, ...)
+}
