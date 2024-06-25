@@ -17,6 +17,7 @@ BugReports: https://github.com/mrc-ide/orderly2/issues
 Imports:
     R6,
     cli,
+    diffobj,
     fs,
     gert (>= 1.9.3),
     httr2,
@@ -35,6 +36,7 @@ Suggests:
     pkgload,
     processx,
     rmarkdown,
+    stringr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes:
