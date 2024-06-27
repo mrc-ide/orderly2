@@ -44,8 +44,16 @@ git_info <- function(path) {
   if (is.null(repo)) {
     return(NULL)
   }
-  list(sha = gert::git_commit_id(repo = repo),
-       branch = gert::git_branch(repo = repo),
+
+  branch <- gert::git_branch(repo = repo)
+  if (identical(branch, "HEAD")) {
+    # HEAD isn't a valid branch name, and instead is what gets returned when a
+    # detached head was checked out.
+    branch <- NULL
+  }
+
+  list(sha = ignore_errors(gert::git_commit_id(repo = repo)),
+       branch = branch,
        url = gert::git_remote_list(repo = repo)$url)
 }
 
