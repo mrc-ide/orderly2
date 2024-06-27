@@ -45,16 +45,18 @@ git_info <- function(path) {
     return(NULL)
   }
 
+  sha <- tryCatch(gert::git_commit_id(repo = repo),
+                  error = function(e) NA)
+
   branch <- gert::git_branch(repo = repo)
-  if (identical(branch, "HEAD")) {
-    # HEAD isn't a valid branch name, and instead is what gets returned when a
+  if (is.null(branch) || identical(branch, "HEAD")) {
+    # NULL can be returned when working in a repo that has no commits yet.
+    # "HEAD" isn't a valid branch name and instead is what gets returned when a
     # detached head was checked out.
-    branch <- NULL
+    branch <- NA
   }
 
-  list(sha = ignore_errors(gert::git_commit_id(repo = repo)),
-       branch = branch,
-       url = gert::git_remote_list(repo = repo)$url)
+  list(sha = sha, branch = branch, url = gert::git_remote_list(repo = repo)$url)
 }
 
 

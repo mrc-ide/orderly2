@@ -89,6 +89,7 @@ test_that("store git information when on a detached HEAD", {
   meta <- orderly_metadata(id, root = root$path)
   expect_mapequal(meta$git,
                   list(sha = git_info$sha,
+                       branch = NULL,
                        url = git_info$url))
 })
 
@@ -108,5 +109,7 @@ test_that("handle empty git repository correctly", {
   })
 
   meta <- orderly_metadata(id, root = root$path)
-  expect_mapequal(meta$git, list(url = "https://example.com/git"))
+  expect_mapequal(meta$git, list(sha = NULL,
+                                 branch = NULL,
+                                 url = "https://example.com/git"))
 })
