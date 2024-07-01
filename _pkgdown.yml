@@ -91,3 +91,4 @@ reference:
       - orderly_hash_file
       - orderly_parse_file
       - orderly_parse_expr
+      - orderly_compare_packets
