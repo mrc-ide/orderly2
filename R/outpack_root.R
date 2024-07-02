@@ -72,6 +72,11 @@ file_export <- function(root, id, there, here, dest, overwrite, call = NULL) {
     }
     fs::file_copy(there_full, here_full, overwrite)
   }
+
+  # Files in the archive and file store are (generally) read-only.
+  # When exporting for interactive use, it's easier on the user if we make them
+  # writable again.
+  fs::file_chmod(here_full, "u+w")
 }
 
 

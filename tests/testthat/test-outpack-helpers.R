@@ -157,3 +157,33 @@ test_that("good error message if file not found in packet", {
       i = "For 'd.txt' did you mean 'a.txt', 'b.txt' or 'c.txt'",
       i = "Remember that all orderly paths are case sensitive"))
 })
+
+
+test_that("Can overwrite when copying files from packet", {
+  root <- create_temporary_root(use_file_store = TRUE)
+
+  id1 <- create_random_packet(root)
+  id2 <- create_random_packet(root)
+
+  # Just a bit of a sanity check. The two packets are random, so we'd expect
+  # them to have different contents.
+  expect_false(identical(
+    readRDS(file.path(root$path, "archive", "data", id1, "data.rds")),
+    readRDS(file.path(root$path, "archive", "data", id2, "data.rds"))))
+
+  dst <- temp_file()
+
+  suppressMessages(
+    orderly_copy_files(id1, files = "data.rds", dest = dst, root = root))
+
+  expect_identical(
+    readRDS(file.path(dst, "data.rds")),
+    readRDS(file.path(root$path, "archive", "data", id1, "data.rds")))
+
+  suppressMessages(
+    orderly_copy_files(id2, files = "data.rds", dest = dst, root = root))
+
+  expect_identical(
+    readRDS(file.path(dst, "data.rds")),
+    readRDS(file.path(root$path, "archive", "data", id2, "data.rds")))
+})
