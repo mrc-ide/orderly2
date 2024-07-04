@@ -392,6 +392,21 @@ test_that("can pull a packet from one location to another, using file store", {
 })
 
 
+test_that("can error where a query returns no packets", {
+  root <- list()
+  for (name in c("src", "dst")) {
+    root[[name]] <- create_temporary_root()
+  }
+
+  id <- create_random_packet(root$src)
+  orderly_location_add("src", "path", list(path = root$src$path),
+                       root = root$dst)
+  err <- expect_error(
+    orderly_location_pull_packet(name = "data", root = root$dst),
+    "No packets found in query, so cannot pull anything")
+})
+
+
 test_that("can pull a packet from one location to another, archive only", {
   root <- list()
   for (name in c("src", "dst")) {
