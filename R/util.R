@@ -715,3 +715,10 @@ fill_missing_names <- function(x) {
   }
   x
 }
+
+
+#' Read a file, replacing any invalid UTF-8 characters
+#' @noRd
+read_file_lossy <- function(path) {
+  iconv(readLines(path, warn = FALSE), "UTF-8", "UTF-8", sub = "byte")
+}
