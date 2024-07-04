@@ -273,7 +273,7 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##' efficient, as we keep track of files that are copied over even in
 ##' the case of an interrupted pull.
 ##'
-##' @title Pull a single packet from a location
+##' @title Pull one or more packets from a location
 ##'
 ##' @param ... Arguments passed through to
 ##'   [orderly2::orderly_search]. In the special case where the first
@@ -673,10 +673,9 @@ location_build_pull_plan_files <- function(packet_id, location, root, call) {
         intersect(location, loc$location[loc$packet == id])[[1]]
       }, USE.NAMES = FALSE)
     }
-    files <- data_frame(
-      hash = unlist(lapply(meta, function(x) x$files$hash), FALSE, FALSE),
-      size = unlist(lapply(meta, function(x) x$files$size), FALSE, FALSE),
-      location = location_use)
+
+    files <- Map(location_file_pull_meta, meta, location_use)
+    files <- do.call(rbind.data.frame, files)
     ## Then we ensure we prefer to fetch from earlier-provided
     ## locations by ordering the list by locations and dropping
     ## duplicated hashes.
@@ -687,6 +686,14 @@ location_build_pull_plan_files <- function(packet_id, location, root, call) {
     rownames(files) <- NULL
   }
   files
+}
+
+
+location_file_pull_meta <- function(packet_meta, packet_location) {
+  data_frame(
+    hash = unlist(packet_meta$files$hash, FALSE, FALSE),
+    size = unlist(packet_meta$files$size, FALSE, FALSE),
+    location = packet_location)
 }
 
 

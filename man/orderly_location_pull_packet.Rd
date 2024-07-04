@@ -2,7 +2,7 @@
 % Please edit documentation in R/location.R
 \name{orderly_location_pull_packet}
 \alias{orderly_location_pull_packet}
-\title{Pull a single packet from a location}
+\title{Pull one or more packets from a location}
 \usage{
 orderly_location_pull_packet(
   ...,

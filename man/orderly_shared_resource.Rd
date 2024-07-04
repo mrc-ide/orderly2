@@ -7,9 +7,16 @@
 orderly_shared_resource(...)
 }
 \arguments{
-\item{...}{Named arguments corresponding to shared resources to
-copy. The name will be the destination filename, while the value
-is the filename within the shared resource directory.}
+\item{...}{The shared resources to copy. If arguments are named, the name
+will be the destination file while the value is the filename within the
+shared resource directory.
+
+You can use a limited form of string interpolation in the names of
+this argument; using \verb{$\{variable\}} will pick up values from
+\code{envir} and substitute them into your string.  This is similar
+to the interpolation you might be familiar with from
+\code{glue::glue} or similar, but much simpler with no concatenation
+or other fancy features supported.}
 }
 \value{
 Invisibly, a data.frame with columns \code{here} (the fileames
