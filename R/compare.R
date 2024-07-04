@@ -230,7 +230,7 @@ print.orderly_compare_packets <- function(x, ...) {
 }
 
 #' @export
-summary.orderly_compare_packets <- function(x, ...) {
-  x$files$diff <- c()
-  x
+summary.orderly_compare_packets <- function(object, ...) {
+  object$files$diff <- c()
+  object
 }
