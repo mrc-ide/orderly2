@@ -57,19 +57,14 @@ compare_files <- function(target, current, files, root, search_options) {
   orderly_copy_files(current, dest = path_current, files = files,
                      options = search_options, root = root)
 
-  readFile <- function(path) {
-    # This tries to be robust even in the face of bad characters.
-    iconv(readLines(path, warn = FALSE), "UTF-8", "UTF-8", sub="byte")
-  }
-
   ret <- lapply(files, function(p) {
     if (is_binary_file(file.path(path_target, p)) ||
         is_binary_file(file.path(path_current, p))) {
       NULL
     } else {
       diffobj::diffChr(
-        readFile(file.path(path_target, p)),
-        readFile(file.path(path_current, p)),
+        read_file_lossy(file.path(path_target, p)),
+        read_file_lossy(file.path(path_current, p)),
         tar.banner = file.path(target, p),
         cur.banner = file.path(current, p),
         rds = FALSE,
@@ -225,7 +220,7 @@ print.orderly_compare_packets <- function(x, ...) {
 
 #' @export
 `[.orderly_compare_packets` <- function(x, paths) {
-  x$files <- x$files[x$files$path %in% paths,, drop=FALSE]
+  x$files <- x$files[x$files$path %in% paths, , drop = FALSE]
   x
 }
 
