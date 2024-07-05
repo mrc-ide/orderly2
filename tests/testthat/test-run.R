@@ -1380,3 +1380,16 @@ test_that("can add a dependency on an id with no name", {
       query = sprintf('single(id == "%s")', id1),
       files = I(list(data_frame(here = "input.rds", there = "data.rds")))))
 })
+
+
+test_that("warn if description unnamed in artefact", {
+  path <- test_prepare_orderly_example("data")
+  path_src <- file.path(path, "src", "data", "data.R")
+  code <- readLines(path_src)
+  writeLines(sub("description = ", "", code), path_src)
+  envir <- new.env()
+  expect_warning(
+    suppressMessages(
+      orderly_run("data", root = path, envir = envir, echo = FALSE)),
+    "Please use a named argument")
+})

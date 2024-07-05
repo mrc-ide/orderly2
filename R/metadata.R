@@ -221,9 +221,31 @@ static_orderly_resource <- function(args) {
 ##' @return Undefined
 ##'
 ##' @export
-orderly_artefact <- function(description, files) {
-  assert_scalar_character(description, call = environment())
+orderly_artefact <- function(description = NULL, files) {
+  if (!is.null(description)) {
+    assert_scalar_character(description, call = environment())
+  }
   assert_character(files, call = environment()) # also check length >0 ?
+
+  call <- sys.call()
+  if (length(call) > 2 && !("description" %in% names(call))) {
+    description_str <- deparse1(call)
+    if (nchar(description_str) < 30) {
+      hint <- c(
+        i = "Use 'orderly_artefact(..., description = {description_str})'")
+    } else {
+      hint <- NULL
+    }
+    explanation <- paste(
+      "In future versions of orderly, we will change the order of the",
+      "arguments to 'orderly_artefact()' so that 'files' comes first.",
+      "If you name your calls to 'description' then you will be compatible",
+      "when we make this change.")
+    cli::cli_warn(c(
+      "Please use a named argument for the description in 'orderly_artefact()'",
+      hint,
+      explanation))
+  }
 
   p <- get_active_packet()
   if (!is.null(p)) {
