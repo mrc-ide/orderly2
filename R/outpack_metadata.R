@@ -262,7 +262,8 @@ get_metadata_hash <- function(packet_id, root) {
 ## see run.R for the inverse of this
 custom_metadata_deserialise <- function(data) {
   data$artefacts <- data_frame(
-    description = vcapply(data$artefacts, "[[", "description"),
+    description = vcapply(data$artefacts,
+                          function(x) x$description %||% NA_character_),
     paths = I(lapply(data$artefacts, "[[", "paths")))
   data$role <- data_frame(
     path = vcapply(data$role, "[[", "path"),
