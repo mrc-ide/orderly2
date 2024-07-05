@@ -4,7 +4,7 @@ if (use == "a") {
 } else {
   orderly2::orderly_resource("b.csv")
 }
-orderly2::orderly_artefact("final data", "data.rds")
+orderly2::orderly_artefact("data.rds", description = "final data")
 
 d <- read.csv(sprintf("%s.csv", use), stringsAsFactors = FALSE)
 saveRDS(d, "data.rds")

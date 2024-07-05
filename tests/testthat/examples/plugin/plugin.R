@@ -1,3 +1,3 @@
-orderly2::orderly_artefact("Generated data", "data.rds")
+orderly2::orderly_artefact("data.rds", description = "Generated data")
 example.random::numbers("dat", 10)
 saveRDS(dat, "data.rds")
