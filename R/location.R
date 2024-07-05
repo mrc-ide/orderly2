@@ -313,6 +313,23 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
     ids <- orderly_search(..., options = options, root = root)
   }
 
+  if (length(ids) == 0) {
+    if (options$allow_remote && !options$pull_metadata) {
+      pull_arg <- gsub(" ", "\u00a0", "options = list(pull_metadata = TRUE)")
+      hint <- c(i = paste("Did you forget to pull metadata? You can do this",
+                          "by using the argument '{pull_arg}' in the call",
+                          "to 'orderly_location_pull_packet()', or",
+                          "by running 'orderly_location_pull_metadata()'"))
+    } else {
+      hint <- NULL
+    }
+    cli::cli_abort(
+      c("No packets found in query, so cannot pull anything",
+        i = paste("Your query returned no packets, which is probably a mistake",
+                  "so I'm erroring here."),
+        hint))
+  }
+
   plan <- location_build_pull_plan(ids, options$locations, recursive, root,
                                    call = environment())
 
