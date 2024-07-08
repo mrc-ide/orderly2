@@ -449,6 +449,23 @@ test_that("Re-adding files triggers hash", {
 })
 
 
+test_that("Can detect changes to dependencies", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root, "data")
+
+  path_src <- withr::local_tempdir()
+  p <- outpack_packet_start_quietly(path_src, "next", root = root)
+
+  outpack_packet_use_dependency(p, id, "data.rds")
+  saveRDS(1:10, file.path(path_src, "data.rds"))
+
+  err <- expect_error(
+    outpack_packet_end_quietly(p),
+    "File was changed after being added")
+  expect_equal(err$body, c(x = "data.rds"))
+})
+
+
 test_that("Can ignore files from the final packet", {
   root <- create_temporary_root(path_archive = "archive", use_file_store = TRUE)
   path_src <- create_temporary_simple_src()
