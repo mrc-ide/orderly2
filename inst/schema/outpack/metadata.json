@@ -60,7 +60,7 @@
                 "properties": {
                     "path": {
                         "description": "The path of the file",
-                        "type": "string"
+                        "$ref": "relative-path.json"
                     },
                     "hash": {
                         "$ref": "hash.json"
@@ -88,17 +88,16 @@
                     },
                     "files": {
                         "type": "array",
-                        "minItems": 1,
                         "items": {
                             "type": "object",
                             "properties": {
                                 "here": {
                                     "description": "The path of the file in this packet",
-                                    "type": "string"
+                                    "$ref": "relative-path.json"
                                 },
                                 "there": {
                                     "description": "The path of the file within the upstream packet",
-                                    "type": "string"
+                                    "$ref": "relative-path.json"
                                 }
                             },
                             "required": ["here", "there"]

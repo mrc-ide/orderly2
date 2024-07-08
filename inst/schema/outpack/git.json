@@ -19,5 +19,6 @@
                 "type": "string"
             }
         }
-    }
+    },
+    "required": ["url", "sha", "branch"]
 }
