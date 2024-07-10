@@ -7,11 +7,11 @@
     "type": "object",
     "properties": {
         "sha": {
-            "type": "string",
+            "type": ["string", "null"],
             "pattern": "^[0-9a-f]+$"
         },
         "branch": {
-            "type": "string"
+            "type": ["string", "null"]
         },
         "url": {
             "type": "array",
@@ -19,5 +19,6 @@
                 "type": "string"
             }
         }
-    }
+    },
+    "required": ["url", "sha", "branch"]
 }

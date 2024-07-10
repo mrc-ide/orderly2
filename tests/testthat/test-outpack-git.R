@@ -68,3 +68,48 @@ test_that("store no information into packet, if no git found", {
   expect_true("git" %in% names(meta))
   expect_null(meta$git)
 })
+
+
+test_that("store git information when on a detached HEAD", {
+  root <- create_temporary_root()
+  path_src <- create_temporary_simple_src()
+  git_info <- helper_add_git(path_src)
+
+  ## gert has no API to checkout a particular commit, only named branches
+  ## https://github.com/r-lib/gert/issues/147
+  system2("git", c("-C", path_src, "checkout", "-q", git_info$sha))
+
+  suppressMessages({
+    p <- outpack_packet_start(path_src, "example", root = root)
+    id <- p$id
+    outpack_packet_run(p, "script.R")
+    outpack_packet_end(p)
+  })
+
+  meta <- orderly_metadata(id, root = root$path)
+  expect_mapequal(meta$git,
+                  list(sha = git_info$sha,
+                       branch = NULL,
+                       url = git_info$url))
+})
+
+
+test_that("handle empty git repository correctly", {
+  root <- create_temporary_root()
+  path_src <- create_temporary_simple_src()
+
+  gert::git_init(path_src)
+  gert::git_remote_add("https://example.com/git", repo = path_src)
+
+  suppressMessages({
+    p <- outpack_packet_start(path_src, "example", root = root)
+    id <- p$id
+    outpack_packet_run(p, "script.R")
+    outpack_packet_end(p)
+  })
+
+  meta <- orderly_metadata(id, root = root$path)
+  expect_mapequal(meta$git, list(sha = NULL,
+                                 branch = NULL,
+                                 url = "https://example.com/git"))
+})
