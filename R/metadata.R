@@ -118,12 +118,8 @@ current_orderly_parameters <- function(src, envir) {
 ##' @return Undefined
 ##' @export
 orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
-  if (!is.null(display)) {
-    assert_scalar_character(display, call = environment())
-  }
-  if (!is.null(long)) {
-    assert_scalar_character(long, call = environment())
-  }
+  assert_scalar_character(display, allow_null = TRUE, call = environment())
+  assert_scalar_character(long, allow_null = TRUE, call = environment())
   if (!is.null(custom)) {
     assert_named(custom, unique = TRUE, call = environment())
     assert_is(custom, "list", call = environment())
@@ -222,9 +218,7 @@ static_orderly_resource <- function(args) {
 ##'
 ##' @export
 orderly_artefact <- function(description = NULL, files) {
-  if (!is.null(description)) {
-    assert_scalar_character(description, call = environment())
-  }
+  assert_scalar_character(description, allow_null = TRUE, call = environment())
   assert_character(files, call = environment()) # also check length >0 ?
 
   call <- sys.call()
@@ -285,9 +279,7 @@ static_orderly_artefact <- function(args) {
 ##' @return Undefined
 ##' @export
 orderly_dependency <- function(name, query, files) {
-  if (!is.null(name)) {
-    assert_scalar_character(name, call = environment())
-  }
+  assert_scalar_character(name, allow_null = TRUE, call = environment())
 
   ctx <- orderly_context(rlang::caller_env())
   subquery <- NULL

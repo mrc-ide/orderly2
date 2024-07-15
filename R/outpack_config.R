@@ -224,9 +224,7 @@ config_set_path_archive <- function(value, root, call) {
 
 config_new <- function(path_archive, use_file_store, require_complete_tree,
                        call = NULL) {
-  if (!is.null(path_archive)) {
-    assert_scalar_character(path_archive, call = call)
-  }
+  assert_scalar_character(path_archive, allow_null = TRUE, call = call)
   assert_scalar_logical(use_file_store, call = call)
   if (is.null(path_archive) && !use_file_store) {
     stop("If 'path_archive' is NULL, then 'use_file_store' must be TRUE")
