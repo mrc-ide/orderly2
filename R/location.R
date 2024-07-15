@@ -203,18 +203,31 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
 ##'
 ##' @inheritParams orderly_metadata
 ##'
-##' @return A character vector of location names. The special name
-##'   `local` will always be present.
+##' @param verbose Logical, indicating if we should return a
+##'   data.frame that includes more information about the location.
+##'
+##' @return Depending on the value of `verbose`:
+##'
+##' * `verbose = FALSE`: A character vector of location names. The
+##'   special name `local` will always be present.  This is the
+##'   default behaviour.
+##' * `verbose = TRUE`: A data.frame with columns `name`, `type` and
+##'   `args`.  The `args` column is a list column, with each element
+##'   being the key-value pair arguments to the location.
 ##'
 ##' @seealso [orderly2::orderly_location_pull_metadata], which can
 ##'   update your outpack index with metadata from any of the
 ##'   locations listed here.
 ##'
 ##' @export
-orderly_location_list <- function(root = NULL, locate = TRUE) {
+orderly_location_list <- function(verbose = FALSE, root = NULL, locate = TRUE) {
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
-  root$config$location$name
+  if (verbose) {
+    root$config$location
+  } else {
+    root$config$location$name
+  }
 }
 
 
@@ -567,10 +580,10 @@ location_resolve_valid <- function(location, root, include_local,
                                    include_orphan, allow_no_locations,
                                    call = NULL) {
   if (is.null(location)) {
-    location <- orderly_location_list(root)
+    location <- orderly_location_list(root = root)
   } else if (is.character(location)) {
-    valid <- orderly_location_list(root)
-    err <- setdiff(location, orderly_location_list(root))
+    valid <- orderly_location_list(root = root)
+    err <- setdiff(location, orderly_location_list(root = root))
     if (length(err) > 0) {
       cli::cli_abort(c("Unknown location{?s}: {squote(err)}",
                        i = "Valid location{?s} are: {squote(valid)}"),
@@ -783,7 +796,7 @@ location_check_new_name <- function(root, name, call) {
 
 location_check_exists <- function(root, name, call) {
   if (!location_exists(root, name)) {
-    valid <- orderly_location_list(root)
+    valid <- orderly_location_list(root = root)
     cli::cli_abort(c("No location with name '{name}' exists",
                      i = "Possible location{?s} are: {squote(valid)}"),
                    call = call)
@@ -792,7 +805,7 @@ location_check_exists <- function(root, name, call) {
 
 
 location_exists <- function(root, name) {
-  name %in% orderly_location_list(root)
+  name %in% orderly_location_list(root = root)
 }
 
 
