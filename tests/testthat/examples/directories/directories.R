@@ -1,6 +1,6 @@
 orderly2::orderly_strict_mode()
 orderly2::orderly_resource("data")
-orderly2::orderly_artefact("output files", "output")
+orderly2::orderly_artefact(files = "output", description = "output files")
 
 a <- read.csv("data/a.csv")
 b <- read.csv("data/b.csv")

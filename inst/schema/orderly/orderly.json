@@ -11,7 +11,7 @@
                 "type": "object",
                 "properties": {
                     "description": {
-                        "type": "string"
+                        "type": ["null", "string"]
                     },
                     "paths": {
                         "comment": "Will match the set of paths in outpack",
@@ -20,7 +20,8 @@
                             "type": "string"
                         }
                     }
-                }
+                },
+                "required": ["description", "paths"]
             }
         },
         "shared": {

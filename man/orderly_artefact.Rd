@@ -4,7 +4,7 @@
 \alias{orderly_artefact}
 \title{Declare orderly artefacts}
 \usage{
-orderly_artefact(description, files)
+orderly_artefact(description = NULL, files)
 }
 \arguments{
 \item{description}{The name of the artefact}

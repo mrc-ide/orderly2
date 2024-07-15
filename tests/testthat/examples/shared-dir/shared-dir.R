@@ -1,5 +1,5 @@
 orderly2::orderly_shared_resource(shared_data = "data")
-orderly2::orderly_artefact("combined data", "output.rds")
+orderly2::orderly_artefact("output.rds", description = "combined data")
 
 files <- dir("shared_data")
 dat <- lapply(file.path("shared_data", files), read.csv)

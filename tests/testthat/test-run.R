@@ -72,7 +72,7 @@ test_that("error if declared artefacts are not produced", {
   path_src <- file.path(path, "src", "explicit", "explicit.R")
   code <- readLines(path_src)
   writeLines(c(
-    'orderly2::orderly_artefact("some data", "output.csv")',
+    'orderly2::orderly_artefact(files = "output.csv")',
     code),
     path_src)
   err <- expect_error(
@@ -863,7 +863,7 @@ test_that("can depend on a directory artefact", {
   fs::dir_create(path_src)
   writeLines(c(
     'orderly2::orderly_dependency("directories", "latest()", c(d = "output/"))',
-    'orderly2::orderly_artefact("data", "d.rds")',
+    'orderly2::orderly_artefact(files = "d.rds")',
     'd <- c(readRDS("d/a.rds", "d/b.rds"))',
     'saveRDS(d, "d.rds")'),
     file.path(path_src, "use.R"))
@@ -886,7 +886,7 @@ test_that("can depend on a directory artefact with trailing slash", {
   fs::dir_create(path_src)
   writeLines(c(
     'orderly2::orderly_dependency("directories", "latest()", "output/")',
-    'orderly2::orderly_artefact("data", "d.rds")',
+    'orderly2::orderly_artefact(files = "d.rds")',
     'd <- c(readRDS("output/a.rds", "output/b.rds"))',
     'saveRDS(d, "d.rds")'),
     file.path(path_src, "orderly.R"))
@@ -915,7 +915,7 @@ test_that("can compute dependencies", {
     '  "parameters",',
     '  "latest(parameter:a == environment:x)",',
     '  c(d.rds = "data.rds"))',
-    'orderly2::orderly_artefact("data", "d.rds")')
+    'orderly2::orderly_artefact(files = "d.rds")')
 
   writeLines(code, file.path(path_src, "use.R"))
   envir2 <- new.env()
@@ -1075,7 +1075,7 @@ test_that("can rename dependencies programmatically", {
   path_src <- file.path(path, "src", "use")
   fs::dir_create(path_src)
   writeLines(c(
-    'orderly2::orderly_artefact("data", "d.rds")',
+    'orderly2::orderly_artefact(files = "d.rds")',
     'p <- "x"',
     "orderly2::orderly_dependency(",
     '  "data", "latest()",',
@@ -1148,7 +1148,7 @@ test_that("can run example with artefacts and no resources", {
 
   envir <- new.env()
   ## previously this errored
-  prepend_lines(path_src, 'orderly2::orderly_artefact("plot", "mygraph.png")')
+  prepend_lines(path_src, 'orderly2::orderly_artefact(files = "mygraph.png")')
   id <- orderly_run_quietly("implicit", root = path, envir = envir)
   expect_true(file.exists(
     file.path(path, "archive", "implicit", id, "mygraph.png")))
@@ -1379,4 +1379,17 @@ test_that("can add a dependency on an id with no name", {
       packet = id1,
       query = sprintf('single(id == "%s")', id1),
       files = I(list(data_frame(here = "input.rds", there = "data.rds")))))
+})
+
+
+test_that("warn if description unnamed in artefact", {
+  path <- test_prepare_orderly_example("data")
+  path_src <- file.path(path, "src", "data", "data.R")
+  code <- readLines(path_src)
+  writeLines(sub("description = ", "", code), path_src)
+  envir <- new.env()
+  expect_warning(
+    suppressMessages(
+      orderly_run("data", root = path, envir = envir, echo = FALSE)),
+    "Please use a named argument")
 })

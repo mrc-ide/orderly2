@@ -1,6 +1,6 @@
 orderly2::orderly_resource("data.csv")
-orderly2::orderly_artefact("A graph of things", "mygraph.png")
-orderly2::orderly_artefact("Original data", "data.csv")
+orderly2::orderly_artefact("mygraph.png", description = "A graph of things")
+orderly2::orderly_artefact("data.csv", description = "Original data")
 
 data <- read.csv("data.csv", stringsAsFactors = FALSE)
 png("mygraph.png")

@@ -23,7 +23,11 @@ assert_logical <- function(x, name = deparse(substitute(x)), arg = name,
 }
 
 assert_scalar_character <- function(x, name = deparse(substitute(x)),
-                                    arg = name, call = NULL) {
+                                    arg = name, call = NULL,
+                                    allow_null = FALSE) {
+  if (is.null(x) && allow_null) {
+    return(invisible(x))
+  }
   assert_scalar(x, name, arg = arg, call = call)
   assert_character(x, name, arg = arg, call = call)
 }
