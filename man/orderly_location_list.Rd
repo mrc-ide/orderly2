@@ -25,8 +25,7 @@ parents until it finds an \code{.outpack} directory or
 \value{
 Depending on the value of \code{verbose}:
 \itemize{
-\item \code{verbose = FALSE}: A character vector of location names. The
-special name \code{local} will always be present.  This is the
+\item \code{verbose = FALSE}: A character vector of location names.  This is the
 default behaviour.
 \item \code{verbose = TRUE}: A data.frame with columns \code{name}, \code{type} and
 \code{args}.  The \code{args} column is a list column, with each element
@@ -34,7 +33,10 @@ being the key-value pair arguments to the location.
 }
 }
 \description{
-List known locations.
+List known locations.  The special name \code{local} will always be
+present within the output from this function (this is packets
+known at the current root), though you will typically be
+interested in \emph{other} locations.
 }
 \seealso{
 \link{orderly_location_pull_metadata}, which can
