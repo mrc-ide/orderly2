@@ -4,9 +4,12 @@
 \alias{orderly_location_list}
 \title{List known pack locations}
 \usage{
-orderly_location_list(root = NULL, locate = TRUE)
+orderly_location_list(verbose = FALSE, root = NULL, locate = TRUE)
 }
 \arguments{
+\item{verbose}{Logical, indicating if we should return a
+data.frame that includes more information about the location.}
+
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working directory if
 \code{locate} is \code{TRUE}. This function does not require that the
@@ -20,11 +23,20 @@ parents until it finds an \code{.outpack} directory or
 \code{orderly_config.yml}}
 }
 \value{
-A character vector of location names. The special name
-\code{local} will always be present.
+Depending on the value of \code{verbose}:
+\itemize{
+\item \code{verbose = FALSE}: A character vector of location names.  This is the
+default behaviour.
+\item \code{verbose = TRUE}: A data.frame with columns \code{name}, \code{type} and
+\code{args}.  The \code{args} column is a list column, with each element
+being the key-value pair arguments to the location.
+}
 }
 \description{
-List known locations.
+List known locations.  The special name \code{local} will always be
+present within the output from this function (this is packets
+known at the current root), though you will typically be
+interested in \emph{other} locations.
 }
 \seealso{
 \link{orderly_location_pull_metadata}, which can

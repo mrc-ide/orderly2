@@ -1,6 +1,11 @@
 test_that("No locations except local by default", {
   root <- create_temporary_root()
   expect_equal(orderly_location_list(root = root), "local")
+  expect_equal(
+    orderly_location_list(TRUE, root = root),
+    data_frame(name = "local",
+               type = "local",
+               args = I(list(set_names(list(), character())))))
 })
 
 
@@ -15,6 +20,13 @@ test_that("Can add a location", {
 
   orderly_location_add("c", "path", list(path = root$c$path), root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "b", "c"))
+
+  res <- orderly_location_list(verbose = TRUE, root = root$a)
+  expect_equal(res$name, c("local", "b", "c"))
+  expect_equal(res$type, c("local", "path", "path"))
+  expect_equal(res$args, I(list(set_names(list(), character()),
+                                list(path = root$b$path),
+                                list(path = root$c$path))))
 })
 
 

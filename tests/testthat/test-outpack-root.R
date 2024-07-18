@@ -11,7 +11,7 @@ test_that("can create new root", {
                        require_complete_tree = FALSE,
                        hash_algorithm = "sha256"))
   expect_false(file.exists(file.path(path, ".outpack", "files")))
-  expect_equal(orderly_location_list(root), "local")
+  expect_equal(orderly_location_list(root = root), "local")
 })
 
 
