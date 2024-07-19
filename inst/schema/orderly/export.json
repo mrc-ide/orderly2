@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "index of a exported zip file",
+    "version": "0.0.1",
+
+    "type": "object",
+    "properties": {
+        "packets": {
+            "type": "array",
+            "items": {
+                "packet": {
+                    "$ref": "../outpack/packet-id.json"
+                },
+
+                "hash": {
+                    "$ref": "../outpack/hash.json"
+                }
+            }
+        }
+    }
+}
