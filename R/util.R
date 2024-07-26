@@ -152,12 +152,12 @@ expand_dirs <- function(paths, workdir) {
 
 
 copy_files <- function(src, dst, overwrite = FALSE,
-                       copy.mode = TRUE) {
+                       copy_mode = TRUE) {
   fs::dir_create(unique(dirname(dst)))
 
   # mrc-5557: We intentionally don't use fs::file_copy, as it does not work
   # reliably on mounted Samba file systems.
-  ok <- file.copy(src, dst, overwrite = overwrite, copy.mode = copy.mode)
+  ok <- file.copy(src, dst, overwrite = overwrite, copy.mode = copy_mode)
   if (any(!ok)) {
     cli::cli_abort("Could not copy file{?s} {.file {src[!ok]}}")
   }

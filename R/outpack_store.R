@@ -34,9 +34,9 @@ file_store <- R6::R6Class(
       }
       fs::dir_create(dirname(dst))
 
-      # Set copy.mode = FALSE: files in the store are read-only. It's easier on
+      # Set copy_mode = FALSE: files in the store are read-only. It's easier on
       # the user if we make them writable again.
-      copy_files(src, dst, overwrite = overwrite, copy.mode = FALSE)
+      copy_files(src, dst, overwrite = overwrite, copy_mode = FALSE)
 
       invisible(dst)
     },
