@@ -44,7 +44,7 @@ orderly_location_path <- R6::R6Class(
           stop(sprintf("Hash '%s' not found at location", hash))
         }
       }
-      fs::file_copy(path, dest, overwrite = TRUE)
+      copy_files(path, dest, overwrite = TRUE)
       dest
     },
 
