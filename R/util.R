@@ -157,7 +157,9 @@ copy_files <- function(src, dst, overwrite = FALSE,
 
   # mrc-5557: We intentionally don't use fs::file_copy, as it does not work
   # reliably on mounted Samba file systems.
-  ok <- file.copy(src, dst, overwrite = overwrite, copy.mode = copy_mode)
+  ok <- file.copy(src, dst, overwrite = overwrite,
+                  copy.mode = copy_mode,
+                  copy.date = TRUE)
   if (any(!ok)) {
     cli::cli_abort("Could not copy file{?s} {.file {src[!ok]}}")
   }
