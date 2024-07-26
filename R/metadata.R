@@ -170,7 +170,8 @@ orderly_resource <- function(files) {
   files_expanded <- expand_dirs(files, src)
   if (!is.null(p)) {
     if (p$orderly2$strict$enabled) {
-      copy_files(src, p$path, files_expanded)
+      copy_files(file.path(src, files_expanded),
+                 file.path(p$path, files_expanded))
     } else {
       ## Above we're looking in the underlying source directory, here
       ## we're looking within the running directory; it's not obvious
@@ -408,7 +409,7 @@ copy_shared_resource <- function(path_root, path_dest, config, files, call) {
     there <- replace_ragged(there, is_dir, Map(file.path, there[is_dir], files))
   }
   if (any(!is_dir)) {
-    fs::file_copy(src[!is_dir], dst[!is_dir], overwrite = TRUE)
+    copy_files(src[!is_dir], dst[!is_dir], overwrite = TRUE)
   }
 
   data_frame(here = here, there = there)

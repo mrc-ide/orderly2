@@ -70,13 +70,11 @@ file_export <- function(root, id, there, here, dest, overwrite, call = NULL) {
             call = call)
         })
     }
-    fs::file_copy(there_full, here_full, overwrite)
-  }
 
-  # Files in the archive and file store are (generally) read-only.
-  # When exporting for interactive use, it's easier on the user if we make them
-  # writable again.
-  fs::file_chmod(here_full, "u+w")
+    # Set copy.mode = FALSE: files in the archive are read-only. It's easier on
+    # the user if we make them writable again.
+    copy_files(there_full, here_full, overwrite = overwrite, copy.mode = FALSE)
+  }
 }
 
 
@@ -109,8 +107,12 @@ file_import_archive <- function(root, path, file_path, name, id) {
   ## store version, but not of orderly.
   file_path_dest <- file.path(dest, file_path)
   fs::dir_create(dirname(file_path_dest))
+
   ## overwrite = FALSE; see assertion above
-  fs::file_copy(file.path(path, file_path), file_path_dest, overwrite = FALSE)
+  copy_files(file.path(path, file_path),
+             file_path_dest,
+             overwrite = FALSE)
+
   if (length(file_path_dest) > 0) {
     fs::file_chmod(file_path_dest, "a-w")
   }
