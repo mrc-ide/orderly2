@@ -33,7 +33,11 @@ file_store <- R6::R6Class(
         stop(not_found_error(message, missing))
       }
       fs::dir_create(dirname(dst))
-      fs::file_copy(src, dst, overwrite)
+
+      # Set copy_mode = FALSE: files in the store are read-only. It's easier on
+      # the user if we make them writable again.
+      copy_files(src, dst, overwrite = overwrite, copy_mode = FALSE)
+
       invisible(dst)
     },
 
@@ -55,7 +59,7 @@ file_store <- R6::R6Class(
         if (move) {
           fs::file_move(src, dst)
         } else {
-          fs::file_copy(src, dst, overwrite = FALSE)
+          copy_files(src, dst, overwrite = FALSE)
         }
         fs::file_chmod(dst, "a-w")
       } else if (move) {
