@@ -64,13 +64,17 @@ http_client_handle_error <- function(response) {
   ## for that and then reauthenticate; that requires that a callback
   ## is passed through here too.
   code <- httr::status_code(response)
-  if (code >= 400) {
-    txt <- httr::content(response, "text", encoding = "UTF-8")
-    res <- from_json(txt)
-    ## I am seeing Packit returning an element 'error' not a list of
-    ## errors
-    errors <- if ("error" %in% names(res)) list(res$error) else res$errors
-    stop(http_client_error(errors[[1]]$detail, code, errors))
+  if (httr::http_error(code)) {
+    if (httr::http_type(response) == "application/json") {
+      txt <- httr::content(response, "text", encoding = "UTF-8")
+      res <- from_json(txt)
+      ## I am seeing Packit returning an element 'error' not a list of
+      ## errors
+      errors <- if ("error" %in% names(res)) list(res$error) else res$errors
+      stop(http_client_error(errors[[1]]$detail, code, errors))
+    } else {
+      stop(http_client_error(httr::http_status(code)$message, code, NULL))
+    }
   }
   response
 }
