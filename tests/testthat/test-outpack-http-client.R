@@ -53,7 +53,7 @@ test_that("handle errors", {
     '{"status":"failure",',
     '"errors":[{"error":"NOT_FOUND","detail":"Resource not found"}],',
     '"data":null}')
-  r <-  mock_response(json_string(str), status = 404, wrap = FALSE)
+  r <-  mock_response(json_string(str), status = 404L, wrap = FALSE)
   err <- expect_error(http_client_handle_error(r),
                       "Resource not found")
   expect_s3_class(err, "outpack_http_client_error")
@@ -68,13 +68,22 @@ test_that("handle errors from packit", {
     '{"status":"failure",',
     '"error":{"error":"NOT_FOUND","detail":"Resource not found"},',
     '"data":null}')
-  r <-  mock_response(json_string(str), status = 404, wrap = FALSE)
+  r <-  mock_response(json_string(str), status = 404L, wrap = FALSE)
   err <- expect_error(http_client_handle_error(r),
                       "Resource not found")
   expect_s3_class(err, "outpack_http_client_error")
   expect_equal(err$code, 404)
   expect_equal(err$errors, list(list(error = "NOT_FOUND",
                                      detail = "Resource not found")))
+})
+
+
+test_that("handle plain text errors", {
+  r <- mock_response("foobar", status = 503L, wrap = FALSE)
+  err <- expect_error(http_client_handle_error(r),
+                      "Server error: \\(503\\) Service Unavailable")
+  expect_s3_class(err, "outpack_http_client_error")
+  expect_equal(err$code, 503)
 })
 
 

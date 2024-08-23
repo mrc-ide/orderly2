@@ -2,7 +2,8 @@ mock_headers <- function(...) {
   structure(list(...), class = c("insensitive", "list"))
 }
 
-mock_response <- function(content, status = 200, wrap = TRUE, download = NULL) {
+mock_response <- function(content, status = 200L, wrap = TRUE,
+                          download = NULL) {
   headers <- mock_headers()
   if (!is.null(download)) {
     headers <- mock_headers("content-type" = "application/octet-stream")
@@ -14,6 +15,9 @@ mock_response <- function(content, status = 200, wrap = TRUE, download = NULL) {
                          content)
     }
     class(content) <- NULL
+    content <- c(writeBin(content, raw()), as.raw(0L))
+  } else if (inherits(content, "character")) {
+    headers <- mock_headers("content-type" = "text/plain")
     content <- c(writeBin(content, raw()), as.raw(0L))
   } else {
     stop("Unhandled mock response type")
