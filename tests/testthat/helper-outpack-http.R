@@ -5,9 +5,8 @@ mock_headers <- function(...) {
 mock_response <- function(content, status = 200L, wrap = TRUE,
                           download = NULL) {
   headers <- mock_headers()
-  if (!is.null(download)) {
+  if (inherits(content, "raw")) {
     headers <- mock_headers("content-type" = "application/octet-stream")
-    writeBin(content, download)
   } else if (inherits(content, "json")) {
     headers <- mock_headers("content-type" = "application/json")
     if (wrap) {
@@ -22,10 +21,14 @@ mock_response <- function(content, status = 200L, wrap = TRUE,
   } else {
     stop("Unhandled mock response type")
   }
-  structure(list(status_code = status,
-                 headers = headers,
-                 content = content),
-            class = "response")
+
+  if (!is.null(download)) {
+    writeBin(content, download)
+  }
+
+  httr2::response(status_code = status,
+                  headers = headers,
+                  body = content)
 }
 
 
@@ -37,4 +40,10 @@ json_string <- function(s) {
 
 clear_auth_cache <- function() {
   rm(list = ls(auth_cache), envir = auth_cache)
+}
+
+local_mock_response <- function(..., env = rlang::caller_env()) {
+  mock <- mockery::mock(mock_response(...))
+  httr2::local_mocked_responses(function(req) mock(req), env = env)
+  mock
 }

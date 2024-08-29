@@ -11,7 +11,7 @@ orderly_location_http <- R6::R6Class(
     },
 
     list = function() {
-      dat <- private$client$get("/metadata/list", parse_json = TRUE)$data
+      dat <- private$client$request("/metadata/list")$data
       data_frame(
         packet = vcapply(dat, "[[", "packet"),
         time = num_to_time(vnapply(dat, "[[", "time")),
@@ -21,8 +21,8 @@ orderly_location_http <- R6::R6Class(
     metadata = function(packet_ids) {
       ret <- vcapply(packet_ids, function(id) {
         tryCatch(
-          trimws(private$client$get(sprintf("/metadata/%s/text", id),
-                                    parse_json = FALSE)),
+          trimws(private$client$request(sprintf("/metadata/%s/text", id),
+                                        parse_json = FALSE)),
           outpack_http_client_error = function(e) {
             if (e$code == 404) {
               e$message <- sprintf("Some packet ids not found: '%s'", id)
@@ -43,7 +43,7 @@ orderly_location_http <- R6::R6Class(
       ## progress in the client, but there's not much point until
       ## then.
       tryCatch(
-        private$client$get(sprintf("/file/%s", hash), download = dest),
+        private$client$request(sprintf("/file/%s", hash), download = dest),
         outpack_http_client_error = function(e) {
           if (e$code == 404) {
             unlink(dest)
@@ -56,32 +56,36 @@ orderly_location_http <- R6::R6Class(
 
     ## TODO: we could get the schemas here from outpack_server too
     list_unknown_packets = function(ids) {
-      body <- to_json(list(ids = ids, unpacked = scalar(TRUE)), NULL)
-      content <- httr::content_type("application/json")
-      res <- private$client$post("/packets/missing", body, content)
+      res <- private$client$request(
+        "/packets/missing",
+        function(r) r |> httr2::req_body_json(list(ids = ids, unpacked = scalar(TRUE))))
       list_to_character(res$data)
     },
 
     list_unknown_files = function(hashes) {
-      body <- to_json(list(hashes = hashes), NULL)
-      res <- private$client$post("/files/missing", body,
-                                 httr::content_type("application/json"))
+      res <- private$client$request(
+        "/files/missing",
+        function(r) r |> httr2::req_body_json(list(hashes = hashes)))
       list_to_character(res$data)
     },
 
     push_file = function(src, hash) {
-      body <- httr::upload_file(src, "application/octet-stream")
-      res <- private$client$post(sprintf("/file/%s", hash), body)
+      res <- private$client$request(
+        sprintf("/file/%s", hash),
+        function(r) r |> httr2::req_body_file(src, "application/octet-stream"))
+
       invisible(NULL)
     },
 
     push_metadata = function(packet_id, hash, path) {
       meta <- read_string(path)
-      res <- private$client$post(sprintf("/packet/%s", hash), meta,
-                                 httr::content_type("text/plain"))
+      res <- private$client$request(
+        sprintf("/packet/%s", hash),
+        function(r) r |> httr2::req_body_raw(meta, "text/plain"))
       invisible(NULL)
     }
-  ))
+  )
+)
 
 
 orderly_location_packit <- function(url, token) {

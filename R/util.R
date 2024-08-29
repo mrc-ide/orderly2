@@ -332,11 +332,6 @@ to_json <- function(x, schema = NULL, auto_unbox = FALSE, ...) {
 }
 
 
-from_json <- function(x, ...) {
-  jsonlite::fromJSON(x, simplifyVector = FALSE, ...)
-}
-
-
 as_json <- function(str) {
   assert_scalar_character(str)
   structure(str, class = "json")

@@ -122,9 +122,10 @@ describe("http location integration tests", {
 
     ## Trigger the error directly:
     cl <- outpack_http_client$new(url, NULL)
-    err <- expect_error(cl$post(sprintf("/packet/%s", hash), meta,
-                                httr::content_type("text/plain")),
-                        "Expected hash '.+' but found '.+'")
+    err <- expect_error(
+      cl$request(sprintf("/packet/%s", hash),
+                 function(r) r |> httr2::req_body_raw(meta, "text/plain")),
+      "Expected hash '.+' but found '.+'")
   })
 
   it("throws sensible error if file hash does not match expected", {
