@@ -21,36 +21,37 @@ outpack_http_client <- R6::R6Class(
       }
     },
 
-    get = function(path, ...) {
+    request = function(path, customize = identity, ...) {
       self$authorise()
-      http_client_request(httr::GET, paste0(self$url, path), ...,
-                          self$auth$header)
-    },
-
-    post = function(path, body, ...) {
-      self$authorise()
-      http_client_request(httr::POST, paste0(self$url, path), body = body, ...,
-                          self$auth$header)
+      http_client_request(
+        self$url,
+        function(r) {
+          r <- httr2::req_url_path_append(r, path)
+          r <- httr2::req_headers(r, !!!self$auth$header)
+          customize(r)
+        }, ...)
     }
   ))
 
-
-http_client_request <- function(verb, url, ..., parse_json = TRUE,
-                                download = NULL) {
-  if (is.null(download)) {
-    response <- verb(url, ...)
-  } else {
-    response <- verb(url, ...,
-                     http_client_download_options(download))
+http_client_request <- function(url, customize = identity, download = NULL,
+                                parse_json = TRUE) {
+  req <- httr2::request(url)
+  if (!is.null(download)) {
+    req <- httr2::req_headers(req, Accept = "application/octet-stream")
   }
 
-  http_client_handle_error(response)
+  req <- customize(req)
+  resp <- tryCatch(
+    httr2::req_perform(req, path = download),
+    httr2_http = function(cnd) {
+      http_client_handle_error(cnd$resp)
+    })
+
   if (is.null(download)) {
-    txt <- httr::content(response, "text", encoding = "UTF-8")
     if (parse_json) {
-      from_json(txt)
+      httr2::resp_body_json(resp, simplifyVector = FALSE)
     } else {
-      txt
+      httr2::resp_body_string(resp)
     }
   } else {
     download
@@ -63,17 +64,19 @@ http_client_handle_error <- function(response) {
   ## that an expired timeout produces a certain error code we watch
   ## for that and then reauthenticate; that requires that a callback
   ## is passed through here too.
-  code <- httr::status_code(response)
-  if (httr::http_error(code)) {
-    if (httr::http_type(response) == "application/json") {
-      txt <- httr::content(response, "text", encoding = "UTF-8")
-      res <- from_json(txt)
+  if (httr2::resp_is_error(response)) {
+    if (httr2::resp_content_type(response) == "application/json") {
+      res <- httr2::resp_body_json(response)
       ## I am seeing Packit returning an element 'error' not a list of
       ## errors
       errors <- if ("error" %in% names(res)) list(res$error) else res$errors
-      stop(http_client_error(errors[[1]]$detail, code, errors))
+      stop(http_client_error(errors[[1]]$detail,
+                             httr2::resp_status(response),
+                             errors))
     } else {
-      stop(http_client_error(httr::http_status(code)$message, code, NULL))
+      stop(http_client_error(httr2::resp_status_desc(response),
+                             httr2::resp_status(response),
+                             NULL))
     }
   }
   response
@@ -84,12 +87,6 @@ http_client_error <- function(msg, code, errors) {
   err <- list(message = msg, errors = errors, code = code)
   class(err) <- c("outpack_http_client_error", "error", "condition")
   err
-}
-
-
-http_client_download_options <- function(dest) {
-  c(httr::write_disk(dest),
-    httr::accept("application/octet-stream"))
 }
 
 
@@ -108,11 +105,12 @@ http_client_login <- function(name, auth) {
   key <- rlang::hash(auth)
   if (is.null(auth_cache[[key]])) {
     cli::cli_alert_info("Logging in to {name}")
-    res <- http_client_request(httr::POST, auth$url,
-                               body = auth$data, encode = "json")
+
+    res <- http_client_request(auth$url,
+                               function(r) httr2::req_body_json(r, auth$data))
+
     cli::cli_alert_success("Logged in successfully")
-    auth_cache[[key]] <- httr::add_headers(
-      "Authorization" = paste("Bearer", res$token))
+    auth_cache[[key]] <- list("Authorization" = paste("Bearer", res$token))
   }
   auth_cache[[key]]
 }
