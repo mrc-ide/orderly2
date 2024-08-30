@@ -5,7 +5,7 @@ mock_headers <- function(...) {
 mock_response <- function(content, status = 200L, wrap = TRUE,
                           download = NULL) {
   headers <- mock_headers()
-  if (inherits(content, "raw")) {
+  if (is.raw(content)) {
     headers <- mock_headers("content-type" = "application/octet-stream")
   } else if (inherits(content, "json")) {
     headers <- mock_headers("content-type" = "application/json")
@@ -15,7 +15,7 @@ mock_response <- function(content, status = 200L, wrap = TRUE,
     }
     class(content) <- NULL
     content <- c(writeBin(content, raw()), as.raw(0L))
-  } else if (inherits(content, "character")) {
+  } else if (is.character(content)) {
     headers <- mock_headers("content-type" = "text/plain")
     content <- c(writeBin(content, raw()), as.raw(0L))
   } else {
