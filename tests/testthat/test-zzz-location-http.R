@@ -124,7 +124,7 @@ describe("http location integration tests", {
     cl <- outpack_http_client$new(url, NULL)
     err <- expect_error(
       cl$request(sprintf("/packet/%s", hash),
-                 function(r) r |> httr2::req_body_raw(meta, "text/plain")),
+                 function(r) httr2::req_body_raw(r, meta, "text/plain")),
       "Expected hash '.+' but found '.+'")
   })
 

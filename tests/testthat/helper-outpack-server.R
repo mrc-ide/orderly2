@@ -10,8 +10,9 @@ outpack_server <- function(path, timeout = 10) {
   t_end <- Sys.time() + timeout
   success <- FALSE
   while (!success && px$is_alive() && Sys.time() < t_end) {
+    r <- httr2::request("http://localhost:8000")
     result <- tryCatch(
-      httr2::request("http://localhost:8000") |> httr2::req_perform(),
+       httr2::req_perform(r),
       error = identity)
     success <- !inherits(result, "error")
   }

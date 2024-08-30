@@ -26,10 +26,9 @@ outpack_http_client <- R6::R6Class(
       http_client_request(
         self$url,
         function(r) {
-          r |>
-          httr2::req_url_path_append(path) |>
-          httr2::req_headers(!!!self$auth$header) |>
-          customize()
+          r <- httr2::req_url_path_append(r, path)
+          r <- httr2::req_headers(r, !!!self$auth$header)
+          customize(r)
         }, ...)
     }
   ))
@@ -107,7 +106,8 @@ http_client_login <- function(name, auth) {
   if (is.null(auth_cache[[key]])) {
     cli::cli_alert_info("Logging in to {name}")
 
-    res <- http_client_request(auth$url, . %>% httr2::req_body_json(auth$data))
+    res <- http_client_request(auth$url,
+                               function(r) httr2::req_body_json(r, auth$data))
 
     cli::cli_alert_success("Logged in successfully")
     auth_cache[[key]] <- list("Authorization" = paste("Bearer", res$token))

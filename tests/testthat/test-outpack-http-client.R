@@ -21,7 +21,7 @@ test_that("client can add headers", {
 
   res <- http_client_request(
     "http://example.com/path",
-    function(r) r |> httr2::req_headers(Authorization = "Bearer yogi"))
+    function(r) httr2::req_headers(r, Authorization = "Bearer yogi"))
 
   expect_mapequal(
     res,

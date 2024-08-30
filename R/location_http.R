@@ -57,7 +57,7 @@ orderly_location_http <- R6::R6Class(
     ## TODO: we could get the schemas here from outpack_server too
     list_unknown_packets = function(ids) {
       res <- private$client$request("/packets/missing", function(r) {
-        r |> httr2::req_body_json(list(ids = ids, unpacked = scalar(TRUE)))
+        httr2::req_body_json(r, list(ids = ids, unpacked = scalar(TRUE)))
       })
       list_to_character(res$data)
     },
@@ -65,14 +65,14 @@ orderly_location_http <- R6::R6Class(
     list_unknown_files = function(hashes) {
       res <- private$client$request(
         "/files/missing",
-        function(r) r |> httr2::req_body_json(list(hashes = hashes)))
+        function(r) httr2::req_body_json(r, list(hashes = hashes)))
       list_to_character(res$data)
     },
 
     push_file = function(src, hash) {
       res <- private$client$request(
         sprintf("/file/%s", hash),
-        function(r) r |> httr2::req_body_file(src, "application/octet-stream"))
+        function(r) httr2::req_body_file(r, src, "application/octet-stream"))
 
       invisible(NULL)
     },
@@ -81,7 +81,7 @@ orderly_location_http <- R6::R6Class(
       meta <- read_string(path)
       res <- private$client$request(
         sprintf("/packet/%s", hash),
-        function(r) r |> httr2::req_body_raw(meta, "text/plain"))
+        function(r) httr2::req_body_raw(r, meta, "text/plain"))
       invisible(NULL)
     }
   )
