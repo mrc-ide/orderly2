@@ -56,9 +56,9 @@ orderly_location_http <- R6::R6Class(
 
     ## TODO: we could get the schemas here from outpack_server too
     list_unknown_packets = function(ids) {
-      res <- private$client$request(
-        "/packets/missing",
-        function(r) r |> httr2::req_body_json(list(ids = ids, unpacked = scalar(TRUE))))
+      res <- private$client$request("/packets/missing", function(r) {
+        r |> httr2::req_body_json(list(ids = ids, unpacked = scalar(TRUE)))
+      })
       list_to_character(res$data)
     },
 

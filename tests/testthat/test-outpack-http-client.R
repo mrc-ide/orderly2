@@ -210,7 +210,8 @@ test_that("can send authenticated request", {
   withr::defer(clear_auth_cache())
 
   mock <- mockery::mock(
-    mock_response(to_json(list(token = jsonlite::unbox("mytoken"))), wrap = FALSE),
+    mock_response(to_json(list(token = jsonlite::unbox("mytoken"))),
+                  wrap = FALSE),
     mock_response(json_string("[1,2,3]")))
   httr2::local_mocked_responses(function(req) mock(req))
 

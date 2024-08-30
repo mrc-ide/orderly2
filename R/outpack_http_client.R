@@ -34,7 +34,8 @@ outpack_http_client <- R6::R6Class(
     }
   ))
 
-http_client_request <- function(url, customize = identity, download = NULL, parse_json = TRUE) {
+http_client_request <- function(url, customize = identity, download = NULL,
+                                parse_json = TRUE) {
   req <- httr2::request(url)
   if (!is.null(download)) {
     req <- httr2::req_headers(req, Accept = "application/octet-stream")
