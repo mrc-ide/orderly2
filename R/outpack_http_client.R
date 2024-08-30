@@ -3,31 +3,24 @@ outpack_http_client <- R6::R6Class(
 
   public = list(
     url = NULL,
-    auth = NULL,
+    authorise = NULL,
 
-    initialize = function(url, auth) {
+    initialize = function(url, authorise = NULL) {
       self$url <- sub("/$", "", url)
-      if (is.null(auth)) {
-        self$auth <- list(enabled = FALSE)
+      if (is.null(authorise)) {
+        self$authorise <- function() NULL
       } else {
-        self$auth <- list(enabled = TRUE, url = auth$url, data = auth$data)
-      }
-    },
-
-    authorise = function() {
-      needs_auth <- self$auth$enabled && is.null(self$auth$header)
-      if (needs_auth) {
-        self$auth$header <- http_client_login(self$url, self$auth)
+        self$authorise <- authorise
       }
     },
 
     request = function(path, customize = identity, ...) {
-      self$authorise()
+      auth_headers <- self$authorise()
       http_client_request(
         self$url,
         function(r) {
           r <- httr2::req_url_path_append(r, path)
-          r <- httr2::req_headers(r, !!!self$auth$header)
+          r <- httr2::req_headers(r, !!!auth_headers)
           customize(r)
         }, ...)
     }
@@ -92,6 +85,7 @@ http_client_error <- function(msg, code, errors) {
   class(err) <- c("outpack_http_client_error", "error", "condition")
   err
 }
+<<<<<<< HEAD
 
 
 ## Logging in with packit is quite slow and we'll want to cache this;
@@ -118,3 +112,5 @@ http_client_login <- function(name, auth) {
   }
   auth_cache[[key]]
 }
+=======
+>>>>>>> 509a1a1 (Implement OAuth device flow for GitHub logins.)

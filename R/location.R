@@ -41,8 +41,8 @@
 ##' * `url`: The location of the server
 ##'
 ##' * `token`: The value for your your login token (currently this is
-##'   a GitHub token with `read:org` scope).  Later we'll expand this
-##'   as other authentication modes are supported.
+##'   a GitHub token with `read:org` scope). If missing or NULL, orderly2 will
+##'   perform an interactive authentication against GitHub to obtain one.
 ##'
 ##' **Custom locations**:
 ##'
@@ -110,6 +110,7 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
     assert_scalar_character(loc$args[[1]]$url, name = "args$url",
                             call = environment())
     assert_scalar_character(loc$args[[1]]$token, name = "args$token",
+                            allow_null = TRUE,
                             call = environment())
   }
 
@@ -764,7 +765,7 @@ new_location_entry <- function(name, type, args, call = NULL) {
   } else if (type == "http") {
     required <- "url"
   } else if (type == "packit") {
-    required <- c("url", "token")
+    required <- c("url")
   } else if (type == "custom") {
     required <- "driver"
   }

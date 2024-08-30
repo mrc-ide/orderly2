@@ -810,11 +810,14 @@ test_that("validate arguments to packit locations", {
   expect_error(
     orderly_location_add("other", "packit", list(server = "example.com"),
                          root = root),
-    "Fields missing from args: 'url' and 'token'")
+    "Field missing from args: 'url'")
+
   expect_error(
-    orderly_location_add("other", "packit", list(url = "example.com"),
+    orderly_location_add("other", "packit",
+                         list(url = "example.com", token = 123),
                          root = root),
-    "Field missing from args: 'token'")
+    "'args$token' must be character")
+
   expect_equal(orderly_location_list(root = root), "local")
 })
 
@@ -825,63 +828,49 @@ test_that("can add a packit location", {
                        list(url = "https://example.com", token = "abc123"),
                        root = root)
   expect_equal(orderly_location_list(root = root), c("local", "other"))
+
+  mock_driver <- mockery::mock()
+  mockery::stub(location_driver, "orderly_location_packit", mock_driver)
+
   dr <- location_driver("other", root)
-  expect_s3_class(dr, "orderly_location_http") # not actually packit
-  cl <- dr$.__enclos_env__$private$client
-  expect_equal(cl$url, "https://example.com/packit/api/outpack")
+
+  mockery::expect_called(mock_driver, 1)
   expect_equal(
-    cl$auth,
-    list(enabled = TRUE,
-         url = "https://example.com/packit/api/auth/login/api",
-         data = list(token = scalar("abc123"))))
+    mockery::mock_args(mock_driver)[[1]],
+    list("https://example.com", "abc123"))
 })
 
+test_that("can add a packit location without a token", {
+  root <- create_temporary_root()
+  orderly_location_add("other", "packit",
+                       list(url = "https://example.com"),
+                       root = root)
+  expect_equal(orderly_location_list(root = root), c("local", "other"))
 
-test_that("can create a packit location using an environment variable token", {
-  loc <- withr::with_envvar(
-    c("PACKIT_TOKEN" = "abc123"),
-    orderly_location_packit("https://example.com", "$PACKIT_TOKEN"))
-  client <- loc$.__enclos_env__$private$client
+  mock_driver <- mockery::mock()
+  mockery::stub(location_driver, "orderly_location_packit", mock_driver)
+
+  dr <- location_driver("other", root)
+
+  mockery::expect_called(mock_driver, 1)
   expect_equal(
-    client$auth,
-    list(enabled = TRUE,
-         url = "https://example.com/packit/api/auth/login/api",
-         data = list(token = scalar("abc123"))))
-  expect_equal(
-    client$url,
-    "https://example.com/packit/api/outpack")
+    mockery::mock_args(mock_driver)[[1]],
+    list("https://example.com", NULL))
 })
-
 
 test_that("cope with trailing slash in url if needed", {
   loc <- orderly_location_packit("https://example.com/", "abc123")
   client <- loc$.__enclos_env__$private$client
   expect_equal(
-    client$auth,
-    list(enabled = TRUE,
-         url = "https://example.com/packit/api/auth/login/api",
-         data = list(token = scalar("abc123"))))
-  expect_equal(
     client$url,
     "https://example.com/packit/api/outpack")
-})
-
-
-test_that("error of token variable not found", {
-  withr::with_envvar(
-    c("PACKIT_TOKEN" = NA_character_),
-    expect_error(
-      orderly_location_packit("https://example.com", "$PACKIT_TOKEN"),
-      "Environment variable 'PACKIT_TOKEN' was not set"))
 })
 
 
 test_that("can create an outpack location, disabling auth", {
   loc <- orderly_location_http$new("https://example.com", NULL)
   client <- loc$.__enclos_env__$private$client
-  expect_equal(
-    client$auth,
-    list(enabled = FALSE))
+  expect_equal(client$authorise(), NULL)
   expect_equal(
     client$url,
     "https://example.com")
