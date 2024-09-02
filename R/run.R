@@ -430,29 +430,33 @@ check_files_strict <- function(path, known, artefacts) {
   all_files_end <- dir_ls_local(path, all = TRUE, type = "file")
   unknown <- setdiff(all_files_end, all_known)
   if (length(unknown) > 0) {
-    ## TODO: better once we have logging merged, I think
-    ##
     ## TODO: provide workaround to ignore too (either to exclude
     ## or ignore); see VIMC-7093
-    message(paste(
-      "orderly produced unexpected files:",
-      sprintf("  - %s", unknown),
-      "Consider using orderly2::orderly_artefact() to describe them",
-      sep = "\n"))
+    cli::cli_alert_warning("Report produced unexpected files:")
+    cli::cli_ul(unknown)
+    cli::cli_alert_info(paste("These are probably artefacts, consider using",
+                              "orderly2::orderly_artefact to describe them"))
   }
 }
 
 
 check_files_relaxed <- function(path, inputs_info) {
   inputs_info_end <- withr::with_dir(path, fs::file_info(inputs_info$path))
-  i <- inputs_info_end$size != inputs_info$size |
-    inputs_info_end$modification_time != inputs_info$modification_time
-  if (any(i)) {
-    message(paste(
-      "inputs modified; these are probably artefacts:",
-      sprintf("  - %s", inputs_info$path[i]),
-      "Consider using orderly2::orderly_artefact() to describe them",
-      sep = "\n"))
+  deleted <- is.na(inputs_info_end$type)
+
+  modified <- !deleted &
+    (inputs_info_end$size != inputs_info$size |
+     inputs_info_end$modification_time != inputs_info$modification_time)
+
+  if (any(modified)) {
+    cli::cli_alert_warning("The following inputs were modified by the report:")
+    cli::cli_ul(inputs_info$path[modified])
+    cli::cli_alert_info(paste("These are probably artefacts, consider using",
+                              "orderly2::orderly_artefact to describe them"))
+  }
+  if (any(deleted)) {
+    cli::cli_alert_warning("The following inputs were deleted by the report:")
+    cli::cli_ul(inputs_info$path[deleted])
   }
 }
 
