@@ -44,7 +44,7 @@ packit_authorisation <- function(base_url, token) {
     login_url <- paste0(base_url, "packit/api/auth/login/api")
     res <- http_client_request(
       login_url,
-      function(r) r %>% httr2::req_body_json(list(token = scalar(token))))
+      function(r) r %>% http_body_json(list(token = scalar(token))))
 
     cli::cli_alert_success("Logged in successfully")
 
