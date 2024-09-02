@@ -86,14 +86,12 @@ test_that("raises deprecation warning for orderly.R", {
   path <- test_prepare_orderly_example("deprecated-orderly-name")
   envir <- new.env()
   rlang::reset_warning_verbosity("deprecate_orderly_file_name")
-  suppressMessages(
-    expect_warning(
-      orderly_run("deprecated-orderly-name", root = path,
-                  envir = envir, echo = FALSE),
-      paste("Naming convention orderly.R will be deprecated",
-            "soon. Please change orderly file name to",
-            "<reportname>.R")
-    )
+
+  expect_warning(
+    orderly_run_quietly("deprecated-orderly-name", root = path, envir = envir),
+    paste("Naming convention orderly.R will be deprecated",
+          "soon. Please change orderly file name to",
+          "<reportname>.R")
   )
 })
 
@@ -435,9 +433,10 @@ test_that("with strict mode, indicate unknown files as potential artefacts", {
              path_src)
   res <- testthat::evaluate_promise(
     id <- orderly_run("implicit", root = path, envir = new.env()))
-  expect_match(res$messages,
-               "orderly produced unexpected files:\n  - mygraph.png",
-               all = FALSE)
+
+  expect_match(res$messages, "Report produced unexpected files:", all = FALSE)
+  expect_match(res$messages, "mygraph.png", all = FALSE)
+
   expect_setequal(
     dir(file.path(path, "archive", "implicit", id)),
     c("implicit.R", "mygraph.png", "data.csv"))
@@ -449,13 +448,33 @@ test_that("without strict mode, detect modified files", {
   file.create(file.path(path, "src", "implicit", "mygraph.png"))
   res <- testthat::evaluate_promise(
     id <- orderly_run("implicit", root = path, envir = new.env()))
-  expect_match(
-    res$messages,
-    "inputs modified; these are probably artefacts:\n  - mygraph.png",
-    fixed = TRUE, all = FALSE)
+
+  expect_match(res$messages, "inputs were modified by the report:", all = FALSE)
+  expect_match(res$messages, "mygraph.png", all = FALSE, fixed = TRUE)
+
   expect_setequal(
     dir(file.path(path, "archive", "implicit", id)),
     c("implicit.R", "mygraph.png", "data.csv"))
+})
+
+
+test_that("without strict mode, detect deleted files", {
+  path <- create_temporary_root()$path
+  path_src <- file.path(path, "src", "report")
+
+  fs::dir_create(path_src)
+  writeLines("0,1,2,3", file.path(path_src, "data.csv"))
+  writeLines("fs::file_delete('data.csv')", file.path(path_src, "report.R"))
+
+  res <- testthat::evaluate_promise(
+    id <- orderly_run("report", root = path, envir = new.env()))
+
+  expect_match(res$messages, "inputs were deleted by the report:", all = FALSE)
+  expect_match(res$messages, "data.csv", all = FALSE, fixed = TRUE)
+
+  expect_setequal(
+    dir(file.path(path, "archive", "report", id)),
+    c("report.R"))
 })
 
 
@@ -1389,7 +1408,6 @@ test_that("warn if description unnamed in artefact", {
   writeLines(sub("description = ", "", code), path_src)
   envir <- new.env()
   expect_warning(
-    suppressMessages(
-      orderly_run("data", root = path, envir = envir, echo = FALSE)),
+    orderly_run_quietly("data", root = path, envir = envir),
     "Please use a named argument")
 })
