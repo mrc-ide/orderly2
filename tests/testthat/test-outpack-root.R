@@ -100,7 +100,7 @@ test_that("Can work out what packets are missing", {
   for (name in c("a", "b")) {
     root[[name]] <- create_temporary_root()
   }
-  ids <- create_random_packet_chain(root$a, 3)
+  ids <- unname(create_random_packet_chain(root$a, 3))
   orderly_location_add("a", "path", list(path = root$a$path), root = root$b)
   orderly_location_pull_metadata(root = root$b)
 
@@ -118,7 +118,7 @@ test_that("Can work out what packets are missing", {
   expect_equal(root_list_unknown_packets(rev(ids_fake), root$a),
                rev(ids_fake))
 
-  ids_all <- sample(c(unname(ids), ids_fake))
+  ids_all <- sample(c(ids, ids_fake))
   expect_equal(root_list_unknown_packets(ids_all, root$a),
                setdiff(ids_all, ids))
   expect_equal(root_list_unknown_packets(ids_all, root$b),
