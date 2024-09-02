@@ -2,7 +2,7 @@ test_that("can authenticate with existing token", {
   clear_auth_cache()
   withr::defer(clear_auth_cache())
 
-  token = "my-github-token"
+  token <- "my-github-token"
 
   mock_post <- local_mock_response(
     to_json(list(token = jsonlite::unbox("my-packit-token"))),
@@ -22,7 +22,7 @@ test_that("can authenticate with existing token", {
   expect_equal(args[[1]]$url, "http://example.com/packit/api/auth/login/api")
   expect_equal(args[[1]]$body$data, list(token = scalar("my-github-token")))
   expect_equal(args[[1]]$body$type, "json")
- 
+
   ## And a second time, does not call mock_post again:
   res2 <- expect_silent(
     packit_authorisation("http://example.com/", token))
@@ -42,7 +42,7 @@ test_that("can authenticate using device flow", {
   mockery::stub(packit_authorisation, "do_oauth_device_flow", "my-github-token")
 
   res <- evaluate_promise(packit_authorisation("http://example.com/",
-                                               token=NULL))
+                                               token = NULL))
 
   expect_length(res$messages, 2)
   expect_match(res$messages[[1]], "Logging in to http://example.com")
@@ -61,7 +61,7 @@ test_that("location_packit uses authentication", {
   clear_auth_cache()
   withr::defer(clear_auth_cache())
 
-  token = "my-github-token"
+  token <- "my-github-token"
   id <- outpack_id()
   metadata <- "packet metadata"
 
@@ -90,7 +90,7 @@ test_that("location_packit uses authentication", {
   args <- mockery::mock_args(mock)[[2]]
   expect_match(args[[1]]$url,
                "http://example.com/packit/api/outpack/metadata/.*/text")
-  expect_equal(args[[1]]$headers, 
+  expect_equal(args[[1]]$headers,
                list(Authorization = "Bearer my-packit-token"),
                ignore_attr = TRUE)
 
