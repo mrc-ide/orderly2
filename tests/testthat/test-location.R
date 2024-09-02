@@ -816,7 +816,7 @@ test_that("validate arguments to packit locations", {
     orderly_location_add("other", "packit",
                          list(url = "example.com", token = 123),
                          root = root),
-    "'args$token' must be character")
+    "'args$token' must be character", fixed = TRUE)
 
   expect_equal(orderly_location_list(root = root), "local")
 })
