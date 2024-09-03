@@ -2,9 +2,9 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [main, master, epic-poc]
+    branches: [main]
   pull_request:
-    branches: [main, master, epic-poc]
+    branches: [main]
 
 name: test-coverage
 
@@ -21,9 +21,16 @@ jobs:
         with:
           use-public-rspm: true
 
-      - name: setup server
-        run: |
-          cargo install --git https://github.com/mrc-ide/outpack_server --branch main --locked
+      # Compiling outpack server from source takes a few minutes each time.
+      # This action will cache the result and re-use it on subsequent builds.
+      # The cache is keyed by Git revision, allowing us to pick up new versions
+      # of the server immediately.
+      - name: Install outpack server
+        uses: baptiste0928/cargo-install@v3
+        with:
+          crate: outpack
+          git: https://github.com/mrc-ide/outpack_server
+          features: git2/vendored-libgit2
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
