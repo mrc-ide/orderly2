@@ -59,7 +59,7 @@ hash_files <- function(paths, algorithm = "sha256", named = FALSE) {
 }
 
 
-hash_data <- function(data, algorithm, call = NULL) {
+hash_data <- function(data, algorithm = "sha256", call = NULL) {
   assert_scalar_character(algorithm, call = call)
   value <- openssl::multihash(data, algorithm)[[algorithm]]
   sprintf("%s:%s", algorithm, as.character(value))

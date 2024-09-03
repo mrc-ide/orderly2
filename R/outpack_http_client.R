@@ -33,6 +33,10 @@ outpack_http_client <- R6::R6Class(
     }
   ))
 
+http_body_json <- function(request, body) {
+  httr2::req_body_json(request, body, auto_unbox = FALSE)
+}
+
 http_client_request <- function(url, customize = identity, download = NULL,
                                 parse_json = TRUE) {
   req <- httr2::request(url)
@@ -106,8 +110,7 @@ http_client_login <- function(name, auth) {
   if (is.null(auth_cache[[key]])) {
     cli::cli_alert_info("Logging in to {name}")
 
-    res <- http_client_request(auth$url,
-                               function(r) httr2::req_body_json(r, auth$data))
+    res <- http_client_request(auth$url, json_body = auth$data)
 
     cli::cli_alert_success("Logged in successfully")
     auth_cache[[key]] <- list("Authorization" = paste("Bearer", res$token))
