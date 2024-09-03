@@ -70,9 +70,16 @@ orderly_location_http <- R6::R6Class(
     },
 
     push_file = function(src, hash) {
+      size <- file.info(src)$size
+      con <- file(src, "rb")
+      withr::defer(close(con))
+
       res <- private$client$request(
         sprintf("/file/%s", hash),
-        function(r) httr2::req_body_file(r, src, "application/octet-stream"))
+        function(r) {
+          http_body_connection(r, con, size, "application/octet-stream")
+        })
+
 
       invisible(NULL)
     },

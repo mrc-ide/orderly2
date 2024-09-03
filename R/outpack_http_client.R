@@ -33,6 +33,22 @@ outpack_http_client <- R6::R6Class(
     }
   ))
 
+
+#' Attach a connection as the request's body.
+#'
+#' It is the caller's responsibility to keep the connection open for the
+#' duration of the request and to close it afterwards.
+http_body_connection <- function(request, con, size, type) {
+  request <- httr2::req_headers(request, "Content-Type" = type)
+  request <- httr2::req_options(
+    request,
+    post = TRUE,
+    readfunction = function(nbytes, ...) readBin(con, "raw", nbytes),
+    seekfunction = function(offset, ...) seed(con, offset),
+    postfieldsize_large = size
+  )
+}
+
 http_client_request <- function(url, customize = identity, download = NULL,
                                 parse_json = TRUE) {
   req <- httr2::request(url)
