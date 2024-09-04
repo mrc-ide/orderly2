@@ -60,9 +60,12 @@ describe("server integration tests", {
     existing_hashes <- orderly_metadata(ids[[1]], root = path)$files$hash
     new_hash <- hash_data(toString(runif(100)), algorithm = "sha256")
 
-    expect_setequal(client_http$list_unknown_files(new_hash), new_hash)
-    expect_setequal(client_http$list_unknown_files(existing_hashes), character(0))
-    expect_setequal(client_http$list_unknown_files(c(new_hash, existing_hashes)), new_hash)
+    expect_setequal(
+      client_http$list_unknown_files(new_hash), new_hash)
+    expect_setequal(
+      client_http$list_unknown_files(existing_hashes), character(0))
+    expect_setequal(
+      client_http$list_unknown_files(c(new_hash, existing_hashes)), new_hash)
   })
 })
 
