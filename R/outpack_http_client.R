@@ -110,7 +110,8 @@ http_client_login <- function(name, auth) {
   if (is.null(auth_cache[[key]])) {
     cli::cli_alert_info("Logging in to {name}")
 
-    res <- http_client_request(auth$url, json_body = auth$data)
+    res <- http_client_request(auth$url,
+                               function(r) http_body_json(r, auth$data))
 
     cli::cli_alert_success("Logged in successfully")
     auth_cache[[key]] <- list("Authorization" = paste("Bearer", res$token))
