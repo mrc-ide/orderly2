@@ -198,7 +198,7 @@ assert_directory_does_not_exist <- function(x, name = "Directory", arg = NULL,
 
 match_value <- function(x, choices, name = deparse(substitute(x)),
                         arg = name, call = NULL) {
-  assert_scalar_character(x, call = call, arg = arg)
+  assert_scalar_character(x, name = name, arg = arg, call = call)
   if (!(x %in% choices)) {
     cli::cli_abort(
       c("'{name}' must be one of {collapseq(choices)}",
