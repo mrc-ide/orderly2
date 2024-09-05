@@ -233,7 +233,7 @@ This multi-step process means that we avoid copying data that is already known a
 
 It is important that the `.outpack` directory is *not* shared via git; we warn about this now, and you can use `orderly2::ordery_gitignore_update()` to automatically create a suitable `.gitignore` file that will prevent it being accidentally committed.
 
-However, 
+However,
 
 If Alice and Bob were starting on a new machine they would:
 
@@ -253,20 +253,20 @@ One of the simplest ways to share packets with a collaborator is through a share
 1. Initialise an orderly location on the shared file system
     ```{r as="alice"}
 orderly2::orderly_init(
-  root = path_sharepoint_alice, 
-  path_archive = NULL, 
-  use_file_store = TRUE, 
+  root = path_sharepoint_alice,
+  path_archive = NULL,
+  use_file_store = TRUE,
   require_complete_tree = TRUE
 )
     ```
-    
+
    Create an orderly store with a file store and a complete tree. See `orderly2::orderly_init()` for more details.
 1. Add this as a location
     ```{r, as="alice", inwd = path_alice}
 orderly2::orderly_location_add(
   "sharepoint", "path", list(path = path_sharepoint_alice))
     ```
-    
+
 1. Push any packets you want to share
     ```{r, as="alice", inwd = path_alice}
 orderly2::orderly_location_push(id, "sharepoint")
@@ -280,11 +280,10 @@ Then these will be available for your collaborator to pull. Note that the data i
 orderly2::orderly_location_add(
   "alices_orderly", "path", list(path = path_sharepoint_bob))
     ```
-    
+
 1. Pull the metadata and use the packets as desired
     ```{r, as="bob", inwd = path_bob}
 orderly2::orderly_location_pull_metadata(
   "alices_orderly"
 )
     ```
-

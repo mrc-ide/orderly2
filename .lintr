@@ -4,4 +4,4 @@ linters: linters_with_defaults(
     object_usage_linter = NULL,
     cyclocomp_linter = NULL
     )
-exclusions: list("tests/testthat.R", "R/cpp11.R")
+exclusions: list("tests/testthat.R", "R/cpp11.R", "R/import-standalone-utils-assert.R", "R/import-standalone-utils-assert-path.R")
