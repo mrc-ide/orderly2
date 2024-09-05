@@ -258,7 +258,7 @@ test_that("include parameters from subqueries too", {
 test_that("validate inputs to orderly_query", {
   expect_error(
     orderly_query("latest", list(a = 1)),
-    "'name' must be character")
+    "Expected 'name' to be character")
 })
 
 
