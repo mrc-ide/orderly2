@@ -69,7 +69,7 @@ http_client_handle_error <- function(response) {
   ## for that and then reauthenticate; that requires that a callback
   ## is passed through here too.
   if (httr2::resp_is_error(response)) {
-    if (httr2::resp_content_type(response) == "application/json") {
+    if (identical(httr2::resp_content_type(response), "application/json")) {
       res <- httr2::resp_body_json(response)
       ## I am seeing Packit returning an element 'error' not a list of
       ## errors

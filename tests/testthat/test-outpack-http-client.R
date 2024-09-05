@@ -117,6 +117,18 @@ test_that("handle plain text errors", {
 })
 
 
+test_that("handle empty errors", {
+  local_mock_response(NA, status = 503L, wrap = FALSE)
+
+  cl <- outpack_http_client$new("http://example.com", NULL)
+  err <- expect_error(cl$request("path"), "Service Unavailable")
+
+  expect_s3_class(err, "outpack_http_client_error")
+  expect_equal(err$code, 503)
+  expect_null(err$errors)
+})
+
+
 test_that("can use the client to make requests", {
   skip_if_not_installed("mockery")
 
