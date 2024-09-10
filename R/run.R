@@ -194,7 +194,8 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
 
   if (dat$strict$enabled) {
     inputs_info <- NULL
-    copy_files(file.path(src, entrypoint_filename), path)
+    copy_files(file.path(src, entrypoint_filename),
+               file.path(path, entrypoint_filename))
   } else {
     inputs_info <- copy_resources_implicit(src, path, dat$resources,
                                            dat$artefacts)
@@ -477,8 +478,7 @@ copy_resources_implicit <- function(src, dst, resources, artefacts) {
   }
 
   copy_files(file.path(src, to_copy),
-             file.path(dst, to_copy),
-             overwrite = TRUE)
+             file.path(dst, to_copy))
 
   withr::with_dir(dst, fs::file_info(to_copy))
 }

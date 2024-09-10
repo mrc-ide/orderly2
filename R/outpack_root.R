@@ -107,7 +107,6 @@ file_import_archive <- function(root, path, file_path, name, id) {
   ## some files behind.  This does match the behaviour of the file
   ## store version, but not of orderly.
   file_path_dest <- file.path(dest, file_path)
-  fs::dir_create(dirname(file_path_dest))
 
   ## overwrite = FALSE; see assertion above
   copy_files(file.path(path, file_path),
