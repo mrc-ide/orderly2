@@ -187,7 +187,8 @@ In addition, there is also a function `orderly::orderly_run_info()` that can be 
 Let's add some additional annotations to the previous reports:
 
 ```{r, include = FALSE}
-code_data <- readLines(file.path(path, "src", "incoming_data", "incoming_data.R"))
+code_data <- readLines(
+  file.path(path, "src", "incoming_data", "incoming_data.R"))
 writeLines(c(
   "orderly2::orderly_strict_mode()",
   'orderly2::orderly_resource("data.csv")',

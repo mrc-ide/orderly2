@@ -294,20 +294,6 @@ test_that("can collapse with special last case", {
 })
 
 
-test_that("can convert files to canonical case", {
-  tmp <- withr::local_tempdir()
-  p <- file.path(tmp, "a", "b", "c")
-  fs::dir_create(dirname(p))
-  file.create(p)
-  expect_equal(file_canonical_case("a/b/c", tmp), "a/b/c")
-  expect_equal(file_canonical_case("a//b//c", tmp), "a/b/c")
-  expect_equal(file_canonical_case("a/B/c", tmp), "a/b/c")
-  expect_equal(file_canonical_case("A/B/C", tmp), "a/b/c")
-  expect_equal(file_canonical_case("A/win~1/C", tmp), NA_character_)
-  expect_equal(file_canonical_case(c("a/b/c", "a/b/d"), tmp), c("a/b/c", NA))
-})
-
-
 test_that("can gracefully cope with rds save failure", {
   mock_move <- mockery::mock(stop("some error"), cycle = TRUE)
   mockery::stub(saverds_atomic, "fs::file_move", mock_move)

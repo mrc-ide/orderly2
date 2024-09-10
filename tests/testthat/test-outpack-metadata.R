@@ -111,7 +111,7 @@ test_that("Sensible error if metadata file not found", {
   root <- create_temporary_root(use_file_store = TRUE)
   expect_error(
     orderly_metadata(1, root),
-    "'id' must be character")
+    "Expected 'id' to be character")
   expect_error(
     orderly_metadata(letters, root),
     "'id' must be a scalar")
