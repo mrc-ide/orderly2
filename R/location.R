@@ -765,7 +765,7 @@ new_location_entry <- function(name, type, args, call = NULL) {
   } else if (type == "http") {
     required <- "url"
   } else if (type == "packit") {
-    required <- c("url")
+    required <- "url"
   } else if (type == "custom") {
     required <- "driver"
   }
