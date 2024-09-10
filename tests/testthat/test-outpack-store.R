@@ -34,9 +34,9 @@ test_that("Can store files", {
   expect_length(obj$list(), 10)
   expect_equal(file.exists(obj$filename(obj$list())),
                rep(TRUE, 10))
-  dest <- temp_file()
-  dir.create(dest)
-  obj$get(obj$list(), dest, TRUE)
+
+  dest <- withr::local_tempdir()
+  obj$get(obj$list(), file.path(dest, letters[1:10]), FALSE)
 })
 
 

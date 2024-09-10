@@ -184,7 +184,7 @@ outpack_packet_end_quietly <- function(...) {
 
 forcibly_truncate_file <- function(path) {
   permissions <- fs::file_info(path)$permissions
-  fs::file_chmod(path, "a+w")
-  file.create(path)
+  fs::file_delete(path)
+  fs::file_create(path)
   fs::file_chmod(path, permissions)
 }

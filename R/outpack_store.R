@@ -32,11 +32,10 @@ file_store <- R6::R6Class(
                            paste(sprintf("  - %s", missing), collapse = "\n"))
         stop(not_found_error(message, missing))
       }
-      fs::dir_create(dirname(dst))
 
-      # Set copy_mode = FALSE: files in the store are read-only. It's easier on
-      # the user if we make them writable again.
-      copy_files(src, dst, overwrite = overwrite, copy_mode = FALSE)
+      # Files in the archive are read-only. It's easier on the user if we make
+      # them writable again.
+      copy_files(src, dst, overwrite = overwrite, make_writable = FALSE)
 
       invisible(dst)
     },

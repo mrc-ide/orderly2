@@ -71,9 +71,10 @@ file_export <- function(root, id, there, here, dest, overwrite, call = NULL) {
         })
     }
 
-    # Set copy_mode = FALSE: files in the archive are read-only. It's easier on
-    # the user if we make them writable again.
-    copy_files(there_full, here_full, overwrite = overwrite, copy_mode = FALSE)
+    # Files in the archive are read-only. It's easier on the user if we make
+    # them writable again.
+    copy_files(there_full, here_full, overwrite = overwrite,
+               make_writable = TRUE)
   }
 }
 
