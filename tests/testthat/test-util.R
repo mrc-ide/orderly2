@@ -497,7 +497,10 @@ describe("copy_files", {
   it("can copy zero files", {
     expect_no_error(copy_files(character(0), character(0)))
     expect_no_error(copy_files(character(0), character(0), overwrite = TRUE))
-    expect_no_error(copy_files(character(0), character(0), make_writable = TRUE))
+    expect_no_error(copy_files(character(0), character(0),
+                               make_writable = TRUE))
+    expect_no_error(copy_files(character(0), character(0),
+                               overwrite = TRUE, make_writable = TRUE))
   })
 
 
@@ -524,8 +527,8 @@ describe("copy_files", {
     copy_files(src, dst[[3]], make_writable = TRUE)
     copy_files(src, dst[[4]], make_writable = TRUE, overwrite = TRUE)
 
-    expect_true(all(fs::file_access(dst, mode="read")))
-    expect_equal(unname(fs::file_access(dst, mode="write")),
+    expect_true(all(fs::file_access(dst, mode = "read")))
+    expect_equal(unname(fs::file_access(dst, mode = "write")),
                  c(FALSE, FALSE, TRUE, TRUE))
   })
 
