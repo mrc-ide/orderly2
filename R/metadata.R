@@ -391,28 +391,14 @@ copy_shared_resource <- function(path_root, path_dest, config, files, call) {
       shared_dir))
   }
 
-  here <- files$here
-  there <- files$there
-
-  assert_file_exists_relative(there, workdir = shared_path,
+  assert_file_exists_relative(files$there, workdir = shared_path,
                               name = "Shared resource file", call = call)
-  src <- file.path(shared_path, there)
-  dst <- file.path(path_dest, here)
 
-  is_dir <- is_directory(file.path(shared_path, there))
-  fs::dir_create(file.path(path_dest, dirname(here)))
-  if (any(is_dir)) {
-    fs::dir_copy(src[is_dir], dst[is_dir])
-    ## Update the names that will be used in the metadata:
-    files <- lapply(src[is_dir], dir)
-    here <- replace_ragged(here, is_dir, Map(file.path, here[is_dir], files))
-    there <- replace_ragged(there, is_dir, Map(file.path, there[is_dir], files))
-  }
-  if (any(!is_dir)) {
-    copy_files(src[!is_dir], dst[!is_dir], overwrite = TRUE)
-  }
-
-  data_frame(here = here, there = there)
+  files_expanded <- expand_dirs(files, shared_path)
+  copy_files(fs::path(shared_path, files_expanded$there),
+             fs::path(path_dest, files_expanded$here),
+             overwrite = TRUE)
+  files_expanded
 }
 
 

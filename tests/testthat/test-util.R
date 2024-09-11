@@ -321,6 +321,104 @@ test_that("read_string strips newlines", {
   expect_equal(result, "12345678")
 })
 
+describe("expand_dirs_virtual", {
+  files <- list(
+    "d1" = c("f2", "f3"),
+    "d2" = c("f4", "d3/f5"),
+    "d2/d3" = c("f5"))
+  is_dir <- function(p) p %in% c("d1", "d2", "d2/d3")
+  list_files <- function(p) files[[p]]
+
+  check <- function(object, expected) {
+    expect_equal(expand_dirs_virtual(object, is_dir, list_files), expected)
+  }
+
+  it("accepts a character vector", {
+    check("f1", "f1")
+    check("d1", c("d1/f2", "d1/f3"))
+    check(c("f1", "d1"), c("f1", "d1/f2", "d1/f3"))
+    check("d2", c("d2/f4", "d2/d3/f5"))
+  })
+
+  it("accepts a dataframe", {
+    check(
+      data_frame(here = "g1", there = "f1"),
+      data_frame(here = "g1", there = "f1"))
+
+    check(
+      data_frame(here = "dest", there = "d1"),
+      data_frame(here = c("dest/f2", "dest/f3"),
+                 there = c("d1/f2", "d1/f3")))
+
+    check(
+      data_frame(here = c("g1", "dest"), there = c("f1", "d1")),
+      data_frame(here = c("g1", "dest/f2", "dest/f3"),
+                 there = c("f1", "d1/f2", "d1/f3")))
+
+    check(
+      data_frame(here = "dest", there = "d2"),
+      data_frame(here = c("dest/f4", "dest/d3/f5"),
+                 there = c("d2/f4", "d2/d3/f5")))
+
+    check(
+      data_frame(here = c("foo", "bar"), there = c("d2", "d2")),
+      data_frame(here = c("foo/f4", "foo/d3/f5", "bar/f4", "bar/d3/f5"),
+                 there = c("d2/f4", "d2/d3/f5", "d2/f4", "d2/d3/f5")))
+  })
+})
+
+describe("expand_dirs", {
+  p <- withr::local_tempdir()
+  files <- c("f1", "d1/f2", "d1/f3", "d2/f4", "d2/d3/f5")
+  fs::dir_create(fs::path(p, unique(dirname(files))))
+  fs::file_create(fs::path(p, files))
+
+  it("accepts a character vector", {
+    check <- function(object, expected) {
+      expect_setequal(expand_dirs(object, p), expected)
+    }
+
+    check("f1", "f1")
+    check("d1", c("d1/f2", "d1/f3"))
+    check(c("f1", "d1"), c("f1", "d1/f2", "d1/f3"))
+    check("d2", c("d2/f4", "d2/d3/f5"))
+  })
+
+  it("accepts a dataframe", {
+    check <- function(object, expected) {
+      result <- expand_dirs(object, p)
+      # This compares the dataframes ignoring the order, which is not
+      # deterministic
+      expect_setequal(unname(split(result, seq_len(nrow(result)))),
+                      unname(split(expected, seq_len(nrow(expected)))))
+    }
+
+    check(
+      data_frame(here = "g1", there = "f1"),
+      data_frame(here = "g1", there = "f1"))
+
+    check(
+      data_frame(here = "dest", there = "d1"),
+      data_frame(here = c("dest/f2", "dest/f3"), there = c("d1/f2", "d1/f3")))
+
+    check(
+      data_frame(here = c("g1", "dest"), there = c("f1", "d1")),
+      data_frame(here = c("g1", "dest/f2", "dest/f3"),
+                 there = c("f1", "d1/f2", "d1/f3")))
+
+    check(
+      data_frame(here = "dest", there = "d2"),
+      data_frame(here = c("dest/f4", "dest/d3/f5"),
+                 there = c("d2/f4", "d2/d3/f5")))
+
+    check(
+      data_frame(here = c("foo", "bar"), there = c("d2", "d2")),
+      data_frame(here = c("foo/f4", "foo/d3/f5", "bar/f4", "bar/d3/f5"),
+                 there = c("d2/f4", "d2/d3/f5", "d2/f4", "d2/d3/f5")))
+  })
+})
+
+
 test_that("fill_missing_names works", {
   expect_equal(fill_missing_names(NULL), NULL)
   expect_equal(fill_missing_names(c("a", "b")), c(a = "a", b = "b"))

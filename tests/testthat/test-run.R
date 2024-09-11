@@ -1347,7 +1347,7 @@ test_that("can read about dependencies", {
   r <- readRDS(file.path(path, "archive", "depends", id2, "depends.rds"))
   expect_equal(r$id, id1)
   expect_equal(r$name, "data")
-  expect_equal(r$files, data_frame(there = "data.rds", here = "input.rds"))
+  expect_equal(r$files, data_frame(here = "input.rds", there = "data.rds"))
 
   res <- withr::with_dir(
     path_src,

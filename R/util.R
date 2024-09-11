@@ -134,20 +134,53 @@ vcapply <- function(X, FUN, ...) { # nolint
 }
 
 
-## TODO: also replace copy_shared with this
-expand_dirs <- function(paths, workdir) {
-  if (length(paths) == 0) {
-    return(character())
+#' Expand directories into their content lists.
+#'
+#' This function does not access the filesystem directly and instead calls the
+#' given `is_dir` and `list_files` callback. This allows using the function with
+#' files that do not exist on disk yet, such as those listed in a packet's
+#' metadata.
+#'
+#' @param files either a character vector or a dataframe with columns `there`
+#'  and `here`.
+#' @param is_dir a function from a character vector to a logical vector,
+#'   indicating whether each path is a directory needing expansion or not.
+#' @param list_files a function from a character scalar to a character vector,
+#'   enumerating the contents of the directory. The return values must *not*
+#'   include the directory path as a prefix.
+#' @return a modified version of `files`, where directories have been replaced
+#'   by their contents. If `files` was a data_frame, both the `there` and `here`
+#'   columns are modified.
+#' @noRd
+expand_dirs_virtual <- function(files, is_dir, list_files) {
+  if (is.character(files)) {
+    dirs <- is_dir(files)
+    expanded <- lapply(files[dirs], list_files)
+    replace_ragged(files, dirs, Map(fs::path, files[dirs], expanded))
+  } else {
+    dirs <- is_dir(files$there)
+    expanded <- lapply(files$there[dirs], list_files)
+
+    there <- replace_ragged(files$there, dirs,
+                            Map(fs::path, files$there[dirs], expanded))
+    here <- replace_ragged(files$here, dirs,
+                           Map(fs::path, files$here[dirs], expanded))
+
+    data_frame(here, there)
   }
-  withr::local_dir(workdir)
-  i <- is_directory(paths)
-  if (any(i)) {
-    contents <- lapply(paths[i], function(p) {
-      as.character(fs::dir_ls(p, all = TRUE, type = "file", recurse = TRUE))
-    })
-    paths <- replace_ragged(paths, i, contents)
+}
+
+
+expand_dirs <- function(files, workdir) {
+  assert_scalar_character(workdir)
+
+  is_dir <- function(p) is_directory(fs::path(workdir, p))
+  list_files <- function(p) {
+    full_path <- fs::path(workdir, p)
+    files <- fs::dir_ls(full_path, all = TRUE, type = "file", recurse = TRUE)
+    fs::path_rel(files, full_path)
   }
-  paths
+  expand_dirs_virtual(files, is_dir, list_files)
 }
 
 
