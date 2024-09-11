@@ -10,13 +10,23 @@ github_oauth_client <- function() {
 }
 
 do_oauth_device_flow <- function(base_url) {
-  res <- httr2::oauth_token_cached(
-    client = github_oauth_client(),
-    flow = httr2::oauth_flow_device,
-    flow_params = list(
-      auth_url = "https://github.com/login/device/code",
-      scope = "read:org"),
-    cache_disk = TRUE)
+  # httr2 has a pretty unintuitive output when running interactively.
+  # It waits for the user to press <Enter> and then opens up a browser, but the
+  # wording isn't super clear. It also does not work at all if a browser can't
+  # be opened, eg. in an SSH session.
+  #
+  # Thankfully, if we pretend to not be interactive the behaviour is a lot more
+  # obvious. It will just print the link to the console and with instructions
+  # for the user to open it up.
+  res <- rlang::with_interactive(value = FALSE, {
+    httr2::oauth_token_cached(
+      client = github_oauth_client(),
+      flow = httr2::oauth_flow_device,
+      flow_params = list(
+        auth_url = "https://github.com/login/device/code",
+        scope = "read:org"),
+      cache_disk = TRUE)
+  })
   res$access_token
 }
 
