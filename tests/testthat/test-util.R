@@ -321,6 +321,7 @@ test_that("read_string strips newlines", {
   expect_equal(result, "12345678")
 })
 
+
 describe("expand_dirs_virtual", {
   files <- list(
     "d1" = c("f2", "f3"),
@@ -366,6 +367,7 @@ describe("expand_dirs_virtual", {
                  there = c("d2/f4", "d2/d3/f5", "d2/f4", "d2/d3/f5")))
   })
 })
+
 
 describe("expand_dirs", {
   p <- withr::local_tempdir()
@@ -424,4 +426,43 @@ test_that("fill_missing_names works", {
   expect_equal(fill_missing_names(c("a", "b")), c(a = "a", b = "b"))
   expect_equal(fill_missing_names(c("a", "a")), c(a = "a", a = "a"))
   expect_equal(fill_missing_names(c(x = "a", "a")), c(x = "a", a = "a"))
+})
+
+
+test_that("parse_json accepts literal string", {
+  expect_equal(parse_json('{ "x": 1 }'), list(x = 1))
+  expect_equal(parse_json('null'), NULL)
+})
+
+
+test_that("parse_json accepts files", {
+  f <- withr::local_tempfile()
+  writeLines('{ "x": 1 }', f)
+  expect_equal(parse_json(file(f)), list(x = 1))
+})
+
+
+test_that("parse_json is not confused by ambiguity", {
+  withr::with_dir(withr::local_tempdir(), {
+    writeLines('{ "contents": "hello" }', "true")
+    writeLines('{ "contents": "world" }', "4")
+    expect_equal(parse_json("true"), TRUE)
+    expect_equal(parse_json("4"), 4)
+    expect_equal(parse_json(file("true")), list(contents = "hello"))
+    expect_equal(parse_json(file("4")), list(contents = "world"))
+  })
+})
+
+
+test_that("parse_json includes file path in its errors", {
+  f <- file.path(withr::local_tempdir(), "contents.json")
+  writeLines("bad json", f)
+  expect_error(parse_json(file(f)),
+               "Error while reading .*contents.json.*lexical error")
+})
+
+
+test_that("parse_json includes name argument in its errors", {
+  expect_error(parse_json("bad json", name = "my file"),
+               "Error while reading my file.*lexical error")
 })

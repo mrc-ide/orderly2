@@ -36,7 +36,7 @@ test_that("Can run a basic packet", {
   expect_true(file.exists(path_location))
   expect_true(load_schema("outpack/location.json")$validate(path_location))
 
-  meta <- outpack_metadata_load(path_metadata)
+  meta <- outpack_metadata_load(file(path_metadata), NULL)
 
   ## The index metadata is a subset of the full set:
   expect_mapequal(
@@ -309,7 +309,7 @@ test_that("Can add multiple copies of extra data", {
   outpack_packet_end_quietly(p)
 
   path_metadata <- file.path(root$path, ".outpack", "metadata", p$id)
-  meta <- outpack_metadata_load(path_metadata, NULL)
+  meta <- outpack_metadata_load(file(path_metadata), NULL)
   expect_equal(meta$custom,
                list(app1 = list(a = 1, b = 2),
                     app2 = list(c = list(1, 2, 3))))
@@ -345,7 +345,7 @@ test_that("Can report nicely about json syntax errors", {
   p <- outpack_packet_start_quietly(src, "example", root = root)
   expect_error(
     outpack_packet_add_custom(p, "app1", '{"a": 1, "b": 2'),
-    "Syntax error in custom metadata:")
+    "Error while reading custom metadata")
 })
 
 

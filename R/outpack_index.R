@@ -95,7 +95,7 @@ read_metadata <- function(root_path, prev, progress) {
   files <- file.path(path, id_new)
   new <- vector("list", length(id_new))
   for (i in seq_along(id_new)) {
-    new[[i]] <- outpack_metadata_core_read(files[[i]])
+    new[[i]] <- outpack_metadata_core_load(file(files[[i]]))
     if (progress) {
       cli::cli_progress_update()
     }
@@ -147,7 +147,7 @@ read_location <- function(location_name, root_path, prev, progress) {
                           total = length(id_new))
   }
   for (i in seq_along(id_new)) {
-    dat[[i]] <- jsonlite::read_json(files[[i]])
+    dat[[i]] <- read_json(files[[i]])
     if (progress) {
       cli::cli_progress_update()
     }

@@ -285,7 +285,7 @@ config_write <- function(config, root_path) {
 
 
 config_read <- function(root_path) {
-  config <- jsonlite::read_json(file.path(root_path, ".outpack/config.json"))
+  config <- read_json(file.path(root_path, ".outpack/config.json"))
   ## NOTE: make sure that this matches the order in new_location_entry
   config$location <- data_frame(
     name = vcapply(config$location, "[[", "name"),

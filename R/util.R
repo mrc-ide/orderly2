@@ -364,10 +364,26 @@ to_json <- function(x, schema = NULL, auto_unbox = FALSE, ...) {
   json
 }
 
+read_json <- function(path, ...) {
+  parse_json(file(path), ...)
+}
 
-as_json <- function(str) {
-  assert_scalar_character(str)
-  structure(str, class = "json")
+parse_json <- function(json, ..., name = NULL) {
+  rlang::try_fetch(
+    jsonlite::parse_json(json, ...),
+    error = function(cnd) {
+      if (is.null(name) && inherits(json, "connection")) {
+        name <- summary(json)$description
+      }
+      if (!is.null(name)) {
+        msg <- "Error while reading {name}"
+      } else {
+        msg <- "Error while reading JSON document"
+      }
+      cli::cli_abort(
+        c(msg, i="This usually suggests some corruption of the repository"),
+        parent = cnd)
+    })
 }
 
 
