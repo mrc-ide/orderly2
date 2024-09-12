@@ -79,8 +79,8 @@ have more capabilities we think.
 \itemize{
 \item \code{url}: The location of the server
 \item \code{token}: The value for your your login token (currently this is
-a GitHub token with \code{read:org} scope).  Later we'll expand this
-as other authentication modes are supported.
+a GitHub token with \code{read:org} scope). If missing or NULL, orderly2 will
+perform an interactive authentication against GitHub to obtain one.
 }
 
 \strong{Custom locations}:
