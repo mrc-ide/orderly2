@@ -115,7 +115,7 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
     }
   }
 
-  plan <- plan_copy_files(root, id, files$there, files$here, environment())
+  plan <- plan_copy_files(root, id, files, environment())
   name <- outpack_metadata_core(id, root)$name
 
   tryCatch(
@@ -149,25 +149,17 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
 }
 
 
-plan_copy_files <- function(root, id, there, here, call = NULL) {
-  assert_relative_path(there, name = "File", workdir = id, call = call)
-  validate_packet_has_file(root, id, there, call)
-  is_dir <- grepl("/$", there)
-  if (any(is_dir)) {
-    meta <- outpack_metadata_core(id, root)
-    files <- meta$files$path
-    expanded <- lapply(which(is_dir), function(i) {
-      p <- there[[i]]
-      j <- string_starts_with(p, files)
-      nms <- file.path(sub("/+$", "", here[[i]]),
-                       string_drop_prefix(p, files[j]))
-      set_names(files[j], nms)
-    })
+plan_copy_files <- function(root, id, files, call = NULL) {
+  assert_relative_path(files$there, name = "File", workdir = id, call = call)
+  validate_packet_has_file(root, id, files$there, call)
 
-    there <- replace_ragged(there, is_dir, lapply(expanded, unname))
-    here <- replace_ragged(here, is_dir, lapply(expanded, names))
+  meta <- outpack_metadata_core(id, root)
+  is_dir <- function(p) grepl("/$", p)
+  list_files <- function(p) {
+    j <- string_starts_with(p, meta$files$path)
+    string_drop_prefix(p, meta$files$path[j])
   }
-  data_frame(there, here)
+  expand_dirs_virtual(files, is_dir, list_files)
 }
 
 

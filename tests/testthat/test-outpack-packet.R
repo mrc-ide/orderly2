@@ -583,7 +583,7 @@ test_that("can depend based on a simple query", {
     p$depends[[1]],
     list(packet = id$b[[3]],
          query = "latest()",
-         files = data.frame(there = "data.rds", here = "1.rds")))
+         files = data.frame(here = "1.rds", there = "data.rds")))
 
   query <- orderly_query("latest(parameter:i < 3)", name = "a")
   outpack_packet_use_dependency(p, query, c("2.rds" = "data.rds"))
@@ -591,7 +591,7 @@ test_that("can depend based on a simple query", {
     p$depends[[2]],
     list(packet = id$a[[2]],
          query = 'latest(parameter:i < 3 && name == "a")',
-         files = data.frame(there = "data.rds", here = "2.rds")))
+         files = data.frame(here = "2.rds", there = "data.rds")))
 })
 
 
@@ -790,8 +790,8 @@ test_that("can pull in directories", {
   p2 <- outpack_packet_start_quietly(path_src2, "b", root = root)
   outpack_packet_use_dependency(p2, 'latest(name == "a")', c(d = "data/"))
   expect_equal(p2$depends[[1]]$files,
-               data_frame(there = file.path("data", letters[1:6]),
-                          here = file.path("d", letters[1:6])))
+               data_frame(here = file.path("d", letters[1:6]),
+                          there = file.path("data", letters[1:6])))
 })
 
 
