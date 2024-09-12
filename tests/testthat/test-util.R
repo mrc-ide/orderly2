@@ -431,7 +431,7 @@ test_that("fill_missing_names works", {
 
 test_that("parse_json accepts literal string", {
   expect_equal(parse_json('{ "x": 1 }'), list(x = 1))
-  expect_equal(parse_json('null'), NULL)
+  expect_equal(parse_json("null"), NULL)
 })
 
 

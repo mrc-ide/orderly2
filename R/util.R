@@ -381,7 +381,7 @@ parse_json <- function(json, ..., name = NULL) {
         msg <- "Error while reading JSON document"
       }
       cli::cli_abort(
-        c(msg, i="This usually suggests some corruption of the repository"),
+        c(msg, i = "This usually suggests some corruption of the repository"),
         parent = cnd)
     })
 }
