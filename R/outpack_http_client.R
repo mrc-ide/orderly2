@@ -3,31 +3,24 @@ outpack_http_client <- R6::R6Class(
 
   public = list(
     url = NULL,
-    auth = NULL,
+    authorise = NULL,
 
-    initialize = function(url, auth) {
+    initialize = function(url, authorise = NULL) {
       self$url <- sub("/$", "", url)
-      if (is.null(auth)) {
-        self$auth <- list(enabled = FALSE)
+      if (is.null(authorise)) {
+        self$authorise <- function() NULL
       } else {
-        self$auth <- list(enabled = TRUE, url = auth$url, data = auth$data)
-      }
-    },
-
-    authorise = function() {
-      needs_auth <- self$auth$enabled && is.null(self$auth$header)
-      if (needs_auth) {
-        self$auth$header <- http_client_login(self$url, self$auth)
+        self$authorise <- authorise
       }
     },
 
     request = function(path, customize = identity, ...) {
-      self$authorise()
+      auth_headers <- self$authorise()
       http_client_request(
         self$url,
         function(r) {
           r <- httr2::req_url_path_append(r, path)
-          r <- httr2::req_headers(r, !!!self$auth$header)
+          r <- httr2::req_headers(r, !!!auth_headers)
           customize(r)
         }, ...)
     }
@@ -91,30 +84,4 @@ http_client_error <- function(msg, code, errors) {
   err <- list(message = msg, errors = errors, code = code)
   class(err) <- c("outpack_http_client_error", "error", "condition")
   err
-}
-
-
-## Logging in with packit is quite slow and we'll want to cache this;
-## but we won't be holding a persistant handle to the root.  So for
-## now at least we'll keep a pool of generated bearer token headers,
-## stored against the hash of the auth details (so the url and the
-## token used to log in with).  We only store this on successful
-## login.
-##
-## This does mean there's no way to flush the cache and force a login,
-## but that should hopefully not be that big a problem.  We'll
-## probably want to refresh the tokens from the request anyway.
-auth_cache <- new.env(parent = emptyenv())
-http_client_login <- function(name, auth) {
-  key <- rlang::hash(auth)
-  if (is.null(auth_cache[[key]])) {
-    cli::cli_alert_info("Logging in to {name}")
-
-    res <- http_client_request(auth$url,
-                               function(r) http_body_json(r, auth$data))
-
-    cli::cli_alert_success("Logged in successfully")
-    auth_cache[[key]] <- list("Authorization" = paste("Bearer", res$token))
-  }
-  auth_cache[[key]]
 }

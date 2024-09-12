@@ -41,8 +41,12 @@
 ##' * `url`: The location of the server
 ##'
 ##' * `token`: The value for your your login token (currently this is
-##'   a GitHub token with `read:org` scope).  Later we'll expand this
-##'   as other authentication modes are supported.
+##'   a GitHub token with `read:org` scope). If missing or NULL, orderly2 will
+##'   perform an interactive authentication against GitHub to obtain one.
+##'
+##' * `save_token`: If no token is provided and interactive authentication is
+##'    used, this controls whether the GitHub token should be saved to disk.
+##'    Defaults to TRUE if missing.
 ##'
 ##' **Custom locations**:
 ##'
@@ -110,7 +114,14 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
     assert_scalar_character(loc$args[[1]]$url, name = "args$url",
                             call = environment())
     assert_scalar_character(loc$args[[1]]$token, name = "args$token",
+                            allow_null = TRUE,
                             call = environment())
+    assert_scalar_logical(loc$args[[1]]$save_token, name = "args$save_token",
+                          allow_null = TRUE,
+                          call = environment())
+    if (!is.null(loc$args[[1]]$token) && !is.null(loc$args[[1]]$save_token)) {
+      cli::cli_abort("Cannot specify both 'token' and 'save_token'")
+    }
   }
 
   config <- root$config
@@ -448,21 +459,22 @@ location_driver <- function(location_name, root) {
   i <- match(location_name, root$config$location$name)
   type <- root$config$location$type[[i]]
   args <- root$config$location$args[[i]]
-  switch(type,
-         path = orderly_location_path$new(args$path),
-         http = orderly_location_http$new(args$url),
-         packit = orderly_location_packit(args$url, args$token),
-         custom = orderly_location_custom(args))
+  location <- switch(type,
+                     path = orderly_location_path$new,
+                     http = orderly_location_http$new,
+                     packit = orderly_location_packit,
+                     custom = orderly_location_custom)
+  do.call(location, args)
 }
 
 
-orderly_location_custom <- function(args) {
-  driver <- check_symbol_from_str(args$driver, "args$driver")
+orderly_location_custom <- function(driver, ...) {
+  driver <- check_symbol_from_str(driver, "args$driver")
   driver <- getExportedValue(driver$namespace, driver$symbol)
   if (inherits(driver, "R6ClassGenerator")) {
     driver <- driver$new
   }
-  do.call(driver, args[names(args) != "driver"])
+  driver(...)
 }
 
 
@@ -764,7 +776,7 @@ new_location_entry <- function(name, type, args, call = NULL) {
   } else if (type == "http") {
     required <- "url"
   } else if (type == "packit") {
-    required <- c("url", "token")
+    required <- "url"
   } else if (type == "custom") {
     required <- "driver"
   }
