@@ -9,7 +9,7 @@ github_oauth_client <- function() {
   )
 }
 
-do_oauth_device_flow <- function(base_url) {
+do_oauth_device_flow <- function(base_url, cache_disk) {
   # httr2 has a pretty unintuitive output when running interactively.
   # It waits for the user to press <Enter> and then opens up a browser, but the
   # wording isn't super clear. It also does not work at all if a browser can't
@@ -25,7 +25,7 @@ do_oauth_device_flow <- function(base_url) {
       flow_params = list(
         auth_url = "https://github.com/login/device/code",
         scope = "read:org"),
-      cache_disk = TRUE)
+      cache_disk = cache_disk)
   })
   res$access_token
 }
@@ -42,13 +42,13 @@ do_oauth_device_flow <- function(base_url) {
 # It also means the user cannot easily use two different identities on the same
 # server from within the same session.
 auth_cache <- new.env(parent = emptyenv())
-packit_authorisation <- function(base_url, token) {
+packit_authorisation <- function(base_url, token, save_token) {
   key <- rlang::hash(list(base_url = base_url, token = token))
 
   if (is.null(auth_cache[[key]])) {
     cli::cli_alert_info("Logging in to {base_url}")
     if (is.null(token)) {
-      token <- do_oauth_device_flow(base_url)
+      token <- do_oauth_device_flow(base_url, cache_disk = save_token)
     }
 
     login_url <- paste0(base_url, "packit/api/auth/login/api")
@@ -63,9 +63,11 @@ packit_authorisation <- function(base_url, token) {
   auth_cache[[key]]
 }
 
-orderly_location_packit <- function(url, token) {
+orderly_location_packit <- function(url, token = NULL, save_token = TRUE) {
   assert_scalar_character(url)
   assert_scalar_character(token, allow_null = TRUE)
+  assert_scalar_logical(save_token)
+
   if (!is.null(token) && grepl("^\\$", token)) {
     token_variable <- sub("^\\$", "", token)
     token <- Sys.getenv(token_variable, NA_character_)
@@ -81,5 +83,5 @@ orderly_location_packit <- function(url, token) {
 
   orderly_location_http$new(
     paste0(url, "packit/api/outpack"),
-    function() packit_authorisation(url, token))
+    function() packit_authorisation(url, token, save_token))
 }

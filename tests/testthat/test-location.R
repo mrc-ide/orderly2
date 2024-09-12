@@ -816,7 +816,21 @@ test_that("validate arguments to packit locations", {
     orderly_location_add("other", "packit",
                          list(url = "example.com", token = 123),
                          root = root),
-    "'args$token' must be character", fixed = TRUE)
+    "Expected 'args$token' to be character", fixed = TRUE)
+
+  expect_error(
+    orderly_location_add("other", "packit",
+                         list(url = "example.com", save_token = "value"),
+                         root = root),
+    "Expected 'args$save_token' to be logical", fixed = TRUE)
+
+  expect_error(
+    orderly_location_add("other", "packit",
+                         list(url = "example.com",
+                              token = "xx",
+                              save_token = TRUE),
+                         root = root),
+    "Cannot specify both 'token' and 'save_token'", fixed = TRUE)
 
   expect_equal(orderly_location_list(root = root), "local")
 })
@@ -837,7 +851,7 @@ test_that("can add a packit location", {
   mockery::expect_called(mock_driver, 1)
   expect_equal(
     mockery::mock_args(mock_driver)[[1]],
-    list("https://example.com", "abc123"))
+    list(url = "https://example.com", token = "abc123"))
 })
 
 test_that("can add a packit location without a token", {
@@ -855,33 +869,25 @@ test_that("can add a packit location without a token", {
   mockery::expect_called(mock_driver, 1)
   expect_equal(
     mockery::mock_args(mock_driver)[[1]],
-    list("https://example.com", NULL))
+    list(url = "https://example.com"))
 })
 
 test_that("cope with trailing slash in url if needed", {
   loc <- orderly_location_packit("https://example.com/", "abc123")
-  client <- loc$.__enclos_env__$private$client
-  expect_equal(
-    client$url,
-    "https://example.com/packit/api/outpack")
+  expect_equal(loc$client$url, "https://example.com/packit/api/outpack")
 })
 
 
 test_that("can create an outpack location, disabling auth", {
   loc <- orderly_location_http$new("https://example.com", NULL)
-  client <- loc$.__enclos_env__$private$client
-  expect_equal(client$authorise(), NULL)
-  expect_equal(
-    client$url,
-    "https://example.com")
+  expect_equal(loc$client$authorise(), NULL)
+  expect_equal(loc$client$url, "https://example.com")
 })
 
 
 test_that("strip trailing slash from outpack url", {
   loc <- orderly_location_http$new("https://example.com/", NULL)
-  expect_equal(
-    loc$.__enclos_env__$private$client$url,
-    "https://example.com")
+  expect_equal(loc$client$url, "https://example.com")
 })
 
 
@@ -890,8 +896,8 @@ test_that("can load a custom location driver", {
   mock_driver <- mockery::mock("value")
   mock_gev <- mockery::mock(mock_driver)
   mockery::stub(orderly_location_custom, "getExportedValue", mock_gev)
-  args <- list(driver = "foo::bar", a = 1, b = "other")
-  expect_equal(orderly_location_custom(args), "value")
+  expect_equal(orderly_location_custom(driver = "foo::bar", a = 1, b = "other"),
+               "value")
 
   mockery::expect_called(mock_gev, 1)
   expect_equal(mockery::mock_args(mock_gev)[[1]], list("foo", "bar"))
@@ -908,8 +914,8 @@ test_that("can load a custom location driver using an R6 generator", {
     class = "R6ClassGenerator")
   mock_gev <- mockery::mock(mock_driver)
   mockery::stub(orderly_location_custom, "getExportedValue", mock_gev)
-  args <- list(driver = "foo::bar", a = 1, b = "other")
-  expect_equal(orderly_location_custom(args), "value")
+  expect_equal(orderly_location_custom(driver = "foo::bar", a = 1, b = "other"),
+               "value")
 
   mockery::expect_called(mock_gev, 1)
   expect_equal(mockery::mock_args(mock_gev)[[1]], list("foo", "bar"))
@@ -937,7 +943,7 @@ test_that("can add a custom outpack location", {
   expect_equal(location_driver(loc$name, root), "value")
   mockery::expect_called(mock_orderly_location_custom, 1)
   expect_equal(mockery::mock_args(mock_orderly_location_custom)[[1]],
-               list(list(driver = "foo::bar", a = 1, b = 2)))
+               list(driver = "foo::bar", a = 1, b = 2))
 })
 
 

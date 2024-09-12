@@ -42,7 +42,8 @@ test_that("can authenticate using device flow", {
   mockery::stub(packit_authorisation, "do_oauth_device_flow", "my-github-token")
 
   res <- evaluate_promise(packit_authorisation("http://example.com/",
-                                               token = NULL))
+                                               token = NULL,
+                                               save_token = TRUE))
 
   expect_length(res$messages, 2)
   expect_match(res$messages[[1]], "Logging in to http://example.com")
@@ -97,6 +98,32 @@ test_that("location_packit uses authentication", {
   mock <- mockery::mock(mock_login, mock_get)
 })
 
+
+test_that("Can configure oauth caching behaviour", {
+  clear_auth_cache()
+  withr::defer(clear_auth_cache())
+
+  mock_token <- mockery::mock("token", cycle = TRUE)
+  testthat::local_mocked_bindings(do_oauth_device_flow = mock_token)
+
+  local_mock_response(to_json(list(token = jsonlite::unbox("my-packit-token"))),
+                      cycle = TRUE)
+
+  location <- orderly_location_packit("http://example.com", save_token = TRUE)
+  suppressMessages(location$client$authorise())
+
+  clear_auth_cache()
+
+  location <- orderly_location_packit("http://example.com", save_token = FALSE)
+  suppressMessages(location$client$authorise())
+
+  mockery::expect_called(mock_token, 2)
+  args <- mockery::mock_args(mock_token)
+  expect_equal(args[[1]]$cache_disk, TRUE)
+  expect_equal(args[[2]]$cache_disk, FALSE)
+})
+
+
 test_that("can create a packit location using an environment variable token", {
   loc <- withr::with_envvar(
     c("PACKIT_TOKEN" = "abc123"),
@@ -106,8 +133,7 @@ test_that("can create a packit location using an environment variable token", {
     to_json(list(token = jsonlite::unbox("my-packit-token"))),
     wrap = FALSE)
 
-  client <- loc$.__enclos_env__$private$client
-  evaluate_promise(client$authorise())
+  evaluate_promise(loc$client$authorise())
 
   mockery::expect_called(mock_login, 1)
 
