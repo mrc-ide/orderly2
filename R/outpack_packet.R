@@ -282,11 +282,7 @@ outpack_packet_add_custom <- function(packet, application, data) {
   assert_scalar_character(application)
   assert_scalar_character(data)
 
-  tryCatch(
-    jsonlite::parse_json(data),
-    error = function(e) {
-      stop("Syntax error in custom metadata: ", e$message, call. = FALSE)
-    })
+  parse_json(data, name = "custom metadata")
 
   if (application %in% vcapply(packet$custom, "[[", "application")) {
     stop(sprintf("metadata for '%s' has already been added for this packet",

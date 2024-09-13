@@ -31,7 +31,7 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
   if (!file.exists(path_metadata)) {
     cli::cli_abort("Packet '{id}' not found in outpack index")
   }
-  outpack_metadata_load(path_metadata, root$config$orderly$plugins)
+  outpack_metadata_load(file(path_metadata), root$config$orderly$plugins)
 }
 
 
@@ -66,7 +66,7 @@ orderly_metadata <- function(id, root = NULL, locate = FALSE) {
 ##' @export
 orderly_metadata_read <- function(path, plugins = TRUE) {
   assert_file_exists(path, call = environment())
-  outpack_metadata_load(path, if (plugins) .plugins else NULL)
+  outpack_metadata_load(file(path), if (plugins) .plugins else NULL)
 }
 
 outpack_metadata_create <- function(path, name, id, time, files,
@@ -179,14 +179,9 @@ outpack_metadata_core <- function(id, root, call = NULL) {
 }
 
 
-outpack_metadata_core_read <- function(path) {
-  outpack_metadata_core_load(read_string(path))
-}
-
-
 metadata_core_names <- c("id", "name", "parameters", "time", "files", "depends")
 outpack_metadata_core_load <- function(json) {
-  data <- jsonlite::parse_json(json)[metadata_core_names]
+  data <- parse_json(json)[metadata_core_names]
   outpack_metadata_core_deserialise(data)
 }
 
@@ -211,10 +206,7 @@ outpack_metadata_core_deserialise <- function(data) {
 
 
 outpack_metadata_load <- function(json, plugins) {
-  if (!inherits(json, "json")) { # could use starts with "{"
-    json <- read_string(json)
-  }
-  data <- jsonlite::parse_json(json)
+  data <- parse_json(json)
   data <- outpack_metadata_core_deserialise(data)
   if (!is.null(data$custom$orderly)) {
     data$custom$orderly <- custom_metadata_deserialise(data$custom$orderly)
