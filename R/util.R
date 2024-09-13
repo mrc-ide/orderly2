@@ -184,8 +184,7 @@ expand_dirs <- function(files, workdir) {
 }
 
 
-copy_files <- function(src, dst, overwrite = FALSE,
-                       make_writable = FALSE) {
+copy_files <- function(src, dst, overwrite = FALSE) {
   assert_character(src)
   assert_character(dst)
 
@@ -211,19 +210,22 @@ copy_files <- function(src, dst, overwrite = FALSE,
   # We work around it by always passing `overwrite = FALSE`. Instead we delete
   # any existing files manually beforehand. It is vulnerable to race condition,
   # as someone could recreate the file between the calls to file_delete and
-  # file_copy, but that seems unlikely.
+  # file_copy, but that seems unlikely. If any of the files are read-only, we
+  # refuse to proceed.
   #
   # If you are going to make changes to this function, make sure to run all
   # tests with TMPDIR set to a path on a network drive.
   if (overwrite) {
     exists <- fs::file_exists(dst)
+    nonwrite <- !fs::file_access(dst[exists], "write")
+    if (any(nonwrite)) {
+      cli::cli_abort(
+        "Cannot overwrite non-writable file{?s}: {dst[exists][nonwrite]}")
+    }
     fs::file_delete(dst[exists])
   }
 
   fs::file_copy(src, dst, overwrite = FALSE)
-  if (make_writable && length(dst) > 0) {
-    fs::file_chmod(dst, "a+w")
-  }
 }
 
 

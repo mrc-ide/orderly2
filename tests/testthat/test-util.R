@@ -322,7 +322,6 @@ test_that("read_string strips newlines", {
 })
 
 
-<<<<<<< HEAD
 describe("expand_dirs_virtual", {
   files <- list(
     "d1" = c("f2", "f3"),
@@ -497,10 +496,6 @@ describe("copy_files", {
   it("can copy zero files", {
     expect_no_error(copy_files(character(0), character(0)))
     expect_no_error(copy_files(character(0), character(0), overwrite = TRUE))
-    expect_no_error(copy_files(character(0), character(0),
-                               make_writable = TRUE))
-    expect_no_error(copy_files(character(0), character(0),
-                               overwrite = TRUE, make_writable = TRUE))
   })
 
 
@@ -517,19 +512,17 @@ describe("copy_files", {
   it("can copy a read-only file", {
     d <- withr::local_tempdir()
     src <- file.path(d, "source.txt")
-    dst <- file.path(d, sprintf("destination%d.txt", 1:4))
+    dst <- c(file.path(d, "destination1.txt"),
+             file.path(d, "destination2.txt"))
 
     writeLines("Hello", src)
     fs::file_chmod(src, "a-w")
 
     copy_files(src, dst[[1]])
     copy_files(src, dst[[2]], overwrite = TRUE)
-    copy_files(src, dst[[3]], make_writable = TRUE)
-    copy_files(src, dst[[4]], make_writable = TRUE, overwrite = TRUE)
 
     expect_true(all(fs::file_access(dst, mode = "read")))
-    expect_equal(unname(fs::file_access(dst, mode = "write")),
-                 c(FALSE, FALSE, TRUE, TRUE))
+    expect_false(any(fs::file_access(dst, mode = "write")))
   })
 
 
@@ -558,10 +551,37 @@ describe("copy_files", {
     expect_equal(readLines(dst2), "World")
   })
 
+
+  it("does not overwrite by default", {
+    d <- withr::local_tempdir()
+    dst <- file.path(d, "destination.txt")
+
+    fs::file_create(dst)
+
+    expect_error(copy_files(src1, dst),
+                 "file already exists")
+    expect_error(copy_files(src1, dst, overwrite = FALSE),
+                 "file already exists")
+  })
+
+
+  it("does not overwrite a read-only file", {
+    d <- withr::local_tempdir()
+    dst <- file.path(d, "destination.txt")
+
+    fs::file_create(dst)
+    fs::file_chmod(dst, "a-w")
+
+    expect_error(copy_files(src1, dst, overwrite = TRUE),
+                 "Cannot overwrite non-writable file")
+  })
+
+
   it("errors if the destination is a directory", {
     d <- withr::local_tempdir()
     expect_error(copy_files(src1, d), "Destination path is a directory")
   })
+
 
   it("errors if argument length is different", {
     d <- withr::local_tempfile()

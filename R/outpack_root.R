@@ -46,9 +46,7 @@ file_export <- function(root, id, there, here, dest, overwrite, call = NULL) {
   fs::dir_create(dirname(here_full))
 
   if (root$config$core$use_file_store) {
-    for (i in seq_along(here_full)) {
-      root$files$get(hash[[i]], here_full[[i]], overwrite)
-    }
+    root$files$get(hash, here_full, overwrite)
   } else {
     there_full <- file.path(root$path, root$config$core$path_archive,
                             meta$name, meta$id, there)
@@ -71,10 +69,14 @@ file_export <- function(root, id, there, here, dest, overwrite, call = NULL) {
         })
     }
 
-    # Files in the archive are read-only. It's easier on the user if we make
-    # them writable again.
-    copy_files(there_full, here_full, overwrite = overwrite,
-               make_writable = TRUE)
+    copy_files(there_full, here_full, overwrite = overwrite)
+
+    # Files in the archive are read-only to avoid accidental corruption.
+    # This is however an implementation detail, and we should export them as
+    # writable again.
+    if (length(here_full) > 0) { # https://github.com/r-lib/fs/issues/471
+      fs::file_chmod(here_full, "u+w")
+    }
   }
 }
 
@@ -113,7 +115,7 @@ file_import_archive <- function(root, path, file_path, name, id) {
              file_path_dest,
              overwrite = FALSE)
 
-  if (length(file_path_dest) > 0) {
+  if (length(file_path_dest) > 0) { # https://github.com/r-lib/fs/issues/471
     fs::file_chmod(file_path_dest, "a-w")
   }
 }

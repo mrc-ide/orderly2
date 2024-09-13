@@ -33,9 +33,14 @@ file_store <- R6::R6Class(
         stop(not_found_error(message, missing))
       }
 
-      # Files in the archive are read-only. It's easier on the user if we make
-      # them writable again.
-      copy_files(src, dst, overwrite = overwrite, make_writable = FALSE)
+      copy_files(src, dst, overwrite = overwrite)
+
+      # Files in the store are read-only to avoid accidental corruption.
+      # This is however an implementation detail, and we should export them as
+      # writable again.
+      if (length(dst) > 0) { # https://github.com/r-lib/fs/issues/471
+        fs::file_chmod(dst, "u+w")
+      }
 
       invisible(dst)
     },
