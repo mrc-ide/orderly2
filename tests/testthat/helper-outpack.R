@@ -188,3 +188,18 @@ forcibly_truncate_file <- function(path) {
   fs::file_create(path)
   fs::file_chmod(path, permissions)
 }
+
+#' Scrub packets from an output.
+#'
+#' This returns a transformation suitable to be passed to `expect_snapshot`.
+#' The specified packet IDs are removed from the output, and replaced with
+#' stable strings of the same length.
+#'
+#' @param ... the list of packet IDs to remove from the output.
+#' @noRd
+scrub_packets <- function(...) {
+  ids <- c(...)
+  replacements <- sprintf("19700101-000000-%08x", seq_along(ids))
+  names(replacements) <- ids
+  function(x) stringr::str_replace_all(x, replacements)
+}

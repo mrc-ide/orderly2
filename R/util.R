@@ -705,7 +705,8 @@ is_testing <- function() {
   identical(Sys.getenv("TESTTHAT"), "true")
 }
 
-# Given a character vector, missing names are filled using the value.
+#' Given a character vector, missing names are filled using the value.
+#' @noRd
 fill_missing_names <- function(x) {
   if (is.null(names(x))) {
     names(x) <- x
@@ -713,4 +714,11 @@ fill_missing_names <- function(x) {
     names(x)[i] <- x[i]
   }
   x
+}
+
+
+#' Read a file, replacing any invalid UTF-8 characters
+#' @noRd
+read_file_lossy <- function(path) {
+  iconv(readLines(path, warn = FALSE), "UTF-8", "UTF-8", sub = "byte")
 }
