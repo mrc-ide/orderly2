@@ -1,9 +1,9 @@
-test_that("Comparing a packet to itself returns TRUE", {
+test_that("Comparing a packet to itself returns an empty diff", {
   root <- create_temporary_root()
   id <- create_random_packet(root)
 
   result <- orderly_compare_packets(id, id, root = root)
-  expect_true(result)
+  expect_true(result$is_equal())
   expect_snapshot(print(result), transform = scrub_packets(id))
 })
 
@@ -19,7 +19,7 @@ test_that("Comparing packets ignores ID and time differences", {
   expect_false(isTRUE(all.equal(meta1$time, meta2$time)))
 
   result <- orderly_compare_packets(id1, id2, root = root)
-  expect_true(result)
+  expect_true(result$is_equal())
   expect_snapshot(print(result), transform = scrub_packets(id1, id2))
 })
 
@@ -30,15 +30,17 @@ test_that("Can compare packets with different metadata", {
   p1 <- create_deterministic_packet(root, "data", list(A = "foo"))
   p2 <- create_deterministic_packet(root, "data", list(A = "bar"))
 
-  all <- orderly_compare_packets(p1, p2, root = root)
-  metadata <- orderly_compare_packets(p1, p2, what = "metadata", root = root)
-  files <- orderly_compare_packets(p1, p2, what = "files", root = root)
+  everything <- orderly_compare_packets(p1, p2, root = root)
+  metadata <- orderly_compare_packets(p1, p2, root = root, what = "metadata")
+  files <- orderly_compare_packets(p1, p2, root = root, what = "files")
 
-  expect_false(isTRUE(all))
-  expect_false(isTRUE(metadata))
-  expect_true(files)
+  expect_false(everything$is_equal())
+  expect_false(metadata$is_equal())
+  expect_true(files$is_equal())
 
-  expect_snapshot(print(all), transform = scrub_packets(p1, p2))
+  expect_snapshot(print(everything), transform = scrub_packets(p1, p2))
+  expect_snapshot(print(metadata), transform = scrub_packets(p1, p2))
+  expect_snapshot(print(files), transform = scrub_packets(p1, p2))
 })
 
 
@@ -48,15 +50,19 @@ test_that("Can compare packets with different file contents", {
   p1 <- orderly_run_snippet(root, "data", writeLines("Hello", "data.txt"))
   p2 <- orderly_run_snippet(root, "data", writeLines("World", "data.txt"))
 
-  all <- orderly_compare_packets(p1, p2, root = root)
-  metadata <- orderly_compare_packets(p1, p2, what = "metadata", root = root)
-  files <- orderly_compare_packets(p1, p2, what = "files", root = root)
+  everything <- orderly_compare_packets(p1, p2, root = root)
+  metadata <- orderly_compare_packets(p1, p2, root = root, what = "metadata")
+  files <- orderly_compare_packets(p1, p2, root = root, what = "files")
 
-  expect_false(isTRUE(all))
-  expect_true(metadata)
-  expect_false(isTRUE(files))
+  expect_false(everything$is_equal())
+  expect_true(metadata$is_equal())
+  expect_false(files$is_equal())
 
-  expect_snapshot(print(all), transform = scrub_packets(p1, p2))
+  expect_snapshot(print(everything), transform = scrub_packets(p1, p2))
+  expect_snapshot(print(metadata), transform = scrub_packets(p1, p2))
+  expect_snapshot(print(files), transform = scrub_packets(p1, p2))
+  expect_snapshot(print(files, verbose = TRUE),
+                  transform = scrub_packets(p1, p2))
 })
 
 
@@ -64,12 +70,12 @@ test_that("Can compare artefacts only", {
   root <- create_temporary_root()
 
   p1 <- orderly_run_snippet(root, "data", {
-    orderly_artefact("Output", "output.txt")
+    orderly_artefact(description = "Output", "output.txt")
     writeLines(toString(2 + 1), "output.txt")
   })
 
   p2 <- orderly_run_snippet(root, "data", {
-    orderly_artefact("Output", "output.txt")
+    orderly_artefact(description = "Output", "output.txt")
     writeLines(toString(1 + 2), "output.txt")
   })
 
@@ -78,8 +84,8 @@ test_that("Can compare artefacts only", {
 
   # The packet files, in particular the source code, are different. However the
   # different snippets produce identical artefacts.
-  expect_false(isTRUE(files))
-  expect_true(artefacts)
+  expect_false(files$is_equal())
+  expect_true(artefacts$is_equal())
 
   expect_snapshot(print(files), transform = scrub_packets(p1, p2))
 })
@@ -93,20 +99,14 @@ test_that("Can detect newly declared artefact", {
   })
 
   p2 <- orderly_run_snippet(root, "data", {
-    orderly_artefact("Output", "hello.txt")
+    orderly_artefact(description = "Output", "hello.txt")
     writeLines("Hello", "hello.txt")
   })
 
-  files <- orderly_compare_packets(p1, p2, what = "files", root = root)
   artefacts <- orderly_compare_packets(p1, p2, what = "artefacts", root = root)
 
-  f <- files$files[files$files$path == "hello.txt", ]
-  expect_equal(f$status, "unchanged")
-
-  # When comparing artefacts, the file is reported as "added", because while it
-  # exists in the original packet, it was not an artefact.
-  f <- artefacts$files[artefacts$files$path == "hello.txt", ]
-  expect_equal(f$status, "added")
+  expect_false(artefacts$is_equal())
+  expect_snapshot(print(artefacts), transform = scrub_packets(p1, p2))
 })
 
 
@@ -114,28 +114,20 @@ test_that("Can compare packets with binary contents", {
   root <- create_temporary_root()
 
   p1 <- orderly_run_snippet(root, "data", {
-    orderly_artefact("Outputs", c("data.txt", "data.rds"))
-    writeLines("Hello", "data.txt")
+    orderly_artefact(description = "Output", "data.rds")
     saveRDS(1:10, "data.rds")
   })
 
   p2 <- orderly_run_snippet(root, "data", {
-    orderly_artefact("Outputs", c("data.txt", "data.rds"))
-    writeLines("World", "data.txt")
+    orderly_artefact(description = "Output", "data.rds")
     saveRDS(11:20, "data.rds")
   })
 
   result <- orderly_compare_packets(p1, p2, what = "artefacts", root = root)
-  expect_false(isTRUE(result))
-
-  # We can't render a diff for binary files, so these are set to NULL, unlike
-  # the text file.
-  text <- result$files[result$files$path == "data.txt", ]
-  binary <- result$files[result$files$path == "data.rds", ]
-  expect_false(is.null(text$diff[[1]]))
-  expect_true(is.null(binary$diff[[1]]))
-
+  expect_false(result$is_equal())
   expect_snapshot(print(result), transform = scrub_packets(p1, p2))
+  expect_snapshot(print(result, verbose = TRUE),
+                  transform = scrub_packets(p1, p2))
 })
 
 
@@ -175,12 +167,32 @@ test_that("Can compare packets from remote", {
     orderly_compare_packets(p1, p2, root = here),
     "Unable to copy files, as they are not available locally")
 
-  # metadata comparison can be done without holding on to the files.
-  expect_no_error(
-    orderly_compare_packets(p1, p2, what = "metadata", root = here))
-
-  expect_message(
+  result <- suppressMessages({
     orderly_compare_packets(p1, p2, search_options = list(allow_remote = TRUE),
-                            root = here),
-    "Need to fetch 1 file.+from 1 location")
+                            root = here)
+  })
+  expect_false(result$is_equal())
+})
+
+
+test_that("Checks bad what argument", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root)
+
+  expect_error(
+    orderly_compare_packets(id, id, root = root, what = "xx"),
+    '`what` must be one of .*, not "xx"')
+
+  expect_error(
+    orderly_compare_packets(id, id, root = root, what = character(0)),
+    "`what` must not be empty")
+
+  expect_error(
+    orderly_compare_packets(id, id, root = root, what = TRUE),
+    "`what` must be a character vector")
+
+  expect_error(
+    orderly_compare_packets(id, id, root = root,
+                            what = c("files", "artefacts")),
+    '`what` must contain both "files" and "artefacts"')
 })

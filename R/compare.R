@@ -38,10 +38,6 @@ compare_filesets <- function(target, current) {
 }
 
 compare_files <- function(target, current, files, root, search_options) {
-  if (is.null(files)) {
-    return(NULL)
-  }
-
   path_target <- withr::local_tempdir()
   path_current <- withr::local_tempdir()
 
@@ -90,42 +86,52 @@ compare_files <- function(target, current, files, root, search_options) {
 ##'
 ##' @param target The id of the packet to use in the comparison.
 ##' @param current The id of the other packet against which to compare.
-##' @param what One of "everything" (the default), "metadata", "files" or
-##'   "artefacts", retricting what components of the packet to compare. This is
-##'   useful when it is known for example that the source code of a report what
-##'   changed, and one is only interested in the effect on its output.
+##' @param what One or more of "metadata", "files" and "artefacts", retricting
+##'   what components of the packet to compare. This is useful when it is known
+##'   for example that the source code of a report what changed, and one is only
+##'   interested in the effect on its output.
 ##' @param search_options Options for locating packet files. If there are no
 ##'   copies of the files locally, they can be downloaded automatically from a
 ##'   remote location on-demand if `allow_remote` is `TRUE`.
 ##'
 ##' @inheritParams orderly_metadata
 ##'
-##' @return If the packets have identical contents, TRUE is returned. Otherwise
-##'   an object detailing the differences is returned. While the object can be
-##'   inspected, its contents is subject to change. In both cases, the returned
-##'   value has class `orderly_compare_packets`, allowing a user friendly
-##'   display of the result.
+##' @return An R6 object of class `orderly_packet_diff` is returned. Printing
+##'   this object will show the difference in the two packets. Additionally, the
+##'   `is_equal` method of the object return a logical indicating whether any
+##'   difference was found.
 ##'
 ##' @export
 orderly_compare_packets <- function(
-  target, current, what = c("everything", "metadata", "files", "artefacts"),
-  search_options = NULL, root = NULL, locate = TRUE) {
+  target, current, search_options = NULL, root = NULL, locate = TRUE,
+  what = c("metadata", "files")) {
+  what <- rlang::arg_match(what, multiple = TRUE,
+                           values = c("metadata", "files", "artefacts"))
+  if (length(what) == 0) {
+    cli::cli_abort("{.code what} must not be empty")
+  }
+  if ("artefacts" %in% what && "files" %in% what) {
+    cli::cli_abort('{.code what} must contain both "files" and "artefacts"')
+  }
+
   validate_outpack_id(target, call = environment())
   validate_outpack_id(current, call = environment())
-  what <- rlang::arg_match(what)
 
   root <- root_open(root, locate = locate, require_orderly = FALSE,
                     call = environment())
 
   meta_target <- orderly_metadata(target, root = root)
   meta_current <- orderly_metadata(current, root = root)
-  if (what %in% c("everything", "metadata")) {
-    metadata_diff <- compare_metadata(meta_target, meta_current)
+
+  if ("metadata" %in% what) {
+    metadata <- compare_metadata(meta_target, meta_current)
   } else {
-    metadata_diff <- NULL
+    metadata <- NULL
   }
 
-  if (what == "artefacts") {
+  if ("files" %in% what) {
+    files <- compare_filesets(meta_target$files, meta_current$files)
+  } else if ("artefacts" %in% what) {
     if (is.null(meta_target$custom$orderly) ||
         is.null(meta_current$custom$orderly)) {
       cli::cli_abort("Cannot compare artefacts of non-orderly packets")
@@ -136,96 +142,133 @@ orderly_compare_packets <- function(
     files <- compare_filesets(
       meta_target$files[meta_target$files$path %in% artefacts_target, ],
       meta_current$files[meta_current$files$path %in% artefacts_current, ])
-  } else if (what %in% c("everything", "files")) {
-    files <- compare_filesets(meta_target$files, meta_current$files)
   } else {
-    files <- data.frame(path = NULL, status = NULL)
+    files <- data.frame(path = character(0), status = character(0))
   }
 
-  if (is.null(metadata_diff) && all(files$status == "unchanged")) {
-    ret <- TRUE
-  } else {
-    idx <- files$status == "modified"
-    files$diff[idx] <- compare_files(target, current, files[idx, ]$path,
-                                     search_options = search_options,
-                                     root = root)
+  idx <- files$status == "modified"
+  files$diff[idx] <- compare_files(target, current, files[idx, ]$path,
+                                   search_options = search_options,
+                                   root = root)
 
-    ret <- list(packets = c(target = target, current = current),
-                metadata_diff = metadata_diff,
-                files = files)
-  }
-
-  class(ret) <- "orderly_compare_packets"
-
-  ret
+  orderly_packet_diff$new(what, target, current, metadata, files)
 }
 
 
-#' @export
-format.orderly_compare_packets <- function(x, ...) {
-  cli::cli_format_method({
-    if (isTRUE(x)) {
-      cli::cli_alert_success("Packets are identical")
-    } else {
-      target <- x$packets[[1]]
-      current <- x$packets[[2]]
+orderly_packet_diff <- R6::R6Class(
+  "orderly_packet_diff",
+  private = list(
+    what = NULL,
+    target = NULL,
+    current = NULL,
+    metadata = NULL,
+    files = NULL,
 
-      cli::cli_alert_info("Comparing packets {target} and {current}")
-
-      if (!is.null(x$metadata_diff)) {
+    print_metadata = function() {
+      if (!is.null(private$metadata)) {
         cli::cli_alert_warning("Packet metadata differs:")
         cli::cli_div(theme = list(div = list("margin-left" = 2)))
-        cli::cli_verbatim(as.character(x$metadata_diff))
+        cli::cli_verbatim(as.character(private$metadata))
         cli::cli_end()
       }
+    },
 
-      removed <- x$files[x$files$status == "removed", ]
+    print_files = function(verbose) {
+      name <- if ("artefacts" %in% private$what) {
+        "artefacts"
+      } else {
+        "files"
+      }
+
+      removed <- private$files[private$files$status == "removed", ]
       if (nrow(removed) > 0) {
         cli::cli_alert_warning(
-          "The following files only exist in packet {current}:")
+          "The following {name} only exist in packet {private$current}:")
         cli::cli_ul(removed$path)
       }
 
-      added <- x$files[x$files$status == "added", ]
+      added <- private$files[private$files$status == "added", ]
       if (nrow(added) > 0) {
         cli::cli_alert_warning(
-          "The following files only exist in packet {target}:")
+          "The following {name} only exist in packet {private$target}:")
         cli::cli_ul(added$path)
       }
 
-      modified <- x$files[x$files$status == "modified", ]
+      modified <- private$files[private$files$status == "modified", ]
       if (nrow(modified) > 0) {
-        cli::cli_alert_warning(paste("The following files exist in both",
-                                     "packets but have different contents:"))
+        binary <- sapply(modified$diff, is.null)
+
+        cli::cli_alert_warning(
+          paste("The following {name} exist in both packets but have",
+                "different contents:"))
+
         cli::cli_ul()
         for (i in seq_len(nrow(modified))) {
           cli::cli_li("{modified$path[[i]]}")
-          if (!is.null(modified$diff[[i]])) {
-            cli::cli_div(theme = list(div = list("margin-left" = 2)))
-            cli::cli_verbatim(as.character(modified$diff[[i]]))
-            cli::cli_end()
+          if (verbose) {
+            if (!binary[[i]]) {
+              cli::cli_div(theme = list(div = list("margin-left" = 2)))
+              cli::cli_verbatim(as.character(modified$diff[[i]]))
+              cli::cli_end()
+            }
           }
+        }
+        if (verbose && any(binary)) {
+          cli::cli_alert_warning(
+            "Contents of binary file{?s} {modified$path[binary]} were omitted")
+        }
+        if (!verbose) {
+          cli::cli_alert_info(paste(
+            "Print the comparison with {.code verbose = TRUE} to display the",
+            "differences in the {name}' contents"))
         }
         cli::cli_end()
       }
     }
-  })
-}
+  ),
 
+  public = list(
+    initialize = function(what, target, current, metadata, files) {
+      private$what <- what
+      private$target <- target
+      private$current <- current
+      private$metadata <- metadata
+      private$files <- files
+    },
 
-#' @export
-print.orderly_compare_packets <- function(x, ...) {
-  cat(format(x, ...), sep = "\n")
-}
+    is_equal = function() {
+      is.null(private$metadata) && all(private$files$status == "unchanged")
+    },
 
-#' @export
-`[.orderly_compare_packets` <- function(x, paths) {
-  x$files <- x$files[x$files$path %in% paths, , drop = FALSE]
-  x
-}
+    format = function(verbose = FALSE, ...) {
+      target <- private$target
+      current <- private$current
 
-#' @export
-summary.orderly_compare_packets <- function(object, ...) {
-  object$files$diff <- c()
-  object
-}
+      cli::cli_format_method({
+        if (self$is_equal()) {
+          msg <- if (setequal(private$what, c("metadata", "files"))) {
+            "Packets {target} and {current} are identical"
+          } else if (identical(private$what, "metadata")) {
+            "Metadata of packets {target} and {current} is identical"
+          } else if (identical(private$what, "files")) {
+            "Files of packets {target} and {current} are identical"
+          } else if (identical(private$what, "artefacts")) {
+            "Artefacts of packets {target} and {current} are identical"
+          } else if (setequal(private$what, c("metadata", "artefacts"))) {
+            paste("Metadata and artefacts of packets {target} and {current}",
+                  "are identical")
+          } else {
+            stop("Unhandled combination of `what`")
+          }
+          cli::cli_alert_success(msg)
+        } else {
+          cli::cli_alert_info(
+            "Comparing packets {private$target} and {private$current}")
+
+          private$print_metadata()
+          private$print_files(verbose = verbose)
+        }
+      })
+    }
+  )
+)

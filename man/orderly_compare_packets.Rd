@@ -7,21 +7,16 @@
 orderly_compare_packets(
   target,
   current,
-  what = c("everything", "metadata", "files", "artefacts"),
   search_options = NULL,
   root = NULL,
-  locate = TRUE
+  locate = TRUE,
+  what = c("metadata", "files")
 )
 }
 \arguments{
 \item{target}{The id of the packet to use in the comparison.}
 
 \item{current}{The id of the other packet against which to compare.}
-
-\item{what}{One of "everything" (the default), "metadata", "files" or
-"artefacts", retricting what components of the packet to compare. This is
-useful when it is known for example that the source code of a report what
-changed, and one is only interested in the effect on its output.}
 
 \item{search_options}{Options for locating packet files. If there are no
 copies of the files locally, they can be downloaded automatically from a
@@ -38,13 +33,17 @@ for.  If \code{TRUE}, then we looks in the directory given for \code{root}
 (or the working directory if \code{NULL}) and then up through its
 parents until it finds an \code{.outpack} directory or
 \code{orderly_config.yml}}
+
+\item{what}{One or more of "metadata", "files" and "artefacts", retricting
+what components of the packet to compare. This is useful when it is known
+for example that the source code of a report what changed, and one is only
+interested in the effect on its output.}
 }
 \value{
-If the packets have identical contents, TRUE is returned. Otherwise
-an object detailing the differences is returned. While the object can be
-inspected, its contents is subject to change. In both cases, the returned
-value has class \code{orderly_compare_packets}, allowing a user friendly
-display of the result.
+An R6 object of class \code{orderly_packet_diff} is returned. Printing
+this object will show the difference in the two packets. Additionally, the
+\code{is_equal} method of the object return a logical indicating whether any
+difference was found.
 }
 \description{
 Compare the metadata and contents of two packets.
