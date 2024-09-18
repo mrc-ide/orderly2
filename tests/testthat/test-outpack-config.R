@@ -97,14 +97,14 @@ test_that("Can add file_store", {
   expect_equal(length(hash_pulled), 3)
 
   dest <- temp_file()
-  dir.create(dest)
-  root$dst$files$get(hash_pulled[[1]], dest, TRUE)
-  root$dst$files$get(hash_pulled[[2]], dest, TRUE)
-  root$dst$files$get(hash_pulled[[3]], dest, TRUE)
+  root$dst$files$get(hash_pulled[[1]], file.path(dest, "a"), TRUE)
+  root$dst$files$get(hash_pulled[[2]], file.path(dest, "b"), TRUE)
+  root$dst$files$get(hash_pulled[[3]], file.path(dest, "c"), TRUE)
 
   hash_not_pulled <- outpack_metadata_core(id[["a"]], root$dst)$files$hash
-  expect_error(root$dst$files$get(hash_not_pulled[[1]], dest, TRUE),
-               "not found in store")
+  expect_error(
+    root$dst$files$get(hash_not_pulled[[1]], file.path(dest, "d"), TRUE),
+    "not found in store")
 })
 
 
@@ -144,7 +144,6 @@ test_that("Files will be searched for by hash when adding file store", {
   expect_true(root$config$core$use_file_store)
 
   dest <- temp_file()
-  dir.create(dest)
   root$files$get(outpack_metadata_core(id, root)$files$hash, dest, TRUE)
 })
 
@@ -247,10 +246,9 @@ test_that("Can add archive", {
   expect_equal(length(hash), 3)
 
   dest <- temp_file()
-  dir.create(dest)
-  root$files$get(hash[[1]], dest, TRUE)
-  root$files$get(hash[[2]], dest, TRUE)
-  root$files$get(hash[[3]], dest, TRUE)
+  root$files$get(hash[[1]], file.path(dest, "a"), TRUE)
+  root$files$get(hash[[2]], file.path(dest, "b"), TRUE)
+  root$files$get(hash[[3]], file.path(dest, "c"), TRUE)
 })
 
 

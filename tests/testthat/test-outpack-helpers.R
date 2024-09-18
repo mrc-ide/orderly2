@@ -8,6 +8,7 @@ test_that("can copy files from outpack", {
   expect_identical(
     readRDS(file.path(dst, "incoming.rds")),
     readRDS(file.path(root$path, "archive", "data", id, "data.rds")))
+  expect_true(fs::file_access(file.path(dst, "incoming.rds"), "write"))
 })
 
 

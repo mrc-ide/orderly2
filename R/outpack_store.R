@@ -32,11 +32,15 @@ file_store <- R6::R6Class(
                            paste(sprintf("  - %s", missing), collapse = "\n"))
         stop(not_found_error(message, missing))
       }
-      fs::dir_create(dirname(dst))
 
-      # Set copy_mode = FALSE: files in the store are read-only. It's easier on
-      # the user if we make them writable again.
-      copy_files(src, dst, overwrite = overwrite, copy_mode = FALSE)
+      copy_files(src, dst, overwrite = overwrite)
+
+      # Files in the store are read-only to avoid accidental corruption.
+      # This is however an implementation detail, and we should export them as
+      # writable again.
+      if (length(dst) > 0) { # https://github.com/r-lib/fs/issues/471
+        fs::file_chmod(dst, "u+w")
+      }
 
       invisible(dst)
     },

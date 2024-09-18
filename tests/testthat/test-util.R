@@ -466,3 +466,126 @@ test_that("parse_json includes name argument in its errors", {
   expect_error(parse_json("bad json", name = "my file"),
                "Error while reading my file.*lexical error")
 })
+
+
+describe("copy_files", {
+  src1 <- withr::local_tempfile()
+  src2 <- withr::local_tempfile()
+  writeLines("Hello", src1)
+  writeLines("World", src2)
+
+  it("can copy one file", {
+    dst <- file.path(withr::local_tempdir(), "destination.txt")
+
+    copy_files(src1, dst)
+    expect_equal(readLines(dst), "Hello")
+  })
+
+
+  it("can copy multiple files", {
+    d <- withr::local_tempdir()
+    dst1 <- file.path(d, "destination1.txt")
+    dst2 <- file.path(d, "destination2.txt")
+
+    copy_files(c(src1, src2), c(dst1, dst2))
+    expect_equal(readLines(dst1), "Hello")
+    expect_equal(readLines(dst2), "World")
+  })
+
+
+  it("can copy zero files", {
+    expect_no_error(copy_files(character(0), character(0)))
+    expect_no_error(copy_files(character(0), character(0), overwrite = TRUE))
+  })
+
+
+  it("creates parent directories", {
+    d <- withr::local_tempdir()
+    dst <- file.path(d, "path", "to", "destination.txt")
+
+    expect_false(fs::dir_exists(file.path(d, "path", "to")))
+    copy_files(src1, dst)
+    expect_true(fs::dir_exists(file.path(d, "path", "to")))
+  })
+
+
+  it("can copy a read-only file", {
+    d <- withr::local_tempdir()
+    src <- file.path(d, "source.txt")
+    dst <- c(file.path(d, "destination1.txt"),
+             file.path(d, "destination2.txt"))
+
+    writeLines("Hello", src)
+    fs::file_chmod(src, "a-w")
+
+    copy_files(src, dst[[1]])
+    copy_files(src, dst[[2]], overwrite = TRUE)
+
+    expect_true(all(fs::file_access(dst, mode = "read")))
+    expect_false(any(fs::file_access(dst, mode = "write")))
+  })
+
+
+  it("can overwrite an existing file", {
+    d <- withr::local_tempdir()
+    dst <- file.path(d, "destination.txt")
+
+    fs::file_create(dst)
+
+    expect_error(copy_files(src1, dst), "file already exists")
+
+    copy_files(src1, dst, overwrite = TRUE)
+    expect_equal(readLines(dst), "Hello")
+  })
+
+
+  it("overwrites a single file out of two", {
+    d <- withr::local_tempdir()
+    dst1 <- file.path(d, "destination1.txt")
+    dst2 <- file.path(d, "destination2.txt")
+
+    fs::file_create(dst1)
+    copy_files(c(src1, src2), c(dst1, dst2), overwrite = TRUE)
+
+    expect_equal(readLines(dst1), "Hello")
+    expect_equal(readLines(dst2), "World")
+  })
+
+
+  it("does not overwrite by default", {
+    d <- withr::local_tempdir()
+    dst <- file.path(d, "destination.txt")
+
+    fs::file_create(dst)
+
+    expect_error(copy_files(src1, dst),
+                 "file already exists")
+    expect_error(copy_files(src1, dst, overwrite = FALSE),
+                 "file already exists")
+  })
+
+
+  it("does not overwrite a read-only file", {
+    d <- withr::local_tempdir()
+    dst <- file.path(d, "destination.txt")
+
+    fs::file_create(dst)
+    fs::file_chmod(dst, "a-w")
+
+    expect_error(copy_files(src1, dst, overwrite = TRUE),
+                 "Cannot overwrite non-writable file")
+  })
+
+
+  it("errors if the destination is a directory", {
+    d <- withr::local_tempdir()
+    expect_error(copy_files(src1, d), "Destination path is a directory")
+  })
+
+
+  it("errors if argument length is different", {
+    d <- withr::local_tempfile()
+    expect_error(copy_files(c(src1, src2), d),
+                 "have different lengths")
+  })
+})

@@ -34,9 +34,9 @@ test_that("Can store files", {
   expect_length(obj$list(), 10)
   expect_equal(file.exists(obj$filename(obj$list())),
                rep(TRUE, 10))
-  dest <- temp_file()
-  dir.create(dest)
-  obj$get(obj$list(), dest, TRUE)
+
+  dest <- withr::local_tempdir()
+  obj$get(obj$list(), file.path(dest, letters[1:10]), FALSE)
 })
 
 
@@ -72,4 +72,34 @@ test_that("can create a filename within the store", {
                normalise_path(file.path(obj$path, "tmp")))
   expect_false(file.exists(p))
   expect_true(file.exists(file.path(obj$path, "tmp")))
+})
+
+
+test_that("files is the store are read-only", {
+  obj <- file_store$new(withr::local_tempdir())
+
+  f <- withr::local_tempfile()
+  writeLines("Hello", f)
+  h <- hash_file(f)
+  obj$put(f, h)
+
+  path <- obj$filename(h)
+  expect_true(fs::file_access(path, "read"))
+  expect_false(fs::file_access(path, "write"))
+})
+
+
+test_that("files are writable when retrieved", {
+  obj <- file_store$new(withr::local_tempdir())
+
+  f <- withr::local_tempfile()
+  writeLines("Hello", f)
+  h <- hash_file(f)
+  obj$put(f, h)
+
+  path <- withr::local_tempfile()
+  obj$get(h, path, TRUE)
+  expect_true(fs::file_access(path, "read"))
+  expect_true(fs::file_access(path, "write"))
+  writeLines("World", path)
 })

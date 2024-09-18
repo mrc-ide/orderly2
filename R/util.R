@@ -184,18 +184,48 @@ expand_dirs <- function(files, workdir) {
 }
 
 
-copy_files <- function(src, dst, overwrite = FALSE,
-                       copy_mode = TRUE) {
+copy_files <- function(src, dst, overwrite = FALSE) {
+  assert_character(src)
+  assert_character(dst)
+
+  if (length(src) != length(dst)) {
+    cli::cli_abort("Source and destination have different lengths")
+  }
+
+  is_dir <- fs::dir_exists(dst)
+  if (any(is_dir)) {
+    paths <- dst[is_dir]
+    cli::cli_abort(paste(
+      "Destination path{?s} {?is a directory/are directories}:",
+      "{.path {paths}}"))
+  }
+
   fs::dir_create(unique(dirname(dst)))
 
-  # mrc-5557: We intentionally don't use fs::file_copy, as it does not work
-  # reliably on mounted Samba file systems.
-  ok <- file.copy(src, dst, overwrite = overwrite,
-                  copy.mode = copy_mode,
-                  copy.date = TRUE)
-  if (any(!ok)) {
-    cli::cli_abort("Could not copy file{?s} {.file {src[!ok]}}")
+  # For some reason, file_copy does not work when `overwrite = TRUE`, the
+  # source file is read-only, the destination file is on a Samba file mount,
+  # and we are on Linux. This seems like a bug in the Linux Samba driver.
+  # See mrc-5557 for details.
+  #
+  # We work around it by always passing `overwrite = FALSE`. Instead we delete
+  # any existing files manually beforehand. It is vulnerable to race condition,
+  # as someone could recreate the file between the calls to file_delete and
+  # file_copy, but that seems unlikely. If any of the files are read-only, we
+  # refuse to proceed.
+  #
+  # If you are going to make changes to this function, make sure to run all
+  # tests with TMPDIR set to a path on a network drive.
+  if (overwrite) {
+    exists <- fs::file_exists(dst)
+    nonwrite <- !fs::file_access(dst[exists], "write")
+    if (any(nonwrite)) {
+      cli::cli_abort(
+        "Cannot overwrite non-writable file{?s}: {dst[exists][nonwrite]}")
+    }
+    fs::file_delete(dst[exists])
   }
+
+  fs::file_copy(src, dst, overwrite = FALSE)
 }
 
 
