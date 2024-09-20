@@ -45,7 +45,7 @@ auth_cache <- new.env(parent = emptyenv())
 packit_authorisation <- function(base_url, token, save_token) {
   # If a non-Github token is provided, we assume it is a native Packit token
   # and use that directly.
-  if (!is.null(token) && !grepl('^gh._', token)) {
+  if (!is.null(token) && !grepl("^gh._", token)) {
     return(list("Authorization" = paste("Bearer", token)))
   }
 
