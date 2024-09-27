@@ -1,15 +1,14 @@
-test_that("can authenticate with existing token", {
+test_that("can authenticate with existing GitHub token", {
   clear_auth_cache()
   withr::defer(clear_auth_cache())
 
-  token <- "my-github-token"
+  token <- "ghp_github-token"
 
   mock_post <- local_mock_response(
     to_json(list(token = jsonlite::unbox("my-packit-token"))),
     wrap = FALSE)
 
-  res <- evaluate_promise(
-    packit_authorisation("http://example.com/", token))
+  res <- evaluate_promise(packit_authorisation("http://example.com/", token))
 
   expect_length(res$messages, 2)
   expect_match(res$messages[[1]], "Logging in to http://example.com")
@@ -20,7 +19,7 @@ test_that("can authenticate with existing token", {
   mockery::expect_called(mock_post, 1)
   args <- mockery::mock_args(mock_post)[[1]]
   expect_equal(args[[1]]$url, "http://example.com/packit/api/auth/login/api")
-  expect_equal(args[[1]]$body$data, list(token = scalar("my-github-token")))
+  expect_equal(args[[1]]$body$data, list(token = scalar("ghp_github-token")))
   expect_equal(args[[1]]$body$type, "json")
 
   ## And a second time, does not call mock_post again:
@@ -28,6 +27,18 @@ test_that("can authenticate with existing token", {
     packit_authorisation("http://example.com/", token))
   expect_equal(res2, res$result)
   mockery::expect_called(mock_post, 1)
+})
+
+
+test_that("can authenticate with existing Packit token", {
+  clear_auth_cache()
+  withr::defer(clear_auth_cache())
+
+  token <- "my-packit-token"
+
+  result <- packit_authorisation("http://example.com/", token)
+  expect_equal(result,
+               list("Authorization" = paste("Bearer", "my-packit-token")))
 })
 
 
@@ -39,7 +50,8 @@ test_that("can authenticate using device flow", {
     to_json(list(token = jsonlite::unbox("my-packit-token"))),
     wrap = FALSE)
 
-  mockery::stub(packit_authorisation, "do_oauth_device_flow", "my-github-token")
+  mockery::stub(packit_authorisation, "do_oauth_device_flow",
+                "ghp_github-token")
 
   res <- evaluate_promise(packit_authorisation("http://example.com/",
                                                token = NULL,
@@ -54,7 +66,7 @@ test_that("can authenticate using device flow", {
   mockery::expect_called(mock_post, 1)
   args <- mockery::mock_args(mock_post)[[1]]
   expect_equal(args[[1]]$url, "http://example.com/packit/api/auth/login/api")
-  expect_equal(args[[1]]$body$data, list(token = scalar("my-github-token")))
+  expect_equal(args[[1]]$body$data, list(token = scalar("ghp_github-token")))
   expect_equal(args[[1]]$body$type, "json")
 })
 
@@ -62,7 +74,7 @@ test_that("location_packit uses authentication", {
   clear_auth_cache()
   withr::defer(clear_auth_cache())
 
-  token <- "my-github-token"
+  token <- "ghp_github-token"
   id <- outpack_id()
   metadata <- "packet metadata"
 
@@ -85,7 +97,7 @@ test_that("location_packit uses authentication", {
 
   args <- mockery::mock_args(mock)[[1]]
   expect_equal(args[[1]]$url, "http://example.com/packit/api/auth/login/api")
-  expect_equal(args[[1]]$body$data, list(token = scalar("my-github-token")))
+  expect_equal(args[[1]]$body$data, list(token = scalar("ghp_github-token")))
   expect_equal(args[[1]]$body$type, "json")
 
   args <- mockery::mock_args(mock)[[2]]
@@ -126,8 +138,8 @@ test_that("Can configure oauth caching behaviour", {
 
 test_that("can create a packit location using an environment variable token", {
   loc <- withr::with_envvar(
-    c("PACKIT_TOKEN" = "abc123"),
-    orderly_location_packit("http://example.com", "$PACKIT_TOKEN"))
+    c("GITHUB_TOKEN" = "ghp_abc123"),
+    orderly_location_packit("http://example.com", "$GITHUB_TOKEN"))
 
   mock_login <- local_mock_response(
     to_json(list(token = jsonlite::unbox("my-packit-token"))),
@@ -139,12 +151,12 @@ test_that("can create a packit location using an environment variable token", {
 
   args <- mockery::mock_args(mock_login)[[1]]
   expect_equal(args[[1]]$url, "http://example.com/packit/api/auth/login/api")
-  expect_equal(args[[1]]$body$data, list(token = scalar("abc123")))
+  expect_equal(args[[1]]$body$data, list(token = scalar("ghp_abc123")))
   expect_equal(args[[1]]$body$type, "json")
 })
 
 
-test_that("error of token variable not found", {
+test_that("error if token variable not found", {
   withr::with_envvar(
     c("PACKIT_TOKEN" = NA_character_),
     expect_error(
