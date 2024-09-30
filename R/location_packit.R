@@ -43,6 +43,12 @@ do_oauth_device_flow <- function(base_url, cache_disk) {
 # server from within the same session.
 auth_cache <- new.env(parent = emptyenv())
 packit_authorisation <- function(base_url, token, save_token) {
+  # If a non-Github token is provided, we assume it is a native Packit token
+  # and use that directly.
+  if (!is.null(token) && !grepl("^gh._", token)) {
+    return(list("Authorization" = paste("Bearer", token)))
+  }
+
   key <- rlang::hash(list(base_url = base_url, token = token))
 
   if (is.null(auth_cache[[key]])) {
