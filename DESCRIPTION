@@ -1,6 +1,6 @@
 Package: orderly2
 Title: Orderly Next Generation
-Version: 1.99.40
+Version: 1.99.41
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),
@@ -19,6 +19,7 @@ Imports:
     cli,
     fs,
     gert (>= 1.9.3),
+    httr2,
     jsonlite,
     openssl,
     rlang,
@@ -28,7 +29,6 @@ Imports:
 Suggests:
     DBI,
     RSQLite,
-    httr2,
     jsonvalidate (>= 1.4.0),
     knitr,
     mockery,
