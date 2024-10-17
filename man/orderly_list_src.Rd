@@ -4,19 +4,14 @@
 \alias{orderly_list_src}
 \title{List source reports}
 \usage{
-orderly_list_src(root = NULL, locate = TRUE)
+orderly_list_src(root = NULL)
 }
 \arguments{
 \item{root}{The path to the root directory, or \code{NULL} (the
-default) to search for one from the current working directory if
-\code{locate} is \code{TRUE}. This function \strong{does} require that the
-directory is configured for orderly, and not just outpack (see
+default) to search for one from the current working
+directory. This function \strong{does} require that the directory is
+configured for orderly, and not just outpack (see
 \link{orderly_init} for details).}
-
-\item{locate}{Logical, indicating if the configuration should be
-searched for.  If \code{TRUE} and \code{config} is not given,
-then orderly looks in the working directory and up through its
-parents until it finds an \code{.outpack} directory}
 }
 \value{
 A character vector of names of source reports, suitable

@@ -81,9 +81,8 @@
 ##' @export
 orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
                                envir = parent.frame(), options = NULL,
-                               root = NULL, locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+                               root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
 
   ## Validate files and dest early; it gives a better error where this
   ## was not provided with names.

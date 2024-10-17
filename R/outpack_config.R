@@ -39,10 +39,8 @@
 ##'                              core.path_archive = NULL,
 ##'                              root = path)
 ##' fs::dir_tree(path, all = TRUE)
-orderly_config_set <- function(..., options = list(...), root = NULL,
-                               locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_config_set <- function(..., options = list(...), root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   if (!missing(options) && ...length() > 0) {
     stop("If 'options' is given, no dot arguments are allowed")
   }
@@ -111,9 +109,8 @@ orderly_config_set <- function(..., options = list(...), root = NULL,
 ##' path <- withr::local_tempdir()
 ##' orderly2::orderly_init(path)
 ##' orderly2::orderly_config(path)
-orderly_config <- function(root = NULL, locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_config <- function(root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   root$config
 }
 

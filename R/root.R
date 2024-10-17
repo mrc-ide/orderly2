@@ -140,7 +140,8 @@ empty_config_contents <- function() {
 ## * also check that the outpack and orderly path are compatibible
 ##   (this is actually quite hard to get right, but should be done
 ##   before anything is created I think)
-root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
+root_open <- function(path, locate = TRUE, require_orderly = FALSE,
+                      call = parent.frame()) {
   if (is.null(call)) {
     call <- environment()
   }
@@ -220,7 +221,7 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
 }
 
 
-orderly_src_root <- function(path, locate, call = NULL) {
+orderly_src_root <- function(path, locate = TRUE, call = parent.frame()) {
   if (inherits(path, "outpack_root")) {
     path <- path$path
     locate <- FALSE

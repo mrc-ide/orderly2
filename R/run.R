@@ -132,15 +132,10 @@
 ##'   [orderly2::orderly_search_options] object, see Details.
 ##'
 ##' @param root The path to the root directory, or `NULL` (the
-##'   default) to search for one from the current working directory if
-##'   `locate` is `TRUE`. This function **does** require that the
-##'   directory is configured for orderly, and not just outpack (see
+##'   default) to search for one from the current working
+##'   directory. This function **does** require that the directory is
+##'   configured for orderly, and not just outpack (see
 ##'   [orderly2::orderly_init] for details).
-##'
-##' @param locate Logical, indicating if the configuration should be
-##'   searched for.  If `TRUE` and `config` is not given,
-##'   then orderly looks in the working directory and up through its
-##'   parents until it finds an `.outpack` directory
 ##'
 ##' @return The id of the created report (a string)
 ##'
@@ -158,15 +153,15 @@
 ##' # and we can query the metadata:
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
-                        search_options = NULL, root = NULL, locate = TRUE) {
+                        search_options = NULL, root = NULL) {
   env_root_src <- Sys.getenv("ORDERLY_SRC_ROOT", NA_character_)
-  root <- root_open(root, locate, require_orderly = is.na(env_root_src),
+  root <- root_open(root, require_orderly = is.na(env_root_src),
                     call = environment())
 
   if (is.na(env_root_src)) {
     root_src <- root$path
   } else {
-    root_src <- orderly_src_root(env_root_src, locate, call = environment())
+    root_src <- orderly_src_root(env_root_src)
   }
 
   name <- validate_orderly_directory(name, root_src, environment())
@@ -544,7 +539,7 @@ validate_orderly_directory <- function(name, root_path, call) {
       sprintf("Did not find orderly report '%s'", name),
       x = detail
     )
-    near <- near_match(name, orderly_list_src(root_path, FALSE))
+    near <- near_match(name, orderly_list_src(root_path))
     if (length(near) > 0) {
       hint <- sprintf("Did you mean %s",
                       paste(squote(near), collapse = ", "))

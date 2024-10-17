@@ -33,8 +33,8 @@
 ##'
 ##' @return Nothing, called for its side effects
 ##' @export
-orderly_gitignore_update <- function(name, root = NULL, locate = TRUE) {
-  root_path <- orderly_src_root(root, locate, call = environment())
+orderly_gitignore_update <- function(name, root = NULL) {
+  root_path <- orderly_src_root(root)
   do_orderly_gitignore_update(name, root_path, environment())
 }
 

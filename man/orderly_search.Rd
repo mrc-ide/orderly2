@@ -30,10 +30,10 @@ packets should be considered in scope. If not provided, default
 options are used (i.e., \code{orderly2::orderly_search_options()})}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
-default) to search for one from the current working directory if
-\code{locate} is \code{TRUE}. This function does not require that the
-directory is configured for orderly, and can be any \code{outpack}
-root (see \link{orderly_init} for details).}
+default) to search for one from the current working
+directory. This function does not require that the directory is
+configured for orderly, and can be any \code{outpack} root (see
+\link{orderly_init} for details).}
 }
 \value{
 A character vector of matching ids. In the case of no

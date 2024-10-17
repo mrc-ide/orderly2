@@ -5,9 +5,9 @@
 \alias{orderly_hash_data}
 \title{Compute a hash}
 \usage{
-orderly_hash_file(path, algorithm = NULL, root = NULL, locate = TRUE)
+orderly_hash_file(path, algorithm = NULL, root = NULL)
 
-orderly_hash_data(data, algorithm = NULL, root = NULL, locate = TRUE)
+orderly_hash_data(data, algorithm = NULL, root = NULL)
 }
 \arguments{
 \item{path}{The name of the file to hash}
@@ -16,16 +16,10 @@ orderly_hash_data(data, algorithm = NULL, root = NULL, locate = TRUE)
 in the orderly root.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
-default) to search for one from the current working directory if
-\code{locate} is \code{TRUE}. This function does not require that the
-directory is configured for orderly, and can be any \code{outpack}
-root (see \link{orderly_init} for details).}
-
-\item{locate}{Logical, indicating if the root should be searched
-for.  If \code{TRUE}, then we looks in the directory given for \code{root}
-(or the working directory if \code{NULL}) and then up through its
-parents until it finds an \code{.outpack} directory or
-\code{orderly_config.yml}}
+default) to search for one from the current working
+directory. This function does not require that the directory is
+configured for orderly, and can be any \code{outpack} root (see
+\link{orderly_init} for details).}
 
 \item{data}{A string to hash}
 }
