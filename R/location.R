@@ -132,7 +132,7 @@ orderly_location_add_path <- function(name, path, root = NULL) {
 ##' @param url The location of the server, including protocol, for
 ##'   example `http://example.com:8080`
 orderly_location_add_http <- function(name, url, root = NULL) {
-  args <- list(name = name, url = url)
+  args <- list(url = url)
   orderly_location_add(name, "http", args, root = root)
 }
 

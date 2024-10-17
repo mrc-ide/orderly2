@@ -101,7 +101,7 @@ test_that("Can work out what packets are missing", {
     root[[name]] <- create_temporary_root()
   }
   ids <- unname(create_random_packet_chain(root$a, 3))
-  orderly_location_add("a", "path", list(path = root$a$path), root = root$b)
+  orderly_location_add_path("a", path = root$a$path, root = root$b)
   orderly_location_pull_metadata(root = root$b)
 
   ## Nothing missing in this case:

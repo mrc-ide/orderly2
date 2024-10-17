@@ -798,23 +798,21 @@ test_that("validate arguments to packit locations", {
     "Field missing from args: 'url'")
 
   expect_error(
-    orderly_location_add("other", "packit",
-                         list(url = "example.com", token = 123),
-                         root = root),
+    orderly_location_add_packit("other", url = "example.com", token = 123,
+                                root = root),
     "Expected 'token' to be character", fixed = TRUE)
 
   expect_error(
-    orderly_location_add("other", "packit",
-                         list(url = "example.com", save_token = "value"),
-                         root = root),
+    orderly_location_add_packit("other", "packit", url = "example.com",
+                                save_token = "value", root = root),
     "Expected 'save_token' to be logical", fixed = TRUE)
 
   expect_error(
-    orderly_location_add("other", "packit",
-                         list(url = "example.com",
-                              token = "xx",
-                              save_token = TRUE),
-                         root = root),
+    orderly_location_add_packit("other",
+                                url = "example.com",
+                                token = "xx",
+                                save_token = TRUE,
+                                root = root),
     "Cannot specify both 'token' and 'save_token'", fixed = TRUE)
 
   expect_equal(orderly_location_list(root = root), "local")

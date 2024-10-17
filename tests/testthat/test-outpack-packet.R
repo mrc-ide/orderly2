@@ -677,8 +677,7 @@ test_that("can pull in dependency from specific location", {
     ids[[name]] <- vcapply(1:3, function(i) {
       create_random_packet(root[[name]], "data", list(p = i))
     })
-    orderly_location_add(name, "path", list(path = root[[name]]$path),
-                         root = root$a)
+    orderly_location_add_path(name, path = root[[name]]$path, root = root$a)
   }
   orderly_location_pull_metadata(root = root$a)
   for (id in ids$z) {
@@ -724,10 +723,8 @@ test_that("can pull in dependency when not found, if requested", {
   ids <- vcapply(1:3, function(i) {
     create_random_packet(root$x, "data", list(p = i))
   })
-  orderly_location_add("x", "path", list(path = root$x$path),
-                       root = root$a)
-  orderly_location_add("x", "path", list(path = root$x$path),
-                       root = root$b)
+  orderly_location_add_path("x", path = root$x$path, root = root$a)
+  orderly_location_add_path("x", path = root$x$path, root = root$b)
 
   path_src_a <- withr::local_tempdir()
   query <- quote(latest(name == "data" && parameter:p > 2))

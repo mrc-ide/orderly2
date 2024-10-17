@@ -3,8 +3,7 @@ test_that("index can include only unpacked packets", {
   for (name in c("src", "dst")) {
     root[[name]] <- create_temporary_root()
   }
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
 
   x1 <- create_random_packet(root$src, "x")
   x2 <- create_random_packet(root$src, "x")
@@ -77,8 +76,7 @@ test_that("can apply a location filter to index", {
   root$a <- create_temporary_root(use_file_store = TRUE)
   for (name in c("x", "y", "z")) {
     root[[name]] <- create_temporary_root(use_file_store = TRUE)
-    orderly_location_add(name, "path", list(path = root[[name]]$path),
-                         root = root$a)
+    orderly_location_add_path(name, path = root[[name]]$path, root = root$a)
   }
 
   ids <- list()

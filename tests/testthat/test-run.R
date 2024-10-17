@@ -763,8 +763,7 @@ test_that("Can select location when querying dependencies for a report", {
       ids[[nm]] <- orderly_run_quietly("data", root = path[[nm]],
                                        envir = new.env())
 
-      orderly_location_add(nm, "path", list(path = path[[nm]]),
-                           root = path[["us"]])
+      orderly_location_add_path(nm, path = path[[nm]], root = path[["us"]])
       orderly_location_pull_metadata(nm, root = path[["us"]])
       for (i in ids[[nm]]) {
         suppressMessages(orderly_location_pull_packet(i, root = path[["us"]]))
@@ -810,8 +809,7 @@ test_that("can select location when querying dependencies interactively", {
     if (nm != "us") {
       ids[[nm]] <- orderly_run_quietly("data", envir = envir1,
                                        root = path[[nm]])
-      orderly_location_add(nm, "path", list(path = path[[nm]]),
-                           root = path[["us"]])
+      orderly_location_add_path(nm, path = path[[nm]], root = path[["us"]])
       orderly_location_pull_metadata(nm, root = path[["us"]])
       for (i in ids[[nm]]) {
         suppressMessages(orderly_location_pull_packet(i, root = path[["us"]]))

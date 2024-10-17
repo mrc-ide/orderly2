@@ -217,8 +217,7 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
   root$a <- create_temporary_root(use_file_store = TRUE)
   for (name in c("x", "y", "z")) {
     root[[name]] <- create_temporary_root(use_file_store = TRUE)
-    orderly_location_add(name, "path", list(path = root[[name]]$path),
-                         root = root$a)
+    orderly_location_add_path(name, path = root[[name]]$path, root = root$a)
   }
 
   ids <- list()
@@ -263,8 +262,7 @@ test_that("scope and allow_local can be used together to filter query", {
   for (name in c("src", "dst")) {
     root[[name]] <- create_temporary_root(use_file_store = TRUE)
   }
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
 
   x1 <- create_random_packet(root$src, "x", list(p = 1))
   x2 <- create_random_packet(root$src, "x", list(p = 1))
@@ -876,7 +874,7 @@ test_that("allow search before query", {
   root <- list()
   root$a <- create_temporary_root(use_file_store = TRUE)
   root$b <- create_temporary_root(use_file_store = TRUE)
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
+  orderly_location_add_path("b", path = root$b$path, root = root$a)
   ids <- vcapply(1:3, function(i) {
     create_random_packet(root$b, "data", list(p = i))
   })
