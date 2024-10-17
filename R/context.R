@@ -62,7 +62,7 @@ orderly_run_info <- function() {
   id <- ctx$packet$id %||% NA_character_
   name <- ctx$name
 
-  root <- root_open(ctx$root, locate = FALSE, require_orderly = TRUE)
+  root <- root_open(ctx$root, require_orderly = TRUE)
 
   deps <- ctx$packet$depends
   deps_n <- vnapply(deps, function(x) nrow(x$files))

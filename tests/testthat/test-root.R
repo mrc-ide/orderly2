@@ -24,7 +24,7 @@ test_that("error of opening an outpack root that is not an orderly root", {
   root <- outpack_init_no_orderly(tmp)
 
   err <- expect_error(
-    withr::with_dir(tmp, root_open(".", FALSE, TRUE)),
+    withr::with_dir(tmp, root_open(".", require_orderly = TRUE)),
     "Did not find 'orderly_config.yml' in '.",
     fixed = TRUE)
   expect_equal(
@@ -41,13 +41,16 @@ test_that("pass back a root", {
   path_outpack <- withr::local_tempfile()
   root_outpack <- outpack_init_no_orderly(path_outpack)
   path_orderly <- test_prepare_orderly_example(character())
-  root_orderly <- root_open(path_orderly, FALSE, TRUE)
+  root_orderly <- root_open(path_orderly, require_orderly = TRUE)
 
-  expect_identical(root_open(root_orderly, FALSE, FALSE), root_orderly)
-  expect_identical(root_open(root_orderly, FALSE, TRUE), root_orderly)
-  expect_identical(root_open(root_outpack, FALSE, FALSE), root_outpack)
+  expect_identical(root_open(root_orderly, require_orderly = FALSE),
+                   root_orderly)
+  expect_identical(root_open(root_orderly, require_orderly = TRUE),
+                   root_orderly)
+  expect_identical(root_open(root_outpack, require_orderly = FALSE),
+                   root_outpack)
   expect_error(
-    root_open(root_outpack, FALSE, TRUE),
+    root_open(root_outpack, require_orderly = TRUE),
     sprintf("Did not find 'orderly_config.yml' in '%s'", root_outpack$path))
 })
 
@@ -149,7 +152,7 @@ test_that("can identify a plain source root", {
 
 test_that("can identify a plain source root from a full root", {
   path <- test_prepare_orderly_example("explicit")
-  root <- root_open(path, FALSE)
+  root <- root_open(path)
   expect_equal(orderly_src_root(root$path, FALSE), root$path)
   expect_equal(orderly_src_root(root, FALSE), root$path)
 })

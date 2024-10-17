@@ -101,7 +101,7 @@ create_temporary_root <- function(...) {
   path <- tempfile()
   withr::defer_parent(fs::dir_delete(path))
   suppressMessages(orderly_init(path, ...))
-  root_open(path, locate = FALSE, require_orderly = FALSE)
+  root_open(path, require_orderly = FALSE)
 }
 
 

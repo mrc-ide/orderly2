@@ -101,7 +101,7 @@ orderly_init <- function(root = ".",
 
   path_outpack <- file.path(root, ".outpack")
   if (file.exists(path_outpack)) {
-    root <- root_open(root, locate = FALSE, require_orderly = FALSE)
+    root <- root_open(root, require_orderly = FALSE)
     root_validate_same_configuration(match.call(), config, root, environment())
   } else {
     fs::dir_create(path_outpack)
@@ -117,8 +117,7 @@ orderly_init <- function(root = ".",
                file.path(root$path, "orderly_config.yml"))
   }
 
-  root <- root_open(root, locate = FALSE, require_orderly = TRUE,
-                    call = environment())
+  root <- root_open(root, require_orderly = TRUE)
 
   invisible(root$path)
 }
@@ -140,8 +139,7 @@ empty_config_contents <- function() {
 ## * also check that the outpack and orderly path are compatibible
 ##   (this is actually quite hard to get right, but should be done
 ##   before anything is created I think)
-root_open <- function(path, locate = TRUE, require_orderly = FALSE,
-                      call = parent.frame()) {
+root_open <- function(path, require_orderly = FALSE, call = parent.frame()) {
   if (is.null(call)) {
     call <- environment()
   }
@@ -152,15 +150,9 @@ root_open <- function(path, locate = TRUE, require_orderly = FALSE,
     ## This is going to error, but the error later will do.
     path <- path$path
   }
-  if (is.null(path)) {
-    path <- getwd()
-    locate <- locate && TRUE
-  } else {
-    locate <- FALSE
-  }
-  assert_scalar_character(path, call = call)
-  assert_is_directory(path, call = call)
+  locate <- is.null(path)
   if (locate) {
+    path <- getwd()
     path_outpack <- find_file_descend(".outpack", path)
     path_orderly <- find_file_descend("orderly_config.yml", path)
     has_outpack <- !is.null(path_outpack)
@@ -182,6 +174,8 @@ root_open <- function(path, locate = TRUE, require_orderly = FALSE,
     }
     path_open <- path_outpack
   } else {
+    assert_scalar_character(path, call = call)
+    assert_is_directory(path, call = call)
     has_outpack <- file.exists(file.path(path, ".outpack"))
     has_orderly <- file.exists(file.path(path, "orderly_config.yml"))
     path_open <- path

@@ -94,7 +94,7 @@ orderly_location_add <- function(name, type, args, root = NULL) {
   loc <- new_location_entry(name, type, args, call = environment())
   if (type == "path") {
     assert_scalar_character(args$path, name = "path")
-    root_open(args$path, locate = FALSE, require_orderly = FALSE)
+    root_open(args$path, require_orderly = FALSE)
   } else if (type == "http") {
     assert_scalar_character(args$url, name = "url")
   } else if (type == "packit") {
