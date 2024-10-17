@@ -52,13 +52,11 @@ test_that("can use user-facing hash functions", {
 
   expect_equal(orderly_hash_data(str, "md5"), hash_data(str, "md5"))
   expect_equal(orderly_hash_data(str, root = root), hash_data(str, "sha256"))
-  expect_equal(orderly_hash_data(str, root = path), hash_data(str, "sha256"))
   expect_equal(withr::with_dir(path, orderly_hash_data(str)),
                hash_data(str, "sha256"))
 
   expect_equal(orderly_hash_file(tmp, "md5"), hash_file(tmp, "md5"))
   expect_equal(orderly_hash_file(tmp, root = root), hash_file(tmp, "sha256"))
-  expect_equal(orderly_hash_file(tmp, root = path), hash_file(tmp, "sha256"))
   expect_equal(withr::with_dir(path, orderly_hash_file(tmp)),
                hash_file(tmp, "sha256"))
 })

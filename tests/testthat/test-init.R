@@ -152,7 +152,7 @@ test_that("inform about weirdly nested roots: orderly in outpack", {
   fs::dir_create(p)
   file.create(file.path(p, "orderly_config.yml"))
   err <- expect_error(
-    withr::with_dir(p, root_open(".", TRUE, TRUE)),
+    withr::with_dir(p, root_open(NULL, require_orderly = TRUE)),
     "Found incorrectly nested orderly and outpack directories")
 
   path_msg <- normalise_path(root$path)
@@ -171,7 +171,7 @@ test_that("inform about weirdly nested roots: orderly in outpack", {
   p <- file.path(tmp, "a", "b")
   root2 <- outpack_init_no_orderly(p)
   err <- expect_error(
-    withr::with_dir(p, root_open(".", TRUE, TRUE)),
+    withr::with_dir(p, root_open(NULL, require_orderly = TRUE)),
     "Found incorrectly nested orderly and outpack directories")
   expect_equal(
     err$body,

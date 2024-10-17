@@ -151,13 +151,15 @@ root_open <- function(path, locate = TRUE, require_orderly = FALSE,
     }
     ## This is going to error, but the error later will do.
     path <- path$path
-    locate <- FALSE
   }
   if (is.null(path)) {
     path <- getwd()
+    locate <- locate && TRUE
+  } else {
+    locate <- FALSE
   }
-  assert_scalar_character(path)
-  assert_is_directory(path)
+  assert_scalar_character(path, call = call)
+  assert_is_directory(path, call = call)
   if (locate) {
     path_outpack <- find_file_descend(".outpack", path)
     path_orderly <- find_file_descend("orderly_config.yml", path)
@@ -175,7 +177,8 @@ root_open <- function(path, locate = TRUE, require_orderly = FALSE,
         i = "{names(order)[[2]]} was found at '{order[[2]]}'",
         x = paste("{names(order)[[2]]} is nested within {names(order)[[1]]}",
                   "at {fs::path_rel(order[[2]], order[[1]])}"),
-        i = "How did you even do this? Please let us know!"))
+        i = "How did you even do this? Please let us know!"),
+        call = call)
     }
     path_open <- path_outpack
   } else {
@@ -212,7 +215,8 @@ root_open <- function(path, locate = TRUE, require_orderly = FALSE,
                   "outpack root, but does not contain 'orderly_config.yml' so",
                   "cannot be used as an orderly root"),
         i = 'Please run orderly2::orderly_init("{path}") to initialise',
-        i = "See ?orderly_init for more arguments to this function"))
+        i = "See ?orderly_init for more arguments to this function"),
+      call = call)
   }
 
   root_check_git(root, call)

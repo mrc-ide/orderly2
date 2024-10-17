@@ -21,12 +21,9 @@ test_that("Can locate an outpack root", {
   p <- file.path(path, "a", "b", "c")
   fs::dir_create(p)
   expect_equal(
-    root_open(p, locate = TRUE, require_orderly = FALSE)$path,
-    root_open(path, locate = FALSE, require_orderly = FALSE)$path)
-  expect_equal(
     withr::with_dir(
       p,
-      root_open(".", locate = TRUE, require_orderly = FALSE)$path),
+      root_open(NULL, locate = TRUE, require_orderly = FALSE)$path),
     root_open(path, locate = FALSE, require_orderly = FALSE)$path)
   expect_identical(
     root_open(root, locate = FALSE, require_orderly = FALSE), root)
