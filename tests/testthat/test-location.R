@@ -15,10 +15,10 @@ test_that("Can add a location", {
     root[[name]] <- create_temporary_root()
   }
 
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
+  orderly_location_add_path("b", path = root$b$path, root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "b"))
 
-  orderly_location_add("c", "path", list(path = root$c$path), root = root$a)
+  orderly_location_add_path("c", path = root$c$path, root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "b", "c"))
 
   res <- orderly_location_list(verbose = TRUE, root = root$a)
@@ -35,8 +35,7 @@ test_that("Can't add a location with reserved name", {
   upstream <- create_temporary_root()
 
   expect_error(
-    orderly_location_add("local", "path", list(path = upstream$path),
-                         root = root),
+    orderly_location_add_path("local", path = upstream$path, root = root),
     "Cannot add a location with reserved name 'local'")
 })
 
@@ -47,11 +46,9 @@ test_that("Can't add a location with existing name", {
     root[[name]] <- create_temporary_root()
   }
 
-  orderly_location_add("upstream", "path", list(path = root$b$path),
-                       root = root$a)
+  orderly_location_add_path("upstream", path = root$b$path, root = root$a)
   expect_error(
-    orderly_location_add("upstream", "path", list(path = root$c$path),
-                         root = root$a),
+    orderly_location_add_path("upstream", path = root$c$path, root = root$a),
     "A location with name 'upstream' already exists")
   expect_equal(orderly_location_list(root = root$a),
                c("local", "upstream"))
@@ -64,11 +61,11 @@ test_that("Require that (for now) locations must be paths", {
 
   other <- temp_file()
   expect_error(
-    orderly_location_add("other", "path", list(path = other), root = root),
+    orderly_location_add_path("other", other, root = root),
     "Directory does not exist:")
   fs::dir_create(other)
   expect_error(
-    orderly_location_add("other", "path", list(path = other), root = root),
+    orderly_location_add_path("other", other, root = root),
     "Did not find existing orderly (or outpack) root in",
     fixed = TRUE)
 })
@@ -80,7 +77,7 @@ test_that("Can rename a location", {
     root[[name]] <- create_temporary_root()
   }
 
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
+  orderly_location_add_path("b", path = root$b$path, root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "b"))
 
   orderly_location_rename("b", "c", root = root$a)
@@ -95,8 +92,8 @@ test_that("Can't rename a location using an existent name", {
     root[[name]] <- create_temporary_root()
   }
 
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
-  orderly_location_add("c", "path", list(path = root$c$path), root = root$a)
+  orderly_location_add_path("b", path = root$b$path, root = root$a)
+  orderly_location_add_path("c", path = root$c$path, root = root$a)
 
   expect_error(orderly_location_rename("b", "c", root$a),
                "A location with name 'c' already exists")
@@ -130,8 +127,8 @@ test_that("Can remove a location", {
     root[[name]] <- create_temporary_root()
   }
 
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
-  orderly_location_add("c", "path", list(path = root$c$path), root = root$a)
+  orderly_location_add_path("b", path = root$b$path, root = root$a)
+  orderly_location_add_path("c", path = root$c$path, root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "b", "c"))
 
   id <- create_random_packet(root$b)
@@ -159,9 +156,9 @@ test_that("Removing a location orphans packets only from that location", {
     root[[name]] <- create_temporary_root()
   }
 
-  orderly_location_add("c", "path", list(path = root$c$path), root = root$b)
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$a)
-  orderly_location_add("c", "path", list(path = root$c$path), root = root$a)
+  orderly_location_add_path("c", path = root$c$path, root = root$b)
+  orderly_location_add_path("b", path = root$b$path, root = root$a)
+  orderly_location_add_path("c", path = root$c$path, root = root$a)
   expect_setequal(orderly_location_list(root = root$a), c("local", "b", "c"))
   expect_setequal(orderly_location_list(root = root$b), c("local", "c"))
 
@@ -201,8 +198,8 @@ test_that("re-adding a location de-orphans packets", {
     root[[name]] <- create_temporary_root()$path
   }
 
-  orderly_location_add("b", "path", list(path = root$b), root = root$a)
-  orderly_location_add("c", "path", list(path = root$c), root = root$a)
+  orderly_location_add_path("b", path = root$b, root = root$a)
+  orderly_location_add_path("c", path = root$c, root = root$a)
 
   id_b <- replicate(2, create_random_packet(root$b))
   id_c <- replicate(3, create_random_packet(root$c))
@@ -215,7 +212,7 @@ test_that("re-adding a location de-orphans packets", {
                  "Orphaning 3 packets")
   expect_equal(nrow(root_open(root$a, FALSE)$index$location(orphan)), 5)
 
-  orderly_location_add("b", "path", list(path = root$b), root = root$a)
+  orderly_location_add_path("b", path = root$b, root = root$a)
   expect_message(orderly_location_pull_metadata(root = root$a),
                  "De-orphaning 2 packets")
 
@@ -247,8 +244,8 @@ test_that("can pull metadata from a file base location", {
   ids <- vcapply(1:3, function(i) create_random_packet(root_upstream$path))
   root_downstream <- create_temporary_root(use_file_store = TRUE)
 
-  orderly_location_add("upstream", "path", list(path = root_upstream$path),
-                       root = root_downstream)
+  orderly_location_add_path("upstream", path = root_upstream$path,
+                            root = root_downstream)
   expect_equal(orderly_location_list(root = root_downstream),
                c("local", "upstream"))
 
@@ -271,8 +268,8 @@ test_that("can pull empty metadata", {
   root_upstream <- create_temporary_root(use_file_store = TRUE)
   root_downstream <- create_temporary_root(use_file_store = TRUE)
 
-  orderly_location_add("upstream", "path", list(path = root_upstream$path),
-                       root = root_downstream)
+  orderly_location_add_path("upstream", path = root_upstream$path,
+                            root = root_downstream)
   orderly_location_pull_metadata("upstream", root = root_downstream)
 
   index <- root_downstream$index$data()
@@ -287,8 +284,7 @@ test_that("pull metadata from subset of locations", {
   root$a <- create_temporary_root(use_file_store = TRUE)
   for (name in c("x", "y", "z")) {
     root[[name]] <- create_temporary_root(use_file_store = TRUE)
-    orderly_location_add(name, "path", list(path = root[[name]]$path),
-                         root = root$a)
+    orderly_location_add_path(name, path = root[[name]]$path, root = root$a)
   }
 
   expect_equal(orderly_location_list(root = root$a),
@@ -350,10 +346,10 @@ test_that("Can pull metadata through chain of locations", {
   ## knowing directly about an earlier location
   ## > a -> b -> c -> d
   ## >      `--------/
-  orderly_location_add("a", "path", list(path = root$a$path), root = root$b)
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$c)
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$d)
-  orderly_location_add("c", "path", list(path = root$c$path), root = root$d)
+  orderly_location_add_path("a", path = root$a$path, root = root$b)
+  orderly_location_add_path("b", path = root$b$path, root = root$c)
+  orderly_location_add_path("b", path = root$b$path, root = root$d)
+  orderly_location_add_path("c", path = root$c$path, root = root$d)
 
   ## Create a packet and make sure it's in both b and c
   id1 <- create_random_packet(root$a)
@@ -390,8 +386,7 @@ test_that("can pull a packet from one location to another, using file store", {
   }
 
   id <- create_random_packet(root$src)
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   suppressMessages(orderly_location_pull_packet(id, root = root$dst))
 
@@ -411,8 +406,7 @@ test_that("can error where a query returns no packets", {
   }
 
   id <- create_random_packet(root$src)
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   err <- expect_error(
     orderly_location_pull_packet(name = "data", root = root$dst),
     "No packets found in query, so cannot pull anything")
@@ -426,8 +420,7 @@ test_that("can pull a packet from one location to another, archive only", {
   }
 
   id <- create_random_packet(root$src)
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   suppressMessages(orderly_location_pull_packet(id, root = root$dst))
 
@@ -455,8 +448,7 @@ test_that("detect and avoid modified files in source repository", {
     id[[i]] <- p$id
   }
 
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
 
   ## Corrupt the file in the first id by truncating it:
@@ -486,8 +478,7 @@ test_that("Do not unpack a packet twice", {
   }
 
   id <- create_random_packet(root$src)
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   expect_equal(
     suppressMessages(orderly_location_pull_packet(id, root = root$dst)),
@@ -506,8 +497,7 @@ test_that("Sensible error if packet not known", {
   }
 
   id <- create_random_packet(root$src)
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   err <- expect_error(
     suppressMessages(orderly_location_pull_packet(id, root = root$dst)),
     sprintf("Failed to find packet '%s'", id),
@@ -526,12 +516,11 @@ test_that("Sensible error if dependent packet not known", {
   }
 
   id <- create_random_packet_chain(root$a, 5)
-  orderly_location_add("a", "path", list(path = root$a$path),
-                       root = root$b)
+  orderly_location_add_path("a", path = root$a$path, root = root$b)
   orderly_location_pull_metadata(root = root$b)
   suppressMessages(orderly_location_pull_packet(id[[5]], root = root$b))
 
-  orderly_location_add("b", "path", list(path = root$b$path),
+  orderly_location_add_path("b", path = root$b$path,
                        root = root$c)
   orderly_location_pull_metadata(root = root$c)
 
@@ -558,8 +547,7 @@ test_that("Can pull a tree recursively", {
   ## This just does a simple graph a -> b -> c
   id <- as.list(create_random_packet_chain(root$src, 3))
 
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   expect_equal(suppressMessages(
     orderly_location_pull_packet(id$c, recursive = TRUE, root = root$dst)),
@@ -580,8 +568,7 @@ test_that("Can resolve locations", {
   for (name in c("dst", "a", "b", "c", "d")) {
     root[[name]] <- create_temporary_root()
     if (name != "dst") {
-      orderly_location_add(name, "path", list(path = root[[name]]$path),
-                           root = root$dst)
+      orderly_location_add_path(name, path = root[[name]]$path, root = root$dst)
     }
   }
 
@@ -635,21 +622,20 @@ test_that("Can filter locations", {
   for (name in c("dst", "a", "b", "c", "d")) {
     root[[name]] <- create_temporary_root()
     if (name != "dst") {
-      orderly_location_add(name, "path", list(path = root[[name]]$path),
-                           root = root$dst)
+      orderly_location_add_path(name, path = root[[name]]$path, root = root$dst)
     }
   }
 
   ids_a <- vcapply(1:3, function(i) create_random_packet(root$a$path))
-  orderly_location_add("a", "path", list(path = root$a$path), root = root$b)
+  orderly_location_add_path("a", path = root$a$path, root = root$b)
   orderly_location_pull_metadata(root = root$b)
   suppressMessages(orderly_location_pull_packet(ids_a, root = root$b))
 
   ids_b <- c(ids_a,
              vcapply(1:3, function(i) create_random_packet(root$b$path)))
   ids_c <- vcapply(1:3, function(i) create_random_packet(root$c$path))
-  orderly_location_add("a", "path", list(path = root$a$path), root = root$d)
-  orderly_location_add("c", "path", list(path = root$c$path), root = root$d)
+  orderly_location_add_path("a", path = root$a$path, root = root$d)
+  orderly_location_add_path("c", path = root$c$path, root = root$d)
   orderly_location_pull_metadata(root = root$d)
   suppressMessages(orderly_location_pull_packet(ids_a, root = root$d))
   suppressMessages(orderly_location_pull_packet(ids_c, root = root$d))
@@ -712,8 +698,7 @@ test_that("can pull from multiple locations with multiple files", {
   for (name in c("dst", "a", "b")) {
     root[[name]] <- create_temporary_root()
     if (name != "dst") {
-      orderly_location_add(name, "path", list(path = root[[name]]$path),
-                           root = root$dst)
+      orderly_location_add_path(name, path = root[[name]]$path, root = root$dst)
     }
   }
 
@@ -761,7 +746,7 @@ test_that("if recursive pulls are required, pulls are recursive by default", {
   id <- create_random_packet_chain(root$src, 3)
 
   for (r in root[c("shallow", "deep")]) {
-    orderly_location_add("src", "path", list(path = root$src$path), root = r)
+    orderly_location_add_path("src", path = root$src$path, root = r)
     orderly_location_pull_metadata(root = r)
   }
 
@@ -816,13 +801,13 @@ test_that("validate arguments to packit locations", {
     orderly_location_add("other", "packit",
                          list(url = "example.com", token = 123),
                          root = root),
-    "Expected 'args$token' to be character", fixed = TRUE)
+    "Expected 'token' to be character", fixed = TRUE)
 
   expect_error(
     orderly_location_add("other", "packit",
                          list(url = "example.com", save_token = "value"),
                          root = root),
-    "Expected 'args$save_token' to be logical", fixed = TRUE)
+    "Expected 'save_token' to be logical", fixed = TRUE)
 
   expect_error(
     orderly_location_add("other", "packit",
@@ -955,8 +940,7 @@ test_that("can pull packets as a result of a query", {
   ids <- vcapply(1:3, function(i) {
     create_random_packet(root$src$path, parameters = list(i = i))
   })
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst$path)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst$path)
   ids_moved <- suppressMessages(
     orderly_location_pull_packet(
       "parameter:i < 3",
@@ -974,8 +958,7 @@ test_that("pull packet sets allow_remote to TRUE if not given", {
   }
 
   id <- create_random_packet(root$src)
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   expect_error(
     orderly_location_pull_packet(NULL, options = list(allow_remote = FALSE),
@@ -987,7 +970,7 @@ test_that("pull packet sets allow_remote to TRUE if not given", {
 test_that("handle metadata where the hash does not match reported", {
   here <- create_temporary_root()
   there <- create_temporary_root()
-  orderly_location_add("server", "path", list(path = there$path), root = here)
+  orderly_location_add_path("server", path = there$path, root = here)
   id <- create_random_packet(there)
 
   path_metadata <- file.path(there$path, ".outpack", "metadata", id)
@@ -1016,8 +999,8 @@ test_that("handle metadata where two locations differ in hash for same id", {
   create_random_packet(root$a, id = id)
   create_random_packet(root$b, id = id)
 
-  orderly_location_add("a", "path", list(path = root$a$path), root = root$us)
-  orderly_location_add("b", "path", list(path = root$b$path), root = root$us)
+  orderly_location_add_path("a", path = root$a$path, root = root$us)
+  orderly_location_add_path("b", path = root$b$path, root = root$us)
 
   orderly_location_pull_metadata(location = "a", root = root$us)
   err <- expect_error(
@@ -1036,7 +1019,7 @@ test_that("avoid duplicated metadata", {
   skip_if_not_installed("mockery")
   here <- create_temporary_root()
   there <- create_temporary_root()
-  orderly_location_add("server", "path", list(path = there$path), root = here)
+  orderly_location_add_path("server", path = there$path, root = here)
   id <- create_random_packet(there)
 
   driver <- location_driver("server", root = here)
@@ -1063,8 +1046,7 @@ test_that("skip files in the file store", {
   }
 
   id <- create_random_packet_chain(root$src, 3)
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   suppressMessages(orderly_location_pull_packet(id[[1]], root = root$dst))
 
@@ -1083,8 +1065,7 @@ test_that("skip files known elsewhere on disk", {
   }
 
   id <- create_random_packet_chain(root$src, 3)
-  orderly_location_add("src", "path", list(path = root$src$path),
-                       root = root$dst)
+  orderly_location_add_path("src", path = root$src$path, root = root$dst)
   orderly_location_pull_metadata(root = root$dst)
   suppressMessages(orderly_location_pull_packet(id[[1]], root = root$dst))
 
@@ -1101,8 +1082,7 @@ test_that("can prune orphans from tree", {
   for (name in c("here", "there")) {
     root[[name]] <- create_temporary_root()
   }
-  orderly_location_add("there", "path", list(path = root$there$path),
-                       root = root$here)
+  orderly_location_add_path("there", path = root$there$path, root = root$here)
   id <- create_random_packet_chain(root$there, 5)
   orderly_location_pull_metadata(root = root$here)
   expect_message(
