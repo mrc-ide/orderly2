@@ -57,7 +57,7 @@ outpack_index <- R6::R6Class(
 
 
 index_update <- function(root_path, prev, skip_cache, progress) {
-  progress <- progress %||% getOption("orderly_index_progress", TRUE)
+  progress <- progress %||% getOption("orderly.index_progress", TRUE)
   path_index <- file.path(root_path, ".outpack", "index", "outpack.rds")
 
   if (length(prev) == 0 && file.exists(path_index) && !skip_cache) {
