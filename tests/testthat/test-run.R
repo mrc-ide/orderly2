@@ -820,8 +820,9 @@ test_that("can select location when querying dependencies interactively", {
   ids[["us"]] <- orderly_run_quietly("data", envir = envir1,
                                      root = path[["us"]])
 
-  orderly_interactive_set_search_options(list(location = "prod"))
-  expect_equal(.interactive$search_options, list(location = "prod"))
+  orderly_interactive_set_search_options(location = "prod")
+  expect_equal(.interactive$search_options,
+               orderly_search_options(location = "prod"))
 
   envir2 <- new.env()
   path_src <- file.path(path[["us"]], "src", "depends")

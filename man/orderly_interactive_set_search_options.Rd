@@ -4,12 +4,33 @@
 \alias{orderly_interactive_set_search_options}
 \title{Set search options for interactive use}
 \usage{
-orderly_interactive_set_search_options(options = NULL)
+orderly_interactive_set_search_options(
+  location = NULL,
+  allow_remote = NULL,
+  pull_metadata = FALSE
+)
 }
 \arguments{
-\item{options}{Optional control over locations, when used
-with \link{orderly_dependency}; see of Details section of
-\link{orderly_run}.}
+\item{location}{Optional vector of locations to pull from. We
+might in future expand this to allow wildcards or exceptions.}
+
+\item{allow_remote}{Logical, indicating if we should allow packets
+to be found that are not currently unpacked (i.e., are known
+only to a location that we have metadata from). If this is
+\code{TRUE}, then in conjunction with \link{orderly_dependency}
+you might pull a large quantity of data.  The default \code{NULL} is
+\code{TRUE} if remote locations are listed explicitly as a character
+vector in the \code{location} argument, or if you have specified
+\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+
+\item{pull_metadata}{Logical, indicating if we should pull
+metadata immediately before the search. If \code{location} is given,
+then we will pass this through to
+\link{orderly_location_pull_metadata} to filter locations
+to update.  If pulling many packets in sequence, you \emph{will} want
+to update this option to \code{FALSE} after the first pull, otherwise
+it will update the metadata between every packet, which will be
+needlessly slow.}
 }
 \value{
 Nothing, called for its side effects
