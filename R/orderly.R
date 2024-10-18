@@ -17,8 +17,8 @@
 ##' @examples
 ##' path <- orderly2::orderly_example("default")
 ##' orderly2::orderly_list_src(root = path)
-orderly_list_src <- function(root = NULL, locate = TRUE) {
-  root_path <- orderly_src_root(root, locate)
+orderly_list_src <- function(root = NULL) {
+  root_path <- orderly_src_root(root)
   if (!file.exists(file.path(root_path, "src"))) {
     return(character())
   }
@@ -51,9 +51,8 @@ orderly_list_src <- function(root = NULL, locate = TRUE) {
 ##'
 ##' @return Nothing, called for its side effects only
 ##' @export
-orderly_new <- function(name, template = NULL, force = FALSE,
-                        root = NULL, locate = TRUE) {
-  root <- root_open(root, locate, require_orderly = TRUE, call = environment())
+orderly_new <- function(name, template = NULL, force = FALSE, root = NULL) {
+  root <- root_open(root, require_orderly = TRUE)
   dest <- file.path(root$path, "src", name)
   existing_entrypoint_filename <- find_entrypoint_filename(
     dest, suppress_zero_files = TRUE

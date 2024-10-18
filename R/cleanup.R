@@ -65,9 +65,8 @@
 ##'
 ##' # Do the actual deletion:
 ##' orderly2::orderly_cleanup("data", root = path)
-orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL,
-                            locate = TRUE) {
-  status <- orderly_cleanup_status(name, root, locate)
+orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL) {
+  status <- orderly_cleanup_status(name, root)
   n <- length(status$delete)
   if (n == 0) {
     cli::cli_alert_success("Nothing to clean")
@@ -93,7 +92,7 @@ orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL,
 
 ##' @export
 ##' @rdname orderly_cleanup
-orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
+orderly_cleanup_status <- function(name = NULL, root = NULL) {
   p <- get_active_packet()
   is_active <- !is.null(p)
   if (is_active) {
@@ -107,7 +106,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL, locate = TRUE) {
     root_path <- detect_orderly_interactive_path(path)
     name <- basename(path)
   } else {
-    root_path <- orderly_src_root(root, locate, call = environment())
+    root_path <- orderly_src_root(root)
     if (is.null(name)) {
       ## This situation would be very odd, just disallow it
       cli::cli_abort("If 'root' is given explicitly, 'name' is required")

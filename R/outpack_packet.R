@@ -23,7 +23,7 @@
 ##' @noRd
 outpack_packet_start <- function(path, name, parameters = NULL, id = NULL,
                                  root = NULL) {
-  root <- root_open(root, locate = FALSE, require_orderly = FALSE)
+  root <- root_open(root, require_orderly = FALSE)
 
   assert_scalar_character(name)
   assert_is_directory(path)

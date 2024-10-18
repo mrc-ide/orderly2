@@ -43,8 +43,8 @@
 ##'
 ##' @export
 orderly_validate_archive <- function(..., action = "inform",
-                                     root = NULL, locate = TRUE) {
-  root <- root_open(root, locate = TRUE, require_orderly = FALSE)
+                                     root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   action <- match_value(action, c("inform", "orphan", "delete", "repair"),
                         call = environment())
 

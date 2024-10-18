@@ -1,7 +1,5 @@
-orderly_graph_packets <- function(from = NULL, to = NULL,
-                                  root = NULL, locate = FALSE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_graph_packets <- function(from = NULL, to = NULL, root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   if (is.null(from) == is.null(to)) {
     cli::cli_abort("Exactly one of 'from' and 'to' must be given")
   }

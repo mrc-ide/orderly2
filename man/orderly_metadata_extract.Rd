@@ -4,7 +4,7 @@
 \alias{orderly_metadata_extract}
 \title{Extract metadata from orderly2 packets}
 \usage{
-orderly_metadata_extract(..., extract = NULL, root = NULL, locate = TRUE)
+orderly_metadata_extract(..., extract = NULL, root = NULL)
 }
 \arguments{
 \item{...}{Arguments passed through to
@@ -17,16 +17,10 @@ ids directly.}
 named. See Details for the format.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
-default) to search for one from the current working directory if
-\code{locate} is \code{TRUE}. This function does not require that the
-directory is configured for orderly, and can be any \code{outpack}
-root (see \link{orderly_init} for details).}
-
-\item{locate}{Logical, indicating if the root should be searched
-for.  If \code{TRUE}, then we looks in the directory given for \code{root}
-(or the working directory if \code{NULL}) and then up through its
-parents until it finds an \code{.outpack} directory or
-\code{orderly_config.yml}}
+default) to search for one from the current working
+directory. This function does not require that the directory is
+configured for orderly, and can be any \code{outpack} root (see
+\link{orderly_init} for details).}
 }
 \value{
 A \code{data.frame}, the columns of which vary based on the

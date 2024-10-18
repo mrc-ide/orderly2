@@ -33,7 +33,7 @@
 ##' @export
 orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
                            options = NULL, root = NULL) {
-  root <- root_open(root, locate = TRUE, require_orderly = FALSE)
+  root <- root_open(root, require_orderly = FALSE)
   query <- as_orderly_query(...)
   options <- as_orderly_search_options(options)
   validate_parameters(parameters, environment())

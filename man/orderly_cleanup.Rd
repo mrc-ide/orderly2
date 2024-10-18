@@ -5,9 +5,9 @@
 \alias{orderly_cleanup_status}
 \title{Clean up source directory}
 \usage{
-orderly_cleanup(name = NULL, dry_run = FALSE, root = NULL, locate = TRUE)
+orderly_cleanup(name = NULL, dry_run = FALSE, root = NULL)
 
-orderly_cleanup_status(name = NULL, root = NULL, locate = TRUE)
+orderly_cleanup_status(name = NULL, root = NULL)
 }
 \arguments{
 \item{name}{Name of the report directory to clean (i.e., we look
@@ -18,15 +18,10 @@ anything, but instead just print information about what we would
 do}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
-default) to search for one from the current working directory if
-\code{locate} is \code{TRUE}. This function \strong{does} require that the
-directory is configured for orderly, and not just outpack (see
+default) to search for one from the current working
+directory. This function \strong{does} require that the directory is
+configured for orderly, and not just outpack (see
 \link{orderly_init} for details).}
-
-\item{locate}{Logical, indicating if the configuration should be
-searched for.  If \code{TRUE} and \code{config} is not given,
-then orderly looks in the working directory and up through its
-parents until it finds an \code{.outpack} directory}
 }
 \value{
 An (currently unstable) object of class

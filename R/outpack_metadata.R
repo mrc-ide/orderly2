@@ -8,25 +8,18 @@
 ##'   this id is not known
 ##'
 ##' @param root The path to the root directory, or `NULL` (the
-##'   default) to search for one from the current working directory if
-##'   `locate` is `TRUE`. This function does not require that the
-##'   directory is configured for orderly, and can be any `outpack`
-##'   root (see [orderly2::orderly_init] for details).
-##'
-##' @param locate Logical, indicating if the root should be searched
-##'   for.  If `TRUE`, then we looks in the directory given for `root`
-##'   (or the working directory if `NULL`) and then up through its
-##'   parents until it finds an `.outpack` directory or
-##'   `orderly_config.yml`
+##'   default) to search for one from the current working
+##'   directory. This function does not require that the directory is
+##'   configured for orderly, and can be any `outpack` root (see
+##'   [orderly2::orderly_init] for details).
 ##'
 ##' @return A list of metadata. See the outpack schema for details
 ##'   (https://github.com/mrc-ide/outpack)
 ##'
 ##' @export
-orderly_metadata <- function(id, root = NULL, locate = FALSE) {
+orderly_metadata <- function(id, root = NULL) {
   validate_outpack_id(id, call = environment())
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+  root <- root_open(root, require_orderly = FALSE)
   path_metadata <- file.path(root$path, ".outpack", "metadata", id)
   if (!file.exists(path_metadata)) {
     cli::cli_abort("Packet '{id}' not found in outpack index")

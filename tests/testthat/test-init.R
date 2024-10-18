@@ -14,7 +14,7 @@ test_that("Can initialise a new orderly root", {
   res <- orderly_init_quietly(tmp)
   expect_true(file.exists(tmp))
   expect_identical(normalise_path(res), normalise_path(tmp))
-  root <- root_open(tmp, FALSE, TRUE)
+  root <- root_open(tmp, require_orderly = TRUE)
   expect_s3_class(root, "outpack_root")
   expect_equal(root$config$orderly,
                list(minimum_orderly_version = numeric_version("1.99.0")))
@@ -34,7 +34,7 @@ test_that("can turn an outpack root into an orderly one", {
   outpack_init_no_orderly(tmp)
 
   orderly_init_quietly(tmp)
-  root2 <- root_open(tmp, FALSE, FALSE)
+  root2 <- root_open(tmp, require_orderly = FALSE)
   expect_equal(root2$config$orderly,
                list(minimum_orderly_version = numeric_version("1.99.0")))
   expect_s3_class(root2, "outpack_root")
@@ -58,7 +58,7 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
       i = "See ?orderly_init for more arguments to this function"))
 
   withr::with_dir(parent, orderly_init_quietly(base))
-  root <- root_open(path, FALSE, TRUE)
+  root <- root_open(path, require_orderly = TRUE)
   expect_true(is_directory(file.path(path, ".outpack")))
 
   id <- withr::with_dir(parent,
@@ -152,7 +152,7 @@ test_that("inform about weirdly nested roots: orderly in outpack", {
   fs::dir_create(p)
   file.create(file.path(p, "orderly_config.yml"))
   err <- expect_error(
-    withr::with_dir(p, root_open(".", TRUE, TRUE)),
+    withr::with_dir(p, root_open(NULL, require_orderly = TRUE)),
     "Found incorrectly nested orderly and outpack directories")
 
   path_msg <- normalise_path(root$path)
@@ -171,7 +171,7 @@ test_that("inform about weirdly nested roots: orderly in outpack", {
   p <- file.path(tmp, "a", "b")
   root2 <- outpack_init_no_orderly(p)
   err <- expect_error(
-    withr::with_dir(p, root_open(".", TRUE, TRUE)),
+    withr::with_dir(p, root_open(NULL, require_orderly = TRUE)),
     "Found incorrectly nested orderly and outpack directories")
   expect_equal(
     err$body,

@@ -7,7 +7,7 @@ orderly_location_path <- R6::R6Class(
 
   public = list(
     initialize = function(path) {
-      private$root <- root_open(path, locate = FALSE, require_orderly = FALSE)
+      private$root <- root_open(path, require_orderly = FALSE)
     },
 
     list = function() {

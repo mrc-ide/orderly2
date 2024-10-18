@@ -10,8 +10,7 @@ orderly_run(
   envir = NULL,
   echo = TRUE,
   search_options = NULL,
-  root = NULL,
-  locate = TRUE
+  root = NULL
 )
 }
 \arguments{
@@ -35,15 +34,10 @@ with \link{orderly_dependency}; converted into a
 \link{orderly_search_options} object, see Details.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
-default) to search for one from the current working directory if
-\code{locate} is \code{TRUE}. This function \strong{does} require that the
-directory is configured for orderly, and not just outpack (see
+default) to search for one from the current working
+directory. This function \strong{does} require that the directory is
+configured for orderly, and not just outpack (see
 \link{orderly_init} for details).}
-
-\item{locate}{Logical, indicating if the configuration should be
-searched for.  If \code{TRUE} and \code{config} is not given,
-then orderly looks in the working directory and up through its
-parents until it finds an \code{.outpack} directory}
 }
 \value{
 The id of the created report (a string)

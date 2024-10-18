@@ -79,9 +79,8 @@
 ##'
 ##' @return Nothing
 ##' @export
-orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_location_add <- function(name, type, args, root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   assert_scalar_character(name, call = environment())
 
   if (name %in% location_reserved_name) {
@@ -95,7 +94,7 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
   loc <- new_location_entry(name, type, args, call = environment())
   if (type == "path") {
     assert_scalar_character(args$path, name = "path")
-    root_open(args$path, locate = FALSE, require_orderly = FALSE)
+    root_open(args$path, require_orderly = FALSE)
   } else if (type == "http") {
     assert_scalar_character(args$url, name = "url")
   } else if (type == "packit") {
@@ -174,9 +173,8 @@ orderly_location_add_packit <- function(name, url, token = NULL,
 ##'
 ##' @return Nothing
 ##' @export
-orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_location_rename <- function(old, new, root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   assert_scalar_character(new, call = call)
 
   if (old %in% location_reserved_name) {
@@ -205,9 +203,8 @@ orderly_location_rename <- function(old, new, root = NULL, locate = TRUE) {
 ##'
 ##' @return Nothing
 ##' @export
-orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_location_remove <- function(name, root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
 
   if (name %in% location_reserved_name) {
     cli::cli_abort("Cannot remove default location '{name}'")
@@ -261,9 +258,8 @@ orderly_location_remove <- function(name, root = NULL, locate = TRUE) {
 ##'   locations listed here.
 ##'
 ##' @export
-orderly_location_list <- function(verbose = FALSE, root = NULL, locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_location_list <- function(verbose = FALSE, root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   if (verbose) {
     root$config$location
   } else {
@@ -289,10 +285,8 @@ orderly_location_list <- function(verbose = FALSE, root = NULL, locate = TRUE) {
 ##' @return Nothing
 ##'
 ##' @export
-orderly_location_pull_metadata <- function(location = NULL, root = NULL,
-                                           locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
                                           include_orphan = FALSE,
@@ -352,9 +346,8 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL,
 ##' @return Invisibly, the ids of packets that were pulled
 ##' @export
 orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
-                                         root = NULL, locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+                                         root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   options <- as_orderly_search_options(options, list(allow_remote = TRUE))
   if (!options$allow_remote) {
     cli::cli_abort(
@@ -449,10 +442,8 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
 ##'   known on the other location).
 ##'
 ##' @export
-orderly_location_push <- function(packet_id, location, root = NULL,
-                                  locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_location_push <- function(packet_id, location, root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
                                           include_orphan = FALSE,

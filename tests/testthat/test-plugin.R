@@ -60,7 +60,7 @@ test_that("Can use custom deserialiser plugin", {
 
   meta <- orderly_metadata(id, root = path)
 
-  root <- root_open(path, locate = FALSE, require_orderly = FALSE)
+  root <- root_open(path, require_orderly = FALSE)
   meta <- orderly_metadata(id, root = root)
   expect_s3_class(meta$custom$example.random, "data.frame")
   expect_equal(meta$custom$example.random,

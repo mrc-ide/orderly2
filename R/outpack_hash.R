@@ -21,11 +21,9 @@
 ##' @export
 ##' @examples
 ##' orderly2::orderly_hash_data("hello", "md5")
-orderly_hash_file <- function(path, algorithm = NULL, root = NULL,
-                              locate = TRUE) {
+orderly_hash_file <- function(path, algorithm = NULL, root = NULL) {
   if (is.null(algorithm)) {
-    root <- root_open(root, locate = locate, require_orderly = FALSE,
-                      call = environment())
+    root <- root_open(root, require_orderly = FALSE)
     algorithm <- root$config$core$hash_algorithm
   }
   hash_file(path, algorithm, call = environment())
@@ -35,11 +33,9 @@ orderly_hash_file <- function(path, algorithm = NULL, root = NULL,
 ##' @param data A string to hash
 ##' @export
 ##' @rdname orderly_hash
-orderly_hash_data <- function(data, algorithm = NULL, root = NULL,
-                              locate = TRUE) {
+orderly_hash_data <- function(data, algorithm = NULL, root = NULL) {
   if (is.null(algorithm)) {
-    root <- root_open(root, locate = locate, require_orderly = FALSE,
-                      call = environment())
+    root <- root_open(root, require_orderly = FALSE)
     algorithm <- root$config$core$hash_algorithm
   }
   hash_data(data, algorithm, call = call)

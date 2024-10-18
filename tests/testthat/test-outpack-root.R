@@ -21,23 +21,20 @@ test_that("Can locate an outpack root", {
   p <- file.path(path, "a", "b", "c")
   fs::dir_create(p)
   expect_equal(
-    root_open(p, locate = TRUE, require_orderly = FALSE)$path,
-    root_open(path, locate = FALSE, require_orderly = FALSE)$path)
-  expect_equal(
     withr::with_dir(
       p,
-      root_open(".", locate = TRUE, require_orderly = FALSE)$path),
-    root_open(path, locate = FALSE, require_orderly = FALSE)$path)
+      root_open(NULL, require_orderly = FALSE)$path),
+    root_open(path, require_orderly = FALSE)$path)
   expect_identical(
-    root_open(root, locate = FALSE, require_orderly = FALSE), root)
+    root_open(root, require_orderly = FALSE), root)
 })
 
 
 test_that("root_open errors if it reaches toplevel", {
-  path <- temp_file()
-  fs::dir_create(path)
+  path <- withr::local_tempdir()
   expect_error(
-    root_open(path, locate = TRUE, require_orderly = FALSE),
+    withr::with_dir(path,
+                    root_open(NULL, require_orderly = FALSE)),
     "Did not find existing orderly (or outpack) root in",
     fixed = TRUE)
 })
@@ -47,16 +44,16 @@ test_that("root_open does not recurse if locate = FALSE", {
   root <- create_temporary_root()
   path <- root$path
   expect_identical(
-    root_open(root, locate = FALSE, require_orderly = FALSE),
+    root_open(root, require_orderly = FALSE),
     root)
   expect_equal(
-    root_open(path, locate = FALSE, require_orderly = FALSE)$path,
+    root_open(path, require_orderly = FALSE)$path,
     path)
 
   p <- file.path(path, "a", "b", "c")
   fs::dir_create(p)
   expect_error(
-    root_open(p, locate = FALSE, require_orderly = FALSE),
+    root_open(p, require_orderly = FALSE),
     "Did not find existing orderly (or outpack) root in",
     fixed = TRUE)
 })
@@ -90,7 +87,7 @@ test_that("can find appropriate root if in working directory with path NULL", {
   root <- create_temporary_root()
   res <- withr::with_dir(
     root$path,
-    root_open(NULL, locate = TRUE, require_orderly = FALSE))
+    root_open(NULL, require_orderly = FALSE))
   expect_equal(res$path, root$path)
 })
 

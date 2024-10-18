@@ -101,7 +101,7 @@ orderly_init <- function(root = ".",
 
   path_outpack <- file.path(root, ".outpack")
   if (file.exists(path_outpack)) {
-    root <- root_open(root, locate = FALSE, require_orderly = FALSE)
+    root <- root_open(root, require_orderly = FALSE)
     root_validate_same_configuration(match.call(), config, root, environment())
   } else {
     fs::dir_create(path_outpack)
@@ -117,8 +117,7 @@ orderly_init <- function(root = ".",
                file.path(root$path, "orderly_config.yml"))
   }
 
-  root <- root_open(root, locate = FALSE, require_orderly = TRUE,
-                    call = environment())
+  root <- root_open(root, require_orderly = TRUE)
 
   invisible(root$path)
 }
@@ -140,24 +139,17 @@ empty_config_contents <- function() {
 ## * also check that the outpack and orderly path are compatibible
 ##   (this is actually quite hard to get right, but should be done
 ##   before anything is created I think)
-root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
-  if (is.null(call)) {
-    call <- environment()
-  }
+root_open <- function(path, require_orderly, call = parent.frame()) {
   if (inherits(path, "outpack_root")) {
     if (!require_orderly || !is.null(path$config$orderly)) {
       return(path)
     }
     ## This is going to error, but the error later will do.
     path <- path$path
-    locate <- FALSE
   }
-  if (is.null(path)) {
-    path <- getwd()
-  }
-  assert_scalar_character(path)
-  assert_is_directory(path)
+  locate <- is.null(path)
   if (locate) {
+    path <- getwd()
     path_outpack <- find_file_descend(".outpack", path)
     path_orderly <- find_file_descend("orderly_config.yml", path)
     has_outpack <- !is.null(path_outpack)
@@ -174,10 +166,13 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
         i = "{names(order)[[2]]} was found at '{order[[2]]}'",
         x = paste("{names(order)[[2]]} is nested within {names(order)[[1]]}",
                   "at {fs::path_rel(order[[2]], order[[1]])}"),
-        i = "How did you even do this? Please let us know!"))
+        i = "How did you even do this? Please let us know!"),
+        call = call)
     }
     path_open <- path_outpack
   } else {
+    assert_scalar_character(path, call = call)
+    assert_is_directory(path, call = call)
     has_outpack <- file.exists(file.path(path, ".outpack"))
     has_orderly <- file.exists(file.path(path, "orderly_config.yml"))
     path_open <- path
@@ -211,7 +206,8 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
                   "outpack root, but does not contain 'orderly_config.yml' so",
                   "cannot be used as an orderly root"),
         i = 'Please run orderly2::orderly_init("{path}") to initialise',
-        i = "See ?orderly_init for more arguments to this function"))
+        i = "See ?orderly_init for more arguments to this function"),
+      call = call)
   }
 
   root_check_git(root, call)
@@ -220,7 +216,7 @@ root_open <- function(path, locate, require_orderly = FALSE, call = NULL) {
 }
 
 
-orderly_src_root <- function(path, locate, call = NULL) {
+orderly_src_root <- function(path, locate = TRUE, call = parent.frame()) {
   if (inherits(path, "outpack_root")) {
     path <- path$path
     locate <- FALSE

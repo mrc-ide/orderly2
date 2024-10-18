@@ -983,7 +983,7 @@ test_that("nice error if running nonexistant report", {
 
 test_that("validation of orderly directories", {
   path <- test_prepare_orderly_example(character())
-  root <- root_open(path, FALSE, TRUE)
+  root <- root_open(path, require_orderly = TRUE)
   nms <- sprintf("example_%s", letters[1:8])
   fs::dir_create(file.path(path, "src", nms))
   file.create(file.path(path, "src", nms, sprintf("%s.R", nms)))
@@ -1039,7 +1039,7 @@ test_that("validation of orderly directories", {
 
 test_that("strip extraneous path components from orderly path", {
   path <- test_prepare_orderly_example(character())
-  root <- root_open(path, FALSE, TRUE)
+  root <- root_open(path, require_orderly = TRUE)
 
   fs::dir_create(file.path(path, "src", "example_a"))
   file.create(file.path(path, "src", "example_a", "example_a.R"))

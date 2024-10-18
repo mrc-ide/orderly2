@@ -207,16 +207,16 @@ test_that("re-adding a location de-orphans packets", {
 
   expect_message(orderly_location_remove("b", root = root$a),
                  "Orphaning 2 packets")
-  expect_equal(nrow(root_open(root$a, FALSE)$index$location(orphan)), 2)
+  expect_equal(nrow(root_open(root$a)$index$location(orphan)), 2)
   expect_message(orderly_location_remove("c", root = root$a),
                  "Orphaning 3 packets")
-  expect_equal(nrow(root_open(root$a, FALSE)$index$location(orphan)), 5)
+  expect_equal(nrow(root_open(root$a)$index$location(orphan)), 5)
 
   orderly_location_add_path("b", path = root$b, root = root$a)
   expect_message(orderly_location_pull_metadata(root = root$a),
                  "De-orphaning 2 packets")
 
-  expect_equal(nrow(root_open(root$a, FALSE)$index$location(orphan)), 3)
+  expect_equal(nrow(root_open(root$a)$index$location(orphan)), 3)
 })
 
 

@@ -197,10 +197,8 @@
 ##'   names of `extract`; see Details for more information.
 ##'
 ##' @export
-orderly_metadata_extract <- function(..., extract = NULL, root = NULL,
-                                     locate = TRUE) {
-  root <- root_open(root, locate = locate, require_orderly = FALSE,
-                    call = environment())
+orderly_metadata_extract <- function(..., extract = NULL, root = NULL) {
+  root <- root_open(root, require_orderly = FALSE)
   if (dots_is_literal_id(...)) {
     ids <- ..1
   } else {
