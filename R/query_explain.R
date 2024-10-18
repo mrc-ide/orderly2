@@ -6,6 +6,7 @@
 ##' @title Explain a query
 ##'
 ##' @inheritParams orderly_search
+##' @inheritParams orderly_search_options
 ##'
 ##' @return An object of class `orderly_query_explain`, which can be
 ##'   inspected (contents subject to change) and which has a print
@@ -16,10 +17,15 @@
 orderly_query_explain <- function(expr, name = NULL, scope = NULL,
                                   subquery = NULL, parameters = NULL,
                                   envir = parent.frame(),
-                                  options = NULL, root = NULL) {
+                                  location = NULL,
+                                  allow_remote = NULL,
+                                  pull_metadata = FALSE,
+                                  root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   query <- as_orderly_query(expr, name, scope, subquery)
-  options <- as_orderly_search_options(options)
+  options <- orderly_search_options(location = location,
+                                    allow_remote = allow_remote,
+                                    pull_metadata = pull_metadata)
   found <- orderly_search(query, parameters = parameters, envir = envir,
                           options = options, root = root)
   query_simplified <- query_simplify(query)
