@@ -714,3 +714,12 @@ fill_missing_names <- function(x) {
   }
   x
 }
+
+
+orderly_quiet <- function(quiet, call = parent.frame()) {
+  if (is.null(quiet)) {
+    getOption("orderly.quiet", FALSE)
+  } else {
+    assert_scalar_logical(quiet, call = call)
+  }
+}
