@@ -53,34 +53,41 @@ orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
 ##' @param location Optional vector of locations to pull from. We
 ##'   might in future expand this to allow wildcards or exceptions.
 ##'
-##' @param allow_remote Logical, indicating if we should allow
-##'   packets to be found that are not currently unpacked (i.e., are
-##'   known only to a location that we have metadata from). If this is
-##'   `TRUE`, then in conjunction with
-##'   [orderly2::orderly_dependency] you might pull a large
-##'   quantity of data.
+##' @param allow_remote Logical, indicating if we should allow packets
+##'   to be found that are not currently unpacked (i.e., are known
+##'   only to a location that we have metadata from). If this is
+##'   `TRUE`, then in conjunction with [orderly2::orderly_dependency]
+##'   you might pull a large quantity of data.  The default `NULL` is
+##'   `TRUE` if locations are listed explicitly as a character vector
+##'   in the `location` argument, otherwise `FALSE`.
 ##'
 ##' @param pull_metadata Logical, indicating if we should pull
-##'   metadata immediately before the search. If `location` is
-##'   given, then we will pass this through to
-##'   [orderly2::orderly_location_pull_metadata] to filter locations to
-##'   update.  If pulling many packets in sequence, you *will* want to
-##'   update this option to `FALSE` after the first pull.
+##'   metadata immediately before the search. If `location` is given,
+##'   then we will pass this through to
+##'   [orderly2::orderly_location_pull_metadata] to filter locations
+##'   to update.  If pulling many packets in sequence, you *will* want
+##'   to update this option to `FALSE` after the first pull, otherwise
+##'   it will update the metadata between every packet, which will be
+##'   needlessly slow.
 ##'
 ##' @return An object of class `orderly_search_options` which should
 ##'   not be modified after creation (but see note about `pull_metadata`)
 ##'
 ##' @export
 orderly_search_options <- function(location = NULL,
-                                   allow_remote = FALSE,
+                                   allow_remote = NULL,
                                    pull_metadata = FALSE) {
   ## TODO: Later, we might allow something like "before" here too to
   ## control searching against some previous time on a location.
   if (!is.null(location)) {
-    assert_character(location, call = environment())
+    assert_character(location)
   }
-  assert_scalar_logical(allow_remote, call = environment())
-  assert_scalar_logical(pull_metadata, call = environment())
+  if (is.null(allow_remote)) {
+    allow_remote <- !is.null(location)
+  } else {
+    assert_scalar_logical(allow_remote)
+  }
+  assert_scalar_logical(pull_metadata)
   ret <- list(location = location,
               allow_remote = allow_remote,
               pull_metadata = pull_metadata)

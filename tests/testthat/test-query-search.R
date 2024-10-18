@@ -8,7 +8,6 @@ test_that("can construct search options", {
          pull_metadata = FALSE))
 
   opts <- orderly_search_options(location = c("x", "y"),
-                                 allow_remote = TRUE,
                                  pull_metadata = TRUE)
   expect_s3_class(opts, "orderly_search_options")
   expect_mapequal(
@@ -26,7 +25,8 @@ test_that("can convert into search options", {
   expect_equal(as_orderly_search_options(NULL),
                orderly_search_options())
   expect_equal(as_orderly_search_options(list(location = "x")),
-               modifyList(orderly_search_options(), list(location = "x")))
+               modifyList(orderly_search_options(),
+                          list(location = "x", allow_remote = TRUE)))
   expect_equal(as_orderly_search_options(unclass(opts)),
                opts)
   expect_equal(as_orderly_search_options(NULL, list(allow_remote = TRUE)),
