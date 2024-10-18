@@ -9,7 +9,9 @@ orderly_run(
   parameters = NULL,
   envir = NULL,
   echo = TRUE,
-  search_options = NULL,
+  location = NULL,
+  allow_remote = NULL,
+  pull_metadata = FALSE,
   root = NULL
 )
 }
@@ -29,9 +31,26 @@ may not always be what is wanted.}
 \item{echo}{Optional logical to control printing output from
 \code{source()} to the console.}
 
-\item{search_options}{Optional control over locations, when used
-with \link{orderly_dependency}; converted into a
-\link{orderly_search_options} object, see Details.}
+\item{location}{Optional vector of locations to pull from. We
+might in future expand this to allow wildcards or exceptions.}
+
+\item{allow_remote}{Logical, indicating if we should allow packets
+to be found that are not currently unpacked (i.e., are known
+only to a location that we have metadata from). If this is
+\code{TRUE}, then in conjunction with \link{orderly_dependency}
+you might pull a large quantity of data.  The default \code{NULL} is
+\code{TRUE} if remote locations are listed explicitly as a character
+vector in the \code{location} argument, or if you have specified
+\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+
+\item{pull_metadata}{Logical, indicating if we should pull
+metadata immediately before the search. If \code{location} is given,
+then we will pass this through to
+\link{orderly_location_pull_metadata} to filter locations
+to update.  If pulling many packets in sequence, you \emph{will} want
+to update this option to \code{FALSE} after the first pull, otherwise
+it will update the metadata between every packet, which will be
+needlessly slow.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working
@@ -107,8 +126,7 @@ locations are pulled from.
 
 
 The above location handling generalises orderly (v1)'s old
-\code{use_draft} option, in terms of the \code{location} argument to
-orderly2::orderly_search_options`:
+\code{use_draft} option, in terms of the new \code{location} argument:
 \itemize{
 \item \code{use_draft = TRUE} is \code{location = "local"}
 \item \code{use_draft = FALSE} is \code{location = c(...)} where you should provide
@@ -121,7 +139,7 @@ all locations \emph{except} local
 default behaviour). In addition, you could resolve dependencies
 as they currently exist on production right now with the options:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{location = "production", pull_metadata = TRUE, require_unpacked = FALSE
+\if{html}{\out{<div class="sourceCode">}}\preformatted{location = "production", pull_metadata = TRUE
 }\if{html}{\out{</div>}}
 
 which updates your current metadata from production, then runs

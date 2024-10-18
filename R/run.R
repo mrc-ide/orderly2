@@ -58,8 +58,7 @@
 ##' @section Equivalence to the old `use_draft` option:
 ##'
 ##' The above location handling generalises orderly (v1)'s old
-##'   `use_draft` option, in terms of the `location` argument to
-##'   orderly2::orderly_search_options`:
+##'   `use_draft` option, in terms of the new `location` argument:
 ##'
 ##' * `use_draft = TRUE` is `location = "local"`
 ##' * `use_draft = FALSE` is `location = c(...)` where you should provide
@@ -72,7 +71,7 @@
 ##'   as they currently exist on production right now with the options:
 ##'
 ##' ```
-##' location = "production", pull_metadata = TRUE, require_unpacked = FALSE
+##' location = "production", pull_metadata = TRUE
 ##' ```
 ##'
 ##' which updates your current metadata from production, then runs
@@ -127,9 +126,7 @@
 ##' @param echo Optional logical to control printing output from
 ##'   `source()` to the console.
 ##'
-##' @param search_options Optional control over locations, when used
-##'   with [orderly2::orderly_dependency]; converted into a
-##'   [orderly2::orderly_search_options] object, see Details.
+##' @inheritParams orderly_search
 ##'
 ##' @param root The path to the root directory, or `NULL` (the
 ##'   default) to search for one from the current working
@@ -153,7 +150,8 @@
 ##' # and we can query the metadata:
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
-                        search_options = NULL, root = NULL) {
+                        location = NULL, allow_remote = NULL,
+                        pull_metadata = FALSE, root = NULL) {
   env_root_src <- Sys.getenv("ORDERLY_SRC_ROOT", NA_character_)
   root <- root_open(root, require_orderly = is.na(env_root_src),
                     call = environment())
@@ -174,6 +172,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   entrypoint_filename <- dat$entrypoint_filename
   parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
+
+  search_options <- orderly_search_options(location = location,
+                                           allow_remote = allow_remote,
+                                           pull_metadata = pull_metadata)
 
   id <- outpack_id()
   path <- file.path(root_src, "draft", name, id)
