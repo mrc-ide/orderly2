@@ -29,21 +29,19 @@
 ##'
 ##' @title Validate unpacked packets.
 ##'
-##' @param ... Either arguments that a search can be constructed from
-##'   (useful options here include `name = "something"`), a character
-##'   vector of ids, or leave empty to validate everything.
-##'
 ##' @param action The action to take on finding an invalid packet. See
 ##'   Details.
 ##'
 ##' @inheritParams orderly_metadata
+##' @inheritParams orderly_search
+##' @inheritParams orderly_search_options
 ##'
 ##' @return Invisibly, a character vector of repaired (or invalid)
 ##'   packets.
 ##'
 ##' @export
-orderly_validate_archive <- function(..., action = "inform",
-                                     root = NULL) {
+orderly_validate_archive <- function(expr = NULL, name = NULL,
+                                     action = "inform", root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   action <- match_value(action, c("inform", "orphan", "delete", "repair"),
                         call = environment())
@@ -52,11 +50,12 @@ orderly_validate_archive <- function(..., action = "inform",
     cli::cli_abort("You have no archive to validate")
   }
 
-  if (dots_is_literal_id(...)) {
-    ids <- ..1
+  if (expr_is_literal_id(expr, name)) {
+    ids <- expr
   } else {
-    options <- orderly_search_options(location = local)
-    ids <- orderly_search(..., options = options, root = root)
+    ## TODO:  we may drop options here
+    options <- orderly_search_options(location = "local", allow_remote = FALSE)
+    ids <- orderly_search(expr, name = name, options = options, root = root)
   }
 
   cache <- new.env(parent = emptyenv())

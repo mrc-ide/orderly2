@@ -4,12 +4,19 @@
 \alias{orderly_validate_archive}
 \title{Validate unpacked packets.}
 \usage{
-orderly_validate_archive(..., action = "inform", root = NULL)
+orderly_validate_archive(
+  expr = NULL,
+  name = NULL,
+  action = "inform",
+  root = NULL
+)
 }
 \arguments{
-\item{...}{Either arguments that a search can be constructed from
-(useful options here include \code{name = "something"}), a character
-vector of ids, or leave empty to validate everything.}
+\item{expr}{The query expression. A \code{NULL} expression matches everything.}
+
+\item{name}{Optionally, the name of the packet to scope the query on. This
+will be intersected with \code{scope} arg and is a shorthand way of running
+\code{scope = list(name = "name")}}
 
 \item{action}{The action to take on finding an invalid packet. See
 Details.}
