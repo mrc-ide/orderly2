@@ -346,7 +346,7 @@ orderly_location_pull_packet <- function(expr,
                                     allow_remote = TRUE,
                                     pull_metadata = pull_metadata)
 
-  if (is.character(expr) && is.null(name) && all(grepl(re_id, expr))) {
+  if (expr_is_literal_id(expr, name)) {
     ids <- expr
   } else {
     ## TODO:  we may drop options here

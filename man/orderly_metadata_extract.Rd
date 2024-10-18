@@ -4,14 +4,43 @@
 \alias{orderly_metadata_extract}
 \title{Extract metadata from orderly2 packets}
 \usage{
-orderly_metadata_extract(..., extract = NULL, root = NULL)
+orderly_metadata_extract(
+  expr = NULL,
+  name = NULL,
+  location = NULL,
+  allow_remote = NULL,
+  pull_metadata = FALSE,
+  extract = NULL,
+  root = NULL
+)
 }
 \arguments{
-\item{...}{Arguments passed through to
-\link{orderly_search}. In the special case where the first
-argument is a character vector of ids \emph{and} there are no named
-dot arguments, then we interpret this argument as a vector of
-ids directly.}
+\item{expr}{The query expression. A \code{NULL} expression matches everything.}
+
+\item{name}{Optionally, the name of the packet to scope the query on. This
+will be intersected with \code{scope} arg and is a shorthand way of running
+\code{scope = list(name = "name")}}
+
+\item{location}{Optional vector of locations to pull from. We
+might in future expand this to allow wildcards or exceptions.}
+
+\item{allow_remote}{Logical, indicating if we should allow packets
+to be found that are not currently unpacked (i.e., are known
+only to a location that we have metadata from). If this is
+\code{TRUE}, then in conjunction with \link{orderly_dependency}
+you might pull a large quantity of data.  The default \code{NULL} is
+\code{TRUE} if remote locations are listed explicitly as a character
+vector in the \code{location} argument, or if you have specified
+\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+
+\item{pull_metadata}{Logical, indicating if we should pull
+metadata immediately before the search. If \code{location} is given,
+then we will pass this through to
+\link{orderly_location_pull_metadata} to filter locations
+to update.  If pulling many packets in sequence, you \emph{will} want
+to update this option to \code{FALSE} after the first pull, otherwise
+it will update the metadata between every packet, which will be
+needlessly slow.}
 
 \item{extract}{A character vector of columns to extract, possibly
 named. See Details for the format.}

@@ -55,6 +55,13 @@ dots_is_literal_id <- function(...) {
 }
 
 
+expr_is_literal_id <- function(expr, ...) {
+  all(vlapply(list(...), is.null)) &&
+    is.character(expr) &&
+    all(grepl(re_id, expr))
+}
+
+
 as_orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL,
                              arg = "expr", call = parent.frame()) {
   if (missing(expr)) {
