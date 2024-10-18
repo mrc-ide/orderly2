@@ -121,6 +121,8 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
 ##' @param path The path to the other archive root. This should
 ##'   generally be an absolute path, or the behaviour of outpack will
 ##'   be unreliable.
+##'
+##' @export
 orderly_location_add_path <- function(name, path, root = NULL) {
   args <- list(path = path)
   orderly_location_add(name, "path", args, root = root)
@@ -131,6 +133,8 @@ orderly_location_add_path <- function(name, path, root = NULL) {
 ##'
 ##' @param url The location of the server, including protocol, for
 ##'   example `http://example.com:8080`
+##'
+##' @export
 orderly_location_add_http <- function(name, url, root = NULL) {
   args <- list(url = url)
   orderly_location_add(name, "http", args, root = root)
@@ -147,6 +151,8 @@ orderly_location_add_http <- function(name, url, root = NULL) {
 ##' @param save_token If no token is provided and interactive
 ##'   authentication is used, this controls whether the GitHub token
 ##'   should be saved to disk.  Defaults to `TRUE` if `NULL`.
+##'
+##' @export
 orderly_location_add_packit <- function(name, url, token = NULL,
                                         save_token = NULL, root = NULL) {
   args <- list(url = url, token = token, save_token = save_token)
