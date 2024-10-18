@@ -72,6 +72,8 @@
 ##'   typically what you want, but set to `FALSE` if you would prefer
 ##'   that an error be thrown if the destination file already exists.
 ##'
+##' @param ... Additional arguments passed through to [orderly_search]
+##'
 ##' @inheritParams orderly_search
 ##' @inheritParams orderly_metadata
 ##'

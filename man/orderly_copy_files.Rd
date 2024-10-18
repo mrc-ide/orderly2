@@ -15,6 +15,8 @@ orderly_copy_files(
 )
 }
 \arguments{
+\item{...}{Additional arguments passed through to \link{orderly_search}}
+
 \item{files}{Files to copy from the other packet. This can be (1)
 a character vector, in which case files are copied over without
 changing their names, (2) a \strong{named} character vector, in which
