@@ -294,7 +294,7 @@ test_that("scope and allow_local can be used together to filter query", {
                   root = root$dst),
     x2)
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), allow_remote = FALSE,,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = FALSE,
                   scope = quote(name == "x"),
                   root = root$dst),
     NA_character_)
