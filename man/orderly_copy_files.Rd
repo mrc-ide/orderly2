@@ -15,9 +15,6 @@ orderly_copy_files(
 )
 }
 \arguments{
-\item{...}{Arguments passed through to \link{orderly_query},
-perhaps just a query expression}
-
 \item{files}{Files to copy from the other packet. This can be (1)
 a character vector, in which case files are copied over without
 changing their names, (2) a \strong{named} character vector, in which

@@ -46,9 +46,6 @@ default) to search for one from the current working
 directory. This function does not require that the directory is
 configured for orderly, and can be any \code{outpack} root (see
 \link{orderly_init} for details).}
-
-\item{...}{Arguments passed through to \link{orderly_query},
-perhaps just a query expression}
 }
 \value{
 A character vector of matching ids. In the case of no

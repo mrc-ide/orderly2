@@ -7,9 +7,6 @@
 ##'
 ##' @title Query outpack's database
 ##'
-##' @param ... Arguments passed through to [orderly2::orderly_query],
-##'   perhaps just a query expression
-##'
 ##' @param parameters Optionally, a named list of parameters to substitute
 ##'   into the query (using the `this:` prefix)
 ##'
