@@ -82,7 +82,8 @@ orderly_init <- function(root = ".",
                    ".vscode",
                    ".Rhistory", ".RData", "*.Rproj", ".Rproj.user")
       contents <- dir(root, all.files = TRUE, no.. = TRUE)
-      m <- vapply(glob2rx(allowed), grepl, logical(length(contents)), contents)
+      m <- vapply(utils::glob2rx(allowed), grepl, logical(length(contents)),
+                  contents)
       if (!is.matrix(m)) { # exactly one file to compare
         m <- rbind(m)
       }
