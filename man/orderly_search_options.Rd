@@ -19,8 +19,8 @@ to be found that are not currently unpacked (i.e., are known
 only to a location that we have metadata from). If this is
 \code{TRUE}, then in conjunction with \link{orderly_dependency}
 you might pull a large quantity of data.  The default \code{NULL} is
-\code{TRUE} if locations are listed explicitly as a character vector
-in the \code{location} argument, or if you have specified
+\code{TRUE} if remote locations are listed explicitly as a character
+vector in the \code{location} argument, or if you have specified
 \code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
 
 \item{pull_metadata}{Logical, indicating if we should pull

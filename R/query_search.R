@@ -57,8 +57,8 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##'   only to a location that we have metadata from). If this is
 ##'   `TRUE`, then in conjunction with [orderly2::orderly_dependency]
 ##'   you might pull a large quantity of data.  The default `NULL` is
-##'   `TRUE` if locations are listed explicitly as a character vector
-##'   in the `location` argument, or if you have specified
+##'   `TRUE` if remote locations are listed explicitly as a character
+##'   vector in the `location` argument, or if you have specified
 ##'   `pull_metadata = TRUE`, otherwise `FALSE`.
 ##'
 ##' @param pull_metadata Logical, indicating if we should pull
@@ -82,9 +82,12 @@ orderly_search_options <- function(location = NULL,
   if (!is.null(location)) {
     assert_character(location)
   }
+  has_remote_location <- !is.null(location) &&
+    length(setdiff(location, c("local", "orphan")) > 0)
+
   assert_scalar_logical(pull_metadata)
   if (is.null(allow_remote)) {
-    allow_remote <- !is.null(location) || pull_metadata
+    allow_remote <- has_remote_location || pull_metadata
   } else {
     assert_scalar_logical(allow_remote)
   }

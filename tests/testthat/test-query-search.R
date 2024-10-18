@@ -26,6 +26,18 @@ test_that("pull_metadata implies allow_remote", {
 })
 
 
+test_that("nontrivial location implies allow_remote", {
+  expect_false(orderly_search_options(location = NULL)$allow_remote)
+  expect_false(orderly_search_options(location = "local")$allow_remote)
+  expect_false(
+    orderly_search_options(location = c("local", "orphan"))$allow_remote)
+  expect_true(
+    orderly_search_options(location = "server")$allow_remote)
+  expect_true(
+    orderly_search_options(location = c("local", "server"))$allow_remote)
+})
+
+
 test_that("can convert into search options", {
   opts <- orderly_search_options(location = "x",
                                  allow_remote = FALSE,
