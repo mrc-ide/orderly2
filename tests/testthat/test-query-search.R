@@ -18,6 +18,14 @@ test_that("can construct search options", {
 })
 
 
+test_that("pull_metadata implies allow_remote", {
+  opts <- orderly_search_options(pull_metadata = TRUE)
+  expect_equal(opts, orderly_search_options(location = NULL,
+                                            allow_remote = TRUE,
+                                            pull_metadata = TRUE))
+})
+
+
 test_that("can convert into search options", {
   opts <- orderly_search_options(location = "x",
                                  allow_remote = FALSE,
