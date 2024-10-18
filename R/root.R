@@ -139,10 +139,7 @@ empty_config_contents <- function() {
 ## * also check that the outpack and orderly path are compatibible
 ##   (this is actually quite hard to get right, but should be done
 ##   before anything is created I think)
-root_open <- function(path, require_orderly = FALSE, call = parent.frame()) {
-  if (is.null(call)) {
-    call <- environment()
-  }
+root_open <- function(path, require_orderly, call = parent.frame()) {
   if (inherits(path, "outpack_root")) {
     if (!require_orderly || !is.null(path$config$orderly)) {
       return(path)
