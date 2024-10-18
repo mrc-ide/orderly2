@@ -176,7 +176,7 @@ Bob can now query for packets available on the server:
 ```{r, as = "bob", orderly_root = path_bob}
 orderly2::orderly_metadata_extract(
   name = "data",
-  options = list(allow_remote = TRUE, pull_metadata = TRUE))
+  allow_remote = TRUE, pull_metadata = TRUE)
 ```
 
 Having seen there is a new "data" packet here, he can pull this down locally (TODO: mrc-4414 makes this nicer):
