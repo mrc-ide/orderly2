@@ -179,7 +179,9 @@ outpack_packet_use_dependency <- function(packet, query, files,
   if (is.na(id)) {
     explanation <- orderly_query_explain(
       query, parameters = packet$parameters, envir = envir,
-      options = search_options, root = packet$root)
+      location = search_options$location,
+      allow_remote = search_options$allow_remote,
+      root = packet$root)
     cli::cli_abort(
       c("Failed to find packet for query '{format(query)}'",
         i = "See 'rlang::last_error()$explanation' for details"),

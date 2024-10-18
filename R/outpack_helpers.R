@@ -117,7 +117,9 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
     }
     if (length(id) == 0 || is.na(id)) {
       explanation <- orderly_query_explain(
-        expr, name = name, parameters = parameters, options = options,
+        expr, name = name, parameters = parameters,
+        location = options$location,
+        allow_remote = options$allow_remote,
         envir = envir, root = root)
       cli::cli_abort(
         c("Query returned 0 results",
