@@ -24,6 +24,7 @@
 ##'   options are used (i.e., `orderly2::orderly_search_options()`)
 ##'
 ##' @inheritParams orderly_metadata
+##' @inheritParams orderly_query
 ##'
 ##' @return A character vector of matching ids. In the case of no
 ##'   match from a query returning a single value (e.g., `latest(...)`
@@ -31,10 +32,11 @@
 ##'   (`NA_character_`)
 ##'
 ##' @export
-orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
+orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
+                           parameters = NULL, envir = parent.frame(),
                            options = NULL, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  query <- as_orderly_query(...)
+  query <- as_orderly_query(expr, name, scope, subquery)
   options <- as_orderly_search_options(options)
   validate_parameters(parameters, environment())
   orderly_query_eval(query, parameters, envir, options, root,

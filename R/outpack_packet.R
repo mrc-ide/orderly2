@@ -161,7 +161,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
                                           search_options = NULL,
                                           overwrite = TRUE) {
   packet <- check_current_packet(packet)
-  query <- as_orderly_query(query)
+  query <- as_orderly_query(query, arg = "query")
   search_options <- as_orderly_search_options(search_options)
 
   if (!query$info$single) {

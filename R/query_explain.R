@@ -13,11 +13,12 @@
 ##'   result.
 ##'
 ##' @export
-orderly_query_explain <- function(..., parameters = NULL,
+orderly_query_explain <- function(expr, name = NULL, scope = NULL,
+                                  subquery = NULL, parameters = NULL,
                                   envir = parent.frame(),
                                   options = NULL, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  query <- as_orderly_query(...)
+  query <- as_orderly_query(expr, name, scope, subquery)
   options <- as_orderly_search_options(options)
   found <- orderly_search(query, parameters = parameters, envir = envir,
                           options = options, root = root)
