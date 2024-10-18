@@ -323,18 +323,6 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
 ##'
 ##' @title Pull one or more packets from a location
 ##'
-##' @param ... Arguments passed through to
-##'   [orderly2::orderly_search]. In the special case where the first
-##'   argument is a character vector of ids *and* there are no named
-##'   dot arguments, then we interpret this argument as a vector of
-##'   ids directly. Be careful here, your query may pull a lot of data
-##'   - in particular, passing `NULL` will match everything that every
-##'   remote has!
-##'
-##' @param options Options passed to [orderly2::orderly_search].
-##'   The option `allow_remote` must be `TRUE` as otherwise no packet could
-##'   possibly be pulled, so an error is thrown if this is FALSE.
-##'
 ##' @param recursive If non-NULL, a logical, indicating if we should
 ##'   recursively pull all packets that are referenced by the packets
 ##'   specified in `id`.  This might copy a lot of data!  If `NULL`,
@@ -342,27 +330,35 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
 ##'   `require_complete_tree`.
 ##'
 ##' @inheritParams orderly_metadata
+##' @inheritParams orderly_search
+##' @inheritParams orderly_search_options
 ##'
 ##' @return Invisibly, the ids of packets that were pulled
 ##' @export
-orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
+orderly_location_pull_packet <- function(expr,
+                                         name = NULL,
+                                         location = NULL,
+                                         pull_metadata = FALSE,
+                                         recursive = NULL,
                                          root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  options <- as_orderly_search_options(options, list(allow_remote = TRUE))
-  if (!options$allow_remote) {
-    cli::cli_abort(
-      "If specifying 'options', 'allow_remote' must be TRUE",
-      i = "If FALSE, then we can't find a packet you don't already have :)")
-  }
-  if (dots_is_literal_id(...)) {
-    ids <- ..1
+  options <- orderly_search_options(location = location,
+                                    allow_remote = TRUE,
+                                    pull_metadata = pull_metadata)
+
+  if (is.character(expr) && is.null(name) && all(grepl(re_id, expr))) {
+    ids <- expr
   } else {
-    ids <- orderly_search(..., options = options, root = root)
+    ## TODO:  we may drop options here
+    ids <- orderly_search(expr, name = name,
+                          options = options,
+                          # location = location, pull_metadata = pull_metadata,
+                          root = root)
   }
 
-  if (length(ids) == 0) {
-    if (options$allow_remote && !options$pull_metadata) {
-      pull_arg <- gsub(" ", "\u00a0", "options = list(pull_metadata = TRUE)")
+  if (length(ids) == 0 || (length(ids) == 1 && is.na(ids))) {
+    if (pull_metadata) {
+      pull_arg <- cli_nbsp("pull_metadata = TRUE")
       hint <- c(i = paste("Did you forget to pull metadata? You can do this",
                           "by using the argument '{pull_arg}' in the call",
                           "to 'orderly_location_pull_packet()', or",
@@ -377,7 +373,7 @@ orderly_location_pull_packet <- function(..., options = NULL, recursive = NULL,
         hint))
   }
 
-  plan <- location_build_pull_plan(ids, options$locations, recursive, root,
+  plan <- location_build_pull_plan(ids, location, recursive, root,
                                    call = environment())
 
   if (plan$info$n_extra > 0) {
