@@ -3,9 +3,12 @@
 ##' based locations are supported, with limited support for custom
 ##' locations. Note that adding a location does *not* pull metadata
 ##' from it, you need to call
-##' [orderly2::orderly_location_pull_metadata] first.
+##' [orderly2::orderly_location_pull_metadata] first.  The function
+##' `orderly_location_add` can add any sort of location, but the other
+##' functions documented here (`orderly_location_add_path`, etc) will
+##' typically be much easier to use in practice.
 ##'
-##' We currently support two types of locations - `path`, which points
+##' We currently support three types of locations - `path`, which points
 ##' to an outpack archive accessible by path (e.g., on the same
 ##' computer or on a mounted network share), `http`, which requires
 ##' that an outpack server is running at some url and uses an HTTP API
@@ -14,13 +17,12 @@
 ##' options to these location types will definitely be needed in
 ##' future.
 ##'
-##' Configuration options for different location types:
+##' Configuration options for different location types are described
+##' in the arguments to their higher-level functions.
 ##'
 ##' **Path locations**:
 ##'
-##' * `path`: The path to the other archive root. This should
-##'   generally be an absolute path, or the behaviour of outpack will
-##'   be unreliable.
+##' Use `orderly_location_add_path`, which accepts a `path` argument.
 ##'
 ##' **HTTP locations**:
 ##'
@@ -29,8 +31,7 @@
 ##'   the API, but also as we move to support things like TLS and
 ##'   authentication.
 ##'
-##' * `url`: The location of the server, including protocol, for
-##'   example `http://example.com:8080`
+##' Use `orderly_location_add_http`, which accepts a `url` argument.
 ##'
 ##' **Packit locations**:
 ##'
@@ -38,15 +39,8 @@
 ##' outpack location but also provide authentication and later will
 ##' have more capabilities we think.
 ##'
-##' * `url`: The location of the server
-##'
-##' * `token`: The value for your your login token (currently this is
-##'   a GitHub token with `read:org` scope). If missing or NULL, orderly2 will
-##'   perform an interactive authentication against GitHub to obtain one.
-##'
-##' * `save_token`: If no token is provided and interactive authentication is
-##'    used, this controls whether the GitHub token should be saved to disk.
-##'    Defaults to TRUE if missing.
+##' Use `orderly_location_add_packit`, which accepts `url`, `token`
+##' and `save_token` arguments.
 ##'
 ##' **Custom locations**:
 ##'
@@ -100,26 +94,16 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
 
   loc <- new_location_entry(name, type, args, call = environment())
   if (type == "path") {
-    ## We won't be necessarily be able to do this _generally_ but
-    ## here, let's confirm that we can read from the outpack archive
-    ## at the requested path; this will just fail but without
-    ## providing the user with anything actionable yet.
-    assert_scalar_character(loc$args[[1]]$path, name = "args$path",
-                            call = environment())
-    root_open(loc$args[[1]]$path, locate = FALSE, require_orderly = FALSE)
+    assert_scalar_character(args$path, name = "path")
+    root_open(args$path, locate = FALSE, require_orderly = FALSE)
   } else if (type == "http") {
-    assert_scalar_character(loc$args[[1]]$url, name = "args$url",
-                            call = environment())
+    assert_scalar_character(args$url, name = "url")
   } else if (type == "packit") {
-    assert_scalar_character(loc$args[[1]]$url, name = "args$url",
-                            call = environment())
-    assert_scalar_character(loc$args[[1]]$token, name = "args$token",
-                            allow_null = TRUE,
-                            call = environment())
-    assert_scalar_logical(loc$args[[1]]$save_token, name = "args$save_token",
-                          allow_null = TRUE,
-                          call = environment())
-    if (!is.null(loc$args[[1]]$token) && !is.null(loc$args[[1]]$save_token)) {
+    assert_scalar_character(args$url, name = "url")
+    assert_scalar_character(args$token, name = "token", allow_null = TRUE)
+    assert_scalar_logical(args$save_token, name = "save_token",
+                          allow_null = TRUE)
+    if (!is.null(args$token) && !is.null(args$save_token)) {
       cli::cli_abort("Cannot specify both 'token' and 'save_token'")
     }
   }
@@ -129,6 +113,50 @@ orderly_location_add <- function(name, type, args, root = NULL, locate = TRUE) {
   rownames(config$location) <- NULL
   config_update(config, root)
   invisible()
+}
+
+
+##' @rdname orderly_location_add
+##'
+##' @param path The path to the other archive root. This should
+##'   generally be an absolute path, or the behaviour of outpack will
+##'   be unreliable.
+##'
+##' @export
+orderly_location_add_path <- function(name, path, root = NULL) {
+  args <- list(path = path)
+  orderly_location_add(name, "path", args, root = root)
+}
+
+
+##' @rdname orderly_location_add
+##'
+##' @param url The location of the server, including protocol, for
+##'   example `http://example.com:8080`
+##'
+##' @export
+orderly_location_add_http <- function(name, url, root = NULL) {
+  args <- list(url = url)
+  orderly_location_add(name, "http", args, root = root)
+}
+
+
+##' @rdname orderly_location_add
+##'
+##' @param token The value for your your login token (currently this
+##'   is a GitHub token with `read:org` scope). If `NULL`, orderly2
+##'   will perform an interactive authentication against GitHub to
+##'   obtain one.
+##'
+##' @param save_token If no token is provided and interactive
+##'   authentication is used, this controls whether the GitHub token
+##'   should be saved to disk.  Defaults to `TRUE` if `NULL`.
+##'
+##' @export
+orderly_location_add_packit <- function(name, url, token = NULL,
+                                        save_token = NULL, root = NULL) {
+  args <- list(url = url, token = token, save_token = save_token)
+  orderly_location_add(name, "packit", args, root = root)
 }
 
 

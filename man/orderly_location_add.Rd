@@ -2,9 +2,24 @@
 % Please edit documentation in R/location.R
 \name{orderly_location_add}
 \alias{orderly_location_add}
+\alias{orderly_location_add_path}
+\alias{orderly_location_add_http}
+\alias{orderly_location_add_packit}
 \title{Add a new location}
 \usage{
 orderly_location_add(name, type, args, root = NULL, locate = TRUE)
+
+orderly_location_add_path(name, path, root = NULL)
+
+orderly_location_add_http(name, url, root = NULL)
+
+orderly_location_add_packit(
+  name,
+  url,
+  token = NULL,
+  save_token = NULL,
+  root = NULL
+)
 }
 \arguments{
 \item{name}{The short name of the location to use.  Cannot be in
@@ -29,6 +44,22 @@ for.  If \code{TRUE}, then we looks in the directory given for \code{root}
 (or the working directory if \code{NULL}) and then up through its
 parents until it finds an \code{.outpack} directory or
 \code{orderly_config.yml}}
+
+\item{path}{The path to the other archive root. This should
+generally be an absolute path, or the behaviour of outpack will
+be unreliable.}
+
+\item{url}{The location of the server, including protocol, for
+example \verb{http://example.com:8080}}
+
+\item{token}{The value for your your login token (currently this
+is a GitHub token with \code{read:org} scope). If \code{NULL}, orderly2
+will perform an interactive authentication against GitHub to
+obtain one.}
+
+\item{save_token}{If no token is provided and interactive
+authentication is used, this controls whether the GitHub token
+should be saved to disk.  Defaults to \code{TRUE} if \code{NULL}.}
 }
 \value{
 Nothing
@@ -39,10 +70,13 @@ and pulled into your local archive.  Currently only file and http
 based locations are supported, with limited support for custom
 locations. Note that adding a location does \emph{not} pull metadata
 from it, you need to call
-\link{orderly_location_pull_metadata} first.
+\link{orderly_location_pull_metadata} first.  The function
+\code{orderly_location_add} can add any sort of location, but the other
+functions documented here (\code{orderly_location_add_path}, etc) will
+typically be much easier to use in practice.
 }
 \details{
-We currently support two types of locations - \code{path}, which points
+We currently support three types of locations - \code{path}, which points
 to an outpack archive accessible by path (e.g., on the same
 computer or on a mounted network share), \code{http}, which requires
 that an outpack server is running at some url and uses an HTTP API
@@ -51,14 +85,12 @@ server.  More types may be added later, and more configuration
 options to these location types will definitely be needed in
 future.
 
-Configuration options for different location types:
+Configuration options for different location types are described
+in the arguments to their higher-level functions.
 
 \strong{Path locations}:
-\itemize{
-\item \code{path}: The path to the other archive root. This should
-generally be an absolute path, or the behaviour of outpack will
-be unreliable.
-}
+
+Use \code{orderly_location_add_path}, which accepts a \code{path} argument.
 
 \strong{HTTP locations}:
 
@@ -66,25 +98,17 @@ Accessing outpack over HTTP requires that an outpack server is
 running. The interface here is expected to change as we expand
 the API, but also as we move to support things like TLS and
 authentication.
-\itemize{
-\item \code{url}: The location of the server, including protocol, for
-example \verb{http://example.com:8080}
-}
+
+Use \code{orderly_location_add_http}, which accepts a \code{url} argument.
 
 \strong{Packit locations}:
 
 Packit locations work over HTTPS, and include everything in an
 outpack location but also provide authentication and later will
 have more capabilities we think.
-\itemize{
-\item \code{url}: The location of the server
-\item \code{token}: The value for your your login token (currently this is
-a GitHub token with \code{read:org} scope). If missing or NULL, orderly2 will
-perform an interactive authentication against GitHub to obtain one.
-\item \code{save_token}: If no token is provided and interactive authentication is
-used, this controls whether the GitHub token should be saved to disk.
-Defaults to TRUE if missing.
-}
+
+Use \code{orderly_location_add_packit}, which accepts \code{url}, \code{token}
+and \code{save_token} arguments.
 
 \strong{Custom locations}:
 

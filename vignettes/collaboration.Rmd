@@ -131,15 +131,13 @@ orderly2::orderly_init(".")
 orderly2::orderly_list_src()
 ```
 
-The plan is to work with Bob, sharing results on their shared server, so Alice adds that to her `orderly2` configuration with `orderly2::orderly_location_add()`:
+The plan is to work with Bob, sharing results on their shared "[Packit](https://github.com/mrc-ide/packit)" server, so Alice adds that to her `orderly2` configuration with `orderly2::orderly_location_add_packit()`:
 
 ```{r, include = FALSE, inwd = path_alice}
-orderly2::orderly_location_add(
-  "server", "path", list(path = path_server))
+orderly2::orderly_location_add_path("server", path = path_server)
 ```
 ```{r, eval = FALSE, as = "alice"}
-orderly2::orderly_location_add(
-  "server", "http", list(url = "http://orderly.example.com"))
+orderly2::orderly_location_add_packit("server", "http://packit.example.com")
 ```
 
 Once done, she can run any analysis:
@@ -160,12 +158,10 @@ Now, consider Bob. He also needs the source code cloned, orderly initialised, an
 orderly2::orderly_init(".")
 ```
 ```{r, include = FALSE, inwd = path_bob}
-orderly2::orderly_location_add(
-  "server", "path", list(path = path_server))
+orderly2::orderly_location_add_path("server", path = path_server)
 ```
 ```{r, eval = FALSE, as = "bob"}
-orderly2::orderly_location_add(
-  "server", "http", list(url = "http://orderly.example.com"))
+orderly2::orderly_location_add_packit("server", "http://packit.example.com")
 ```
 
 (Here, Bob has also used the name `server` to refer to their shared server, but could have used anything; this is similar to git's use of `origin`.)
@@ -263,8 +259,7 @@ orderly2::orderly_init(
    Create an orderly store with a file store and a complete tree. See `orderly2::orderly_init()` for more details.
 1. Add this as a location
     ```{r, as="alice", inwd = path_alice}
-orderly2::orderly_location_add(
-  "sharepoint", "path", list(path = path_sharepoint_alice))
+orderly2::orderly_location_add_path("sharepoint", path = path_sharepoint_alice)
     ```
 
 1. Push any packets you want to share
@@ -277,13 +272,10 @@ Then these will be available for your collaborator to pull. Note that the data i
 1. Sync the same drive to a location on their machine. Here Bob has synced to `path_sharepoint_bob`
 1. Add the location
     ```{r, as="bob", inwd = path_bob}
-orderly2::orderly_location_add(
-  "alices_orderly", "path", list(path = path_sharepoint_bob))
+orderly2::orderly_location_add_path("alices_orderly", path_sharepoint_bob)
     ```
 
 1. Pull the metadata and use the packets as desired
     ```{r, as="bob", inwd = path_bob}
-orderly2::orderly_location_pull_metadata(
-  "alices_orderly"
-)
+orderly2::orderly_location_pull_metadata("alices_orderly")
     ```

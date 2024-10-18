@@ -15,7 +15,7 @@ test_that("can copy files from outpack", {
 test_that("can copy files from location, using store", {
   here <- create_temporary_root(use_file_store = TRUE)
   there <- create_temporary_root(use_file_store = TRUE)
-  orderly_location_add("there", "path", list(path = there$path), root = here)
+  orderly_location_add_path("there", path = there$path, root = here)
   id <- create_random_packet(there)
 
   tmp <- withr::local_tempdir()
@@ -45,7 +45,7 @@ test_that("can copy files from location, using store", {
 test_that("can copy files from location, using archive", {
   here <- create_temporary_root(use_file_store = FALSE)
   there <- create_temporary_root(use_file_store = TRUE)
-  orderly_location_add("there", "path", list(path = there$path), root = here)
+  orderly_location_add_path("there", path = there$path, root = here)
   id <- create_random_packet(there)
 
   tmp <- withr::local_tempdir()

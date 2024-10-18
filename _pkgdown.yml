@@ -63,6 +63,9 @@ reference:
   - subtitle: Manage locations
     contents:
       - orderly_location_add
+      - orderly_location_add_path
+      - orderly_location_add_http
+      - orderly_location_add_packit
       - orderly_location_list
       - orderly_location_remove
       - orderly_location_rename

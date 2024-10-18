@@ -151,8 +151,7 @@ test_that("can detect differences between locations when destination empty", {
   ids <- create_random_packet_chain(client, 4)
 
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
 
   files <- lapply(ids, function(id) client$index$metadata(id)$files$hash)
 
@@ -183,8 +182,7 @@ test_that("Import complete tree via push into server", {
   ids <- create_random_packet_chain(client, 4)
 
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
 
   plan <- orderly_location_push(ids[[4]], "server", client)
 
@@ -208,8 +206,7 @@ test_that("Import packets into root with archive as well as store", {
 
   server <- create_temporary_root(use_file_store = TRUE,
                                   path_archive = "archive")
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
 
   plan <- orderly_location_push(ids[[4]], "server", client)
 
@@ -228,8 +225,7 @@ test_that("Prevent pushing things that would corrupt the store", {
   ids <- create_random_packet_chain(client, 4)
 
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
 
   id <- ids[[3]]
   str <- read_string(file.path(client$path, ".outpack", "metadata", id))
@@ -259,8 +255,7 @@ test_that("Can only push into a root with a file store", {
   client <- create_temporary_root()
   ids <- create_random_packet_chain(client, 2)
   server <- create_temporary_root()
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
   expect_error(
     orderly_location_push(ids[[2]], "server", client),
     "Can't push files into this server, as it does not have a file store")
@@ -271,8 +266,7 @@ test_that("pushing twice does nothing", {
   client <- create_temporary_root()
   ids <- create_random_packet_chain(client, 4)
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
   plan1 <- orderly_location_push(ids[[4]], "server", client)
   plan2 <- orderly_location_push(ids[[4]], "server", client)
   expect_equal(plan2, list(packet_id = character(), files = character()))
@@ -282,8 +276,7 @@ test_that("pushing twice does nothing", {
 test_that("push overlapping tree", {
   client <- create_temporary_root()
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
 
   id_base <- create_random_packet(server)
   orderly_location_pull_metadata(root = client)
@@ -302,8 +295,7 @@ test_that("Push single packet", {
   id <- create_random_packet(client)
 
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
 
   plan <- orderly_location_push(id, "server", client)
 
@@ -357,8 +349,7 @@ test_that("Fail to push sensibly if files have been changed", {
   ids <- create_random_packet_chain(client, 4)
 
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
-  orderly_location_add("server", "path", list(path = server$path),
-                       root = client)
+  orderly_location_add_path("server", path = server$path, root = client)
 
   ## Corrupt one file:
   path <- file.path(client$path, "archive", "b", ids[["b"]], "script.R")
