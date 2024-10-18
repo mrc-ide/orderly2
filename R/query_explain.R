@@ -27,7 +27,10 @@ orderly_query_explain <- function(expr, name = NULL, scope = NULL,
                                     allow_remote = allow_remote,
                                     pull_metadata = pull_metadata)
   found <- orderly_search(query, parameters = parameters, envir = envir,
-                          options = options, root = root)
+                          location = options$location,
+                          allow_remote = options$allow_remote,
+                          pull_metadata = options$pull_metadata,
+                          root = root)
   query_simplified <- query_simplify(query)
   ret <- list(found = found,
               n = length(stats::na.omit(found)), # latest() returns NA
@@ -36,8 +39,13 @@ orderly_query_explain <- function(expr, name = NULL, scope = NULL,
 
   for (name in names(query_simplified$parts)) {
     expr <- query_simplified$parts[[name]]
-    found <- orderly_search(expr, parameters = parameters, envir = envir,
-                            options = options, root = root)
+    found <- orderly_search(expr,
+                            parameters = parameters,
+                            envir = envir,
+                            location = options$location,
+                            allow_remote = options$allow_remote,
+                            pull_metadata = FALSE, # not again.
+                            root = root)
     ret$parts[[name]] <- list(
       name = name,
       str = deparse_query(expr, NULL, NULL),

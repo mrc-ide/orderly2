@@ -55,7 +55,12 @@ orderly_validate_archive <- function(expr = NULL, name = NULL,
   } else {
     ## TODO:  we may drop options here
     options <- orderly_search_options(location = "local", allow_remote = FALSE)
-    ids <- orderly_search(expr, name = name, options = options, root = root)
+    ids <- orderly_search(expr,
+                          name = name,
+                          location = options$location,
+                          allow_remote = options$allow_remote,
+                          pull_metadata = options$pull_metadata,
+                          root = root)
   }
 
   cache <- new.env(parent = emptyenv())

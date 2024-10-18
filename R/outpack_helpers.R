@@ -105,10 +105,12 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
     }
   } else {
     ## TODO:  we may drop options here
-    id <- orderly_search(expr, name = name,
-                         options = options,
-                         parameters = parameters, # TODO, bind these earlier?
-                         # location = location, pull_metadata = pull_metadata,
+    id <- orderly_search(expr,
+                         name = name,
+                         parameters = parameters,
+                         location = options$location,
+                         allow_remote = options$allow_remote,
+                         pull_metadata = options$pull_metadata,
                          root = root)
     if (length(id) > 1) {
       cli::cli_abort(
