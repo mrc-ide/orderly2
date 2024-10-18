@@ -349,10 +349,11 @@ orderly_location_pull_packet <- function(expr,
   if (expr_is_literal_id(expr, name)) {
     ids <- expr
   } else {
-    ## TODO:  we may drop options here
-    ids <- orderly_search(expr, name = name,
-                          options = options,
-                          # location = location, pull_metadata = pull_metadata,
+    ids <- orderly_search(expr,
+                          name = name,
+                          location = options$location,
+                          allow_remote = options$allow_remote,
+                          pull_metadata = options$pull_metadata,
                           root = root)
   }
 

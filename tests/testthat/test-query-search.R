@@ -248,18 +248,13 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
   }
   orderly_location_pull_metadata(root = root$a)
 
-  options_local <- orderly_search_options(location = c("x", "y"),
-                                          allow_remote = FALSE)
-  options_remote <- orderly_search_options(location = c("x", "y"),
-                                          allow_remote = TRUE)
-
   expect_equal(
-    orderly_search(quote(name == "data"), options = options_remote,
+    orderly_search(quote(name == "data"), location = c("x", "y"),
                    root = root$a),
     c(ids$x, ids$y))
   expect_equal(
-    orderly_search(quote(name == "data"), options = options_local,
-                   root = root$a),
+    orderly_search(quote(name == "data"), location = c("x", "y"),
+                   allow_remote = FALSE, root = root$a),
     character())
 
   for (i in ids$x) {
@@ -267,12 +262,12 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
   }
 
   expect_equal(
-    orderly_search(quote(name == "data"), options = options_remote,
+    orderly_search(quote(name == "data"), location = c("x", "y"),
                    root = root$a),
     c(ids$x, ids$y))
   expect_equal(
-    orderly_search(quote(name == "data"), options = options_local,
-                   root = root$a),
+    orderly_search(quote(name == "data"), location = c("x", "y"),
+                   allow_remote = FALSE, root = root$a),
     ids$x)
 })
 
@@ -294,12 +289,12 @@ test_that("scope and allow_local can be used together to filter query", {
   options_remote <- orderly_search_options(allow_remote = TRUE)
 
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), options = options_remote,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = TRUE,
                   scope = quote(name == "x"),
                   root = root$dst),
     x2)
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), options = options_local,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = FALSE,,
                   scope = quote(name == "x"),
                   root = root$dst),
     NA_character_)
@@ -309,12 +304,12 @@ test_that("scope and allow_local can be used together to filter query", {
   }
 
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), options = options_remote,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = TRUE,
                   scope = quote(name == "x"),
                   root = root$dst),
     x2)
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), options = options_local,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = FALSE,
                   scope = quote(name == "x"),
                   root = root$dst),
     x1)
@@ -904,7 +899,7 @@ test_that("allow search before query", {
     character(0))
   expect_equal(
     orderly_search(quote(name == "data"), root = root$a,
-                   options = list(pull_metadata = TRUE, allow_remote = TRUE)),
+                   pull_metadata = TRUE, allow_remote = TRUE),
     ids)
   expect_setequal(names(root$a$index$data()$metadata), ids)
 })

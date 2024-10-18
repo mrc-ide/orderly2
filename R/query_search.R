@@ -15,13 +15,9 @@
 ##'   use the calling environment, but you can explicitly pass this in
 ##'   if you want to control where this lookup happens.
 ##'
-##' @param options Optionally, a [orderly2::orderly_search_options]
-##'   object for controlling how the search is performed, and which
-##'   packets should be considered in scope. If not provided, default
-##'   options are used (i.e., `orderly2::orderly_search_options()`)
-##'
 ##' @inheritParams orderly_metadata
 ##' @inheritParams orderly_query
+##' @inheritParams orderly_search_options
 ##'
 ##' @return A character vector of matching ids. In the case of no
 ##'   match from a query returning a single value (e.g., `latest(...)`
@@ -31,10 +27,13 @@
 ##' @export
 orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
                            parameters = NULL, envir = parent.frame(),
-                           options = NULL, root = NULL) {
+                           location = NULL, allow_remote = NULL,
+                           pull_metadata = FALSE, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   query <- as_orderly_query(expr, name, scope, subquery)
-  options <- as_orderly_search_options(options)
+  options <- orderly_search_options(location = location,
+                                    allow_remote = allow_remote,
+                                    pull_metadata = pull_metadata)
   validate_parameters(parameters, environment())
   orderly_query_eval(query, parameters, envir, options, root,
                      call = environment())

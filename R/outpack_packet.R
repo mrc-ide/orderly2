@@ -174,7 +174,9 @@ outpack_packet_use_dependency <- function(packet, query, files,
   id <- orderly_search(query,
                        parameters = packet$parameters,
                        envir = envir,
-                       options = search_options,
+                       location = search_options$location,
+                       allow_remote = search_options$allow_remote,
+                       pull_metadata = search_options$pull_metadata,
                        root = packet$root)
   if (is.na(id)) {
     explanation <- orderly_query_explain(

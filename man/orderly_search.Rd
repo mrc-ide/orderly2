@@ -11,7 +11,9 @@ orderly_search(
   subquery = NULL,
   parameters = NULL,
   envir = parent.frame(),
-  options = NULL,
+  location = NULL,
+  allow_remote = NULL,
+  pull_metadata = FALSE,
   root = NULL
 )
 }
@@ -36,10 +38,26 @@ query (using the \verb{environment:} prefix). The default here is to
 use the calling environment, but you can explicitly pass this in
 if you want to control where this lookup happens.}
 
-\item{options}{Optionally, a \link{orderly_search_options}
-object for controlling how the search is performed, and which
-packets should be considered in scope. If not provided, default
-options are used (i.e., \code{orderly2::orderly_search_options()})}
+\item{location}{Optional vector of locations to pull from. We
+might in future expand this to allow wildcards or exceptions.}
+
+\item{allow_remote}{Logical, indicating if we should allow packets
+to be found that are not currently unpacked (i.e., are known
+only to a location that we have metadata from). If this is
+\code{TRUE}, then in conjunction with \link{orderly_dependency}
+you might pull a large quantity of data.  The default \code{NULL} is
+\code{TRUE} if remote locations are listed explicitly as a character
+vector in the \code{location} argument, or if you have specified
+\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+
+\item{pull_metadata}{Logical, indicating if we should pull
+metadata immediately before the search. If \code{location} is given,
+then we will pass this through to
+\link{orderly_location_pull_metadata} to filter locations
+to update.  If pulling many packets in sequence, you \emph{will} want
+to update this option to \code{FALSE} after the first pull, otherwise
+it will update the metadata between every packet, which will be
+needlessly slow.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working
