@@ -8,7 +8,7 @@ outpack_http_client <- R6::R6Class(
     initialize = function(url, authorise = NULL) {
       self$url <- sub("/$", "", url)
       if (is.null(authorise)) {
-        self$authorise <- function() NULL
+        self$authorise <- function(...) NULL
       } else {
         self$authorise <- authorise
       }
