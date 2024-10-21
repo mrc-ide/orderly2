@@ -285,7 +285,8 @@ orderly_dependency <- function(name, query, files) {
   ctx <- orderly_context(rlang::caller_env())
   subquery <- NULL
   query <- orderly_query(query, name = name, subquery = subquery)
-  search_options <- as_orderly_search_options(ctx$search_options)
+  search_options <- ctx$search_options %||% orderly_search_options()
+
   ## TODO: this separation of codepaths here is quite weird.  We
   ## should do the copy here and have the outpack function probably
   ## just do the metadata update.  The logic is otherwise fine I
