@@ -8,6 +8,10 @@ orderly_location_http <- R6::R6Class(
       self$client <- outpack_http_client$new(url, authorise)
     },
 
+    authorise = function() {
+      self$client$authorise()
+    },
+
     list = function() {
       dat <- self$client$request("/metadata/list")$data
       data_frame(
