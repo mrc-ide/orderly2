@@ -357,11 +357,10 @@ orderly_location_pull_packet <- function(expr,
   }
 
   if (length(ids) == 0 || (length(ids) == 1 && is.na(ids))) {
-    if (pull_metadata) {
-      pull_arg <- cli_nbsp("pull_metadata = TRUE")
+    if (!pull_metadata) {
       hint <- c(i = paste("Did you forget to pull metadata? You can do this",
-                          "by using the argument '{pull_arg}' in the call",
-                          "to 'orderly_location_pull_packet()', or",
+                          "by using the argument {.code pull_metadata = TRUE}",
+                          "in the call to 'orderly_location_pull_packet()', or",
                           "by running 'orderly_location_pull_metadata()'"))
     } else {
       hint <- NULL
