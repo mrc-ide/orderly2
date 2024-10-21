@@ -173,9 +173,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
 
-  search_options <- orderly_search_options(location = location,
-                                           allow_remote = allow_remote,
-                                           pull_metadata = pull_metadata)
+  search_options <- build_search_options(location = location,
+                                         allow_remote = allow_remote,
+                                         pull_metadata = pull_metadata)
 
   id <- outpack_id()
   path <- file.path(root_src, "draft", name, id)

@@ -342,18 +342,15 @@ orderly_location_pull_packet <- function(expr,
                                          recursive = NULL,
                                          root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  options <- orderly_search_options(location = location,
-                                    allow_remote = TRUE,
-                                    pull_metadata = pull_metadata)
 
   if (expr_is_literal_id(expr, name)) {
     ids <- expr
   } else {
     ids <- orderly_search(expr,
                           name = name,
-                          location = options$location,
-                          allow_remote = options$allow_remote,
-                          pull_metadata = options$pull_metadata,
+                          location = location,
+                          allow_remote = TRUE,
+                          pull_metadata = pull_metadata,
                           root = root)
   }
 

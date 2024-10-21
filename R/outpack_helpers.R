@@ -87,9 +87,11 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
                                envir = parent.frame(),
                                root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  options <- orderly_search_options(location = location,
-                                    allow_remote = allow_remote,
-                                    pull_metadata = pull_metadata)
+  ## Validate options here so we can refer to the computed value of
+  ## allow_remote later in error messages.
+  options <- build_search_options(location = location,
+                                  allow_remote = allow_remote,
+                                  pull_metadata = pull_metadata)
 
   ## Validate files and dest early; it gives a better error where this
   ## was not provided with names.
@@ -104,7 +106,6 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
         arg = expr)
     }
   } else {
-    ## TODO:  we may drop options here
     id <- orderly_search(expr,
                          name = name,
                          parameters = parameters,
@@ -152,7 +153,7 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
       } else if (!options$allow_remote) {
         cli::cli_abort(
           c("Unable to copy files, as they are not available locally",
-            i = "To fetch from a location, try again with allow_remote = TRUE"),
+            i = "To fetch from a location, try again with 'allow_remote = TRUE'"),
           parent = e)
       }
       copy_files_from_remote(id, plan$there, plan$here, dest, overwrite, root,

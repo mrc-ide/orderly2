@@ -82,9 +82,9 @@ detect_orderly_interactive_path <- function(
 orderly_interactive_set_search_options <- function(location = NULL,
                                                    allow_remote = NULL,
                                                    pull_metadata = FALSE) {
-  options <- orderly_search_options(location = location,
-                                    allow_remote = allow_remote,
-                                    pull_metadata = pull_metadata)
+  options <- build_search_options(location = location,
+                                  allow_remote = allow_remote,
+                                  pull_metadata = pull_metadata)
   .interactive$search_options <- options
 }
 

@@ -198,17 +198,14 @@ orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
                                      extract = NULL, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
 
-  options <- orderly_search_options(location = location,
-                                    allow_remote = allow_remote,
-                                    pull_metadata = pull_metadata)
   if (expr_is_literal_id(expr, name)) {
     ids <- expr
   } else {
     ids <- orderly_search(expr,
                           name = name,
-                          location = options$location,
-                          allow_remote = options$allow_remote,
-                          pull_metadata = options$pull_metadata,
+                          location = location,
+                          allow_remote = allow_remote,
+                          pull_metadata = pull_metadata,
                           root = root)
   }
   extract <- parse_extract(extract, environment())

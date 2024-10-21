@@ -29,7 +29,7 @@ orderly_prune_orphans <- function(root = NULL) {
     return(invisible(id))
   }
 
-  idx <- new_query_index(root, orderly_search_options(location = local))
+  idx <- new_query_index(root, build_search_options(location = local))
   is_used <- lengths(lapply(id, idx$get_packet_uses, Inf)) > 0
   if (any(is_used)) {
     cli::cli_alert_info(
