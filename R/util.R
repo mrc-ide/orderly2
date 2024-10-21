@@ -714,8 +714,3 @@ fill_missing_names <- function(x) {
   }
   x
 }
-
-
-cli_nbsp <- function(x) {
-  gsub(" ", "\u00a0", x, fixed = TRUE)
-}
