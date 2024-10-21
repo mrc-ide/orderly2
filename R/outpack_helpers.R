@@ -83,10 +83,11 @@
 orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
                                name = NULL, location = NULL,
                                allow_remote = NULL, pull_metadata = FALSE,
-                               parameters = NULL,
+                               parameters = NULL, options = NULL,
                                envir = parent.frame(),
                                root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
+  compatibility_fix_options(options, "orderly_copy_files")
   ## Validate options here so we can refer to the computed value of
   ## allow_remote later in error messages.
   options <- build_search_options(location = location,

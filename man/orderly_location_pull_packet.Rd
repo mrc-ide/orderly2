@@ -10,6 +10,7 @@ orderly_location_pull_packet(
   location = NULL,
   pull_metadata = FALSE,
   recursive = NULL,
+  options = NULL,
   root = NULL
 )
 }
@@ -37,6 +38,10 @@ recursively pull all packets that are referenced by the packets
 specified in \code{id}.  This might copy a lot of data!  If \code{NULL},
 we default to the value given by the the configuration option
 \code{require_complete_tree}.}
+
+\item{options}{\strong{DEPRECATED}. Please don't use this any more, and
+instead use the arguments \code{location}, \code{allow_remote} and
+\code{pull_metadata} directly.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

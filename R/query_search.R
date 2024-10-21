@@ -19,6 +19,10 @@
 ##' @inheritParams orderly_query
 ##' @inheritParams orderly_search_options
 ##'
+##' @param options **DEPRECATED**. Please don't use this any more, and
+##'   instead use the arguments `location`, `allow_remote` and
+##'   `pull_metadata` directly.
+##'
 ##' @return A character vector of matching ids. In the case of no
 ##'   match from a query returning a single value (e.g., `latest(...)`
 ##'   or `single(...)`) this will be a character missing value
@@ -28,8 +32,10 @@
 orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
                            parameters = NULL, envir = parent.frame(),
                            location = NULL, allow_remote = NULL,
-                           pull_metadata = FALSE, root = NULL) {
+                           pull_metadata = FALSE, options = NULL,
+                           root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
+  compatibility_fix_options(options, "orderly_search")
   query <- as_orderly_query(expr, name, scope, subquery)
   options <- build_search_options(location = location,
                                   allow_remote = allow_remote,
@@ -82,6 +88,24 @@ orderly_search_options <- function(location = NULL,
                 "that previously accepted 'options'")),
     .frequency = "regularly",
     .frequency_id = "orderly_search_options")
+}
+
+
+compatibility_fix_options <- function(options, name,
+                                      arg = deparse(substitute(options)),
+                                      env = parent.frame()) {
+  if (!is.null(options)) {
+    cli::cli_warn(
+      c("Use of '{arg}' in '{name}()' is deprecated and will be removed soon",
+        i = paste("Please pass the arguments to options ('location',",
+                  "'allow_remote' and 'pull_metadata') directly to '{name}'"),
+        "!" = paste("If you have {.strong also} passed these options in",
+                    "to your function I am about to silently overwrite them")),
+      .frequency = "frequently",
+      .frequency_id = paste0("use_options:", name),
+      call = env)
+    list2env(options, env)
+  }
 }
 
 
