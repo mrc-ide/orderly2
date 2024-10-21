@@ -75,26 +75,33 @@
 ##' @param args Arguments to the location driver. The arguments here
 ##'   will vary depending on the type used, see Details.
 ##'
+##' @param verify Logical, indicating if we should verify that the
+##'   location can be used before adding.
+##'
+##' @param quiet Logical, indicating if we should print information
+##'   while configuring and creating locations.  If not given, we use
+##'   the option of `orderly.quiet`, defaulting to `TRUE`.
+##'
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-orderly_location_add <- function(name, type, args, root = NULL) {
+orderly_location_add <- function(name, type, args, verify = TRUE, quiet = NULL,
+                                 root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  assert_scalar_character(name, call = environment())
+  assert_scalar_character(name)
+  assert_scalar_logical(verify)
+  quiet <- orderly_quiet(quiet)
 
   if (name %in% location_reserved_name) {
     cli::cli_abort("Cannot add a location with reserved name '{name}'")
   }
 
   location_check_new_name(root, name, environment())
-  match_value(type, setdiff(location_types, location_reserved_name),
-              call = environment())
+  match_value(type, setdiff(location_types, location_reserved_name))
 
-  loc <- new_location_entry(name, type, args, call = environment())
   if (type == "path") {
     assert_scalar_character(args$path, name = "path")
-    root_open(args$path, require_orderly = FALSE)
   } else if (type == "http") {
     assert_scalar_character(args$url, name = "url")
   } else if (type == "packit") {
@@ -104,6 +111,23 @@ orderly_location_add <- function(name, type, args, root = NULL) {
                           allow_null = TRUE)
     if (!is.null(args$token) && !is.null(args$save_token)) {
       cli::cli_abort("Cannot specify both 'token' and 'save_token'")
+    }
+    if (is.null(args$save_token)) {
+      args$save_token <- is.null(args$token)
+    }
+  }
+  loc <- new_location_entry(name, type, args, call = environment())
+
+  if (verify) {
+    if (!quiet) {
+      cli::cli_alert_info("Testing location")
+    }
+    driver <- location_driver_create(type, args)
+    if (!is.null(driver$authorise)) {
+      driver$authorise()
+    }
+    if (!quiet) {
+      cli::cli_alert_success("Location configured successfully")
     }
   }
 
@@ -122,9 +146,11 @@ orderly_location_add <- function(name, type, args, root = NULL) {
 ##'   be unreliable.
 ##'
 ##' @export
-orderly_location_add_path <- function(name, path, root = NULL) {
+orderly_location_add_path <- function(name, path, verify = TRUE, quiet = NULL,
+                                      root = NULL) {
   args <- list(path = path)
-  orderly_location_add(name, "path", args, root = root)
+  orderly_location_add(name, "path", args, verify = verify, quiet = quiet,
+                       root = root)
 }
 
 
@@ -134,9 +160,11 @@ orderly_location_add_path <- function(name, path, root = NULL) {
 ##'   example `http://example.com:8080`
 ##'
 ##' @export
-orderly_location_add_http <- function(name, url, root = NULL) {
+orderly_location_add_http <- function(name, url, verify = TRUE, quiet = NULL,
+                                      root = NULL) {
   args <- list(url = url)
-  orderly_location_add(name, "http", args, root = root)
+  orderly_location_add(name, "http", args, verify = verify, quiet = quiet,
+                       root = root)
 }
 
 
@@ -153,9 +181,12 @@ orderly_location_add_http <- function(name, url, root = NULL) {
 ##'
 ##' @export
 orderly_location_add_packit <- function(name, url, token = NULL,
-                                        save_token = NULL, root = NULL) {
+                                        save_token = NULL,
+                                        verify = TRUE, quiet = NULL,
+                                        root = NULL) {
   args <- list(url = url, token = token, save_token = save_token)
-  orderly_location_add(name, "packit", args, root = root)
+  orderly_location_add(name, "packit", args, verify = verify, quiet = quiet,
+                       root = root)
 }
 
 
@@ -280,20 +311,40 @@ orderly_location_list <- function(verbose = FALSE, root = NULL) {
 ##'   locations are always up to date and pulling metadata from them
 ##'   does nothing.
 ##'
+##' @param quiet Logical, indicating if we should print information
+##'   about locations searched and metadata found.  If not given, we
+##'   use the option of `orderly.quiet`, defaulting to `TRUE`.
+##'
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##'
 ##' @export
-orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
+orderly_location_pull_metadata <- function(location = NULL, quiet = NULL,
+                                           root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
                                           include_orphan = FALSE,
                                           allow_no_locations = TRUE,
                                           environment())
+  quiet <- orderly_quiet(quiet)
+  if (!quiet) {
+    cli::cli_alert_info(paste(
+      "Fetching metadata from {length(location_name)} location{?s}:",
+      "{squote({location_name})}"))
+  }
   for (name in location_name) {
-    location_pull_metadata(name, root, environment())
+    res <- location_pull_metadata(name, root)
+    if (!quiet) {
+      if (res$total > 0) {
+        cli::cli_alert_success(paste(
+          "Found {res$total} packet{?s} at '{name}', of which",
+          "{res$new} {?is/are} new"))
+      } else {
+        cli::cli_alert_warning("No metadata found at '{name}'")
+      }
+    }
   }
 
   id_deorphan <- intersect(root$index$location(location_name)$packet,
@@ -478,6 +529,11 @@ location_driver <- function(location_name, root) {
   i <- match(location_name, root$config$location$name)
   type <- root$config$location$type[[i]]
   args <- root$config$location$args[[i]]
+  location_driver_create(type, args)
+}
+
+
+location_driver_create <- function(type, args) {
   location <- switch(type,
                      path = orderly_location_path$new,
                      http = orderly_location_http$new,
@@ -497,7 +553,7 @@ orderly_location_custom <- function(driver, ...) {
 }
 
 
-location_pull_metadata <- function(location_name, root, call) {
+location_pull_metadata <- function(location_name, root, call = parent.frame()) {
   index <- root$index$data()
   driver <- location_driver(location_name, root)
 
@@ -572,6 +628,8 @@ location_pull_metadata <- function(location_name, root, call) {
     mark_packet_known(new_loc$packet[[i]], location_name, new_loc$hash[[i]],
                       new_loc$time[[i]], root)
   }
+
+  list(total = length(is_new), new = sum(is_new))
 }
 
 
@@ -787,28 +845,16 @@ location_build_push_plan <- function(packet_id, location_name, root) {
 ## This validation probably will need generalising in future as we add
 ## new types. The trick is going to be making sure that we can support
 ## different location types in different target languages effectively.
-new_location_entry <- function(name, type, args, call = NULL) {
-  match_value(type, location_types, call = call)
-  required <- NULL
-  if (type == "path") {
-    required <- "path"
-  } else if (type == "http") {
-    required <- "url"
-  } else if (type == "packit") {
-    required <- "url"
-  } else if (type == "custom") {
-    required <- "driver"
-  }
+new_location_entry <- function(name, type, args, call = parent.frame()) {
+  match_value(type, location_types)
   if (length(args) > 0) {
-    assert_is(args, "list", call = call)
-    assert_named(args, call = call)
+    assert_is(args, "list")
+    assert_named(args)
   }
-  msg <- setdiff(required, names(args))
-  if (length(msg) > 0) {
-    cli::cli_abort("Field{?s} missing from args: {squote(msg)}")
-  }
-
   if (type == "custom") {
+    if (is.null(args$driver)) {
+      cli::cli_abort("Field missing from args: 'driver'")
+    }
     check_symbol_from_str(args$driver, "args$driver")
   }
 

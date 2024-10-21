@@ -775,7 +775,7 @@ test_that("validate arguments to path locations", {
   expect_error(
     orderly_location_add("other", "path", list(root = "mypath"),
                          root = root),
-    "Field missing from args: 'path'")
+    "'path' must be a scalar")
   expect_equal(orderly_location_list(root = root), "local")
 })
 
@@ -785,7 +785,7 @@ test_that("validate arguments to http locations", {
   expect_error(
     orderly_location_add("other", "http", list(server = "example.com"),
                          root = root),
-    "Field missing from args: 'url'")
+    "'url' must be a scalar")
   expect_equal(orderly_location_list(root = root), "local")
 })
 
@@ -795,16 +795,22 @@ test_that("validate arguments to packit locations", {
   expect_error(
     orderly_location_add("other", "packit", list(server = "example.com"),
                          root = root),
-    "Field missing from args: 'url'")
+    "'url' must be a scalar")
 
   expect_error(
-    orderly_location_add_packit("other", url = "example.com", token = 123,
+    orderly_location_add_packit("other",
+                                url = "example.com",
+                                token = 123,
+                                verify = FALSE,
                                 root = root),
     "Expected 'token' to be character", fixed = TRUE)
 
   expect_error(
-    orderly_location_add_packit("other", "packit", url = "example.com",
-                                save_token = "value", root = root),
+    orderly_location_add_packit("other",
+                                url = "example.com",
+                                save_token = "value",
+                                verify = FALSE,
+                                root = root),
     "Expected 'save_token' to be logical", fixed = TRUE)
 
   expect_error(
@@ -812,6 +818,7 @@ test_that("validate arguments to packit locations", {
                                 url = "example.com",
                                 token = "xx",
                                 save_token = TRUE,
+                                verify = FALSE,
                                 root = root),
     "Cannot specify both 'token' and 'save_token'", fixed = TRUE)
 
@@ -821,38 +828,48 @@ test_that("validate arguments to packit locations", {
 
 test_that("can add a packit location", {
   root <- create_temporary_root()
-  orderly_location_add("other", "packit",
-                       list(url = "https://example.com", token = "abc123"),
-                       root = root)
+  orderly_location_add_packit("other",
+                              url = "https://example.com",
+                              token = "abc123",
+                              verify = FALSE,
+                              root = root)
   expect_equal(orderly_location_list(root = root), c("local", "other"))
 
   mock_driver <- mockery::mock()
-  mockery::stub(location_driver, "orderly_location_packit", mock_driver)
+  mockery::stub(location_driver, "location_driver_create", mock_driver)
 
   dr <- location_driver("other", root)
 
   mockery::expect_called(mock_driver, 1)
   expect_equal(
     mockery::mock_args(mock_driver)[[1]],
-    list(url = "https://example.com", token = "abc123"))
+    list("packit",
+         list(url = "https://example.com",
+              token = "abc123",
+              save_token = FALSE)))
 })
 
 test_that("can add a packit location without a token", {
   root <- create_temporary_root()
-  orderly_location_add("other", "packit",
-                       list(url = "https://example.com"),
-                       root = root)
+  orderly_location_add_packit("other",
+                              url = "https://example.com",
+                              verify = FALSE,
+                              root = root)
+  expect_equal(
+    orderly_config(root)$location$args[[2]],
+    list(url = "https://example.com", token = NULL, save_token = TRUE))
   expect_equal(orderly_location_list(root = root), c("local", "other"))
 
   mock_driver <- mockery::mock()
-  mockery::stub(location_driver, "orderly_location_packit", mock_driver)
+  mockery::stub(location_driver, "location_driver_create", mock_driver)
 
   dr <- location_driver("other", root)
 
   mockery::expect_called(mock_driver, 1)
   expect_equal(
     mockery::mock_args(mock_driver)[[1]],
-    list(url = "https://example.com"))
+    list("packit",
+         list(url = "https://example.com", token = NULL, save_token = TRUE)))
 })
 
 test_that("cope with trailing slash in url if needed", {
@@ -913,20 +930,28 @@ test_that("can add a custom outpack location", {
   skip_if_not_installed("mockery")
   root <- create_temporary_root()
   args <- list(driver = "foo::bar", a = 1, b = 2)
-  orderly_location_add("a", "custom", args = args, root = root)
+  orderly_location_add("a", "custom", args = args, verify = FALSE, root = root)
 
   loc <- as.list(root$config$location[2, ])
   expect_equal(loc$name, "a")
   expect_equal(loc$type, "custom")
   expect_equal(loc$args[[1]], list(driver = "foo::bar", a = 1, b = 2))
 
-  mock_orderly_location_custom <- mockery::mock("value")
-  mockery::stub(location_driver, "orderly_location_custom",
-                mock_orderly_location_custom)
+  mock_orderly_location_driver_create <- mockery::mock("value")
+  mockery::stub(location_driver, "location_driver_create",
+                mock_orderly_location_driver_create)
   expect_equal(location_driver(loc$name, root), "value")
-  mockery::expect_called(mock_orderly_location_custom, 1)
-  expect_equal(mockery::mock_args(mock_orderly_location_custom)[[1]],
-               list(driver = "foo::bar", a = 1, b = 2))
+  mockery::expect_called(mock_orderly_location_driver_create, 1)
+  expect_equal(mockery::mock_args(mock_orderly_location_driver_create)[[1]],
+               list("custom", list(driver = "foo::bar", a = 1, b = 2)))
+})
+
+
+test_that("custom drivers require a 'driver' argument", {
+  root <- create_temporary_root()
+  expect_error(
+    orderly_location_add("a", "custom", args = list(), root = root)
+    "Field missing from args: 'driver'")
 })
 
 
@@ -1026,7 +1051,7 @@ test_that("avoid duplicated metadata", {
 
   mockery::stub(location_pull_metadata, "location_driver", mock_location_driver)
   err <- expect_error(
-    location_pull_metadata("server", here, NULL),
+    location_pull_metadata("server", root = here),
     "Duplicate metadata reported from location 'server'")
   expect_equal(names(err$body), c("x", "i", "i"))
   expect_equal(err$body[[1]],
@@ -1135,4 +1160,61 @@ test_that("early exit if no orphans", {
   id <- create_random_packet_chain(root, 3)
   expect_silent(res <- orderly_prune_orphans(root = root))
   expect_equal(res, character())
+})
+
+
+test_that("be chatty when pulling packets", {
+  withr::local_options(orderly.quiet = FALSE)
+  here <- create_temporary_root()
+  there <- create_temporary_root()
+  res <- evaluate_promise(
+    orderly_location_add_path("server", path = there$path, root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[1]],
+               "Testing location")
+  expect_match(res$messages[[2]],
+               "Location configured successfully")
+
+  res <- evaluate_promise(orderly_location_pull_metadata(root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[1]],
+               "Fetching metadata from 1 location: 'server'")
+  expect_match(res$messages[[2]],
+               "No metadata found at 'server'")
+
+  id1 <- create_random_packet(there)
+  id2 <- create_random_packet(there)
+
+  res <- evaluate_promise(orderly_location_pull_metadata(root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[1]],
+               "Fetching metadata from 1 location: 'server'")
+  expect_match(res$messages[[2]],
+               "Found 2 packets at 'server', of which 2 are new")
+
+  res <- evaluate_promise(orderly_location_pull_metadata(root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[2]],
+               "Found 2 packets at 'server', of which 0 are new")
+
+  id3 <- create_random_packet(there)
+  res <- evaluate_promise(orderly_location_pull_metadata(root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[2]],
+               "Found 3 packets at 'server', of which 1 is new")
+})
+
+
+test_that("verify location on addition", {
+  root <- create_temporary_root()
+  path <- tempfile()
+
+  expect_error(
+    orderly_location_add_path("upstream", path = path, root = root))
+  expect_equal(orderly_location_list(root = root), "local")
+
+  expect_no_error(
+    orderly_location_add_path("upstream", path = path, verify = FALSE,
+                              root = root))
+  expect_equal(orderly_location_list(root = root), c("local", "upstream"))
 })
