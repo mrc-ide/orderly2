@@ -38,39 +38,6 @@ test_that("nontrivial location implies allow_remote", {
 })
 
 
-test_that("can convert into search options", {
-  opts <- orderly_search_options(location = "x",
-                                 allow_remote = FALSE,
-                                 pull_metadata = FALSE)
-  expect_equal(as_orderly_search_options(NULL),
-               orderly_search_options())
-  expect_equal(as_orderly_search_options(list(location = "x")),
-               modifyList(orderly_search_options(),
-                          list(location = "x", allow_remote = TRUE)))
-  expect_equal(as_orderly_search_options(unclass(opts)),
-               opts)
-  expect_equal(as_orderly_search_options(NULL, list(allow_remote = TRUE)),
-               orderly_search_options(allow_remote = TRUE))
-  expect_equal(as_orderly_search_options(list(location = "a"),
-                                         list(allow_remote = TRUE)),
-               orderly_search_options(location = "a", allow_remote = TRUE))
-  expect_equal(as_orderly_search_options(list(allow_remote = FALSE,
-                                              location = "a"),
-                                         list(allow_remote = TRUE)),
-               orderly_search_options(allow_remote = FALSE, location = "a"))
-})
-
-
-test_that("validate inputs to outpack search options", {
-  expect_error(
-    as_orderly_search_options(c(allow_remote = FALSE)),
-    "Expected 'options' to be an 'orderly_search_options' or a list of options")
-  expect_error(
-    as_orderly_search_options(list(allow_remote = FALSE, other = FALSE)),
-    "Invalid option passed to 'orderly_search_options': 'other'")
-})
-
-
 test_that("Can run very basic queries", {
   root <- create_temporary_root(use_file_store = TRUE)
   ids <- vcapply(1:3, function(i) create_random_packet(root))

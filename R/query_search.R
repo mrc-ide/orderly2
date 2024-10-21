@@ -98,41 +98,6 @@ orderly_search_options <- function(location = NULL,
 }
 
 
-as_orderly_search_options <- function(x, defaults = list(),
-                                      name = deparse(substitute(x))) {
-  if (!is.name(name)) {
-    name <- "options"
-  }
-  if (inherits(x, "orderly_search_options")) {
-    return(x)
-  }
-  if (is.null(x)) {
-    if (length(defaults) == 0) {
-      return(orderly_search_options())
-    }
-    x <- list()
-  }
-  if (!is.list(x)) {
-    stop(sprintf(
-      "Expected '%s' to be an 'orderly_search_options' or a list of options",
-      name),
-      call. = FALSE)
-  }
-  err <- setdiff(names(x), names(formals(orderly_search_options)))
-  if (length(err) > 0) {
-    stop(sprintf("Invalid option passed to 'orderly_search_options': %s",
-                 paste(squote(err), collapse = ", ")),
-         call. = FALSE)
-  }
-  for (i in names(defaults)) {
-    if (is.null(x[[i]])) {
-      x[[i]] <- defaults[[i]]
-    }
-  }
-  do.call(orderly_search_options, x)
-}
-
-
 orderly_query_eval <- function(query, parameters, envir, options, root,
                                call = NULL) {
   assert_is(query, "orderly_query", call = call)
