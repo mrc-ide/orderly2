@@ -14,6 +14,7 @@ orderly_copy_files(
   allow_remote = NULL,
   pull_metadata = FALSE,
   parameters = NULL,
+  options = NULL,
   envir = parent.frame(),
   root = NULL
 )
@@ -82,6 +83,10 @@ needlessly slow.}
 
 \item{parameters}{Optionally, a named list of parameters to substitute
 into the query (using the \verb{this:} prefix)}
+
+\item{options}{\strong{DEPRECATED}. Please don't use this any more, and
+instead use the arguments \code{location}, \code{allow_remote} and
+\code{pull_metadata} directly.}
 
 \item{envir}{Optionally, an environment to substitute into the
 query (using the \verb{environment:} prefix). The default here is to

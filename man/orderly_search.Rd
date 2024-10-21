@@ -14,6 +14,7 @@ orderly_search(
   location = NULL,
   allow_remote = NULL,
   pull_metadata = FALSE,
+  options = NULL,
   root = NULL
 )
 }
@@ -58,6 +59,10 @@ to update.  If pulling many packets in sequence, you \emph{will} want
 to update this option to \code{FALSE} after the first pull, otherwise
 it will update the metadata between every packet, which will be
 needlessly slow.}
+
+\item{options}{\strong{DEPRECATED}. Please don't use this any more, and
+instead use the arguments \code{location}, \code{allow_remote} and
+\code{pull_metadata} directly.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

@@ -195,8 +195,10 @@
 ##' @export
 orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
                                      allow_remote = NULL, pull_metadata = FALSE,
-                                     extract = NULL, root = NULL) {
+                                     extract = NULL, options = NULL,
+                                     root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
+  compatibility_fix_options(options, "orderly_metadata_extract")
 
   if (expr_is_literal_id(expr, name)) {
     ids <- expr

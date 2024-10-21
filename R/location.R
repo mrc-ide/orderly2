@@ -340,8 +340,10 @@ orderly_location_pull_packet <- function(expr,
                                          location = NULL,
                                          pull_metadata = FALSE,
                                          recursive = NULL,
+                                         options = NULL,
                                          root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
+  compatibility_fix_options(options, "orderly_location_pull_packet")
 
   if (expr_is_literal_id(expr, name)) {
     ids <- expr

@@ -12,6 +12,7 @@ orderly_run(
   location = NULL,
   allow_remote = NULL,
   pull_metadata = FALSE,
+  search_options = NULL,
   root = NULL
 )
 }
@@ -52,6 +53,10 @@ to update this option to \code{FALSE} after the first pull, otherwise
 it will update the metadata between every packet, which will be
 needlessly slow.}
 
+\item{search_options}{\strong{DEPRECATED}. Please don't use this any
+more, and instead use the arguments \code{location}, \code{allow_remote}
+and \code{pull_metadata} directly.}
+
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working
 directory. This function \strong{does} require that the directory is
@@ -89,12 +94,10 @@ seconds to hours depending on their size and the speed of your
 network connection (but \emph{not} pulling in the packets could mean
 that your packet fails to run).
 
-To allow for control over this you can pass in an argument
-\code{search_options}, which is a \link{orderly_search_options}
-object, and allows control over the names of the locations to
-use, whether metadata should be refreshed before we pull
-anything and if packets that are not currently downloaded should
-be considered candidates.
+To allow for control over this you can pass in an arguments to
+control the names of the locations to use, whether metadata
+should be refreshed before we pull anything and if packets that
+are not currently downloaded should be considered candidates.
 
 This has no effect when running interactively, in which case you
 can specify the search options (root specific) with
@@ -104,18 +107,17 @@ can specify the search options (root specific) with
 \section{Which packets might be selected from locations?}{
 
 
-The \code{search_options} argument controls where outpack searches for
-packets with the given query and if anything might be moved over
-the network (or from one outpack archive to another). By default
-everything is resolved locally only; that is we can only depend
-on packets that are unpacked within our current archive.  If you
-pass a \code{search_options} argument that contains \code{allow_remote = TRUE} (see \link{orderly_search_options} then packets
-that are known anywhere are candidates for using as dependencies
-and \emph{if needed} we will pull the resolved files from a remote
-location. Note that even if the packet is not locally present
-this might not be needed - if you have the same content anywhere
-else in an unpacked packet we will reuse the same content
-without re-fetching.
+The arguments \code{location}, \code{allow_remote} and \code{pull_metadata}
+control where outpack searches for packets with the given query
+and if anything might be moved over the network (or from one
+outpack archive to another). By default everything is resolved
+locally only; that is we can only depend on packets that are
+unpacked within our current archive.  If you pass \code{allow_remote = TRUE}, then packets that are known anywhere are candidates for
+using as dependencies and \emph{if needed} we will pull the resolved
+files from a remote location. Note that even if the packet is
+not locally present this might not be needed - if you have the
+same content anywhere else in an unpacked packet we will reuse
+the same content without re-fetching.
 
 If \code{pull_metadata = TRUE}, then we will refresh location metadata
 before pulling, and the \code{location} argument controls which
