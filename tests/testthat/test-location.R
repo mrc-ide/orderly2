@@ -1183,3 +1183,18 @@ test_that("be chatty when pulling packets", {
   expect_match(res$messages[[2]],
                "Found 3 packets at 'server', of which 1 is new")
 })
+
+
+test_that("verify location on addition", {
+  root <- create_temporary_root()
+  path <- tempfile()
+
+  expect_error(
+    orderly_location_add_path("upstream", path = path, root = root))
+  expect_equal(orderly_location_list(root = root), "local")
+
+  expect_no_error(
+    orderly_location_add_path("upstream", path = path, verify = FALSE,
+                              root = root))
+  expect_equal(orderly_location_list(root = root), c("local", "upstream"))
+})
