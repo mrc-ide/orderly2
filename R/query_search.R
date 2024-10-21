@@ -56,7 +56,7 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##'   to be found that are not currently unpacked (i.e., are known
 ##'   only to a location that we have metadata from). If this is
 ##'   `TRUE`, then in conjunction with [orderly2::orderly_dependency]
-##'   you might pull a large quantity of data.  The default `NULL` is
+##'   you might pull a large quantity of data.  The default is `NULL`. This is
 ##'   `TRUE` if remote locations are listed explicitly as a character
 ##'   vector in the `location` argument, or if you have specified
 ##'   `pull_metadata = TRUE`, otherwise `FALSE`.
