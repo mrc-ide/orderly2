@@ -55,17 +55,21 @@ dots_is_literal_id <- function(...) {
 }
 
 
-as_orderly_query <- function(expr, ...) {
+as_orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL,
+                             arg = "expr", call = parent.frame()) {
   if (missing(expr)) {
     expr <- NULL
   }
   if (inherits(expr, "orderly_query")) {
-    if (...length() > 0) {
-      stop("If 'expr' is an 'orderly_query', no additional arguments allowed")
+    err <- !is.null(name) || !is.null(scope) || !is.null(subquery)
+    if (err) {
+      cli::cli_abort(
+        "If '{arg}' is an 'orderly_query', no additional arguments allowed",
+        arg = arg, call = call)
     }
     expr
   } else {
-    orderly_query(expr, ...)
+    orderly_query(expr, name, scope, subquery)
   }
 }
 

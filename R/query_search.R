@@ -7,9 +7,6 @@
 ##'
 ##' @title Query outpack's database
 ##'
-##' @param ... Arguments passed through to [orderly2::orderly_query],
-##'   perhaps just a query expression
-##'
 ##' @param parameters Optionally, a named list of parameters to substitute
 ##'   into the query (using the `this:` prefix)
 ##'
@@ -24,6 +21,7 @@
 ##'   options are used (i.e., `orderly2::orderly_search_options()`)
 ##'
 ##' @inheritParams orderly_metadata
+##' @inheritParams orderly_query
 ##'
 ##' @return A character vector of matching ids. In the case of no
 ##'   match from a query returning a single value (e.g., `latest(...)`
@@ -31,10 +29,11 @@
 ##'   (`NA_character_`)
 ##'
 ##' @export
-orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
+orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
+                           parameters = NULL, envir = parent.frame(),
                            options = NULL, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  query <- as_orderly_query(...)
+  query <- as_orderly_query(expr, name, scope, subquery)
   options <- as_orderly_search_options(options)
   validate_parameters(parameters, environment())
   orderly_query_eval(query, parameters, envir, options, root,
@@ -53,34 +52,45 @@ orderly_search <- function(..., parameters = NULL, envir = parent.frame(),
 ##' @param location Optional vector of locations to pull from. We
 ##'   might in future expand this to allow wildcards or exceptions.
 ##'
-##' @param allow_remote Logical, indicating if we should allow
-##'   packets to be found that are not currently unpacked (i.e., are
-##'   known only to a location that we have metadata from). If this is
-##'   `TRUE`, then in conjunction with
-##'   [orderly2::orderly_dependency] you might pull a large
-##'   quantity of data.
+##' @param allow_remote Logical, indicating if we should allow packets
+##'   to be found that are not currently unpacked (i.e., are known
+##'   only to a location that we have metadata from). If this is
+##'   `TRUE`, then in conjunction with [orderly2::orderly_dependency]
+##'   you might pull a large quantity of data.  The default is `NULL`. This is
+##'   `TRUE` if remote locations are listed explicitly as a character
+##'   vector in the `location` argument, or if you have specified
+##'   `pull_metadata = TRUE`, otherwise `FALSE`.
 ##'
 ##' @param pull_metadata Logical, indicating if we should pull
-##'   metadata immediately before the search. If `location` is
-##'   given, then we will pass this through to
-##'   [orderly2::orderly_location_pull_metadata] to filter locations to
-##'   update.  If pulling many packets in sequence, you *will* want to
-##'   update this option to `FALSE` after the first pull.
+##'   metadata immediately before the search. If `location` is given,
+##'   then we will pass this through to
+##'   [orderly2::orderly_location_pull_metadata] to filter locations
+##'   to update.  If pulling many packets in sequence, you *will* want
+##'   to update this option to `FALSE` after the first pull, otherwise
+##'   it will update the metadata between every packet, which will be
+##'   needlessly slow.
 ##'
 ##' @return An object of class `orderly_search_options` which should
 ##'   not be modified after creation (but see note about `pull_metadata`)
 ##'
 ##' @export
 orderly_search_options <- function(location = NULL,
-                                   allow_remote = FALSE,
+                                   allow_remote = NULL,
                                    pull_metadata = FALSE) {
   ## TODO: Later, we might allow something like "before" here too to
   ## control searching against some previous time on a location.
   if (!is.null(location)) {
-    assert_character(location, call = environment())
+    assert_character(location)
   }
-  assert_scalar_logical(allow_remote, call = environment())
-  assert_scalar_logical(pull_metadata, call = environment())
+  has_remote_location <- !is.null(location) &&
+    length(setdiff(location, c("local", "orphan")) > 0)
+
+  assert_scalar_logical(pull_metadata)
+  if (is.null(allow_remote)) {
+    allow_remote <- has_remote_location || pull_metadata
+  } else {
+    assert_scalar_logical(allow_remote)
+  }
   ret <- list(location = location,
               allow_remote = allow_remote,
               pull_metadata = pull_metadata)

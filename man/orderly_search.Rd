@@ -5,7 +5,10 @@
 \title{Query outpack's database}
 \usage{
 orderly_search(
-  ...,
+  expr,
+  name = NULL,
+  scope = NULL,
+  subquery = NULL,
   parameters = NULL,
   envir = parent.frame(),
   options = NULL,
@@ -13,8 +16,17 @@ orderly_search(
 )
 }
 \arguments{
-\item{...}{Arguments passed through to \link{orderly_query},
-perhaps just a query expression}
+\item{expr}{The query expression. A \code{NULL} expression matches everything.}
+
+\item{name}{Optionally, the name of the packet to scope the query on. This
+will be intersected with \code{scope} arg and is a shorthand way of running
+\code{scope = list(name = "name")}}
+
+\item{scope}{Optionally, a scope query to limit the packets
+searched by \code{pars}}
+
+\item{subquery}{Optionally, named list of subqueries which can be
+referenced by name from the \code{expr}.}
 
 \item{parameters}{Optionally, a named list of parameters to substitute
 into the query (using the \verb{this:} prefix)}
