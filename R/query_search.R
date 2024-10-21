@@ -88,6 +88,7 @@ orderly_search_options <- function(location = NULL,
                 "that previously accepted 'options'")),
     .frequency = "regularly",
     .frequency_id = "orderly_search_options")
+  build_search_options(location, allow_remote, pull_metadata)
 }
 
 
@@ -101,8 +102,8 @@ compatibility_fix_options <- function(options, name,
                   "'allow_remote' and 'pull_metadata') directly to '{name}'"),
         "!" = paste("If you have {.strong also} passed these options in",
                     "to your function I am about to silently overwrite them")),
-      .frequency = "frequently",
-      .frequency_id = paste0("use_options:", name),
+      .frequency = "regularly",
+      .frequency_id = paste0("orderly_use_options:", name),
       call = env)
     list2env(options, env)
   }
