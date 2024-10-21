@@ -49,12 +49,6 @@ orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
 }
 
 
-dots_is_literal_id <- function(...) {
-  ...length() == 1 && is.null(...names()) && is.character(..1) &&
-    all(grepl(re_id, ..1))
-}
-
-
 expr_is_literal_id <- function(expr, ...) {
   all(vlapply(list(...), is.null)) &&
     is.character(expr) &&

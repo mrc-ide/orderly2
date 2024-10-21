@@ -1003,3 +1003,41 @@ test_that("&& takes precedence over ||", {
                    root = root),
     c(x1, y1))
 })
+
+
+test_that("Warn on use of search options", {
+  rlang::reset_warning_verbosity("orderly_search_options")
+  expect_warning(
+    orderly_search_options(),
+    "Use of 'orderly_search_options' is deprecated")
+  expect_no_warning(
+    orderly_search_options())
+})
+
+
+test_that("Warn, but honour, on use of search options to search", {
+  rlang::reset_warning_verbosity("orderly_use_options:orderly_search")
+  root <- list()
+  root$a <- create_temporary_root(use_file_store = TRUE)
+  root$b <- create_temporary_root(use_file_store = TRUE)
+  orderly_location_add_path("b", path = root$b$path, root = root$a)
+
+  ids <- vcapply(1:3, function(i) {
+    create_random_packet(root$b, "data", list(p = i))
+  })
+  orderly_location_pull_metadata(root = root$a)
+
+  expect_equal(orderly_search(NULL, root = root$a),
+               character())
+  options <- suppressWarnings(orderly_search_options(location = "b"))
+
+  expect_warning(
+    res <- orderly_search(NULL, root = root$a, options = options),
+    "Use of 'options' in 'orderly_search()' is deprecated",
+    fixed = TRUE)
+  expect_equal(res, ids)
+
+  expect_no_warning(
+    res2 <- orderly_search(NULL, root = root$a, options = options))
+  expect_equal(res2, res)
+})
