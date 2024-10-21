@@ -19,17 +19,13 @@ orderly_query_explain <- function(expr, name = NULL, scope = NULL,
                                   envir = parent.frame(),
                                   location = NULL,
                                   allow_remote = NULL,
-                                  pull_metadata = FALSE,
                                   root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   query <- as_orderly_query(expr, name, scope, subquery)
-  options <- orderly_search_options(location = location,
-                                    allow_remote = allow_remote,
-                                    pull_metadata = pull_metadata)
   found <- orderly_search(query, parameters = parameters, envir = envir,
-                          location = options$location,
-                          allow_remote = options$allow_remote,
-                          pull_metadata = options$pull_metadata,
+                          location = location,
+                          allow_remote = allow_remote,
+                          pull_metadata = FALSE,
                           root = root)
   query_simplified <- query_simplify(query)
   ret <- list(found = found,
@@ -42,9 +38,9 @@ orderly_query_explain <- function(expr, name = NULL, scope = NULL,
     found <- orderly_search(expr,
                             parameters = parameters,
                             envir = envir,
-                            location = options$location,
-                            allow_remote = options$allow_remote,
-                            pull_metadata = FALSE, # not again.
+                            location = location,
+                            allow_remote = allow_remote,
+                            pull_metadata = FALSE,
                             root = root)
     ret$parts[[name]] <- list(
       name = name,

@@ -1,5 +1,5 @@
 test_that("can construct search options", {
-  defaults <- orderly_search_options()
+  defaults <- build_search_options()
   expect_s3_class(defaults, "orderly_search_options")
   expect_mapequal(
     unclass(defaults),
@@ -7,8 +7,8 @@ test_that("can construct search options", {
          allow_remote = FALSE,
          pull_metadata = FALSE))
 
-  opts <- orderly_search_options(location = c("x", "y"),
-                                 pull_metadata = TRUE)
+  opts <- build_search_options(location = c("x", "y"),
+                               pull_metadata = TRUE)
   expect_s3_class(opts, "orderly_search_options")
   expect_mapequal(
     unclass(opts),
@@ -19,22 +19,22 @@ test_that("can construct search options", {
 
 
 test_that("pull_metadata implies allow_remote", {
-  opts <- orderly_search_options(pull_metadata = TRUE)
-  expect_equal(opts, orderly_search_options(location = NULL,
-                                            allow_remote = TRUE,
-                                            pull_metadata = TRUE))
+  opts <- build_search_options(pull_metadata = TRUE)
+  expect_equal(opts, build_search_options(location = NULL,
+                                          allow_remote = TRUE,
+                                          pull_metadata = TRUE))
 })
 
 
 test_that("nontrivial location implies allow_remote", {
-  expect_false(orderly_search_options(location = NULL)$allow_remote)
-  expect_false(orderly_search_options(location = "local")$allow_remote)
+  expect_false(build_search_options(location = NULL)$allow_remote)
+  expect_false(build_search_options(location = "local")$allow_remote)
   expect_false(
-    orderly_search_options(location = c("local", "orphan"))$allow_remote)
+    build_search_options(location = c("local", "orphan"))$allow_remote)
   expect_true(
-    orderly_search_options(location = "server")$allow_remote)
+    build_search_options(location = "server")$allow_remote)
   expect_true(
-    orderly_search_options(location = c("local", "server"))$allow_remote)
+    build_search_options(location = c("local", "server"))$allow_remote)
 })
 
 
@@ -73,7 +73,7 @@ test_that("Can run very basic queries", {
     ids)
   expect_equal(
     orderly_search(bquote(latest(id == .(ids[[1]]) || id == .(ids[[2]]))),
-      root = root),
+                   root = root),
     ids[[2]])
 })
 
@@ -252,8 +252,8 @@ test_that("scope and allow_local can be used together to filter query", {
   y2 <- create_random_packet(root$src, "y", list(p = 1))
   orderly_location_pull_metadata(root = root$dst)
 
-  options_local <- orderly_search_options(allow_remote = FALSE)
-  options_remote <- orderly_search_options(allow_remote = TRUE)
+  options_local <- build_search_options(allow_remote = FALSE)
+  options_remote <- build_search_options(allow_remote = TRUE)
 
   expect_equal(
     orderly_search(quote(latest(parameter:p == 1)), allow_remote = TRUE,

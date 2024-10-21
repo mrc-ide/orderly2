@@ -31,9 +31,9 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
                            pull_metadata = FALSE, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   query <- as_orderly_query(expr, name, scope, subquery)
-  options <- orderly_search_options(location = location,
-                                    allow_remote = allow_remote,
-                                    pull_metadata = pull_metadata)
+  options <- build_search_options(location = location,
+                                  allow_remote = allow_remote,
+                                  pull_metadata = pull_metadata)
   validate_parameters(parameters, environment())
   orderly_query_eval(query, parameters, envir, options, root,
                      call = environment())
@@ -76,19 +76,28 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 orderly_search_options <- function(location = NULL,
                                    allow_remote = NULL,
                                    pull_metadata = FALSE) {
-  ## TODO: Later, we might allow something like "before" here too to
-  ## control searching against some previous time on a location.
+  cli::cli_warn(
+    c("Use of 'orderly_search_options' is deprecated",
+      i = paste("You should just pass these arguments directly into functions",
+                "that previously accepted 'options'")),
+    .frequency = "regularly",
+    .frequency_id = "orderly_search_options")
+}
+
+
+build_search_options <- function(location = NULL, allow_remote = NULL,
+                                 pull_metadata = FALSE, call = parent.frame()) {
   if (!is.null(location)) {
-    assert_character(location)
+    assert_character(location, call = call)
   }
   has_remote_location <- !is.null(location) &&
     length(setdiff(location, c("local", "orphan")) > 0)
 
-  assert_scalar_logical(pull_metadata)
+  assert_scalar_logical(pull_metadata, call = call)
   if (is.null(allow_remote)) {
     allow_remote <- has_remote_location || pull_metadata
   } else {
-    assert_scalar_logical(allow_remote)
+    assert_scalar_logical(allow_remote, call = call)
   }
   ret <- list(location = location,
               allow_remote = allow_remote,

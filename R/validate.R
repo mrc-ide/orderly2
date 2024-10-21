@@ -53,13 +53,11 @@ orderly_validate_archive <- function(expr = NULL, name = NULL,
   if (expr_is_literal_id(expr, name)) {
     ids <- expr
   } else {
-    ## TODO:  we may drop options here
-    options <- orderly_search_options(location = "local", allow_remote = FALSE)
     ids <- orderly_search(expr,
                           name = name,
-                          location = options$location,
-                          allow_remote = options$allow_remote,
-                          pull_metadata = options$pull_metadata,
+                          location = "local",
+                          allow_remote = FALSE,
+                          pull_metadata = FALSE,
                           root = root)
   }
 
