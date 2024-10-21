@@ -7,17 +7,26 @@
 \alias{orderly_location_add_packit}
 \title{Add a new location}
 \usage{
-orderly_location_add(name, type, args, root = NULL)
+orderly_location_add(
+  name,
+  type,
+  args,
+  verify = TRUE,
+  quiet = NULL,
+  root = NULL
+)
 
-orderly_location_add_path(name, path, root = NULL)
+orderly_location_add_path(name, path, verify = TRUE, quiet = NULL, root = NULL)
 
-orderly_location_add_http(name, url, root = NULL)
+orderly_location_add_http(name, url, verify = TRUE, quiet = NULL, root = NULL)
 
 orderly_location_add_packit(
   name,
   url,
   token = NULL,
   save_token = NULL,
+  verify = TRUE,
+  quiet = NULL,
   root = NULL
 )
 }
@@ -32,6 +41,13 @@ API).}
 
 \item{args}{Arguments to the location driver. The arguments here
 will vary depending on the type used, see Details.}
+
+\item{verify}{Logical, indicating if we should verify that the
+location can be used before adding.}
+
+\item{quiet}{Logical, indicating if we should print information
+while configuring and creating locations.  If not given, we use
+the option of \code{orderly.quiet}, defaulting to \code{TRUE}.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

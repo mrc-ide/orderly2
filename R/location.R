@@ -78,14 +78,20 @@
 ##' @param verify Logical, indicating if we should verify that the
 ##'   location can be used before adding.
 ##'
+##' @param quiet Logical, indicating if we should print information
+##'   while configuring and creating locations.  If not given, we use
+##'   the option of `orderly.quiet`, defaulting to `TRUE`.
+##'
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
+orderly_location_add <- function(name, type, args, verify = TRUE, quiet = NULL,
+                                 root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   assert_scalar_character(name)
   assert_scalar_logical(verify)
+  quiet <- orderly_quiet(quiet)
 
   if (name %in% location_reserved_name) {
     cli::cli_abort("Cannot add a location with reserved name '{name}'")
@@ -113,12 +119,16 @@ orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
   loc <- new_location_entry(name, type, args, call = environment())
 
   if (verify) {
-    cli::cli_alert_info("Testing location")
+    if (!quiet) {
+      cli::cli_alert_info("Testing location")
+    }
     driver <- location_driver_create(type, args)
     if (!is.null(driver$authorise)) {
       driver$authorise()
     }
-    cli::cli_alert_success("Location configured successfully")
+    if (!quiet) {
+      cli::cli_alert_success("Location configured successfully")
+    }
   }
 
   config <- root$config
@@ -136,9 +146,11 @@ orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
 ##'   be unreliable.
 ##'
 ##' @export
-orderly_location_add_path <- function(name, path, root = NULL) {
+orderly_location_add_path <- function(name, path, verify = TRUE, quiet = NULL,
+                                      root = NULL) {
   args <- list(path = path)
-  orderly_location_add(name, "path", args, root = root)
+  orderly_location_add(name, "path", args, verify = verify, quiet = quiet,
+                       root = root)
 }
 
 
@@ -148,9 +160,11 @@ orderly_location_add_path <- function(name, path, root = NULL) {
 ##'   example `http://example.com:8080`
 ##'
 ##' @export
-orderly_location_add_http <- function(name, url, root = NULL) {
+orderly_location_add_http <- function(name, url, verify = TRUE, quiet = NULL,
+                                      root = NULL) {
   args <- list(url = url)
-  orderly_location_add(name, "http", args, root = root)
+  orderly_location_add(name, "http", args, verify = verify, quiet = quiet,
+                       root = root)
 }
 
 
@@ -167,9 +181,12 @@ orderly_location_add_http <- function(name, url, root = NULL) {
 ##'
 ##' @export
 orderly_location_add_packit <- function(name, url, token = NULL,
-                                        save_token = NULL, root = NULL) {
+                                        save_token = NULL,
+                                        verify = TRUE, quiet = NULL,
+                                        root = NULL) {
   args <- list(url = url, token = token, save_token = save_token)
-  orderly_location_add(name, "packit", args, root = root)
+  orderly_location_add(name, "packit", args, verify = verify, quiet = quiet,
+                       root = root)
 }
 
 
@@ -815,26 +832,14 @@ location_build_push_plan <- function(packet_id, location_name, root) {
 ## different location types in different target languages effectively.
 new_location_entry <- function(name, type, args, call = parent.frame()) {
   match_value(type, location_types)
-  required <- NULL
-  if (type == "path") {
-    required <- "path"
-  } else if (type == "http") {
-    required <- "url"
-  } else if (type == "packit") {
-    required <- "url"
-  } else if (type == "custom") {
-    required <- "driver"
-  }
   if (length(args) > 0) {
     assert_is(args, "list")
     assert_named(args)
   }
-  msg <- setdiff(required, names(args))
-  if (length(msg) > 0) {
-    cli::cli_abort("Field{?s} missing from args: {squote(msg)}")
-  }
-
   if (type == "custom") {
+    if (is.null(args$driver)) {
+      cli::cli_abort("Field missing from args: 'driver'")
+    }
     check_symbol_from_str(args$driver, "args$driver")
   }
 

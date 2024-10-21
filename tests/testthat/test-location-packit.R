@@ -1,4 +1,5 @@
 test_that("can authenticate with existing GitHub token", {
+  withr::local_options(orderly.quiet = FALSE)
   clear_auth_cache()
   withr::defer(clear_auth_cache())
 
@@ -43,6 +44,7 @@ test_that("can authenticate with existing Packit token", {
 
 
 test_that("can authenticate using device flow", {
+  withr::local_options(orderly.quiet = FALSE)
   clear_auth_cache()
   withr::defer(clear_auth_cache())
 
@@ -70,7 +72,9 @@ test_that("can authenticate using device flow", {
   expect_equal(args[[1]]$body$type, "json")
 })
 
+
 test_that("location_packit uses authentication", {
+  withr::local_options(orderly.quiet = FALSE)
   clear_auth_cache()
   withr::defer(clear_auth_cache())
 
