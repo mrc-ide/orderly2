@@ -154,7 +154,8 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
       } else if (!options$allow_remote) {
         cli::cli_abort(
           c("Unable to copy files, as they are not available locally",
-            i = "To fetch from a location, try again with 'allow_remote = TRUE'"),
+            i = paste("To fetch from a location, try again with",
+                      "{.code allow_remote = TRUE}")),
           parent = e)
       }
       copy_files_from_remote(id, plan$there, plan$here, dest, overwrite, root,
