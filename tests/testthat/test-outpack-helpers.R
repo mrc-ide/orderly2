@@ -32,7 +32,7 @@ test_that("can copy files from location, using store", {
 
   suppressMessages(
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
-                       options = list(allow_remote = TRUE), root = here))
+                       allow_remote = TRUE, root = here))
   expect_equal(dir(tmp), "data.rds")
 
   meta <- orderly_metadata(id, root = there)
@@ -57,7 +57,7 @@ test_that("can copy files from location, using archive", {
 
   suppressMessages(
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
-                       options = list(allow_remote = TRUE), root = here))
+                       allow_remote = TRUE, root = here))
   expect_equal(dir(tmp), "data.rds")
 
   meta <- orderly_metadata(id, there)
@@ -90,12 +90,12 @@ test_that("require a single id for search", {
   ids <- replicate(3, outpack_id())
   expect_error(
     orderly_copy_files(ids, files = c(here = "there"), dest = dst, root = root),
-    "Expected a length 1 value for first argument if id (not 3)",
+    "Expected a length 1 value for 'expr' if id (not 3)",
     fixed = TRUE)
   expect_error(
     orderly_copy_files(character(), files = c(here = "there"), dest = dst,
                        root = root),
-    "Expected a length 1 value for first argument if id (not 0)",
+    "Expected a length 1 value for 'expr' if id (not 0)",
     fixed = TRUE)
 })
 

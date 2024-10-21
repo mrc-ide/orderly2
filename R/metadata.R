@@ -285,7 +285,12 @@ orderly_dependency <- function(name, query, files) {
   ctx <- orderly_context(rlang::caller_env())
   subquery <- NULL
   query <- orderly_query(query, name = name, subquery = subquery)
-  search_options <- as_orderly_search_options(ctx$search_options)
+  search_options <- ctx$search_options %||% build_search_options()
+
+  ## TODO: this separation of codepaths here is quite weird.  We
+  ## should do the copy here and have the outpack function probably
+  ## just do the metadata update.  The logic is otherwise fine I
+  ## think.
   if (ctx$is_active) {
     res <- outpack_packet_use_dependency(ctx$packet, query, files,
                                          search_options = search_options,
@@ -293,9 +298,16 @@ orderly_dependency <- function(name, query, files) {
                                          overwrite = TRUE)
   } else {
     res <- orderly_copy_files(
-      query, files = files, dest = ctx$path, overwrite = TRUE,
-      parameters = ctx$parameters, options = search_options,
-      envir = ctx$envir, root = ctx$root)
+      query,
+      files = files,
+      dest = ctx$path,
+      overwrite = TRUE,
+      parameters = ctx$parameters,
+      location = search_options$location,
+      allow_remote = search_options$allow_remote,
+      pull_metadata = search_options$pull_metadata,
+      envir = ctx$envir,
+      root = ctx$root)
   }
 
   cli::cli_alert_info(

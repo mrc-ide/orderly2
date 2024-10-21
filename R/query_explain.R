@@ -6,6 +6,7 @@
 ##' @title Explain a query
 ##'
 ##' @inheritParams orderly_search
+##' @inheritParams orderly_search_options
 ##'
 ##' @return An object of class `orderly_query_explain`, which can be
 ##'   inspected (contents subject to change) and which has a print
@@ -16,12 +17,16 @@
 orderly_query_explain <- function(expr, name = NULL, scope = NULL,
                                   subquery = NULL, parameters = NULL,
                                   envir = parent.frame(),
-                                  options = NULL, root = NULL) {
+                                  location = NULL,
+                                  allow_remote = NULL,
+                                  root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   query <- as_orderly_query(expr, name, scope, subquery)
-  options <- as_orderly_search_options(options)
   found <- orderly_search(query, parameters = parameters, envir = envir,
-                          options = options, root = root)
+                          location = location,
+                          allow_remote = allow_remote,
+                          pull_metadata = FALSE,
+                          root = root)
   query_simplified <- query_simplify(query)
   ret <- list(found = found,
               n = length(stats::na.omit(found)), # latest() returns NA
@@ -30,8 +35,13 @@ orderly_query_explain <- function(expr, name = NULL, scope = NULL,
 
   for (name in names(query_simplified$parts)) {
     expr <- query_simplified$parts[[name]]
-    found <- orderly_search(expr, parameters = parameters, envir = envir,
-                            options = options, root = root)
+    found <- orderly_search(expr,
+                            parameters = parameters,
+                            envir = envir,
+                            location = location,
+                            allow_remote = allow_remote,
+                            pull_metadata = FALSE,
+                            root = root)
     ret$parts[[name]] <- list(
       name = name,
       str = deparse_query(expr, NULL, NULL),

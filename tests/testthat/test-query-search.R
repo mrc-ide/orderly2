@@ -1,5 +1,5 @@
 test_that("can construct search options", {
-  defaults <- orderly_search_options()
+  defaults <- build_search_options()
   expect_s3_class(defaults, "orderly_search_options")
   expect_mapequal(
     unclass(defaults),
@@ -7,8 +7,8 @@ test_that("can construct search options", {
          allow_remote = FALSE,
          pull_metadata = FALSE))
 
-  opts <- orderly_search_options(location = c("x", "y"),
-                                 pull_metadata = TRUE)
+  opts <- build_search_options(location = c("x", "y"),
+                               pull_metadata = TRUE)
   expect_s3_class(opts, "orderly_search_options")
   expect_mapequal(
     unclass(opts),
@@ -19,55 +19,22 @@ test_that("can construct search options", {
 
 
 test_that("pull_metadata implies allow_remote", {
-  opts <- orderly_search_options(pull_metadata = TRUE)
-  expect_equal(opts, orderly_search_options(location = NULL,
-                                            allow_remote = TRUE,
-                                            pull_metadata = TRUE))
+  opts <- build_search_options(pull_metadata = TRUE)
+  expect_equal(opts, build_search_options(location = NULL,
+                                          allow_remote = TRUE,
+                                          pull_metadata = TRUE))
 })
 
 
 test_that("nontrivial location implies allow_remote", {
-  expect_false(orderly_search_options(location = NULL)$allow_remote)
-  expect_false(orderly_search_options(location = "local")$allow_remote)
+  expect_false(build_search_options(location = NULL)$allow_remote)
+  expect_false(build_search_options(location = "local")$allow_remote)
   expect_false(
-    orderly_search_options(location = c("local", "orphan"))$allow_remote)
+    build_search_options(location = c("local", "orphan"))$allow_remote)
   expect_true(
-    orderly_search_options(location = "server")$allow_remote)
+    build_search_options(location = "server")$allow_remote)
   expect_true(
-    orderly_search_options(location = c("local", "server"))$allow_remote)
-})
-
-
-test_that("can convert into search options", {
-  opts <- orderly_search_options(location = "x",
-                                 allow_remote = FALSE,
-                                 pull_metadata = FALSE)
-  expect_equal(as_orderly_search_options(NULL),
-               orderly_search_options())
-  expect_equal(as_orderly_search_options(list(location = "x")),
-               modifyList(orderly_search_options(),
-                          list(location = "x", allow_remote = TRUE)))
-  expect_equal(as_orderly_search_options(unclass(opts)),
-               opts)
-  expect_equal(as_orderly_search_options(NULL, list(allow_remote = TRUE)),
-               orderly_search_options(allow_remote = TRUE))
-  expect_equal(as_orderly_search_options(list(location = "a"),
-                                         list(allow_remote = TRUE)),
-               orderly_search_options(location = "a", allow_remote = TRUE))
-  expect_equal(as_orderly_search_options(list(allow_remote = FALSE,
-                                              location = "a"),
-                                         list(allow_remote = TRUE)),
-               orderly_search_options(allow_remote = FALSE, location = "a"))
-})
-
-
-test_that("validate inputs to outpack search options", {
-  expect_error(
-    as_orderly_search_options(c(allow_remote = FALSE)),
-    "Expected 'options' to be an 'orderly_search_options' or a list of options")
-  expect_error(
-    as_orderly_search_options(list(allow_remote = FALSE, other = FALSE)),
-    "Invalid option passed to 'orderly_search_options': 'other'")
+    build_search_options(location = c("local", "server"))$allow_remote)
 })
 
 
@@ -106,7 +73,7 @@ test_that("Can run very basic queries", {
     ids)
   expect_equal(
     orderly_search(bquote(latest(id == .(ids[[1]]) || id == .(ids[[2]]))),
-      root = root),
+                   root = root),
     ids[[2]])
 })
 
@@ -248,18 +215,13 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
   }
   orderly_location_pull_metadata(root = root$a)
 
-  options_local <- orderly_search_options(location = c("x", "y"),
-                                          allow_remote = FALSE)
-  options_remote <- orderly_search_options(location = c("x", "y"),
-                                          allow_remote = TRUE)
-
   expect_equal(
-    orderly_search(quote(name == "data"), options = options_remote,
+    orderly_search(quote(name == "data"), location = c("x", "y"),
                    root = root$a),
     c(ids$x, ids$y))
   expect_equal(
-    orderly_search(quote(name == "data"), options = options_local,
-                   root = root$a),
+    orderly_search(quote(name == "data"), location = c("x", "y"),
+                   allow_remote = FALSE, root = root$a),
     character())
 
   for (i in ids$x) {
@@ -267,12 +229,12 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
   }
 
   expect_equal(
-    orderly_search(quote(name == "data"), options = options_remote,
+    orderly_search(quote(name == "data"), location = c("x", "y"),
                    root = root$a),
     c(ids$x, ids$y))
   expect_equal(
-    orderly_search(quote(name == "data"), options = options_local,
-                   root = root$a),
+    orderly_search(quote(name == "data"), location = c("x", "y"),
+                   allow_remote = FALSE, root = root$a),
     ids$x)
 })
 
@@ -290,16 +252,16 @@ test_that("scope and allow_local can be used together to filter query", {
   y2 <- create_random_packet(root$src, "y", list(p = 1))
   orderly_location_pull_metadata(root = root$dst)
 
-  options_local <- orderly_search_options(allow_remote = FALSE)
-  options_remote <- orderly_search_options(allow_remote = TRUE)
+  options_local <- build_search_options(allow_remote = FALSE)
+  options_remote <- build_search_options(allow_remote = TRUE)
 
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), options = options_remote,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = TRUE,
                   scope = quote(name == "x"),
                   root = root$dst),
     x2)
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), options = options_local,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = FALSE,
                   scope = quote(name == "x"),
                   root = root$dst),
     NA_character_)
@@ -309,12 +271,12 @@ test_that("scope and allow_local can be used together to filter query", {
   }
 
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), options = options_remote,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = TRUE,
                   scope = quote(name == "x"),
                   root = root$dst),
     x2)
   expect_equal(
-    orderly_search(quote(latest(parameter:p == 1)), options = options_local,
+    orderly_search(quote(latest(parameter:p == 1)), allow_remote = FALSE,
                   scope = quote(name == "x"),
                   root = root$dst),
     x1)
@@ -904,7 +866,7 @@ test_that("allow search before query", {
     character(0))
   expect_equal(
     orderly_search(quote(name == "data"), root = root$a,
-                   options = list(pull_metadata = TRUE, allow_remote = TRUE)),
+                   pull_metadata = TRUE, allow_remote = TRUE),
     ids)
   expect_setequal(names(root$a$index$data()$metadata), ids)
 })
@@ -1040,4 +1002,42 @@ test_that("&& takes precedence over ||", {
     orderly_search(quote(parameter:a == TRUE && name == "x" || name == "y"),
                    root = root),
     c(x1, y1))
+})
+
+
+test_that("Warn on use of search options", {
+  rlang::reset_warning_verbosity("orderly_search_options")
+  expect_warning(
+    orderly_search_options(),
+    "Use of 'orderly_search_options' is deprecated")
+  expect_no_warning(
+    orderly_search_options())
+})
+
+
+test_that("Warn, but honour, on use of search options to search", {
+  rlang::reset_warning_verbosity("orderly_use_options:orderly_search")
+  root <- list()
+  root$a <- create_temporary_root(use_file_store = TRUE)
+  root$b <- create_temporary_root(use_file_store = TRUE)
+  orderly_location_add_path("b", path = root$b$path, root = root$a)
+
+  ids <- vcapply(1:3, function(i) {
+    create_random_packet(root$b, "data", list(p = i))
+  })
+  orderly_location_pull_metadata(root = root$a)
+
+  expect_equal(orderly_search(NULL, root = root$a),
+               character())
+  options <- suppressWarnings(orderly_search_options(location = "b"))
+
+  expect_warning(
+    res <- orderly_search(NULL, root = root$a, options = options),
+    "Use of 'options' in 'orderly_search()' is deprecated",
+    fixed = TRUE)
+  expect_equal(res, ids)
+
+  expect_no_warning(
+    res2 <- orderly_search(NULL, root = root$a, options = options))
+  expect_equal(res2, res)
 })

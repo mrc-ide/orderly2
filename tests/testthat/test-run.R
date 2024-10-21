@@ -781,7 +781,7 @@ test_that("Can select location when querying dependencies for a report", {
 
   ## Filter to only allow prod:
   id2 <- orderly_run_quietly("depends",
-                             search_options = list(location = "prod"),
+                             location = "prod",
                              root = path[["us"]],
                              envir = new.env())
   expect_equal(orderly_metadata(id2, path[["us"]])$depends$packet,
@@ -789,7 +789,7 @@ test_that("Can select location when querying dependencies for a report", {
 
   ## Allow any location:
   id3 <- orderly_run_quietly("depends",
-                             search_options = list(location = c("prod", "dev")),
+                             location = c("prod", "dev"),
                              root = path[["us"]],
                              envir = new.env())
   expect_equal(orderly_metadata(id3, path[["us"]])$depends$packet,
@@ -820,8 +820,9 @@ test_that("can select location when querying dependencies interactively", {
   ids[["us"]] <- orderly_run_quietly("data", envir = envir1,
                                      root = path[["us"]])
 
-  orderly_interactive_set_search_options(list(location = "prod"))
-  expect_equal(.interactive$search_options, list(location = "prod"))
+  orderly_interactive_set_search_options(location = "prod")
+  expect_equal(.interactive$search_options,
+               build_search_options(location = "prod"))
 
   envir2 <- new.env()
   path_src <- file.path(path[["us"]], "src", "depends")

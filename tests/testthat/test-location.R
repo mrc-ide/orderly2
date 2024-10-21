@@ -407,8 +407,11 @@ test_that("can error where a query returns no packets", {
 
   id <- create_random_packet(root$src)
   orderly_location_add_path("src", path = root$src$path, root = root$dst)
-  err <- expect_error(
-    orderly_location_pull_packet(name = "data", root = root$dst),
+  expect_error(
+    orderly_location_pull_packet(NULL, name = "data", root = root$dst),
+    "No packets found in query, so cannot pull anything")
+  expect_error(
+    orderly_location_pull_packet("latest", name = "data", root = root$dst),
     "No packets found in query, so cannot pull anything")
 })
 
@@ -706,7 +709,8 @@ test_that("can pull from multiple locations with multiple files", {
   ids_b <- create_random_packet(root$b$path, n_files = 2)
 
   orderly_location_pull_metadata(root = root$dst)
-  suppressMessages(orderly_location_pull_packet(name = "data", root = root$dst))
+  suppressMessages(
+    orderly_location_pull_packet(NULL, name = "data", root = root$dst))
 
   ## It has pulled both packets, and correct number of files
   expect_setequal(
@@ -943,25 +947,9 @@ test_that("can pull packets as a result of a query", {
     orderly_location_pull_packet(
       "parameter:i < 3",
       name = "data",
-      options = list(pull_metadata = TRUE, allow_remote = TRUE),
+      pull_metadata = TRUE,
       root = root$dst$path))
   expect_setequal(ids_moved, ids[1:2])
-})
-
-
-test_that("pull packet sets allow_remote to TRUE if not given", {
-  root <- list()
-  for (name in c("src", "dst")) {
-    root[[name]] <- create_temporary_root()
-  }
-
-  id <- create_random_packet(root$src)
-  orderly_location_add_path("src", path = root$src$path, root = root$dst)
-  orderly_location_pull_metadata(root = root$dst)
-  expect_error(
-    orderly_location_pull_packet(NULL, options = list(allow_remote = FALSE),
-                                 root = root$dst),
-    "If specifying 'options', 'allow_remote' must be TRUE")
 })
 
 

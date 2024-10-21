@@ -182,27 +182,33 @@
 ##'
 ##' @title Extract metadata from orderly2 packets
 ##'
-##' @param ... Arguments passed through to
-##'   [orderly2::orderly_search]. In the special case where the first
-##'   argument is a character vector of ids *and* there are no named
-##'   dot arguments, then we interpret this argument as a vector of
-##'   ids directly.
-##'
 ##' @param extract A character vector of columns to extract, possibly
 ##'   named. See Details for the format.
 ##'
 ##' @inheritParams orderly_metadata
+##' @inheritParams orderly_search
+##' @inheritParams orderly_search_options
 ##'
 ##' @return A `data.frame`, the columns of which vary based on the
 ##'   names of `extract`; see Details for more information.
 ##'
 ##' @export
-orderly_metadata_extract <- function(..., extract = NULL, root = NULL) {
+orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
+                                     allow_remote = NULL, pull_metadata = FALSE,
+                                     extract = NULL, options = NULL,
+                                     root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  if (dots_is_literal_id(...)) {
-    ids <- ..1
+  compatibility_fix_options(options, "orderly_metadata_extract")
+
+  if (expr_is_literal_id(expr, name)) {
+    ids <- expr
   } else {
-    ids <- orderly_search(..., root = root)
+    ids <- orderly_search(expr,
+                          name = name,
+                          location = location,
+                          allow_remote = allow_remote,
+                          pull_metadata = pull_metadata,
+                          root = root)
   }
   extract <- parse_extract(extract, environment())
 

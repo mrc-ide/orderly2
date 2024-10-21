@@ -9,8 +9,8 @@ test_that("index can include only unpacked packets", {
   x2 <- create_random_packet(root$src, "x")
   orderly_location_pull_metadata(root = root$dst)
 
-  opts_all <- orderly_search_options(allow_remote = TRUE)
-  opts_unpacked <- orderly_search_options(allow_remote = FALSE)
+  opts_all <- build_search_options(allow_remote = TRUE)
+  opts_unpacked <- build_search_options(allow_remote = FALSE)
 
   index <- new_query_index(root$dst, opts_all)
   index_unpacked <- new_query_index(root$dst, opts_unpacked)
@@ -33,7 +33,7 @@ test_that("index includes depends info", {
   ids <- create_random_packet_chain(root, 3)
   ids["d"] <- create_random_dependent_packet(root, "d", ids[c("b", "c")])
 
-  index <- new_query_index(root, orderly_search_options())
+  index <- new_query_index(root, build_search_options())
   expect_setequal(index$index$id, ids)
 
   expect_equal(index$get_packet_depends(ids["a"], 1),     character(0))
@@ -55,7 +55,7 @@ test_that("index includes uses info", {
   ids <- create_random_packet_chain(root, 3)
   ids["d"] <- create_random_dependent_packet(root, "d", ids[c("b", "c")])
 
-  index <- new_query_index(root, orderly_search_options())
+  index <- new_query_index(root, build_search_options())
   expect_setequal(index$index$id, ids)
 
   expect_setequal(index$get_packet_uses(ids["a"], 1),    ids["b"])
@@ -88,7 +88,7 @@ test_that("can apply a location filter to index", {
   orderly_location_pull_metadata(root = root$a)
 
   idx_with_location <- function(location) {
-    options <- orderly_search_options(location = location, allow_remote = TRUE)
+    options <- build_search_options(location = location, allow_remote = TRUE)
     new_query_index(root$a, options)
   }
 

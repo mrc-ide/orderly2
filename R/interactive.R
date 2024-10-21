@@ -75,13 +75,16 @@ detect_orderly_interactive_path <- function(
 ##'
 ##' @title Set search options for interactive use
 ##'
-##' @param options Optional control over locations, when used
-##'   with [orderly2::orderly_dependency]; see of Details section of
-##'   [orderly2::orderly_run].
+##' @inheritParams orderly_search_options
 ##'
 ##' @return Nothing, called for its side effects
 ##' @export
-orderly_interactive_set_search_options <- function(options = NULL) {
+orderly_interactive_set_search_options <- function(location = NULL,
+                                                   allow_remote = NULL,
+                                                   pull_metadata = FALSE) {
+  options <- build_search_options(location = location,
+                                  allow_remote = allow_remote,
+                                  pull_metadata = pull_metadata)
   .interactive$search_options <- options
 }
 

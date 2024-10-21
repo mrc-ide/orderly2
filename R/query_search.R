@@ -15,13 +15,13 @@
 ##'   use the calling environment, but you can explicitly pass this in
 ##'   if you want to control where this lookup happens.
 ##'
-##' @param options Optionally, a [orderly2::orderly_search_options]
-##'   object for controlling how the search is performed, and which
-##'   packets should be considered in scope. If not provided, default
-##'   options are used (i.e., `orderly2::orderly_search_options()`)
-##'
 ##' @inheritParams orderly_metadata
 ##' @inheritParams orderly_query
+##' @inheritParams orderly_search_options
+##'
+##' @param options **DEPRECATED**. Please don't use this any more, and
+##'   instead use the arguments `location`, `allow_remote` and
+##'   `pull_metadata` directly.
 ##'
 ##' @return A character vector of matching ids. In the case of no
 ##'   match from a query returning a single value (e.g., `latest(...)`
@@ -31,10 +31,15 @@
 ##' @export
 orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
                            parameters = NULL, envir = parent.frame(),
-                           options = NULL, root = NULL) {
+                           location = NULL, allow_remote = NULL,
+                           pull_metadata = FALSE, options = NULL,
+                           root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
+  compatibility_fix_options(options, "orderly_search")
   query <- as_orderly_query(expr, name, scope, subquery)
-  options <- as_orderly_search_options(options)
+  options <- build_search_options(location = location,
+                                  allow_remote = allow_remote,
+                                  pull_metadata = pull_metadata)
   validate_parameters(parameters, environment())
   orderly_query_eval(query, parameters, envir, options, root,
                      call = environment())
@@ -77,60 +82,53 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 orderly_search_options <- function(location = NULL,
                                    allow_remote = NULL,
                                    pull_metadata = FALSE) {
-  ## TODO: Later, we might allow something like "before" here too to
-  ## control searching against some previous time on a location.
+  cli::cli_warn(
+    c("Use of 'orderly_search_options' is deprecated",
+      i = paste("You should just pass these arguments directly into functions",
+                "that previously accepted 'options'")),
+    .frequency = "regularly",
+    .frequency_id = "orderly_search_options")
+  build_search_options(location, allow_remote, pull_metadata)
+}
+
+
+compatibility_fix_options <- function(options, name,
+                                      arg = deparse(substitute(options)),
+                                      env = parent.frame()) {
+  if (!is.null(options)) {
+    cli::cli_warn(
+      c("Use of '{arg}' in '{name}()' is deprecated and will be removed soon",
+        i = paste("Please pass the arguments to options ('location',",
+                  "'allow_remote' and 'pull_metadata') directly to '{name}'"),
+        "!" = paste("If you have {.strong also} passed these options in",
+                    "to your function I am about to silently overwrite them")),
+      .frequency = "regularly",
+      .frequency_id = paste0("orderly_use_options:", name),
+      call = env)
+    list2env(options, env)
+  }
+}
+
+
+build_search_options <- function(location = NULL, allow_remote = NULL,
+                                 pull_metadata = FALSE, call = parent.frame()) {
   if (!is.null(location)) {
-    assert_character(location)
+    assert_character(location, call = call)
   }
   has_remote_location <- !is.null(location) &&
     length(setdiff(location, c("local", "orphan")) > 0)
 
-  assert_scalar_logical(pull_metadata)
+  assert_scalar_logical(pull_metadata, call = call)
   if (is.null(allow_remote)) {
     allow_remote <- has_remote_location || pull_metadata
   } else {
-    assert_scalar_logical(allow_remote)
+    assert_scalar_logical(allow_remote, call = call)
   }
   ret <- list(location = location,
               allow_remote = allow_remote,
               pull_metadata = pull_metadata)
   class(ret) <- "orderly_search_options"
   ret
-}
-
-
-as_orderly_search_options <- function(x, defaults = list(),
-                                      name = deparse(substitute(x))) {
-  if (!is.name(name)) {
-    name <- "options"
-  }
-  if (inherits(x, "orderly_search_options")) {
-    return(x)
-  }
-  if (is.null(x)) {
-    if (length(defaults) == 0) {
-      return(orderly_search_options())
-    }
-    x <- list()
-  }
-  if (!is.list(x)) {
-    stop(sprintf(
-      "Expected '%s' to be an 'orderly_search_options' or a list of options",
-      name),
-      call. = FALSE)
-  }
-  err <- setdiff(names(x), names(formals(orderly_search_options)))
-  if (length(err) > 0) {
-    stop(sprintf("Invalid option passed to 'orderly_search_options': %s",
-                 paste(squote(err), collapse = ", ")),
-         call. = FALSE)
-  }
-  for (i in names(defaults)) {
-    if (is.null(x[[i]])) {
-      x[[i]] <- defaults[[i]]
-    }
-  }
-  do.call(orderly_search_options, x)
 }
 
 
