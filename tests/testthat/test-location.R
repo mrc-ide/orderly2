@@ -846,6 +846,9 @@ test_that("can add a packit location without a token", {
   orderly_location_add("other", "packit",
                        list(url = "https://example.com"),
                        root = root)
+  expect_equal(
+    orderly_config(root)$location$args[[2]],
+    url = "https://example.com", save_token = TRUE)
   expect_equal(orderly_location_list(root = root), c("local", "other"))
 
   mock_driver <- mockery::mock()

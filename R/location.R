@@ -75,26 +75,27 @@
 ##' @param args Arguments to the location driver. The arguments here
 ##'   will vary depending on the type used, see Details.
 ##'
+##' @param verify Logical, indicating if we should verify that the
+##'   location can be used before adding.
+##'
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-orderly_location_add <- function(name, type, args, root = NULL) {
+orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  assert_scalar_character(name, call = environment())
+  assert_scalar_character(name)
+  assert_scalar_logical(verify)
 
   if (name %in% location_reserved_name) {
     cli::cli_abort("Cannot add a location with reserved name '{name}'")
   }
 
   location_check_new_name(root, name, environment())
-  match_value(type, setdiff(location_types, location_reserved_name),
-              call = environment())
+  match_value(type, setdiff(location_types, location_reserved_name))
 
-  loc <- new_location_entry(name, type, args, call = environment())
   if (type == "path") {
     assert_scalar_character(args$path, name = "path")
-    root_open(args$path, require_orderly = FALSE)
   } else if (type == "http") {
     assert_scalar_character(args$url, name = "url")
   } else if (type == "packit") {
@@ -105,6 +106,19 @@ orderly_location_add <- function(name, type, args, root = NULL) {
     if (!is.null(args$token) && !is.null(args$save_token)) {
       cli::cli_abort("Cannot specify both 'token' and 'save_token'")
     }
+    if (is.null(args$save_token)) {
+      args$save_token <- is.null(args$token)
+    }
+  }
+  loc <- new_location_entry(name, type, args, call = environment())
+
+  if (verify) {
+    cli::cli_alert_info("Testing location")
+    driver <- location_driver_create(type, args)
+    if (!is.null(driver$authorise)) {
+      driver$authorise()
+    }
+    cli::cli_alert_success("Location configured successfully")
   }
 
   config <- root$config
@@ -483,6 +497,11 @@ location_driver <- function(location_name, root) {
   i <- match(location_name, root$config$location$name)
   type <- root$config$location$type[[i]]
   args <- root$config$location$args[[i]]
+  location_driver_create(type, args)
+}
+
+
+location_driver_create <- function(type, args) {
   location <- switch(type,
                      path = orderly_location_path$new,
                      http = orderly_location_http$new,
@@ -794,8 +813,8 @@ location_build_push_plan <- function(packet_id, location_name, root) {
 ## This validation probably will need generalising in future as we add
 ## new types. The trick is going to be making sure that we can support
 ## different location types in different target languages effectively.
-new_location_entry <- function(name, type, args, call = NULL) {
-  match_value(type, location_types, call = call)
+new_location_entry <- function(name, type, args, call = parent.frame()) {
+  match_value(type, location_types)
   required <- NULL
   if (type == "path") {
     required <- "path"
@@ -807,8 +826,8 @@ new_location_entry <- function(name, type, args, call = NULL) {
     required <- "driver"
   }
   if (length(args) > 0) {
-    assert_is(args, "list", call = call)
-    assert_named(args, call = call)
+    assert_is(args, "list")
+    assert_named(args)
   }
   msg <- setdiff(required, names(args))
   if (length(msg) > 0) {
