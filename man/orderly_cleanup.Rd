@@ -60,7 +60,6 @@ files then compare that with the directory.
 }
 
 \examples{
-message(sprintf("Running in \%s", format(environment())))
 # Create a simple example:
 path <- orderly2::orderly_example("default")
 
