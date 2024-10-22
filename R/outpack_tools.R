@@ -227,7 +227,10 @@ orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
   envir <- environment()
   ret <- data_frame(id = ids)
   if (isTRUE(allow_remote) || length(location) > 0) {
+    loc <- root$index$location(location)
+    loc <- loc[loc$packet %in% ids, ]
     ret$local <- ids %in% root$index$unpacked()
+    ret$location <- I(unname(split(loc$location, loc$packet)[ids]))
   }
   for (i in seq_len(nrow(extract))) {
     from_i <- extract$from[[i]]

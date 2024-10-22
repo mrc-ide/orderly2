@@ -362,24 +362,28 @@ test_that("can differentiate remote metadata", {
   expect_equal(nrow(d1), 5)
 
   d2 <- orderly_metadata_extract(root = root, allow_remote = TRUE)
-  expect_equal(names(d2), c("id", "local", "name", "parameters"))
+  expect_equal(names(d2), c("id", "local", "location", "name", "parameters"))
   expect_equal(nrow(d2), 5)
   expect_equal(d2$local, rep(TRUE, 5))
+  expect_equal(d2$location, I(rep(list("local"), 5)))
 
   d3 <- orderly_metadata_extract(root = root, location = "upstream")
-  expect_equal(names(d3), c("id", "local", "name", "parameters"))
+  expect_equal(names(d3), c("id", "local", "location", "name", "parameters"))
   expect_equal(nrow(d3), 0)
 
   d4 <- orderly_metadata_extract(root = root, allow_remote = TRUE,
                                  pull_metadata = TRUE)
-  expect_equal(names(d4), c("id", "local", "name", "parameters"))
+  expect_equal(names(d4), c("id", "local", "location", "name", "parameters"))
   expect_equal(nrow(d4), 8)
   expect_equal(d4$local, rep(c(TRUE, FALSE), c(5, 3)))
+  expect_equal(d4$location, I(rep(list("local", "upstream"), c(5, 3))))
 
   suppressMessages(orderly_location_pull_packet(ids2[[2]], root = root))
 
-  d5 <- orderly_metadata_extract(root = root, allow_remote = TRUE,
-                                 pull_metadata = TRUE)
+  d5 <- orderly_metadata_extract(root = root, allow_remote = TRUE)
   expect_equal(d5[names(d1)], d4[names(d1)])
   expect_equal(d5$local, c(rep(TRUE, 5), FALSE, TRUE, FALSE))
+  expect_equal(d5$location,
+               I(c(rep(list("local"), 5),
+                   list("upstream", c("local", "upstream"), "upstream"))))
 })
