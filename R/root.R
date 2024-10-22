@@ -147,7 +147,10 @@ root_open <- function(path, require_orderly, call = parent.frame()) {
     ## This is going to error, but the error later will do.
     path <- path$path
   }
-  locate <- is.null(path)
+
+  path <- path %||% Sys.getenv("ORDERLY_ROOT", NA_character_)
+
+  locate <- is.na(path)
   if (locate) {
     path <- getwd()
     path_outpack <- find_file_descend(".outpack", path)
