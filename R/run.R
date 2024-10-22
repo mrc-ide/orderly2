@@ -152,7 +152,7 @@
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 ##'
 ##' # Cleanup
-##' unlink(path, recursive = TRUE)
+##' fs::dir_delete(path, recursive = TRUE)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                         location = NULL, allow_remote = NULL,
                         pull_metadata = FALSE, search_options = NULL,
