@@ -114,26 +114,31 @@ Both Alice and Bob clone this repo onto their machines, using their favourite gi
 
 At the moment, including hidden files (except `.git`), Alice sees:
 
-```{r, as = "alice", inwd = path_alice}
-fs::dir_tree(".", all = TRUE, glob = ".git", invert = TRUE)
+```{r, as = "alice"}
+fs::dir_tree(path_alice, all = TRUE, glob = ".git", invert = TRUE)
 ```
 
 At this point, after cloning Alice does not have the `.outpack` directory (see below)
 
-```{r, as = "alice", inwd = path_alice, error = TRUE}
+```{r, as = "alice", orderly_root = path_alice, error = TRUE}
 orderly2::orderly_list_src()
 ```
 
 Alice needs to run `orderly::orderly_init()` first:
 
-```{r, as = "alice", inwd = path_alice}
-orderly2::orderly_init(".")
+```{r, as = "alice"}
+orderly2::orderly_init(path_alice)
+```
+
+after which Alice can use orderly commands:
+
+```{r, orderly_root = path_alice}
 orderly2::orderly_list_src()
 ```
 
 The plan is to work with Bob, sharing results on their shared "[Packit](https://github.com/mrc-ide/packit)" server, so Alice adds that to her `orderly2` configuration with `orderly2::orderly_location_add_packit()`:
 
-```{r, include = FALSE, inwd = path_alice}
+```{r, include = FALSE, orderly_root = path_alice}
 orderly2::orderly_location_add_path("server", path = path_server)
 ```
 ```{r, eval = FALSE, as = "alice"}
@@ -142,22 +147,22 @@ orderly2::orderly_location_add_packit("server", "http://packit.example.com")
 
 Once done, she can run any analysis:
 
-```{r, as = "alice", inwd = path_alice}
+```{r, as = "alice", orderly_root = path_alice}
 id <- orderly2::orderly_run("data")
 ```
 
 Perhaps it takes several goes for Alice to be happy with the analysis, but at some point she has something ready to share. She can then "push" the final packet up onto their server:
 
-```{r, as = "alice", inwd = path_alice}
+```{r, as = "alice", orderly_root = path_alice}
 orderly2::orderly_location_push(id, "server")
 ```
 
 Now, consider Bob. He also needs the source code cloned, orderly initialised, and the server added:
 
-```{r, as = "bob", inwd = path_bob}
-orderly2::orderly_init(".")
+```{r, as = "bob"}
+orderly2::orderly_init(path_bob)
 ```
-```{r, include = FALSE, inwd = path_bob}
+```{r, include = FALSE, orderly_root = path_bob}
 orderly2::orderly_location_add_path("server", path = path_server)
 ```
 ```{r, eval = FALSE, as = "bob"}
@@ -168,7 +173,7 @@ orderly2::orderly_location_add_packit("server", "http://packit.example.com")
 
 Bob can now query for packets available on the server:
 
-```{r, as = "bob", inwd = path_bob}
+```{r, as = "bob", orderly_root = path_bob}
 orderly2::orderly_metadata_extract(
   name = "data",
   options = list(allow_remote = TRUE, pull_metadata = TRUE))
@@ -176,7 +181,7 @@ orderly2::orderly_metadata_extract(
 
 Having seen there is a new "data" packet here, he can pull this down locally (TODO: mrc-4414 makes this nicer):
 
-```{r, as = "bob", inwd = path_bob}
+```{r, as = "bob", orderly_root = path_bob}
 orderly2::orderly_location_pull_packet(id)
 ```
 
@@ -258,12 +263,12 @@ orderly2::orderly_init(
 
    Create an orderly store with a file store and a complete tree. See `orderly2::orderly_init()` for more details.
 1. Add this as a location
-    ```{r, as="alice", inwd = path_alice}
+    ```{r, as="alice", orderly_root = path_alice}
 orderly2::orderly_location_add_path("sharepoint", path = path_sharepoint_alice)
     ```
 
 1. Push any packets you want to share
-    ```{r, as="alice", inwd = path_alice}
+    ```{r, as="alice", orderly_root = path_alice}
 orderly2::orderly_location_push(id, "sharepoint")
     ```
 
@@ -271,11 +276,11 @@ Then these will be available for your collaborator to pull. Note that the data i
 
 1. Sync the same drive to a location on their machine. Here Bob has synced to `path_sharepoint_bob`
 1. Add the location
-    ```{r, as="bob", inwd = path_bob}
+    ```{r, as="bob", orderly_root = path_bob}
 orderly2::orderly_location_add_path("alices_orderly", path_sharepoint_bob)
     ```
 
 1. Pull the metadata and use the packets as desired
-    ```{r, as="bob", inwd = path_bob}
+    ```{r, as="bob", orderly_root = path_bob}
 orderly2::orderly_location_pull_metadata("alices_orderly")
     ```

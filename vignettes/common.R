@@ -38,13 +38,11 @@ inline <- function(x) {
 knitr::opts_chunk$set(
   collapse = TRUE)
 
-.here <- getwd()
-knitr::knit_hooks$set(inwd = function(before, options) {
+knitr::knit_hooks$set(orderly_root = function(before, options) {
   if (before) {
-    setwd(options$inwd)
+    Sys.setenv(ORDERLY_ROOT = options$orderly_root)
   } else {
-    setwd(.here)
+    Sys.unsetenv("ORDERLY_ROOT")
   }
   invisible()
-}
-)
+})
