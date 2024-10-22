@@ -170,7 +170,11 @@ will be a character vector, but because \code{parameters} and \code{files}
 are more complex, these will be list columns.
 
 You must not provide \code{id}; it is always returned and always first
-as a character vector column.
+as a character vector column.  If your extraction could possibly
+return data from locations (i.e., you have \code{allow_remote = TRUE}
+or have given a value for \code{location}) then we add a logical column
+\code{local} which indicates if the packet is local to your archive,
+meaning that you have all the files from it locally.
 
 You can rename the columns by providing a name to entries within
 \code{extract}, for example:
