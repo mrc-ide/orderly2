@@ -114,8 +114,8 @@ Both Alice and Bob clone this repo onto their machines, using their favourite gi
 
 At the moment, including hidden files (except `.git`), Alice sees:
 
-```{r, as = "alice", orderly_root = path_alice}
-fs::dir_tree(".", all = TRUE, glob = ".git", invert = TRUE)
+```{r, as = "alice"}
+fs::dir_tree(path_alice, all = TRUE, glob = ".git", invert = TRUE)
 ```
 
 At this point, after cloning Alice does not have the `.outpack` directory (see below)
@@ -126,7 +126,7 @@ orderly2::orderly_list_src()
 
 Alice needs to run `orderly::orderly_init()` first:
 
-```{r, as = "alice", orderly_root = path_alice}
+```{r, as = "alice}
 orderly2::orderly_init(path_alice)
 ```
 
