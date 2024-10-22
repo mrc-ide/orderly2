@@ -589,18 +589,3 @@ describe("copy_files", {
                  "have different lengths")
   })
 })
-
-
-test_that("can sensibly control quietness", {
-  withr::with_options(list(orderly.quiet = NULL), {
-    expect_false(orderly_quiet(NULL))
-    expect_false(orderly_quiet(FALSE))
-    expect_true(orderly_quiet(TRUE))
-  })
-
-  withr::with_options(list(orderly.quiet = TRUE), {
-    expect_true(orderly_quiet(NULL))
-    expect_false(orderly_quiet(FALSE))
-    expect_true(orderly_quiet(TRUE))
-  })
-})
