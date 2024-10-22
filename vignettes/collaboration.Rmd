@@ -126,7 +126,7 @@ orderly2::orderly_list_src()
 
 Alice needs to run `orderly::orderly_init()` first:
 
-```{r, as = "alice}
+```{r, as = "alice"}
 orderly2::orderly_init(path_alice)
 ```
 
