@@ -347,3 +347,39 @@ test_that("can extract plugin metadata", {
   expect_equal(d[["custom_example.random"]][[1]],
                meta[[1]]$custom[["example.random"]])
 })
+
+
+test_that("can differentiate remote metadata", {
+  root <- create_temporary_root()
+  upstream <- create_temporary_root()
+  orderly_location_add_path("upstream", path = upstream$path, root = root)
+
+  ids1 <- create_random_packet_chain(root, 5)
+  ids2 <- create_random_packet_chain(upstream, 3)
+
+  d1 <- orderly_metadata_extract(root = root)
+  expect_equal(names(d1), c("id", "name", "parameters"))
+  expect_equal(nrow(d1), 5)
+
+  d2 <- orderly_metadata_extract(root = root, allow_remote = TRUE)
+  expect_equal(names(d2), c("id", "local", "name", "parameters"))
+  expect_equal(nrow(d2), 5)
+  expect_equal(d2$local, rep(TRUE, 5))
+
+  d3 <- orderly_metadata_extract(root = root, location = "upstream")
+  expect_equal(names(d3), c("id", "local", "name", "parameters"))
+  expect_equal(nrow(d3), 0)
+
+  d4 <- orderly_metadata_extract(root = root, allow_remote = TRUE,
+                                 pull_metadata = TRUE)
+  expect_equal(names(d4), c("id", "local", "name", "parameters"))
+  expect_equal(nrow(d4), 8)
+  expect_equal(d4$local, rep(c(TRUE, FALSE), c(5, 3)))
+
+  suppressMessages(orderly_location_pull_packet(ids2[[2]], root = root))
+
+  d5 <- orderly_metadata_extract(root = root, allow_remote = TRUE,
+                                 pull_metadata = TRUE)
+  expect_equal(d5[names(d1)], d4[names(d1)])
+  expect_equal(d5$local, c(rep(TRUE, 5), FALSE, TRUE, FALSE))
+})

@@ -222,6 +222,9 @@ orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
 
   envir <- environment()
   ret <- data_frame(id = ids)
+  if (isTRUE(allow_remote) || length(location) > 0) {
+    ret$local <- ids %in% root$index$unpacked()
+  }
   for (i in seq_len(nrow(extract))) {
     from_i <- extract$from[[i]]
     is_i <- extract$is[[i]]
