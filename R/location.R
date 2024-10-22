@@ -280,39 +280,29 @@ orderly_location_list <- function(verbose = FALSE, root = NULL) {
 ##'   locations are always up to date and pulling metadata from them
 ##'   does nothing.
 ##'
-##' @param quiet Logical, indicating if we should print information
-##'   about locations searched and metadata found.  If not given, we
-##'   use the option of `orderly.quiet`, defaulting to `TRUE`.
-##'
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##'
 ##' @export
-orderly_location_pull_metadata <- function(location = NULL, quiet = NULL,
-                                           root = NULL) {
+orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
                                           include_orphan = FALSE,
                                           allow_no_locations = TRUE,
                                           environment())
-  quiet <- orderly_quiet(quiet)
-  if (!quiet) {
-    cli::cli_alert_info(paste(
-      "Fetching metadata from {length(location_name)} location{?s}:",
-      "{squote({location_name})}"))
-  }
+  cli_alert_info(paste(
+    "Fetching metadata from {length(location_name)} location{?s}:",
+    "{squote({location_name})}"))
   for (name in location_name) {
     res <- location_pull_metadata(name, root)
-    if (!quiet) {
-      if (res$total > 0) {
-        cli::cli_alert_success(paste(
-          "Found {res$total} packet{?s} at '{name}', of which",
-          "{res$new} {?is/are} new"))
-      } else {
-        cli::cli_alert_warning("No metadata found at '{name}'")
-      }
+    if (res$total > 0) {
+      cli_alert_success(paste(
+        "Found {res$total} packet{?s} at '{name}', of which",
+        "{res$new} {?is/are} new"))
+    } else {
+      cli_alert_warning("No metadata found at '{name}'")
     }
   }
 

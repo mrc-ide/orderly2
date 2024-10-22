@@ -4,7 +4,7 @@
 \alias{orderly_location_pull_metadata}
 \title{Pull metadata from a location}
 \usage{
-orderly_location_pull_metadata(location = NULL, quiet = NULL, root = NULL)
+orderly_location_pull_metadata(location = NULL, root = NULL)
 }
 \arguments{
 \item{location}{The name of a location to pull from (see
@@ -12,10 +12,6 @@ orderly_location_pull_metadata(location = NULL, quiet = NULL, root = NULL)
 given, pulls from all locations.  The "local" and "orphan"
 locations are always up to date and pulling metadata from them
 does nothing.}
-
-\item{quiet}{Logical, indicating if we should print information
-about locations searched and metadata found.  If not given, we
-use the option of \code{orderly.quiet}, defaulting to \code{TRUE}.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

@@ -1,8 +1,7 @@
 options(outpack.schema_validate =
           requireNamespace("jsonvalidate", quietly = TRUE) &&
           packageVersion("jsonvalidate") >= "1.4.0",
-        orderly.index_progress = FALSE,
-        orderly.quiet = TRUE)
+        orderly.index_progress = FALSE)
 
 
 test_prepare_orderly_example <- function(examples, ...) {
