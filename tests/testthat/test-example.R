@@ -19,5 +19,5 @@ test_that("can set config", {
 test_that("error if path exists", {
   path <- withr::local_tempdir()
   expect_error(orderly_example("default", dest = path),
-               "The path '.+' cannot exist")
+               "The path '.+' must not exist")
 })
