@@ -18,25 +18,16 @@ We have now put in guard rails to try and prevent this happening, but it could s
 Once you are in this situation, `orderly2` will shout at you:
 
 ```{r, include = FALSE}
+source("common.Rmd")
 path <- orderly2::orderly_example("default")
 orderly2::orderly_run("data", root = path)
 gert::git_init(path)
 gert::git_add(".", repo = path)
 user <- "author <author@example.com>"
 gert::git_commit("initial", author = user, committer = user, repo = path)
-
-.here <- getwd()
-knitr::knit_hooks$set(inwd = function(before, options) {
-  if (before) {
-    setwd(options$inwd)
-  } else {
-    setwd(.here)
-  }
-  invisible()
-})
 ```
 
-```{r, error = TRUE, inwd = path}
+```{r, error = TRUE, orderly_root = path}
 orderly2::orderly_run("data")
 ```
 
@@ -48,13 +39,13 @@ options(orderly_git_error_is_warning = TRUE)
 
 after which things will work with a warning the first time that session:
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 orderly2::orderly_run("data")
 ```
 
 subsequent calls will not display the warning:
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 orderly2::orderly_run("data")
 ```
 

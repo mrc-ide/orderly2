@@ -68,14 +68,14 @@ r_output(readLines(file.path(path, "src/analysis/analysis.R")))
 
 Here, we've used `orderly2::orderly_dependency()` to pull in the file `data.rds` from the most recent version (`latest()`) of the `data` packet, then we've used that file as normal to make a plot, which we've saved as `analysis.png` (this is very similar to the example from `vignette("introduction")`, to get us started).
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 id1 <- orderly2::orderly_run("data")
 id2 <- orderly2::orderly_run("analysis")
 ```
 
 When we look at the metadata for the packet created from the `analysis` report, we can see it has used `r inline(id1)` as its dependency:
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 orderly2::orderly_metadata(id2)$depends
 ```
 
@@ -122,7 +122,7 @@ r_output(readLines(file.path(path, "src/data/data.R")))
 
 We can run this for several values of `cyl`:
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 orderly2::orderly_run("data", list(cyl = 4))
 orderly2::orderly_run("data", list(cyl = 6))
 orderly2::orderly_run("data", list(cyl = 8))
@@ -136,7 +136,7 @@ r_output(readLines(file.path(path, "src/analysis/analysis.R")))
 
 Here the query `latest(parameter:cyl == this:cyl)` says "find the most recent packet where it's parameter "cyl" (`parameter:cyl`) is the same as the parameter in the currently running report (`this:cyl`).
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 orderly2::orderly_run("analysis", list(cyl = 4))
 ```
 
@@ -144,7 +144,7 @@ orderly2::orderly_run("analysis", list(cyl = 4))
 
 If your query fails to resolve a candidate it will error:
 
-```{r, error = TRUE, inwd = path}
+```{r, error = TRUE, orderly_root = path, purl = FALSE}
 orderly2::orderly_run("analysis", list(cyl = 9000))
 ```
 
@@ -162,14 +162,14 @@ This tells you that your query can be decomposed into two subqueries `A` (the ma
 
 You can also ask `orderly2` to explain any query for you:
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 orderly2::orderly_query_explain(
   quote(latest(parameter:cyl == 9000)), name = "data")
 ```
 
 If you save this object you can explore it in more detail:
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 explanation <- orderly2::orderly_query_explain(
   quote(latest(parameter:cyl == 9000)), name = "data")
 explanation$parts$B
@@ -179,7 +179,7 @@ explanation$parts$B
 
 You can also use `orderly2::orderly_metadata_extract` to work out what values you might have looked for:
 
-```{r, inwd = path}
+```{r, orderly_root = path}
 orderly2::orderly_metadata_extract(
   name = "data",
   extract = c(cyl = "parameters.cyl is number"))
