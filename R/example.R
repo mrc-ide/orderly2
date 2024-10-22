@@ -19,18 +19,20 @@
 ##' @examples
 ##' path <- orderly2::orderly_example("default")
 ##' orderly2::orderly_list_src(root = path)
+##'
+##' fs::dir_delete(path)
 orderly_example <- function(name, ..., dest = NULL) {
   match_value(name, "default", call = environment())
   if (is.null(dest)) {
-    dest <- withr::local_tempfile(.local_envir = parent.frame())
+    dest <- tempfile("orderly2_ex_")
   } else {
-    assert_scalar_character(dest, call = environment())
+    assert_scalar_character(dest)
+    if (file.exists(dest)) {
+      cli::cli_abort("The path '{dest}' must not exist")
+    }
   }
-  if (file.exists(dest)) {
-    cli::cli_abort("The path '{dest}' cannot exist")
-  }
+  orderly_init(..., root = dest)
   src <- orderly2_file("example")
-  fs::dir_copy(src, dest)
-  orderly2::orderly_init(..., root = dest)
+  fs::dir_copy(file.path(src, "src"), dest)
   invisible(dest)
 }

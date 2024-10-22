@@ -41,11 +41,11 @@ After file deletion, we look through and remove all empty
 directories; orderly2 has similar semantics here to git where
 directories are never directly tracked.
 
-For recent \code{gert} (not yet on CRAN) we will ask git if files are
-ignored; if ignored then they are good candidates for deletion! We
-encourage you to keep a per-report \code{.gitignore} that lists files
-that will copy into the source directory, and then we can use that
-same information to clean up these files after generation.
+For recent \code{gert} we will ask git if files are ignored; if ignored
+then they are good candidates for deletion! We encourage you to
+keep a per-report \code{.gitignore} that lists files that will copy
+into the source directory, and then we can use that same
+information to clean up these files after generation.
 Importantly, even if a file matches an ignore rule but has been
 committed to your repository, it will no longer match the ignore
 rule.
@@ -83,4 +83,6 @@ orderly2::orderly_cleanup_status("data", root = path)
 
 # Do the actual deletion:
 orderly2::orderly_cleanup("data", root = path)
+
+fs::dir_delete(path)
 }
