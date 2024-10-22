@@ -26,6 +26,7 @@ as the directory (e.g., \code{src/data/data.R} corresponds to \code{data}).
 \examples{
 path <- orderly2::orderly_example("default")
 orderly2::orderly_list_src(root = path)
+unlink(path, recursive = TRUE)
 }
 \seealso{
 \link{orderly_metadata_extract} for listing packets
