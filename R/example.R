@@ -28,7 +28,7 @@ orderly_example <- function(name, ..., dest = NULL) {
   } else {
     assert_scalar_character(dest)
     if (file.exists(dest)) {
-      cli::cli_abort("The path '{dest}' cannot exist")
+      cli::cli_abort("The path '{dest}' must not exist")
     }
   }
   orderly_init(..., root = dest)
