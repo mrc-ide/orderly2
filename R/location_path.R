@@ -10,6 +10,10 @@ orderly_location_path <- R6::R6Class(
       private$root <- root_open(path, require_orderly = FALSE)
     },
 
+    verify = function() {
+      ## No implementation needed as we verify the root in initialize()
+    },
+
     list = function() {
       private$root$index$location(local)[c("packet", "time", "hash")]
     },

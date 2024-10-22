@@ -114,10 +114,7 @@ orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
 
   if (verify) {
     cli_alert_info("Testing location")
-    driver <- location_driver_create(type, args)
-    if (!is.null(driver$authorise)) {
-      driver$authorise()
-    }
+    location_driver_create(type, args)$verify()
     cli_alert_success("Location configured successfully")
   }
 
