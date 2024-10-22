@@ -954,7 +954,7 @@ test_that("can add a custom outpack location", {
 test_that("custom drivers require a 'driver' argument", {
   root <- create_temporary_root()
   expect_error(
-    orderly_location_add("a", "custom", args = list(), root = root)
+    orderly_location_add("a", "custom", args = list(), root = root),
     "Field missing from args: 'driver'")
 })
 
