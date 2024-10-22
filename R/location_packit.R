@@ -42,20 +42,17 @@ do_oauth_device_flow <- function(base_url, cache_disk) {
 # It also means the user cannot easily use two different identities on the same
 # server from within the same session.
 auth_cache <- new.env(parent = emptyenv())
-packit_authorisation <- function(base_url, token, save_token, quiet = NULL) {
+packit_authorisation <- function(base_url, token, save_token) {
   # If a non-Github token is provided, we assume it is a native Packit token
   # and use that directly.
   if (!is.null(token) && !grepl("^gh._", token)) {
     return(list("Authorization" = paste("Bearer", token)))
   }
 
-  quiet <- orderly_quiet(quiet)
   key <- rlang::hash(list(base_url = base_url, token = token))
 
   if (is.null(auth_cache[[key]])) {
-    if (!quiet) {
-      cli::cli_alert_info("Logging in to {base_url}")
-    }
+    cli_alert_info("Logging in to {base_url}")
     if (is.null(token)) {
       token <- do_oauth_device_flow(base_url, cache_disk = save_token)
     }
@@ -65,9 +62,7 @@ packit_authorisation <- function(base_url, token, save_token, quiet = NULL) {
       login_url,
       function(r) http_body_json(r, list(token = scalar(token))))
 
-    if (!quiet) {
-      cli::cli_alert_success("Logged in successfully")
-    }
+    cli_alert_success("Logged in successfully")
 
     auth_cache[[key]] <- list("Authorization" = paste("Bearer", res$token))
   }
@@ -94,5 +89,5 @@ orderly_location_packit <- function(url, token = NULL, save_token = TRUE) {
 
   orderly_location_http$new(
     paste0(url, "packit/api/outpack"),
-    function(quiet = NULL) packit_authorisation(url, token, save_token, quiet))
+    function() packit_authorisation(url, token, save_token))
 }

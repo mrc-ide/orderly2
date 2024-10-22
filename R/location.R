@@ -78,20 +78,14 @@
 ##' @param verify Logical, indicating if we should verify that the
 ##'   location can be used before adding.
 ##'
-##' @param quiet Logical, indicating if we should print information
-##'   while configuring and creating locations.  If not given, we use
-##'   the option of `orderly.quiet`, defaulting to `TRUE`.
-##'
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing
 ##' @export
-orderly_location_add <- function(name, type, args, verify = TRUE, quiet = NULL,
-                                 root = NULL) {
+orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   assert_scalar_character(name)
   assert_scalar_logical(verify)
-  quiet <- orderly_quiet(quiet)
 
   if (name %in% location_reserved_name) {
     cli::cli_abort("Cannot add a location with reserved name '{name}'")
@@ -119,16 +113,12 @@ orderly_location_add <- function(name, type, args, verify = TRUE, quiet = NULL,
   loc <- new_location_entry(name, type, args, call = environment())
 
   if (verify) {
-    if (!quiet) {
-      cli::cli_alert_info("Testing location")
-    }
+    cli_alert_info("Testing location")
     driver <- location_driver_create(type, args)
     if (!is.null(driver$authorise)) {
       driver$authorise()
     }
-    if (!quiet) {
-      cli::cli_alert_success("Location configured successfully")
-    }
+    cli_alert_success("Location configured successfully")
   }
 
   config <- root$config
@@ -146,11 +136,9 @@ orderly_location_add <- function(name, type, args, verify = TRUE, quiet = NULL,
 ##'   be unreliable.
 ##'
 ##' @export
-orderly_location_add_path <- function(name, path, verify = TRUE, quiet = NULL,
-                                      root = NULL) {
+orderly_location_add_path <- function(name, path, verify = TRUE, root = NULL) {
   args <- list(path = path)
-  orderly_location_add(name, "path", args, verify = verify, quiet = quiet,
-                       root = root)
+  orderly_location_add(name, "path", args, verify = verify, root = root)
 }
 
 
@@ -160,11 +148,9 @@ orderly_location_add_path <- function(name, path, verify = TRUE, quiet = NULL,
 ##'   example `http://example.com:8080`
 ##'
 ##' @export
-orderly_location_add_http <- function(name, url, verify = TRUE, quiet = NULL,
-                                      root = NULL) {
+orderly_location_add_http <- function(name, url, verify = TRUE, root = NULL) {
   args <- list(url = url)
-  orderly_location_add(name, "http", args, verify = verify, quiet = quiet,
-                       root = root)
+  orderly_location_add(name, "http", args, verify = verify, root = root)
 }
 
 
@@ -182,11 +168,9 @@ orderly_location_add_http <- function(name, url, verify = TRUE, quiet = NULL,
 ##' @export
 orderly_location_add_packit <- function(name, url, token = NULL,
                                         save_token = NULL,
-                                        verify = TRUE, quiet = NULL,
-                                        root = NULL) {
+                                        verify = TRUE, root = NULL) {
   args <- list(url = url, token = token, save_token = save_token)
-  orderly_location_add(name, "packit", args, verify = verify, quiet = quiet,
-                       root = root)
+  orderly_location_add(name, "packit", args, verify = verify, root = root)
 }
 
 
