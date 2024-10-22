@@ -225,7 +225,7 @@ orderly_src_root <- function(path, locate = TRUE, call = parent.frame()) {
     locate <- FALSE
   }
   if (is.null(path)) {
-    path <- getwd()
+    path <- Sys.getenv("ORDERLY_ROOT", getwd())
   }
   assert_scalar_character(path)
   assert_is_directory(path)

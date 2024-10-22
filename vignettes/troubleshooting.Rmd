@@ -18,7 +18,7 @@ We have now put in guard rails to try and prevent this happening, but it could s
 Once you are in this situation, `orderly2` will shout at you:
 
 ```{r, include = FALSE}
-source("common.Rmd")
+source("common.R")
 path <- orderly2::orderly_example("default")
 orderly2::orderly_run("data", root = path)
 gert::git_init(path)

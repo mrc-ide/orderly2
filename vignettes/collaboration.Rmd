@@ -127,7 +127,12 @@ orderly2::orderly_list_src()
 Alice needs to run `orderly::orderly_init()` first:
 
 ```{r, as = "alice", orderly_root = path_alice}
-orderly2::orderly_init(".")
+orderly2::orderly_init(path_alice)
+```
+
+after which Alice can use orderly commands:
+
+```{r, orderly_root = path_alice}
 orderly2::orderly_list_src()
 ```
 
@@ -154,8 +159,8 @@ orderly2::orderly_location_push(id, "server")
 
 Now, consider Bob. He also needs the source code cloned, orderly initialised, and the server added:
 
-```{r, as = "bob", orderly_root = path_bob}
-orderly2::orderly_init(".")
+```{r, as = "bob"}
+orderly2::orderly_init(path_bob)
 ```
 ```{r, include = FALSE, orderly_root = path_bob}
 orderly2::orderly_location_add_path("server", path = path_server)
