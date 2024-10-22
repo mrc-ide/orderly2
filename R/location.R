@@ -292,8 +292,18 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
                                           include_orphan = FALSE,
                                           allow_no_locations = TRUE,
                                           environment())
+  cli_alert_info(paste(
+    "Fetching metadata from {length(location_name)} location{?s}:",
+    "{squote({location_name})}"))
   for (name in location_name) {
-    location_pull_metadata(name, root, environment())
+    res <- location_pull_metadata(name, root)
+    if (res$total > 0) {
+      cli_alert_success(paste(
+        "Found {res$total} packet{?s} at '{name}', of which",
+        "{res$new} {?is/are} new"))
+    } else {
+      cli_alert_warning("No metadata found at '{name}'")
+    }
   }
 
   id_deorphan <- intersect(root$index$location(location_name)$packet,
@@ -492,7 +502,7 @@ orderly_location_custom <- function(driver, ...) {
 }
 
 
-location_pull_metadata <- function(location_name, root, call) {
+location_pull_metadata <- function(location_name, root, call = parent.frame()) {
   index <- root$index$data()
   driver <- location_driver(location_name, root)
 
@@ -567,6 +577,8 @@ location_pull_metadata <- function(location_name, root, call) {
     mark_packet_known(new_loc$packet[[i]], location_name, new_loc$hash[[i]],
                       new_loc$time[[i]], root)
   }
+
+  list(total = length(is_new), new = sum(is_new))
 }
 
 

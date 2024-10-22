@@ -705,6 +705,25 @@ is_testing <- function() {
   identical(Sys.getenv("TESTTHAT"), "true")
 }
 
+
+cli_alert_success <- function(..., .envir = parent.frame()) {
+  if (!orderly_quiet()) {
+    cli::cli_alert_success(..., .envir = .envir)
+  }
+}
+
+cli_alert_info <- function(..., .envir = parent.frame()) {
+  if (!orderly_quiet()) {
+    cli::cli_alert_info(..., .envir = .envir)
+  }
+}
+
+cli_alert_warning <- function(..., .envir = parent.frame()) {
+  if (!orderly_quiet()) {
+    cli::cli_alert_warning(..., .envir = .envir)
+  }
+}
+
 # Given a character vector, missing names are filled using the value.
 fill_missing_names <- function(x) {
   if (is.null(names(x))) {
@@ -713,4 +732,9 @@ fill_missing_names <- function(x) {
     names(x)[i] <- x[i]
   }
   x
+}
+
+
+orderly_quiet <- function() {
+  getOption("orderly.quiet", is_testing())
 }

@@ -1014,7 +1014,7 @@ test_that("avoid duplicated metadata", {
 
   mockery::stub(location_pull_metadata, "location_driver", mock_location_driver)
   err <- expect_error(
-    location_pull_metadata("server", here, NULL),
+    location_pull_metadata("server", root = here),
     "Duplicate metadata reported from location 'server'")
   expect_equal(names(err$body), c("x", "i", "i"))
   expect_equal(err$body[[1]],
@@ -1123,4 +1123,40 @@ test_that("early exit if no orphans", {
   id <- create_random_packet_chain(root, 3)
   expect_silent(res <- orderly_prune_orphans(root = root))
   expect_equal(res, character())
+})
+
+
+test_that("be chatty when pulling packets", {
+  withr::local_options(orderly.quiet = FALSE)
+  here <- create_temporary_root()
+  there <- create_temporary_root()
+  orderly_location_add_path("server", path = there$path, root = here)
+
+  res <- evaluate_promise(orderly_location_pull_metadata(root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[1]],
+               "Fetching metadata from 1 location: 'server'")
+  expect_match(res$messages[[2]],
+               "No metadata found at 'server'")
+
+  id1 <- create_random_packet(there)
+  id2 <- create_random_packet(there)
+
+  res <- evaluate_promise(orderly_location_pull_metadata(root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[1]],
+               "Fetching metadata from 1 location: 'server'")
+  expect_match(res$messages[[2]],
+               "Found 2 packets at 'server', of which 2 are new")
+
+  res <- evaluate_promise(orderly_location_pull_metadata(root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[2]],
+               "Found 2 packets at 'server', of which 0 are new")
+
+  id3 <- create_random_packet(there)
+  res <- evaluate_promise(orderly_location_pull_metadata(root = here))
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[2]],
+               "Found 3 packets at 'server', of which 1 is new")
 })
