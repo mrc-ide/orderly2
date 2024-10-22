@@ -5,32 +5,43 @@
 \title{Pull one or more packets from a location}
 \usage{
 orderly_location_pull_packet(
-  ...,
-  options = NULL,
+  expr,
+  name = NULL,
+  location = NULL,
+  pull_metadata = FALSE,
   recursive = NULL,
+  options = NULL,
   root = NULL
 )
 }
 \arguments{
-\item{...}{Arguments passed through to
-\link{orderly_search}. In the special case where the first
-argument is a character vector of ids \emph{and} there are no named
-dot arguments, then we interpret this argument as a vector of
-ids directly. Be careful here, your query may pull a lot of data
-\itemize{
-\item in particular, passing \code{NULL} will match everything that every
-remote has!
-}}
+\item{expr}{The query expression. A \code{NULL} expression matches everything.}
 
-\item{options}{Options passed to \link{orderly_search}.
-The option \code{allow_remote} must be \code{TRUE} as otherwise no packet could
-possibly be pulled, so an error is thrown if this is FALSE.}
+\item{name}{Optionally, the name of the packet to scope the query on. This
+will be intersected with \code{scope} arg and is a shorthand way of running
+\code{scope = list(name = "name")}}
+
+\item{location}{Optional vector of locations to pull from. We
+might in future expand this to allow wildcards or exceptions.}
+
+\item{pull_metadata}{Logical, indicating if we should pull
+metadata immediately before the search. If \code{location} is given,
+then we will pass this through to
+\link{orderly_location_pull_metadata} to filter locations
+to update.  If pulling many packets in sequence, you \emph{will} want
+to update this option to \code{FALSE} after the first pull, otherwise
+it will update the metadata between every packet, which will be
+needlessly slow.}
 
 \item{recursive}{If non-NULL, a logical, indicating if we should
 recursively pull all packets that are referenced by the packets
 specified in \code{id}.  This might copy a lot of data!  If \code{NULL},
 we default to the value given by the the configuration option
 \code{require_complete_tree}.}
+
+\item{options}{\strong{DEPRECATED}. Please don't use this any more, and
+instead use the arguments \code{location}, \code{allow_remote} and
+\code{pull_metadata} directly.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

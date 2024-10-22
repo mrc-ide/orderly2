@@ -5,17 +5,22 @@
 \title{Copy files from a packet}
 \usage{
 orderly_copy_files(
-  ...,
+  expr,
   files,
   dest,
   overwrite = TRUE,
-  envir = parent.frame(),
+  name = NULL,
+  location = NULL,
+  allow_remote = NULL,
+  pull_metadata = FALSE,
+  parameters = NULL,
   options = NULL,
+  envir = parent.frame(),
   root = NULL
 )
 }
 \arguments{
-\item{...}{Additional arguments passed through to \link{orderly_search}}
+\item{expr}{The query expression. A \code{NULL} expression matches everything.}
 
 \item{files}{Files to copy from the other packet. This can be (1)
 a character vector, in which case files are copied over without
@@ -51,15 +56,42 @@ the destination filename by doing \verb{$\{x\}}.}
 typically what you want, but set to \code{FALSE} if you would prefer
 that an error be thrown if the destination file already exists.}
 
+\item{name}{Optionally, the name of the packet to scope the query on. This
+will be intersected with \code{scope} arg and is a shorthand way of running
+\code{scope = list(name = "name")}}
+
+\item{location}{Optional vector of locations to pull from. We
+might in future expand this to allow wildcards or exceptions.}
+
+\item{allow_remote}{Logical, indicating if we should allow packets
+to be found that are not currently unpacked (i.e., are known
+only to a location that we have metadata from). If this is
+\code{TRUE}, then in conjunction with \link{orderly_dependency}
+you might pull a large quantity of data.  The default is \code{NULL}. This is
+\code{TRUE} if remote locations are listed explicitly as a character
+vector in the \code{location} argument, or if you have specified
+\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+
+\item{pull_metadata}{Logical, indicating if we should pull
+metadata immediately before the search. If \code{location} is given,
+then we will pass this through to
+\link{orderly_location_pull_metadata} to filter locations
+to update.  If pulling many packets in sequence, you \emph{will} want
+to update this option to \code{FALSE} after the first pull, otherwise
+it will update the metadata between every packet, which will be
+needlessly slow.}
+
+\item{parameters}{Optionally, a named list of parameters to substitute
+into the query (using the \verb{this:} prefix)}
+
+\item{options}{\strong{DEPRECATED}. Please don't use this any more, and
+instead use the arguments \code{location}, \code{allow_remote} and
+\code{pull_metadata} directly.}
+
 \item{envir}{Optionally, an environment to substitute into the
 query (using the \verb{environment:} prefix). The default here is to
 use the calling environment, but you can explicitly pass this in
 if you want to control where this lookup happens.}
-
-\item{options}{Optionally, a \link{orderly_search_options}
-object for controlling how the search is performed, and which
-packets should be considered in scope. If not provided, default
-options are used (i.e., \code{orderly2::orderly_search_options()})}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

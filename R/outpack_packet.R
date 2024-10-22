@@ -162,7 +162,8 @@ outpack_packet_use_dependency <- function(packet, query, files,
                                           overwrite = TRUE) {
   packet <- check_current_packet(packet)
   query <- as_orderly_query(query, arg = "query")
-  search_options <- as_orderly_search_options(search_options)
+  search_options <- search_options %||% build_search_options()
+  assert_is(search_options, "orderly_search_options")
 
   if (!query$info$single) {
     stop(paste(
@@ -174,12 +175,16 @@ outpack_packet_use_dependency <- function(packet, query, files,
   id <- orderly_search(query,
                        parameters = packet$parameters,
                        envir = envir,
-                       options = search_options,
+                       location = search_options$location,
+                       allow_remote = search_options$allow_remote,
+                       pull_metadata = search_options$pull_metadata,
                        root = packet$root)
   if (is.na(id)) {
     explanation <- orderly_query_explain(
       query, parameters = packet$parameters, envir = envir,
-      options = search_options, root = packet$root)
+      location = search_options$location,
+      allow_remote = search_options$allow_remote,
+      root = packet$root)
     cli::cli_abort(
       c("Failed to find packet for query '{format(query)}'",
         i = "See 'rlang::last_error()$explanation' for details"),
@@ -194,7 +199,9 @@ outpack_packet_use_dependency <- function(packet, query, files,
   }
 
   result <- orderly_copy_files(id, files = files, dest = packet$path,
-                               options = search_options,
+                               location = search_options$location,
+                               allow_remote = search_options$allow_remote,
+                               pull_metadata = search_options$pull_metadata,
                                overwrite = overwrite,
                                envir = envir,
                                root = packet$root)

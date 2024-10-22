@@ -72,43 +72,59 @@
 ##'   typically what you want, but set to `FALSE` if you would prefer
 ##'   that an error be thrown if the destination file already exists.
 ##'
-##' @param ... Additional arguments passed through to [orderly_search]
-##'
 ##' @inheritParams orderly_search
+##' @inheritParams orderly_search_options
 ##' @inheritParams orderly_metadata
 ##'
 ##' @return Nothing, invisibly. Primarily called for its side effect
 ##'   of copying files from a packet into the directory `dest`
 ##'
 ##' @export
-orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
-                               envir = parent.frame(), options = NULL,
+orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
+                               name = NULL, location = NULL,
+                               allow_remote = NULL, pull_metadata = FALSE,
+                               parameters = NULL, options = NULL,
+                               envir = parent.frame(),
                                root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
+  compatibility_fix_options(options, "orderly_copy_files")
+  ## Validate options here so we can refer to the computed value of
+  ## allow_remote later in error messages.
+  options <- build_search_options(location = location,
+                                  allow_remote = allow_remote,
+                                  pull_metadata = pull_metadata)
 
   ## Validate files and dest early; it gives a better error where this
   ## was not provided with names.
   files <- validate_file_from_to(files, envir)
   assert_scalar_character(dest, call = environment())
 
-  if (dots_is_literal_id(...)) {
-    id <- ..1
+  if (expr_is_literal_id(expr, name)) {
+    id <- expr
     if (length(id) != 1) {
-      cli::cli_abort(sprintf(
-        "Expected a length 1 value for first argument if id (not %d)",
-        length(id)))
+      cli::cli_abort(
+        "Expected a length 1 value for 'expr' if id (not {length(id)})",
+        arg = expr)
     }
   } else {
-    id <- orderly_search(..., options = options, envir = envir, root = root)
+    id <- orderly_search(expr,
+                         name = name,
+                         parameters = parameters,
+                         location = options$location,
+                         allow_remote = options$allow_remote,
+                         pull_metadata = options$pull_metadata,
+                         root = root)
     if (length(id) > 1) {
-      cli::cli_abort(c(
-        sprintf("Query returned %d results, expected a single result",
-                length(id)),
-        i = "Did you forget latest()?"))
+      cli::cli_abort(
+        c("Query returned {length(id)} results, expected a single result",
+          i = "Did you forget latest()?"))
     }
     if (length(id) == 0 || is.na(id)) {
-      explanation <- orderly_query_explain(..., options = options,
-                                           envir = envir, root = root)
+      explanation <- orderly_query_explain(
+        expr, name = name, parameters = parameters,
+        location = options$location,
+        allow_remote = options$allow_remote,
+        envir = envir, root = root)
       cli::cli_abort(
         c("Query returned 0 results",
           i = "See 'rlang::last_error()$explanation' for details"),
@@ -135,11 +151,11 @@ orderly_copy_files <- function(..., files, dest, overwrite = TRUE,
           c("Unable to copy files, due to {reason} packet {id}",
             i = "Consider '{cmd}' to remove this packet from consideration"),
           parent = e)
-      } else if (!as_orderly_search_options(options)$allow_remote) {
+      } else if (!options$allow_remote) {
         cli::cli_abort(
           c("Unable to copy files, as they are not available locally",
             i = paste("To fetch from a location, try again with",
-                      "options = list(allow_remote = TRUE)")),
+                      "{.code allow_remote = TRUE}")),
           parent = e)
       }
       copy_files_from_remote(id, plan$there, plan$here, dest, overwrite, root,

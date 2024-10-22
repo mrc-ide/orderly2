@@ -24,12 +24,10 @@
 ##'   network connection (but *not* pulling in the packets could mean
 ##'   that your packet fails to run).
 ##'
-##' To allow for control over this you can pass in an argument
-##'   `search_options`, which is a [orderly2::orderly_search_options]
-##'   object, and allows control over the names of the locations to
-##'   use, whether metadata should be refreshed before we pull
-##'   anything and if packets that are not currently downloaded should
-##'   be considered candidates.
+##' To allow for control over this you can pass in an arguments to
+##'   control the names of the locations to use, whether metadata
+##'   should be refreshed before we pull anything and if packets that
+##'   are not currently downloaded should be considered candidates.
 ##'
 ##' This has no effect when running interactively, in which case you
 ##'   can specify the search options (root specific) with
@@ -37,19 +35,18 @@
 ##'
 ##' @section Which packets might be selected from locations?:
 ##'
-##' The `search_options` argument controls where outpack searches for
-##'   packets with the given query and if anything might be moved over
-##'   the network (or from one outpack archive to another). By default
-##'   everything is resolved locally only; that is we can only depend
-##'   on packets that are unpacked within our current archive.  If you
-##'   pass a `search_options` argument that contains `allow_remote =
-##'   TRUE` (see [orderly2::orderly_search_options] then packets
-##'   that are known anywhere are candidates for using as dependencies
-##'   and *if needed* we will pull the resolved files from a remote
-##'   location. Note that even if the packet is not locally present
-##'   this might not be needed - if you have the same content anywhere
-##'   else in an unpacked packet we will reuse the same content
-##'   without re-fetching.
+##' The arguments `location`, `allow_remote` and `pull_metadata`
+##'   control where outpack searches for packets with the given query
+##'   and if anything might be moved over the network (or from one
+##'   outpack archive to another). By default everything is resolved
+##'   locally only; that is we can only depend on packets that are
+##'   unpacked within our current archive.  If you pass `allow_remote
+##'   = TRUE`, then packets that are known anywhere are candidates for
+##'   using as dependencies and *if needed* we will pull the resolved
+##'   files from a remote location. Note that even if the packet is
+##'   not locally present this might not be needed - if you have the
+##'   same content anywhere else in an unpacked packet we will reuse
+##'   the same content without re-fetching.
 ##'
 ##' If `pull_metadata = TRUE`, then we will refresh location metadata
 ##'   before pulling, and the `location` argument controls which
@@ -58,8 +55,7 @@
 ##' @section Equivalence to the old `use_draft` option:
 ##'
 ##' The above location handling generalises orderly (v1)'s old
-##'   `use_draft` option, in terms of the `location` argument to
-##'   orderly2::orderly_search_options`:
+##'   `use_draft` option, in terms of the new `location` argument:
 ##'
 ##' * `use_draft = TRUE` is `location = "local"`
 ##' * `use_draft = FALSE` is `location = c(...)` where you should provide
@@ -72,7 +68,7 @@
 ##'   as they currently exist on production right now with the options:
 ##'
 ##' ```
-##' location = "production", pull_metadata = TRUE, require_unpacked = FALSE
+##' location = "production", pull_metadata = TRUE
 ##' ```
 ##'
 ##' which updates your current metadata from production, then runs
@@ -127,9 +123,11 @@
 ##' @param echo Optional logical to control printing output from
 ##'   `source()` to the console.
 ##'
-##' @param search_options Optional control over locations, when used
-##'   with [orderly2::orderly_dependency]; converted into a
-##'   [orderly2::orderly_search_options] object, see Details.
+##' @inheritParams orderly_search
+##'
+##' @param search_options **DEPRECATED**. Please don't use this any
+##'   more, and instead use the arguments `location`, `allow_remote`
+##'   and `pull_metadata` directly.
 ##'
 ##' @param root The path to the root directory, or `NULL` (the
 ##'   default) to search for one from the current working
@@ -153,10 +151,13 @@
 ##' # and we can query the metadata:
 ##' orderly2::orderly_metadata_extract(name = "data", root = path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
-                        search_options = NULL, root = NULL) {
+                        location = NULL, allow_remote = NULL,
+                        pull_metadata = FALSE, search_options = NULL,
+                        root = NULL) {
   env_root_src <- Sys.getenv("ORDERLY_SRC_ROOT", NA_character_)
   root <- root_open(root, require_orderly = is.na(env_root_src),
                     call = environment())
+  compatibility_fix_options(search_options, "orderly_run")
 
   if (is.na(env_root_src)) {
     root_src <- root$path
@@ -174,6 +175,10 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   entrypoint_filename <- dat$entrypoint_filename
   parameters <- check_parameters(parameters, dat$parameters, environment())
   orderly_validate(dat, src)
+
+  search_options <- build_search_options(location = location,
+                                         allow_remote = allow_remote,
+                                         pull_metadata = pull_metadata)
 
   id <- outpack_id()
   path <- file.path(root_src, "draft", name, id)
