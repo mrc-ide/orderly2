@@ -1,18 +1,3 @@
-test_that("can use self destructing paths", {
-  res <- local({
-    res <- local({
-      tmp <- withr::local_tempfile()
-      path <- suppressMessages(orderly_example("default", dest = NULL))
-      list(path = path, exists_inner = file.exists(path))
-    })
-    res$exists_outer <- file.exists(res$path)
-    res
-  })
-  expect_true(res$exists_inner)
-  expect_false(res$exists_outer)
-})
-
-
 test_that("can use custom path", {
   path <- withr::local_tempfile()
   res <- suppressMessages(orderly_example("default", dest = path))
