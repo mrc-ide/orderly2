@@ -199,5 +199,5 @@ fs::dir_tree(path)
 orderly2::orderly_metadata_extract(name = "data", root = path)
 
 # Cleanup
-fs::dir_delete(path, recursive = TRUE)
+fs::dir_delete(path)
 }

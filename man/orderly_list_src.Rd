@@ -26,7 +26,7 @@ as the directory (e.g., \code{src/data/data.R} corresponds to \code{data}).
 \examples{
 path <- orderly2::orderly_example("default")
 orderly2::orderly_list_src(root = path)
-fs::dir_delete(path, recursive = TRUE)
+fs::dir_delete(path)
 }
 \seealso{
 \link{orderly_metadata_extract} for listing packets

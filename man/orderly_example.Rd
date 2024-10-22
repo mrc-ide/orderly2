@@ -29,5 +29,5 @@ should not form part of your workflow!
 path <- orderly2::orderly_example("default")
 orderly2::orderly_list_src(root = path)
 
-fs::dir_delete(path, recursive = TRUE)
+fs::dir_delete(path)
 }

@@ -84,5 +84,5 @@ orderly2::orderly_cleanup_status("data", root = path)
 # Do the actual deletion:
 orderly2::orderly_cleanup("data", root = path)
 
-fs::dir_delete(path, recursive = TRUE)
+fs::dir_delete(path)
 }

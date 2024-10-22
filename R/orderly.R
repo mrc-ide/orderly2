@@ -17,7 +17,7 @@
 ##' @examples
 ##' path <- orderly2::orderly_example("default")
 ##' orderly2::orderly_list_src(root = path)
-##' fs::dir_delete(path, recursive = TRUE)
+##' fs::dir_delete(path)
 orderly_list_src <- function(root = NULL) {
   root_path <- orderly_src_root(root)
   if (!file.exists(file.path(root_path, "src"))) {
