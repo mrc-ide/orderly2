@@ -122,6 +122,7 @@ orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
   config$location <- rbind(config$location, loc)
   rownames(config$location) <- NULL
   config_update(config, root)
+  cli_alert_success("Added location '{name}' ({type})")
   invisible()
 }
 

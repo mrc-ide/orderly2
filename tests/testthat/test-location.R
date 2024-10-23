@@ -1157,11 +1157,13 @@ test_that("be chatty when pulling packets", {
   there <- create_temporary_root()
   res <- evaluate_promise(
     orderly_location_add_path("server", path = there$path, root = here))
-  expect_length(res$messages, 2)
+  expect_length(res$messages, 3)
   expect_match(res$messages[[1]],
                "Testing location")
   expect_match(res$messages[[2]],
                "Location configured successfully")
+  expect_match(res$messages[[3]],
+               "Added location 'server' (path)", fixed = TRUE)
 
   res <- evaluate_promise(orderly_location_pull_metadata(root = here))
   expect_length(res$messages, 2)
