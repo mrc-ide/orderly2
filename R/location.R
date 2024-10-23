@@ -3,7 +3,7 @@
 ##' based locations are supported, with limited support for custom
 ##' locations. Note that adding a location does *not* pull metadata
 ##' from it, you need to call
-##' [orderly2::orderly_location_pull_metadata] first.  The function
+##' [orderly2::orderly_location_metadata_fetch] first.  The function
 ##' `orderly_location_add` can add any sort of location, but the other
 ##' functions documented here (`orderly_location_add_path`, etc) will
 ##' typically be much easier to use in practice.
@@ -290,7 +290,7 @@ orderly_location_remove <- function(name, root = NULL) {
 ##'   `args`.  The `args` column is a list column, with each element
 ##'   being the key-value pair arguments to the location.
 ##'
-##' @seealso [orderly2::orderly_location_pull_metadata], which can
+##' @seealso [orderly2::orderly_location_metadata_fetch], which can
 ##'   update your outpack index with metadata from any of the
 ##'   locations listed here.
 ##'
@@ -305,11 +305,11 @@ orderly_location_list <- function(verbose = FALSE, root = NULL) {
 }
 
 
-##' Pull metadata from a location, updating the index.  This should
+##' Fetch metadata from a location, updating the index.  This should
 ##' always be relatively quick as it updates only small files that
 ##' contain information about what can be found in remote packets.
 ##'
-##' @title Pull metadata from a location
+##' @title Fetch metadata from a location
 ##'
 ##' @param location The name of a location to pull from (see
 ##'   [orderly2::orderly_location_list] for possible values).  If not
@@ -322,7 +322,7 @@ orderly_location_list <- function(verbose = FALSE, root = NULL) {
 ##' @return Nothing
 ##'
 ##' @export
-orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
+orderly_location_metadata_fetch <- function(location = NULL, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
@@ -333,7 +333,7 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
     "Fetching metadata from {length(location_name)} location{?s}:",
     "{squote({location_name})}"))
   for (name in location_name) {
-    res <- location_pull_metadata(name, root)
+    res <- location_metadata_fetch(name, root)
     if (res$total > 0) {
       cli_alert_success(paste(
         "Found {res$total} packet{?s} at '{name}', of which",
@@ -354,6 +354,17 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
     ## deletion.
     root$index$rebuild()
   }
+}
+
+
+##' @rdname orderly2-deprecated
+##' @keywords internal
+##' @export
+orderly_location_pull_metadata <- function(...) {
+  deprecate_warn(
+    "orderly_location_pull_metadata",
+    "orderly_location_metadata_fetch")
+  orderly_location_metadata_fetch(...)
 }
 
 
@@ -382,15 +393,15 @@ orderly_location_pull_metadata <- function(location = NULL, root = NULL) {
 ##'
 ##' @return Invisibly, the ids of packets that were pulled
 ##' @export
-orderly_location_pull_packet <- function(expr,
-                                         name = NULL,
-                                         location = NULL,
-                                         pull_metadata = FALSE,
-                                         recursive = NULL,
-                                         options = NULL,
-                                         root = NULL) {
+orderly_location_pull <- function(expr,
+                                  name = NULL,
+                                  location = NULL,
+                                  pull_metadata = FALSE,
+                                  recursive = NULL,
+                                  options = NULL,
+                                  root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
-  compatibility_fix_options(options, "orderly_location_pull_packet")
+  compatibility_fix_options(options, "orderly_location_pull")
 
   if (expr_is_literal_id(expr, name)) {
     ids <- expr
@@ -407,8 +418,8 @@ orderly_location_pull_packet <- function(expr,
     if (!pull_metadata) {
       hint <- c(i = paste("Did you forget to pull metadata? You can do this",
                           "by using the argument {.code pull_metadata = TRUE}",
-                          "in the call to 'orderly_location_pull_packet()', or",
-                          "by running 'orderly_location_pull_metadata()'"))
+                          "in the call to 'orderly_location_pull()', or",
+                          "by running 'orderly_location_metadata_fetch()'"))
     } else {
       hint <- NULL
     }
@@ -459,6 +470,19 @@ orderly_location_pull_packet <- function(expr,
   store$cleanup()
 
   invisible(plan$packet_id)
+}
+
+
+##' @rdname orderly2-deprecated
+##' @keywords internal
+##' @export
+orderly_location_pull_packet <- function(...) {
+  deprecate_warn(
+    "orderly_location_pull_packet",
+    "orderly_location_pull",
+    c(i = paste("We like 'orderly_location_pull' as the inverse of",
+                "'orderly_location_push'")))
+  orderly_location_pull(...)
 }
 
 
@@ -525,7 +549,7 @@ orderly_location_push <- function(expr, location, name = NULL, dry_run = FALSE,
       driver <- location_driver(location_name, root)
       location_push_files(plan$files, driver, root)
       location_push_metadata(plan$packet_id, driver, root)
-      orderly_location_pull_metadata(location_name, root)
+      orderly_location_metadata_fetch(location_name, root)
     }
   }
 
@@ -614,7 +638,7 @@ orderly_location_custom <- function(driver, ...) {
 }
 
 
-location_pull_metadata <- function(location_name, root, call = parent.frame()) {
+location_metadata_fetch <- function(location_name, root, call = parent.frame()) {
   index <- root$index$data()
   driver <- location_driver(location_name, root)
 
@@ -825,7 +849,8 @@ location_build_pull_plan_location <- function(packets, location, root, call) {
     } else {
       ## In the case where the above is used, we probably have
       ## up-to-date metadata so we don't display this.
-      hint <- "Do you need to run 'orderly2::orderly_location_pull_metadata()'?"
+      hint <- paste("Do you need to run",
+                    "{.run orderly2::orderly_location_metadata_fetch()}?")
     }
     cli::cli_abort(c("Failed to find packet{?s} {squote(missing)}",
                      i = "Looked in location{?s} {squote(location_name)}",

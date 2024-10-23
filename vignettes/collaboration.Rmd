@@ -182,7 +182,7 @@ orderly2::orderly_metadata_extract(
 Having seen there is a new "data" packet here, he can pull this down locally (TODO: mrc-4414 makes this nicer):
 
 ```{r, as = "bob", orderly_root = path_bob}
-orderly2::orderly_location_pull_packet(id)
+orderly2::orderly_location_pull(id)
 ```
 
 Now Bob is in a position to develop against the same packet that Alice ran (`r id`)
@@ -209,7 +209,7 @@ and then pass this in to `orderly2::orderly_run` when running a report. In devel
 
 # Pulling complete trees, or not
 
-When you pull packets from a server (with `orderly2::orderly_location_pull_packet()`), depending on your settings you will either end up with just the packet that you request, or that packet **plus** all of its recursive dependencies. This is controlled by the configuration option `core.require_complete_tree`, which is `FALSE` by default; this is suitable for most users, but servers should be set with `core.require_complete_tree = TRUE`.
+When you pull packets from a server (with `orderly2::orderly_location_pull()`), depending on your settings you will either end up with just the packet that you request, or that packet **plus** all of its recursive dependencies. This is controlled by the configuration option `core.require_complete_tree`, which is `FALSE` by default; this is suitable for most users, but servers should be set with `core.require_complete_tree = TRUE`.
 
 In most of the situations above, the users are never holding the canonical source of the packets - so it does not matter if they don't have all if their dependencies. They do hold all the metadata for all packets (again, recursively) and could download the dependencies later if they wanted to inspect them. Typically though, this would just be extra space used up on disk.
 
@@ -282,5 +282,5 @@ orderly2::orderly_location_add_path("alices_orderly", path_sharepoint_bob)
 
 1. Pull the metadata and use the packets as desired
     ```{r, as="bob", orderly_root = path_bob}
-orderly2::orderly_location_pull_metadata("alices_orderly")
+orderly2::orderly_location_metadata_fetch("alices_orderly")
     ```

@@ -43,7 +43,7 @@
 ##'
 ##' @param require_complete_tree Logical, indicating if we require a
 ##'   complete tree of packets.  This currently affects
-##'   [orderly2::orderly_location_pull_packet], by requiring that it
+##'   [orderly2::orderly_location_pull], by requiring that it
 ##'   always operates in recursive mode.  This is `FALSE` by default,
 ##'   but set to `TRUE` if you want your archive to behave well as a
 ##'   location; if `TRUE` you will always have all the packets that

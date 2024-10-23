@@ -126,7 +126,7 @@ config_set_require_complete_tree <- function(value, root, call) {
   if (value) {
     id <- root$index$unpacked()
     if (length(id) > 0) {
-      orderly_location_pull_packet(id, recursive = TRUE, root = root)
+      orderly_location_pull(id, recursive = TRUE, root = root)
     }
   }
 

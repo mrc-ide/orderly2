@@ -69,7 +69,7 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##' @param pull_metadata Logical, indicating if we should pull
 ##'   metadata immediately before the search. If `location` is given,
 ##'   then we will pass this through to
-##'   [orderly2::orderly_location_pull_metadata] to filter locations
+##'   [orderly2::orderly_location_metadata_fetch] to filter locations
 ##'   to update.  If pulling many packets in sequence, you *will* want
 ##'   to update this option to `FALSE` after the first pull, otherwise
 ##'   it will update the metadata between every packet, which will be

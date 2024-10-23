@@ -23,7 +23,7 @@ test_that("can copy files from location, using store", {
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
                        root = here),
     "Packet '.+' not found in outpack index")
-  orderly_location_pull_metadata(root = here)
+  orderly_location_metadata_fetch(root = here)
 
   expect_error(
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
@@ -49,7 +49,7 @@ test_that("can copy files from location, using archive", {
   id <- create_random_packet(there)
 
   tmp <- withr::local_tempdir()
-  orderly_location_pull_metadata(root = here)
+  orderly_location_metadata_fetch(root = here)
   expect_error(
     orderly_copy_files(id, files = c("data.rds" = "data.rds"), dest = tmp,
                        root = here),

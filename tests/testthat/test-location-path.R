@@ -279,8 +279,8 @@ test_that("push overlapping tree", {
   orderly_location_add_path("server", path = server$path, root = client)
 
   id_base <- create_random_packet(server)
-  orderly_location_pull_metadata(root = client)
-  suppressMessages(orderly_location_pull_packet(id_base, root = client))
+  orderly_location_metadata_fetch(root = client)
+  suppressMessages(orderly_location_pull(id_base, root = client))
 
   ids <- create_random_packet_chain(client, 3, id_base)
   plan <- orderly_location_push(ids[[3]], "server", root = client)
@@ -367,7 +367,7 @@ test_that("allow relative paths in path locations", {
   b <- suppressMessages(orderly_init(file.path(tmp, "b")))
   ids <- vcapply(1:3, function(i) create_random_packet(b))
   withr::with_dir(a, orderly_location_add_path("b", path = "../b"))
-  orderly_location_pull_metadata(root = a)
+  orderly_location_metadata_fetch(root = a)
   expect_equal(orderly_search(root = a, location = "b"), ids)
 })
 
