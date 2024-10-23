@@ -4,13 +4,27 @@
 \alias{orderly_location_push}
 \title{Push tree to location}
 \usage{
-orderly_location_push(packet_id, location, root = NULL)
+orderly_location_push(
+  expr,
+  location,
+  name = NULL,
+  dry_run = FALSE,
+  root = NULL
+)
 }
 \arguments{
-\item{packet_id}{One or more packets to push to the server}
+\item{expr}{An expression to search for.  Often this will be a
+vector of ids, but you can use a query here.}
 
 \item{location}{The name of a location to push to (see
 \link{orderly_location_list} for possible values).}
+
+\item{name}{Optionally, the name of the packet to scope the query on. This
+will be intersected with \code{scope} arg and is a shorthand way of running
+\code{scope = list(name = "name")}}
+
+\item{dry_run}{Logical, indicating if we should print a summary
+but not make any changes.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

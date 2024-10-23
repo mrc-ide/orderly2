@@ -184,15 +184,15 @@ test_that("Import complete tree via push into server", {
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
   orderly_location_add_path("server", path = server$path, root = client)
 
-  plan <- orderly_location_push(ids[[4]], "server", client)
+  plan <- orderly_location_push(ids[[4]], "server", root = client)
 
   idx_c <- client$index$data()
   idx_s <- server$index$data()
 
   expect_equal(idx_s$metadata, idx_c$metadata)
   expect_equal(idx_s$unpacked, idx_c$unpacked)
-  expect_equal(idx_s$location$packet, idx_c$location$packet)
-  expect_equal(idx_s$location$hash, idx_c$location$hash)
+  expect_equal(idx_s$location$packet, idx_c$unpacked)
+  expect_setequal(idx_s$location$hash, idx_c$location$hash)
 
   expect_setequal(plan$packet_id, ids)
   files_used <- lapply(ids, function(id) client$index$metadata(id)$files$hash)
@@ -208,7 +208,7 @@ test_that("Import packets into root with archive as well as store", {
                                   path_archive = "archive")
   orderly_location_add_path("server", path = server$path, root = client)
 
-  plan <- orderly_location_push(ids[[4]], "server", client)
+  plan <- orderly_location_push(ids[[4]], "server", root = client)
 
   expect_equal(
     sort(withr::with_dir(server$path, fs::dir_ls("archive", recurse = TRUE))),
@@ -257,7 +257,7 @@ test_that("Can only push into a root with a file store", {
   server <- create_temporary_root()
   orderly_location_add_path("server", path = server$path, root = client)
   expect_error(
-    orderly_location_push(ids[[2]], "server", client),
+    orderly_location_push(ids[[2]], "server", root = client),
     "Can't push files into this server, as it does not have a file store")
 })
 
@@ -267,8 +267,8 @@ test_that("pushing twice does nothing", {
   ids <- create_random_packet_chain(client, 4)
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
   orderly_location_add_path("server", path = server$path, root = client)
-  plan1 <- orderly_location_push(ids[[4]], "server", client)
-  plan2 <- orderly_location_push(ids[[4]], "server", client)
+  plan1 <- orderly_location_push(ids[[4]], "server", root = client)
+  plan2 <- orderly_location_push(ids[[4]], "server", root = client)
   expect_equal(plan2, list(packet_id = character(), files = character()))
 })
 
@@ -283,7 +283,7 @@ test_that("push overlapping tree", {
   suppressMessages(orderly_location_pull_packet(id_base, root = client))
 
   ids <- create_random_packet_chain(client, 3, id_base)
-  plan <- orderly_location_push(ids[[3]], "server", client)
+  plan <- orderly_location_push(ids[[3]], "server", root = client)
 
   expect_setequal(plan$packet_id, ids)
   expect_setequal(names(server$index$data()$metadata), c(id_base, ids))
@@ -297,15 +297,15 @@ test_that("Push single packet", {
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
   orderly_location_add_path("server", path = server$path, root = client)
 
-  plan <- orderly_location_push(id, "server", client)
+  plan <- orderly_location_push(id, "server", root = client)
 
   idx_c <- client$index$data()
   idx_s <- server$index$data()
 
   expect_equal(idx_s$metadata, idx_c$metadata)
   expect_equal(idx_s$unpacked, idx_c$unpacked)
-  expect_equal(idx_s$location$packet, idx_c$location$packet)
-  expect_equal(idx_s$location$hash, idx_c$location$hash)
+  expect_equal(idx_s$location$packet, idx_c$unpacked)
+  expect_setequal(idx_s$location$hash, idx_c$location$hash)
 
   expect_equal(plan$packet_id, id)
   files_used <- lapply(id, function(id) client$index$metadata(id)$files$hash)
@@ -356,7 +356,7 @@ test_that("Fail to push sensibly if files have been changed", {
   forcibly_truncate_file(path)
 
   expect_error(
-    suppressMessages(orderly_location_push(ids[[4]], "server", client)),
+    suppressMessages(orderly_location_push(ids[[4]], "server", root = client)),
     "Did not find suitable file, can't push this packet")
 })
 
@@ -407,4 +407,71 @@ test_that("provide hint when wrong relative path given", {
     "'path' must be given relative to the orderly root")
   expect_equal(err$body[[2]],
                "Consider passing '../b' instead")
+})
+
+
+test_that("Dry run does not push", {
+  client <- create_temporary_root()
+  id1 <- create_random_packet(client, parameters = list(a = 1))
+  id2 <- create_random_packet(client, parameters = list(a = 2))
+  id3 <- create_random_packet(client, parameters = list(a = 1))
+
+  server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
+  orderly_location_add_path("server", path = server$path, root = client)
+
+  withr::local_options(orderly.quiet = FALSE)
+  res <- evaluate_promise(
+    orderly_location_push("parameter:a == 1", "server",
+                          dry_run = TRUE, root = client))
+  expect_length(res$result$packet_id, 2)
+  expect_length(orderly_search(root = server), 0)
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[1]], "Pushing 2 files for 2 packets")
+  expect_match(res$messages[[2]], "Not making any changes, as 'dry_run = TRUE'")
+})
+
+
+test_that("Inform if query matches nothing", {
+  client <- create_temporary_root()
+  server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
+  orderly_location_add_path("server", path = server$path, root = client)
+  withr::local_options(orderly.quiet = FALSE)
+
+  res1 <- evaluate_promise(
+    orderly_location_push("parameter:a == 1", "server", root = client))
+  expect_length(res1$messages, 2)
+  expect_match(res1$messages[[1]], "Query returned no packets to push")
+  expect_match(res1$messages[[2]], "Nothing to push, everything up to date")
+  expect_equal(res1$result, list(packet_id = character(), files = character()))
+
+  res2 <- evaluate_promise(
+    orderly_location_push(character(), "server", root = client))
+  expect_length(res2$messages, 1)
+  expect_equal(res2$messages[[1]], res1$messages[[2]])
+  expect_equal(res2$result, res1$result)
+})
+
+
+test_that("prevent pushing unknown packets", {
+  client <- create_temporary_root()
+  server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
+  orderly_location_add_path("server", path = server$path, root = client)
+
+  expect_error(
+    orderly_location_push("20241023-131946-0260c975", "server", root = client),
+    "Trying to push unknown packet: '20241023-131946-0260c975'")
+})
+
+
+test_that("pull metadata after push", {
+  client <- create_temporary_root()
+  id1 <- create_random_packet(client, parameters = list(a = 1))
+  id2 <- create_random_packet(client, parameters = list(a = 2))
+  id3 <- create_random_packet(client, parameters = list(a = 1))
+
+  server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
+  orderly_location_add_path("server", path = server$path, root = client)
+
+  plan <- orderly_location_push("parameter:a == 1", "server", root = client)
+  expect_length(orderly_search(location = "server", root = client), 2)
 })
