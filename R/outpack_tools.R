@@ -102,7 +102,11 @@
 ##' are more complex, these will be list columns.
 ##'
 ##' You must not provide `id`; it is always returned and always first
-##' as a character vector column.
+##' as a character vector column.  If your extraction could possibly
+##' return data from locations (i.e., you have `allow_remote = TRUE`
+##' or have given a value for `location`) then we add a logical column
+##' `local` which indicates if the packet is local to your archive,
+##' meaning that you have all the files from it locally.
 ##'
 ##' You can rename the columns by providing a name to entries within
 ##' `extract`, for example:
@@ -222,6 +226,12 @@ orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
 
   envir <- environment()
   ret <- data_frame(id = ids)
+  if (isTRUE(allow_remote) || length(location) > 0) {
+    loc <- root$index$location(location)
+    loc <- loc[loc$packet %in% ids, ]
+    ret$local <- ids %in% root$index$unpacked()
+    ret$location <- I(unname(split(loc$location, loc$packet)[ids]))
+  }
   for (i in seq_len(nrow(extract))) {
     from_i <- extract$from[[i]]
     is_i <- extract$is[[i]]
