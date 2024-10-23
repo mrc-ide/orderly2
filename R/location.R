@@ -556,7 +556,7 @@ location_push_files <- function(files, driver, root) {
             i = paste("The original file has been changed or deleted.",
                       "Details are above")))
       }
-      size <- as.character(fs::file_size(src))
+      size <- pretty_bytes(fs::file_size(src))
       cli_progress_update()
       driver$push_file(src, hash)
     }
