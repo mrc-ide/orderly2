@@ -419,10 +419,15 @@ test_that("Dry run does not push", {
   server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
   orderly_location_add_path("server", path = server$path, root = client)
 
-  plan <- orderly_location_push("parameter:a == 1", "server",
-                                dry_run = TRUE, root = client)
-  expect_length(plan$packet_id, 2)
+  withr::local_options(orderly.quiet = FALSE)
+  res <- evaluate_promise(
+    orderly_location_push("parameter:a == 1", "server",
+                          dry_run = TRUE, root = client))
+  expect_length(res$result$packet_id, 2)
   expect_length(orderly_search(root = server), 0)
+  expect_length(res$messages, 2)
+  expect_match(res$messages[[1]], "Pushing 2 files for 2 packets")
+  expect_match(res$messages[[2]], "Not making any changes, as 'dry_run = TRUE'")
 })
 
 
