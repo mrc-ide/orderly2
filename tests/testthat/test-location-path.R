@@ -396,6 +396,7 @@ test_that("allow weird absolute paths in path locations", {
 
 test_that("provide hint when wrong relative path given", {
   tmp <- withr::local_tempdir()
+  tmp <- normalizePath(tmp)
   nms <- letters[1:3]
   root <- suppressMessages(
     set_names(lapply(nms, function(x) orderly_init(file.path(tmp, x))), nms))
