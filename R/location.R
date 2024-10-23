@@ -525,6 +525,7 @@ orderly_location_push <- function(expr, location, name = NULL, dry_run = FALSE,
       driver <- location_driver(location_name, root)
       location_push_files(plan$files, driver, root)
       location_push_metadata(plan$packet_id, driver, root)
+      orderly_location_pull_metadata(location_name, root)
     }
   }
 

@@ -191,8 +191,8 @@ test_that("Import complete tree via push into server", {
 
   expect_equal(idx_s$metadata, idx_c$metadata)
   expect_equal(idx_s$unpacked, idx_c$unpacked)
-  expect_equal(idx_s$location$packet, idx_c$location$packet)
-  expect_equal(idx_s$location$hash, idx_c$location$hash)
+  expect_equal(idx_s$location$packet, idx_c$unpacked)
+  expect_setequal(idx_s$location$hash, idx_c$location$hash)
 
   expect_setequal(plan$packet_id, ids)
   files_used <- lapply(ids, function(id) client$index$metadata(id)$files$hash)
@@ -304,8 +304,8 @@ test_that("Push single packet", {
 
   expect_equal(idx_s$metadata, idx_c$metadata)
   expect_equal(idx_s$unpacked, idx_c$unpacked)
-  expect_equal(idx_s$location$packet, idx_c$location$packet)
-  expect_equal(idx_s$location$hash, idx_c$location$hash)
+  expect_equal(idx_s$location$packet, idx_c$unpacked)
+  expect_setequal(idx_s$location$hash, idx_c$location$hash)
 
   expect_equal(plan$packet_id, id)
   files_used <- lapply(id, function(id) client$index$metadata(id)$files$hash)
@@ -455,4 +455,18 @@ test_that("prevent pushing unknown packets", {
   expect_error(
     orderly_location_push("20241023-131946-0260c975", "server", root = client),
     "Trying to push unknown packet: '20241023-131946-0260c975'")
+})
+
+
+test_that("pull metadata after push", {
+  client <- create_temporary_root()
+  id1 <- create_random_packet(client, parameters = list(a = 1))
+  id2 <- create_random_packet(client, parameters = list(a = 2))
+  id3 <- create_random_packet(client, parameters = list(a = 1))
+
+  server <- create_temporary_root(use_file_store = TRUE, path_archive = NULL)
+  orderly_location_add_path("server", path = server$path, root = client)
+
+  plan <- orderly_location_push("parameter:a == 1", "server", root = client)
+  expect_length(orderly_search(location = "server", root = client), 2)
 })
