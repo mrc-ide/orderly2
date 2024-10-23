@@ -1063,11 +1063,13 @@ test_that("skip files in the file store", {
   orderly_location_pull_metadata(root = root$dst)
   suppressMessages(orderly_location_pull_packet(id[[1]], root = root$dst))
 
-  res <- testthat::evaluate_promise(
-    orderly_location_pull_packet(id[[2]], root = root$dst))
-  expect_match(res$messages, "Found 1 file in the file store", all = FALSE)
-  expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
-               all = FALSE)
+  withr::with_options(list(orderly.quiet = FALSE), {
+    res <- testthat::evaluate_promise(
+      orderly_location_pull_packet(id[[2]], root = root$dst))
+    expect_match(res$messages, "Found 1 file in the file store", all = FALSE)
+    expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
+                 all = FALSE)
+  })
 })
 
 
@@ -1082,11 +1084,13 @@ test_that("skip files known elsewhere on disk", {
   orderly_location_pull_metadata(root = root$dst)
   suppressMessages(orderly_location_pull_packet(id[[1]], root = root$dst))
 
-  res <- testthat::evaluate_promise(
-    orderly_location_pull_packet(id[[2]], root = root$dst))
-  expect_match(res$messages, "Found 1 file on disk", all = FALSE)
-  expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
-               all = FALSE)
+  withr::with_options(list(orderly.quiet = FALSE), {
+    res <- testthat::evaluate_promise(
+      orderly_location_pull_packet(id[[2]], root = root$dst))
+    expect_match(res$messages, "Found 1 file on disk", all = FALSE)
+    expect_match(res$messages, "Need to fetch 2 files.+from 1 location",
+                 all = FALSE)
+  })
 })
 
 

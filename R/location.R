@@ -997,11 +997,11 @@ location_pull_files <- function(files, root) {
     cleanup <- function() invisible()
     i <- store$exists(files$hash)
     if (any(i)) {
-      cli::cli_alert_success("Found {sum(i)} file{?s} in the file store")
+      cli_alert_success("Found {sum(i)} file{?s} in the file store")
       files <- files[!i, ]
     }
   } else {
-    cli::cli_alert_info("Looking for suitable files already on disk")
+    cli_alert_info("Looking for suitable files already on disk")
     store <- temporary_filestore(root)
     cleanup <- function() store$destroy()
     on_disk <- vlapply(files$hash, function(hash) {
@@ -1019,10 +1019,10 @@ location_pull_files <- function(files, root) {
   }
 
   if (nrow(files) == 0) {
-    cli::cli_alert_success("All files available locally, no need to fetch any")
+    cli_alert_success("All files available locally, no need to fetch any")
   } else {
     locations <- unique(files$location)
-    cli::cli_alert_info(paste(
+    cli_alert_info(paste(
       "Need to fetch {nrow(files)} file{?s} ({pretty_bytes(sum(files$size))})",
       "from {length(locations)} location{?s}"))
     for (loc in locations) {

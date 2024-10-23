@@ -2,15 +2,15 @@
 % Please edit documentation in R/compare.R
 \name{orderly_compare_packets}
 \alias{orderly_compare_packets}
-\title{Compare two packets}
+\title{Compare the metadata and contents of two packets.}
 \usage{
 orderly_compare_packets(
   target,
   current,
-  search_options = NULL,
-  root = NULL,
-  locate = TRUE,
-  what = c("metadata", "files")
+  location = NULL,
+  allow_remote = NULL,
+  pull_metadata = FALSE,
+  root = NULL
 )
 }
 \arguments{
@@ -18,40 +18,39 @@ orderly_compare_packets(
 
 \item{current}{The id of the other packet against which to compare.}
 
-\item{search_options}{Options for locating packet files. If there are no
-copies of the files locally, they can be downloaded automatically from a
-remote location on-demand if \code{allow_remote} is \code{TRUE}.}
+\item{location}{Optional vector of locations to pull from. We
+might in future expand this to allow wildcards or exceptions.}
+
+\item{allow_remote}{Logical, indicating if we should allow packets
+to be found that are not currently unpacked (i.e., are known
+only to a location that we have metadata from). If this is
+\code{TRUE}, then in conjunction with \link{orderly_dependency}
+you might pull a large quantity of data.  The default is \code{NULL}. This is
+\code{TRUE} if remote locations are listed explicitly as a character
+vector in the \code{location} argument, or if you have specified
+\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+
+\item{pull_metadata}{Logical, indicating if we should pull
+metadata immediately before the search. If \code{location} is given,
+then we will pass this through to
+\link{orderly_location_pull_metadata} to filter locations
+to update.  If pulling many packets in sequence, you \emph{will} want
+to update this option to \code{FALSE} after the first pull, otherwise
+it will update the metadata between every packet, which will be
+needlessly slow.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
-default) to search for one from the current working directory if
-\code{locate} is \code{TRUE}. This function does not require that the
-directory is configured for orderly, and can be any \code{outpack}
-root (see \link{orderly_init} for details).}
-
-\item{locate}{Logical, indicating if the root should be searched
-for.  If \code{TRUE}, then we looks in the directory given for \code{root}
-(or the working directory if \code{NULL}) and then up through its
-parents until it finds an \code{.outpack} directory or
-\code{orderly_config.yml}}
-
-\item{what}{One or more of "metadata", "files" and "artefacts", retricting
-what components of the packet to compare. This is useful when it is known
-for example that the source code of a report what changed, and one is only
-interested in the effect on its output.}
+default) to search for one from the current working
+directory. This function does not require that the directory is
+configured for orderly, and can be any \code{outpack} root (see
+\link{orderly_init} for details).}
 }
 \value{
-An R6 object of class \code{orderly_packet_diff} is returned. Printing
-this object will show the difference in the two packets. Additionally, the
-\code{is_equal} method of the object return a logical indicating whether any
-difference was found.
+An object of class orderly_comparison. The object can be printed to
+get a summary description of the differences, or passed to
+\link{orderly_comparison_explain} to display more details.
 }
 \description{
-Compare the metadata and contents of two packets.
-}
-\details{
 Insignificant differences in the metadata (eg. different dates and packet
 IDs) are excluded from the comparison.
-
-If either packet is not unpacked, but \code{search_options}'s \code{allow_remote} is
-\code{TRUE}, we will try to request files from remote locations, as necessary.
 }
