@@ -96,6 +96,21 @@ orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
 
   if (type == "path") {
     assert_scalar_character(args$path, name = "path")
+    if (!fs::is_absolute_path(args$path)) {
+      ## This only happens where the current working directory is not
+      ## the same as the root.
+      root_error <- !file.exists(file.path(root$path, args$path)) &&
+        file.exists(args$path)
+      if (root_error) {
+        root_fix <- as.character(fs::path_rel(args$path, root$path))
+        cli::cli_abort(
+          c("'path' must be given relative to the orderly root",
+            x = paste("You have provided the relative path '{args$path}',",
+                      "which exists, but does not exist relatively to",
+                      "'{root$path}', the root of your orderly archive"),
+            i = "Consider passing '{root_fix}' instead"))
+      }
+    }
   } else if (type == "http") {
     assert_scalar_character(args$url, name = "url")
   } else if (type == "packit") {
@@ -114,7 +129,7 @@ orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
 
   if (verify) {
     cli_alert_info("Testing location")
-    location_driver_create(type, args)$verify()
+    location_driver_create(type, args, root)$verify()
     cli_alert_success("Location configured successfully")
   }
 
@@ -129,9 +144,18 @@ orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
 
 ##' @rdname orderly_location_add
 ##'
-##' @param path The path to the other archive root. This should
-##'   generally be an absolute path, or the behaviour of outpack will
-##'   be unreliable.
+##' @param path The path to the other archive root. This can be a
+##'   relative or absolute path, with different tradeoffs.  If you use
+##'   an absolute path, then this location will typically work well on
+##'   this machine, but it may behave poorly when the location is
+##'   found on a shared drive **and** when you use your orderly root
+##'   from more than one system.  This setup is common when using an
+##'   HPC system.  If you use a relative path, then we will interpret
+##'   it **relative to your orderly root** and not the directory that
+##'   you evaluate this command from.  Typically your path should
+##'   include leading dots (e.g. `../../somewhere/else`) as you should
+##'   not nest orderly projects.  This approach should work fine on
+##'   shared filesystems.
 ##'
 ##' @export
 orderly_location_add_path <- function(name, path, verify = TRUE, root = NULL) {
@@ -496,16 +520,19 @@ location_driver <- function(location_name, root) {
   i <- match(location_name, root$config$location$name)
   type <- root$config$location$type[[i]]
   args <- root$config$location$args[[i]]
-  location_driver_create(type, args)
+  location_driver_create(type, args, root)
 }
 
 
-location_driver_create <- function(type, args) {
+location_driver_create <- function(type, args, root) {
   location <- switch(type,
                      path = orderly_location_path$new,
                      http = orderly_location_http$new,
                      packit = orderly_location_packit,
                      custom = orderly_location_custom)
+  ## Set the workdir to the orderly root so that paths are interpreted
+  ## relative to the root.
+  withr::local_dir(root$path)
   do.call(location, args)
 }
 
