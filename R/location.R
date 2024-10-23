@@ -638,7 +638,8 @@ orderly_location_custom <- function(driver, ...) {
 }
 
 
-location_metadata_fetch <- function(location_name, root, call = parent.frame()) {
+location_metadata_fetch <- function(location_name, root,
+                                    call = parent.frame()) {
   index <- root$index$data()
   driver <- location_driver(location_name, root)
 
