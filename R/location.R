@@ -471,12 +471,17 @@ orderly_location_pull_packet <- function(expr,
 ##'
 ##' @title Push tree to location
 ##'
-##' @param packet_id One or more packets to push to the server
+##' @param expr An expression to search for.  Often this will be a
+##'   vector of ids, but you can use a query here.
 ##'
 ##' @param location The name of a location to push to (see
 ##' [orderly2::orderly_location_list] for possible values).
 ##'
+##' @param dry_run Logical, indicating if we should print a summary
+##'   but not make any changes.
+##'
 ##' @inheritParams orderly_metadata
+##' @inheritParams orderly_search
 ##'
 ##' @return Invisibly, details on the information that was actually
 ##'   moved (which might be more or less than what was requested,
@@ -484,14 +489,29 @@ orderly_location_pull_packet <- function(expr,
 ##'   known on the other location).
 ##'
 ##' @export
-orderly_location_push <- function(packet_id, location, root = NULL) {
+orderly_location_push <- function(expr, location, name = NULL, dry_run = FALSE,
+                                  root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
+  assert_scalar_logical(dry_run)
   location_name <- location_resolve_valid(location, root,
                                           include_local = FALSE,
                                           include_orphan = FALSE,
                                           allow_no_locations = FALSE,
                                           environment())
-  plan <- location_build_push_plan(packet_id, location_name, root)
+  if (expr_is_literal_id(expr, name)) {
+    ids <- expr
+    err <- setdiff(ids, root$index$unpacked())
+    if (length(err)) {
+      cli::cli_abort("Trying to push unknown packet{?s}: {squote(err)}")
+    }
+  } else {
+    ids <- orderly_search(expr, name = name, root = root)
+    if (length(ids) == 0) {
+      cli_alert_warning("Query returned no packets to push")
+    }
+  }
+
+  plan <- location_build_push_plan(ids, location_name, root)
 
   if (length(plan$files) == 0 && length(plan$packet_id) == 0) {
     cli_alert_success("Nothing to push, everything up to date")
@@ -499,9 +519,13 @@ orderly_location_push <- function(packet_id, location, root = NULL) {
     cli_alert_info(
       paste("Pushing {length(plan$files)} file{?s} for",
             "{length(plan$packet_id)} packet{?s}"))
-    driver <- location_driver(location_name, root)
-    location_push_files(plan$files, driver, root)
-    location_push_metadata(plan$packet_id, driver, root)
+    if (dry_run) {
+      cli_alert_info("Not making any changes, as 'dry_run = TRUE'")
+    } else {
+      driver <- location_driver(location_name, root)
+      location_push_files(plan$files, driver, root)
+      location_push_metadata(plan$packet_id, driver, root)
+    }
   }
 
   invisible(plan)
