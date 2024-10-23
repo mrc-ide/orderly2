@@ -724,6 +724,21 @@ cli_alert_warning <- function(..., .envir = parent.frame()) {
   }
 }
 
+cli_progress_bar <- function(..., .envir = parent.frame(), immediate = TRUE) {
+  if (immediate) {
+    withr::local_options(cli.progress_show_after = 0, .local_envir = .envir)
+  }
+  if (!orderly_quiet()) {
+    cli::cli_progress_bar(..., .envir = .envir)
+  }
+}
+
+cli_progress_update <- function(..., .envir = parent.frame()) {
+  if (!orderly_quiet()) {
+    cli::cli_progress_update(..., .envir = .envir)
+  }
+}
+
 # Given a character vector, missing names are filled using the value.
 fill_missing_names <- function(x) {
   if (is.null(names(x))) {

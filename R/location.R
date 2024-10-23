@@ -493,9 +493,37 @@ orderly_location_push <- function(packet_id, location, root = NULL) {
                                           environment())
   plan <- location_build_push_plan(packet_id, location_name, root)
 
-  if (length(plan$files) > 0 || length(plan$packet_id) > 0) {
+  if (length(plan$files) == 0 && length(plan$packet_id) == 0) {
+    cli_alert_success("Nothing to push, everything up to date")
+  } else {
+    cli_alert_info(
+      paste("Pushing {length(plan$files)} file{?s} for",
+            "{length(plan$packet_id)} packet{?s}"))
     driver <- location_driver(location_name, root)
-    for (hash in plan$files) {
+    location_push_files(plan$files, driver, root)
+    location_push_metadata(plan$packet_id, driver, root)
+  }
+
+  invisible(plan)
+}
+
+
+location_push_files <- function(files, driver, root) {
+  n_files <- length(files)
+  if (n_files == 0) {
+    cli_alert_info("No files needed, all are available at location")
+  } else {
+    size <- "(unknown)"
+    cli_progress_bar(
+      format = paste(
+        "{cli::pb_spin} Pushing file {cli::pb_current} / {cli::pb_total}",
+        "({size})"),
+      format_done = paste(
+        "{cli::col_green(cli::symbol$tick)} Uploaded {cli::pb_total} files",
+        "in {cli::pb_elapsed}"),
+      total = n_files,
+      clear = FALSE)
+    for (hash in files) {
       src <- find_file_by_hash(root, hash)
       if (is.null(src)) {
         cli::cli_abort(
@@ -503,16 +531,30 @@ orderly_location_push <- function(packet_id, location, root = NULL) {
             i = paste("The original file has been changed or deleted.",
                       "Details are above")))
       }
+      size <- as.character(fs::file_size(src))
+      cli_progress_update()
       driver$push_file(src, hash)
     }
-    for (id in plan$packet_id) {
-      path <- file.path(root$path, ".outpack", "metadata", id)
-      hash <- get_metadata_hash(id, root)
-      driver$push_metadata(id, hash, path)
-    }
   }
+}
 
-  invisible(plan)
+
+location_push_metadata <- function(ids, driver, root) {
+  id <- "(unknown)"
+  cli_progress_bar(
+    format = paste(
+      "{cli::pb_spin} Pushing packet {id} {cli::pb_current} / {cli::pb_total}"),
+    format_done = paste(
+      "{cli::col_green(cli::symbol$tick)} Uploaded {cli::pb_total} packets",
+      "in {cli::pb_elapsed}"),
+    total = length(ids),
+    clear = FALSE)
+  for (id in ids) {
+    path <- file.path(root$path, ".outpack", "metadata", id)
+    hash <- get_metadata_hash(id, root)
+    cli_progress_update()
+    driver$push_metadata(id, hash, path)
+  }
 }
 
 
