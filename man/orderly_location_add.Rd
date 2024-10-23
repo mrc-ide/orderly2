@@ -43,9 +43,18 @@ directory. This function does not require that the directory is
 configured for orderly, and can be any \code{outpack} root (see
 \link{orderly_init} for details).}
 
-\item{path}{The path to the other archive root. This should
-generally be an absolute path, or the behaviour of outpack will
-be unreliable.}
+\item{path}{The path to the other archive root. This can be a
+relative or absolute path, with different tradeoffs.  If you use
+an absolute path, then this location will typically work well on
+this machine, but it may behave poorly when the location is
+found on a shared drive \strong{and} when you use your orderly root
+from more than one system.  This setup is common when using an
+HPC system.  If you use a relative path, then we will interpret
+it \strong{relative to your orderly root} and not the directory that
+you evaluate this command from.  Typically your path should
+include leading dots (e.g. \verb{../../somewhere/else}) as you should
+not nest orderly projects.  This approach should work fine on
+shared filesystems.}
 
 \item{url}{The location of the server, including protocol, for
 example \verb{http://example.com:8080}}

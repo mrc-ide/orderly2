@@ -850,7 +850,8 @@ test_that("can add a packit location", {
     list("packit",
          list(url = "https://example.com",
               token = "abc123",
-              save_token = FALSE)))
+              save_token = FALSE),
+         root))
 })
 
 test_that("can add a packit location without a token", {
@@ -873,7 +874,8 @@ test_that("can add a packit location without a token", {
   expect_equal(
     mockery::mock_args(mock_driver)[[1]],
     list("packit",
-         list(url = "https://example.com", token = NULL, save_token = TRUE)))
+         list(url = "https://example.com", token = NULL, save_token = TRUE),
+         root))
 })
 
 test_that("cope with trailing slash in url if needed", {
@@ -947,7 +949,7 @@ test_that("can add a custom outpack location", {
   expect_equal(location_driver(loc$name, root), "value")
   mockery::expect_called(mock_orderly_location_driver_create, 1)
   expect_equal(mockery::mock_args(mock_orderly_location_driver_create)[[1]],
-               list("custom", list(driver = "foo::bar", a = 1, b = 2)))
+               list("custom", list(driver = "foo::bar", a = 1, b = 2), root))
 })
 
 

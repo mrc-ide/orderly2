@@ -359,3 +359,51 @@ test_that("Fail to push sensibly if files have been changed", {
     suppressMessages(orderly_location_push(ids[[4]], "server", client)),
     "Did not find suitable file, can't push this packet")
 })
+
+
+test_that("allow relative paths in path locations", {
+  tmp <- withr::local_tempdir()
+  a <- suppressMessages(orderly_init(file.path(tmp, "a")))
+  b <- suppressMessages(orderly_init(file.path(tmp, "b")))
+  ids <- vcapply(1:3, function(i) create_random_packet(b))
+  withr::with_dir(a, orderly_location_add_path("b", path = "../b"))
+  orderly_location_pull_metadata(root = a)
+  expect_equal(orderly_search(root = a, location = "b"), ids)
+})
+
+
+test_that("allow weird absolute paths in path locations", {
+  tmp <- withr::local_tempdir()
+  nms <- letters[1:3]
+  root <- suppressMessages(
+    set_names(lapply(nms, function(x) orderly_init(file.path(tmp, x))), nms))
+
+  withr::with_dir(
+    tmp, orderly_location_add_path("b", path = "../b", root = "a"))
+  expect_equal(
+    orderly_location_list(verbose = TRUE, root = root$a)$args[[2]]$path,
+    "../b")
+
+  fs::dir_create(file.path(root$a, "some/deep/path"))
+  withr::with_dir(
+    file.path(root$a, "some/deep/path"),
+    orderly_location_add_path("c", path = "../c"))
+  expect_equal(
+    orderly_location_list(verbose = TRUE, root = root$a)$args[[3]]$path,
+    "../c")
+})
+
+
+test_that("provide hint when wrong relative path given", {
+  tmp <- withr::local_tempdir()
+  nms <- letters[1:3]
+  root <- suppressMessages(
+    set_names(lapply(nms, function(x) orderly_init(file.path(tmp, x))), nms))
+
+  err <- expect_error(
+    withr::with_dir(
+      tmp, orderly_location_add_path("b", path = "b", root = "a")),
+    "'path' must be given relative to the orderly root")
+  expect_equal(err$body[[2]],
+               "Consider passing '../b' instead")
+})
