@@ -52,7 +52,7 @@ packit_authorisation <- function(base_url, token, save_token) {
   key <- rlang::hash(list(base_url = base_url, token = token))
 
   if (is.null(auth_cache[[key]])) {
-    cli::cli_alert_info("Logging in to {base_url}")
+    cli_alert_info("Logging in to {base_url}")
     if (is.null(token)) {
       token <- do_oauth_device_flow(base_url, cache_disk = save_token)
     }
@@ -62,7 +62,7 @@ packit_authorisation <- function(base_url, token, save_token) {
       login_url,
       function(r) http_body_json(r, list(token = scalar(token))))
 
-    cli::cli_alert_success("Logged in successfully")
+    cli_alert_success("Logged in successfully")
 
     auth_cache[[key]] <- list("Authorization" = paste("Bearer", res$token))
   }

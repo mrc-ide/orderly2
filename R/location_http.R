@@ -8,6 +8,22 @@ orderly_location_http <- R6::R6Class(
       self$client <- outpack_http_client$new(url, authorise)
     },
 
+    verify = function() {
+      ## This should never end up triggering the assertion here as
+      ## http_client_handle_error() in the client will convert
+      ## unsuccessful requests into an error already, but this should
+      ## serve as a reasonable backstop.
+      ##
+      ## The act of making the request will force validation, which is
+      ## the most likely source of errors (along with getting the URL
+      ## wrong).
+      stopifnot(identical(self$client$request("/")$status, "success"))
+    },
+
+    authorise = function() {
+      self$client$authorise()
+    },
+
     list = function() {
       dat <- self$client$request("/metadata/list")$data
       data_frame(
