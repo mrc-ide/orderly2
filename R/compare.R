@@ -52,7 +52,7 @@ orderly_compare_packets <- function(target, current,
                                   pull_metadata = pull_metadata)
 
   if (options$pull_metadata) {
-    orderly_location_metadata_fetch(options$location, root = root)
+    orderly_location_fetch_metadata(options$location, root = root)
   }
 
   target_metadata <- orderly_metadata(target, root = root)

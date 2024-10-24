@@ -77,7 +77,7 @@ and pulled into your local archive.  Currently only file and http
 based locations are supported, with limited support for custom
 locations. Note that adding a location does \emph{not} pull metadata
 from it, you need to call
-\link{orderly_location_metadata_fetch} first.  The function
+\link{orderly_location_fetch_metadata} first.  The function
 \code{orderly_location_add} can add any sort of location, but the other
 functions documented here (\code{orderly_location_add_path}, etc) will
 typically be much easier to use in practice.

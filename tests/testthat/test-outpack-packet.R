@@ -679,7 +679,7 @@ test_that("can pull in dependency from specific location", {
     })
     orderly_location_add_path(name, path = root[[name]]$path, root = root$a)
   }
-  orderly_location_metadata_fetch(root = root$a)
+  orderly_location_fetch_metadata(root = root$a)
   for (id in ids$z) {
     suppressMessages(orderly_location_pull(id, root = root$a))
   }

@@ -81,7 +81,7 @@ test_that("Can add file_store", {
   id <- create_random_packet_chain(root$src, 3)
 
   orderly_location_add_path("src", path = root$src$path, root = root$dst$path)
-  orderly_location_metadata_fetch(root = root$dst$path)
+  orderly_location_fetch_metadata(root = root$dst$path)
   suppressMessages(
     orderly_location_pull(id[["c"]], root = root$dst$path))
 
@@ -294,7 +294,7 @@ test_that("Enabling recursive pulls forces pulling missing packets", {
 
   id <- create_random_packet_chain(root$src, 3)
   orderly_location_add_path("src", path = root$src$path, root = root$dst$path)
-  orderly_location_metadata_fetch(root = root$dst$path)
+  orderly_location_fetch_metadata(root = root$dst$path)
   suppressMessages(
     orderly_location_pull(id[["c"]], root = root$dst$path))
   expect_equal(root$dst$index$unpacked(), id[["c"]])

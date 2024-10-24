@@ -7,7 +7,7 @@ test_that("index can include only unpacked packets", {
 
   x1 <- create_random_packet(root$src, "x")
   x2 <- create_random_packet(root$src, "x")
-  orderly_location_metadata_fetch(root = root$dst)
+  orderly_location_fetch_metadata(root = root$dst)
 
   opts_all <- build_search_options(allow_remote = TRUE)
   opts_unpacked <- build_search_options(allow_remote = FALSE)
@@ -85,7 +85,7 @@ test_that("can apply a location filter to index", {
       create_random_packet(root[[name]], "data", list(p = i))
     })
   }
-  orderly_location_metadata_fetch(root = root$a)
+  orderly_location_fetch_metadata(root = root$a)
 
   idx_with_location <- function(location) {
     options <- build_search_options(location = location, allow_remote = TRUE)

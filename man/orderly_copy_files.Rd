@@ -75,7 +75,7 @@ vector in the \code{location} argument, or if you have specified
 \item{pull_metadata}{Logical, indicating if we should pull
 metadata immediately before the search. If \code{location} is given,
 then we will pass this through to
-\link{orderly_location_metadata_fetch} to filter locations
+\link{orderly_location_fetch_metadata} to filter locations
 to update.  If pulling many packets in sequence, you \emph{will} want
 to update this option to \code{FALSE} after the first pull, otherwise
 it will update the metadata between every packet, which will be
@@ -129,7 +129,7 @@ failure):
 it's not unpacked but also not known to be present in some other
 remote) then this will fail because it's impossible to resolve
 the files. Consider refreshing the metadata with
-\link{orderly_location_metadata_fetch} to refresh this.
+\link{orderly_location_fetch_metadata} to refresh this.
 \item if the \code{id} is not unpacked \emph{and} no local copy of the files
 referred to can be found, we error by default (but see the next
 option). However, sometimes the file you refer to might also be

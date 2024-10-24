@@ -21,7 +21,7 @@ See the linked pages above for the current return type.
 \itemize{
 \item \code{orderly_location_pull_packet}; please use \code{\link[=orderly_location_pull]{orderly_location_pull()}}
 \item \code{orderly_location_pull_metadata}; please use
-\code{\link[=orderly_location_metadata_fetch]{orderly_location_metadata_fetch()}}
+\code{\link[=orderly_location_fetch_metadata]{orderly_location_fetch_metadata()}}
 }
 }
 \keyword{internal}

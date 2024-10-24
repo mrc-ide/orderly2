@@ -87,7 +87,7 @@ new_query_index <- function(root, options) {
   root <- root_open(root, require_orderly = FALSE)
 
   if (options$pull_metadata) {
-    orderly_location_metadata_fetch(options$location, root = root)
+    orderly_location_fetch_metadata(options$location, root = root)
   }
   idx <- root$index$data()
   metadata <- idx$metadata

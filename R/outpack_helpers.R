@@ -22,7 +22,7 @@
 ##'   it's not unpacked but also not known to be present in some other
 ##'   remote) then this will fail because it's impossible to resolve
 ##'   the files. Consider refreshing the metadata with
-##'   [orderly2::orderly_location_metadata_fetch] to refresh this.
+##'   [orderly2::orderly_location_fetch_metadata] to refresh this.
 ##' * if the `id` is not unpacked *and* no local copy of the files
 ##'   referred to can be found, we error by default (but see the next
 ##'   option). However, sometimes the file you refer to might also be

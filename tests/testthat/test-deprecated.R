@@ -22,7 +22,7 @@ test_that("can use deprecated pull_packet with warning", {
 
   id <- create_random_packet(root$src)
   orderly_location_add_path("src", path = root$src$path, root = root$dst)
-  orderly_location_metadata_fetch(root = root$dst)
+  orderly_location_fetch_metadata(root = root$dst)
   res <- evaluate_promise(orderly_location_pull_packet(id, root = root$dst))
   expect_equal(res$result, id)
   expect_match(res$warnings,

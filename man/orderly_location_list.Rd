@@ -33,7 +33,7 @@ known at the current root), though you will typically be
 interested in \emph{other} locations.
 }
 \seealso{
-\link{orderly_location_metadata_fetch}, which can
+\link{orderly_location_fetch_metadata}, which can
 update your outpack index with metadata from any of the
 locations listed here.
 }

@@ -282,5 +282,5 @@ orderly2::orderly_location_add_path("alices_orderly", path_sharepoint_bob)
 
 1. Pull the metadata and use the packets as desired
     ```{r, as="bob", orderly_root = path_bob}
-orderly2::orderly_location_metadata_fetch("alices_orderly")
+orderly2::orderly_location_fetch_metadata("alices_orderly")
     ```

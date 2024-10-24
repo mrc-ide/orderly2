@@ -3,7 +3,7 @@
 ##'
 ##' * `orderly_location_pull_packet`; please use [orderly_location_pull()]
 ##' * `orderly_location_pull_metadata`; please use
-##'   [orderly_location_metadata_fetch()]
+##'   [orderly_location_fetch_metadata()]
 ##'
 ##' @param ... Arguments forwarded to the new version
 ##' @return See the linked pages above for the current return type.
