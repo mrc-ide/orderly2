@@ -1,6 +1,6 @@
 Package: orderly2
 Title: Orderly Next Generation
-Version: 1.99.51
+Version: 1.99.52
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),
@@ -17,6 +17,7 @@ BugReports: https://github.com/mrc-ide/orderly2/issues
 Imports:
     R6,
     cli,
+    diffobj,
     fs,
     gert (>= 1.9.3),
     httr2,
@@ -35,6 +36,7 @@ Suggests:
     pkgload,
     processx,
     rmarkdown,
+    stringr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes:
