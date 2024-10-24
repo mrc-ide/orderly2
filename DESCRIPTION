@@ -1,13 +1,25 @@
 Package: orderly2
 Title: Orderly Next Generation
-Version: 1.99.53
+Version: 1.99.49
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),
+             person("Martin", "Eden", role = "aut"),
              person("Alex", "Hill", role = "aut"),
+             person("Wes", "Hinsley", role = "aut"),
+             person("Mantra", "Kusumgar", role = "aut"),
+             person("Paul", "Liétar", role = "aut"),
+             person("James", "Thompson", role = "aut"),
              person("Imperial College of Science, Technology and Medicine",
                     role = "cph"))
-Description: Reimplementation of orderly based on outpack.
+Description: Distributed reproducible computing framework, adopting
+    ideas from git, docker and other software.  By defining a
+    lightweight interface around the inputs and outputs of an
+    analysis, a lot of the repetitive work for reproducible research
+    can be automated.  We define a simple format for organising and
+    describing work that facilitates collaborative reproducible
+    research and acknowledges that all analyses are run multiple times
+    over their lifespans.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
