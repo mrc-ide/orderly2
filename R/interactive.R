@@ -75,7 +75,7 @@ detect_orderly_interactive_path <- function(
 ##'
 ##' @title Set search options for interactive use
 ##'
-##' @inheritParams orderly_search_options
+##' @inheritParams orderly_search
 ##'
 ##' @return Nothing, called for its side effects
 ##' @export

@@ -23,7 +23,7 @@ you might pull a large quantity of data.  The default is \code{NULL}. This is
 vector in the \code{location} argument, or if you have specified
 \code{fetch_metadata = TRUE}, otherwise \code{FALSE}.}
 
-\item{fetch_metadata}{Logical, indicating if we should pull
+\item{pull_metadata}{Logical, indicating if we should pull
 metadata immediately before the search. If \code{location} is given,
 then we will pass this through to
 \link{orderly_location_fetch_metadata} to filter locations

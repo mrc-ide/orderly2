@@ -19,6 +19,15 @@
 ##' @inheritParams orderly_query
 ##' @inheritParams orderly_search_options
 ##'
+##' @param fetch_metadata Logical, indicating if we should pull
+##'   metadata immediately before the search. If `location` is given,
+##'   then we will pass this through to
+##'   [orderly2::orderly_location_fetch_metadata] to filter locations
+##'   to update.  If pulling many packets in sequence, you *will* want
+##'   to update this option to `FALSE` after the first pull, otherwise
+##'   it will update the metadata between every packet, which will be
+##'   needlessly slow.
+##'
 ##' @param options **DEPRECATED**. Please don't use this any more, and
 ##'   instead use the arguments `location`, `allow_remote` and
 ##'   `fetch_metadata` directly.
@@ -66,7 +75,7 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##'   vector in the `location` argument, or if you have specified
 ##'   `fetch_metadata = TRUE`, otherwise `FALSE`.
 ##'
-##' @param fetch_metadata Logical, indicating if we should pull
+##' @param pull_metadata Logical, indicating if we should pull
 ##'   metadata immediately before the search. If `location` is given,
 ##'   then we will pass this through to
 ##'   [orderly2::orderly_location_fetch_metadata] to filter locations

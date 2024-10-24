@@ -31,7 +31,7 @@ compare_filesets <- function(target, current) {
 ##'
 ##' @param target The id of the packet to use in the comparison.
 ##' @param current The id of the other packet against which to compare.
-##' @inheritParams orderly_search_options
+##' @inheritParams orderly_search
 ##' @inheritParams orderly_metadata
 ##' @return An object of class orderly_comparison. The object can be printed to
 ##'  get a summary description of the differences, or passed to
