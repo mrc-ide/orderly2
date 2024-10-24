@@ -177,7 +177,7 @@ outpack_packet_use_dependency <- function(packet, query, files,
                        envir = envir,
                        location = search_options$location,
                        allow_remote = search_options$allow_remote,
-                       pull_metadata = search_options$pull_metadata,
+                       fetch_metadata = search_options$fetch_metadata,
                        root = packet$root)
   if (is.na(id)) {
     explanation <- orderly_query_explain(
@@ -195,13 +195,13 @@ outpack_packet_use_dependency <- function(packet, query, files,
     packet$root$config$core$require_complete_tree &&
     !(id %in% packet$root$index$unpacked())
   if (needs_pull) {
-    orderly_location_pull_packet(id, root = packet$root)
+    orderly_location_pull(id, root = packet$root)
   }
 
   result <- orderly_copy_files(id, files = files, dest = packet$path,
                                location = search_options$location,
                                allow_remote = search_options$allow_remote,
-                               pull_metadata = search_options$pull_metadata,
+                               fetch_metadata = search_options$fetch_metadata,
                                overwrite = overwrite,
                                envir = envir,
                                root = packet$root)

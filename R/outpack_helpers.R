@@ -22,7 +22,7 @@
 ##'   it's not unpacked but also not known to be present in some other
 ##'   remote) then this will fail because it's impossible to resolve
 ##'   the files. Consider refreshing the metadata with
-##'   [orderly2::orderly_location_pull_metadata] to refresh this.
+##'   [orderly2::orderly_location_fetch_metadata] to refresh this.
 ##' * if the `id` is not unpacked *and* no local copy of the files
 ##'   referred to can be found, we error by default (but see the next
 ##'   option). However, sometimes the file you refer to might also be
@@ -32,7 +32,7 @@
 ##' * if the `id` is not unpacked, there is no local copy of the file
 ##'   and if `allow_remote` is `TRUE` we will try and request the file
 ##'   from whatever remote would be selected by
-##'   [orderly2::orderly_location_pull_packet] for this packet.
+##'   [orderly2::orderly_location_pull] for this packet.
 ##'
 ##' Note that empty directories might be created on failure.
 ##'
@@ -82,7 +82,7 @@
 ##' @export
 orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
                                name = NULL, location = NULL,
-                               allow_remote = NULL, pull_metadata = FALSE,
+                               allow_remote = NULL, fetch_metadata = FALSE,
                                parameters = NULL, options = NULL,
                                envir = parent.frame(),
                                root = NULL) {
@@ -92,7 +92,7 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
   ## allow_remote later in error messages.
   options <- build_search_options(location = location,
                                   allow_remote = allow_remote,
-                                  pull_metadata = pull_metadata)
+                                  fetch_metadata = fetch_metadata)
 
   ## Validate files and dest early; it gives a better error where this
   ## was not provided with names.
@@ -112,7 +112,7 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
                          parameters = parameters,
                          location = options$location,
                          allow_remote = options$allow_remote,
-                         pull_metadata = options$pull_metadata,
+                         fetch_metadata = options$fetch_metadata,
                          root = root)
     if (length(id) > 1) {
       cli::cli_abort(

@@ -12,7 +12,7 @@ orderly_copy_files(
   name = NULL,
   location = NULL,
   allow_remote = NULL,
-  pull_metadata = FALSE,
+  fetch_metadata = FALSE,
   parameters = NULL,
   options = NULL,
   envir = parent.frame(),
@@ -70,12 +70,12 @@ only to a location that we have metadata from). If this is
 you might pull a large quantity of data.  The default is \code{NULL}. This is
 \code{TRUE} if remote locations are listed explicitly as a character
 vector in the \code{location} argument, or if you have specified
-\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+\code{fetch_metadata = TRUE}, otherwise \code{FALSE}.}
 
-\item{pull_metadata}{Logical, indicating if we should pull
+\item{fetch_metadata}{Logical, indicating if we should pull
 metadata immediately before the search. If \code{location} is given,
 then we will pass this through to
-\link{orderly_location_pull_metadata} to filter locations
+\link{orderly_location_fetch_metadata} to filter locations
 to update.  If pulling many packets in sequence, you \emph{will} want
 to update this option to \code{FALSE} after the first pull, otherwise
 it will update the metadata between every packet, which will be
@@ -86,7 +86,7 @@ into the query (using the \verb{this:} prefix)}
 
 \item{options}{\strong{DEPRECATED}. Please don't use this any more, and
 instead use the arguments \code{location}, \code{allow_remote} and
-\code{pull_metadata} directly.}
+\code{fetch_metadata} directly.}
 
 \item{envir}{Optionally, an environment to substitute into the
 query (using the \verb{environment:} prefix). The default here is to
@@ -129,7 +129,7 @@ failure):
 it's not unpacked but also not known to be present in some other
 remote) then this will fail because it's impossible to resolve
 the files. Consider refreshing the metadata with
-\link{orderly_location_pull_metadata} to refresh this.
+\link{orderly_location_fetch_metadata} to refresh this.
 \item if the \code{id} is not unpacked \emph{and} no local copy of the files
 referred to can be found, we error by default (but see the next
 option). However, sometimes the file you refer to might also be
@@ -139,7 +139,7 @@ some other packet version you have locally.
 \item if the \code{id} is not unpacked, there is no local copy of the file
 and if \code{allow_remote} is \code{TRUE} we will try and request the file
 from whatever remote would be selected by
-\link{orderly_location_pull_packet} for this packet.
+\link{orderly_location_pull} for this packet.
 }
 
 Note that empty directories might be created on failure.

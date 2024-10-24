@@ -305,7 +305,7 @@ orderly_dependency <- function(name, query, files) {
       parameters = ctx$parameters,
       location = search_options$location,
       allow_remote = search_options$allow_remote,
-      pull_metadata = search_options$pull_metadata,
+      fetch_metadata = search_options$fetch_metadata,
       envir = ctx$envir,
       root = ctx$root)
   }

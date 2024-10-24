@@ -86,7 +86,7 @@ describe("http location integration tests", {
     orderly_location_add_http("upstream", url = url, root = root_downstream)
     expect_equal(orderly_location_list(root = root_downstream),
                  c("local", "upstream"))
-    orderly_location_pull_metadata("upstream", root = root_downstream)
+    orderly_location_fetch_metadata("upstream", root = root_downstream)
 
     idx <- root_downstream$index$data()
     expect_equal(names(idx$metadata), ids)

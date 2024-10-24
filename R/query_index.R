@@ -86,8 +86,8 @@ query_index <- R6::R6Class(
 new_query_index <- function(root, options) {
   root <- root_open(root, require_orderly = FALSE)
 
-  if (options$pull_metadata) {
-    orderly_location_pull_metadata(options$location, root = root)
+  if (options$fetch_metadata) {
+    orderly_location_fetch_metadata(options$location, root = root)
   }
   idx <- root$index$data()
   metadata <- idx$metadata

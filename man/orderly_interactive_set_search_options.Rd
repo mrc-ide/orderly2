@@ -7,7 +7,7 @@
 orderly_interactive_set_search_options(
   location = NULL,
   allow_remote = NULL,
-  pull_metadata = FALSE
+  fetch_metadata = FALSE
 )
 }
 \arguments{
@@ -21,12 +21,12 @@ only to a location that we have metadata from). If this is
 you might pull a large quantity of data.  The default is \code{NULL}. This is
 \code{TRUE} if remote locations are listed explicitly as a character
 vector in the \code{location} argument, or if you have specified
-\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+\code{fetch_metadata = TRUE}, otherwise \code{FALSE}.}
 
-\item{pull_metadata}{Logical, indicating if we should pull
+\item{fetch_metadata}{Logical, indicating if we should pull
 metadata immediately before the search. If \code{location} is given,
 then we will pass this through to
-\link{orderly_location_pull_metadata} to filter locations
+\link{orderly_location_fetch_metadata} to filter locations
 to update.  If pulling many packets in sequence, you \emph{will} want
 to update this option to \code{FALSE} after the first pull, otherwise
 it will update the metadata between every packet, which will be

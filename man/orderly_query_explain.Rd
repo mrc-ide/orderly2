@@ -47,7 +47,7 @@ only to a location that we have metadata from). If this is
 you might pull a large quantity of data.  The default is \code{NULL}. This is
 \code{TRUE} if remote locations are listed explicitly as a character
 vector in the \code{location} argument, or if you have specified
-\code{pull_metadata = TRUE}, otherwise \code{FALSE}.}
+\code{fetch_metadata = TRUE}, otherwise \code{FALSE}.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

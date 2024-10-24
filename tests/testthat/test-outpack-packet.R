@@ -679,9 +679,9 @@ test_that("can pull in dependency from specific location", {
     })
     orderly_location_add_path(name, path = root[[name]]$path, root = root$a)
   }
-  orderly_location_pull_metadata(root = root$a)
+  orderly_location_fetch_metadata(root = root$a)
   for (id in ids$z) {
-    suppressMessages(orderly_location_pull_packet(id, root = root$a))
+    suppressMessages(orderly_location_pull(id, root = root$a))
   }
 
   path_src <- temp_file()
@@ -698,14 +698,14 @@ test_that("can pull in dependency from specific location", {
     fixed = TRUE)
 
   for (id in ids$x) {
-    suppressMessages(orderly_location_pull_packet(id, root = root$a))
+    suppressMessages(orderly_location_pull(id, root = root$a))
   }
   outpack_packet_use_dependency(p, query, c("data1.rds" = "data.rds"),
                                 search_options = options)
   expect_equal(p$depends[[1]]$packet, ids$x[[3]])
 
   for (id in ids$y) {
-    suppressMessages(orderly_location_pull_packet(id, root = root$a))
+    suppressMessages(orderly_location_pull(id, root = root$a))
   }
   outpack_packet_use_dependency(p, query, c("data2.rds" = "data.rds"),
                                 search_options = options)
@@ -740,7 +740,7 @@ test_that("can pull in dependency when not found, if requested", {
   expect_equal(nrow(root$a$index$data()$location), 0)
   expect_equal(length(root$a$index$data()$unpacked), 0)
 
-  options <- build_search_options(pull_metadata = TRUE, allow_remote = TRUE)
+  options <- build_search_options(fetch_metadata = TRUE, allow_remote = TRUE)
   suppressMessages(
     outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds"),
                                   search_options = options))

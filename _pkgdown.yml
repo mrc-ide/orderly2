@@ -57,8 +57,8 @@ reference:
   - title: Interact with locations
   - subtitle: Use locations
     contents:
-      - orderly_location_pull_metadata
-      - orderly_location_pull_packet
+      - orderly_location_fetch_metadata
+      - orderly_location_pull
       - orderly_location_push
   - subtitle: Manage locations
     contents:

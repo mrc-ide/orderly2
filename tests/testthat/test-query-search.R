@@ -5,24 +5,24 @@ test_that("can construct search options", {
     unclass(defaults),
     list(location = NULL,
          allow_remote = FALSE,
-         pull_metadata = FALSE))
+         fetch_metadata = FALSE))
 
   opts <- build_search_options(location = c("x", "y"),
-                               pull_metadata = TRUE)
+                               fetch_metadata = TRUE)
   expect_s3_class(opts, "orderly_search_options")
   expect_mapequal(
     unclass(opts),
     list(location = c("x", "y"),
          allow_remote = TRUE,
-         pull_metadata = TRUE))
+         fetch_metadata = TRUE))
 })
 
 
-test_that("pull_metadata implies allow_remote", {
-  opts <- build_search_options(pull_metadata = TRUE)
+test_that("fetch_metadata implies allow_remote", {
+  opts <- build_search_options(fetch_metadata = TRUE)
   expect_equal(opts, build_search_options(location = NULL,
                                           allow_remote = TRUE,
-                                          pull_metadata = TRUE))
+                                          fetch_metadata = TRUE))
 })
 
 
@@ -213,7 +213,7 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
       create_random_packet(root[[name]], "data", list(p = i))
     })
   }
-  orderly_location_pull_metadata(root = root$a)
+  orderly_location_fetch_metadata(root = root$a)
 
   expect_equal(
     orderly_search(quote(name == "data"), location = c("x", "y"),
@@ -225,7 +225,7 @@ test_that("Can filter query to packets that are locally available (unpacked)", {
     character())
 
   for (i in ids$x) {
-    suppressMessages(orderly_location_pull_packet(i, root = root$a))
+    suppressMessages(orderly_location_pull(i, root = root$a))
   }
 
   expect_equal(
@@ -250,7 +250,7 @@ test_that("scope and allow_local can be used together to filter query", {
   x2 <- create_random_packet(root$src, "x", list(p = 1))
   y1 <- create_random_packet(root$src, "y", list(p = 1))
   y2 <- create_random_packet(root$src, "y", list(p = 1))
-  orderly_location_pull_metadata(root = root$dst)
+  orderly_location_fetch_metadata(root = root$dst)
 
   options_local <- build_search_options(allow_remote = FALSE)
   options_remote <- build_search_options(allow_remote = TRUE)
@@ -267,7 +267,7 @@ test_that("scope and allow_local can be used together to filter query", {
     NA_character_)
 
   for (i in c(x1, y1)) {
-    suppressMessages(orderly_location_pull_packet(i, root = root$dst))
+    suppressMessages(orderly_location_pull(i, root = root$dst))
   }
 
   expect_equal(
@@ -866,7 +866,7 @@ test_that("allow search before query", {
     character(0))
   expect_equal(
     orderly_search(quote(name == "data"), root = root$a,
-                   pull_metadata = TRUE, allow_remote = TRUE),
+                   fetch_metadata = TRUE, allow_remote = TRUE),
     ids)
   expect_setequal(names(root$a$index$data()$metadata), ids)
 })
@@ -1025,7 +1025,7 @@ test_that("Warn, but honour, on use of search options to search", {
   ids <- vcapply(1:3, function(i) {
     create_random_packet(root$b, "data", list(p = i))
   })
-  orderly_location_pull_metadata(root = root$a)
+  orderly_location_fetch_metadata(root = root$a)
 
   expect_equal(orderly_search(NULL, root = root$a),
                character())

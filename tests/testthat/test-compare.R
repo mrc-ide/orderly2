@@ -118,7 +118,7 @@ test_that("Can compare packets from remote", {
     "Packet .* not found in outpack index")
 
   result <- orderly_compare_packets(id1, id2, root = here,
-                                    pull_metadata = TRUE)
+                                    fetch_metadata = TRUE)
 
   expect_snapshot(orderly_comparison_explain(result, "files"),
                   transform = scrub_packets(id1, id2))
