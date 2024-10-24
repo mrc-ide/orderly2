@@ -4,13 +4,7 @@
 \alias{orderly_comparison_explain}
 \title{Print the details of a packet comparison.}
 \usage{
-orderly_comparison_explain(
-  cmp,
-  attributes = NULL,
-  ...,
-  verbose = FALSE,
-  name = deparse(substitute(cmp))
-)
+orderly_comparison_explain(cmp, attributes = NULL, verbose = FALSE)
 }
 \arguments{
 \item{cmp}{An orderly_comparison object, as returned by
@@ -29,6 +23,6 @@ Invisibly, a logical indicating whether the packets are equivalent,
 up to the given attributes.
 }
 \description{
-This function allows to select what part of the packet to compare, and in how
-much details.
+This function allows to select what part of the packet to compare, and in
+how much details.
 }
