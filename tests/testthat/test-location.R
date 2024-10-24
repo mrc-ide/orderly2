@@ -972,7 +972,7 @@ test_that("can pull packets as a result of a query", {
     orderly_location_pull(
       "parameter:i < 3",
       name = "data",
-      pull_metadata = TRUE,
+      fetch_metadata = TRUE,
       root = root$dst$path))
   expect_setequal(ids_moved, ids[1:2])
 })

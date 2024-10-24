@@ -35,7 +35,7 @@
 ##'
 ##' @section Which packets might be selected from locations?:
 ##'
-##' The arguments `location`, `allow_remote` and `pull_metadata`
+##' The arguments `location`, `allow_remote` and `fetch_metadata`
 ##'   control where outpack searches for packets with the given query
 ##'   and if anything might be moved over the network (or from one
 ##'   outpack archive to another). By default everything is resolved
@@ -48,7 +48,7 @@
 ##'   same content anywhere else in an unpacked packet we will reuse
 ##'   the same content without re-fetching.
 ##'
-##' If `pull_metadata = TRUE`, then we will refresh location metadata
+##' If `fetch_metadata = TRUE`, then we will refresh location metadata
 ##'   before pulling, and the `location` argument controls which
 ##'   locations are pulled from.
 ##'
@@ -68,7 +68,7 @@
 ##'   as they currently exist on production right now with the options:
 ##'
 ##' ```
-##' location = "production", pull_metadata = TRUE
+##' location = "production", fetch_metadata = TRUE
 ##' ```
 ##'
 ##' which updates your current metadata from production, then runs
@@ -127,7 +127,7 @@
 ##'
 ##' @param search_options **DEPRECATED**. Please don't use this any
 ##'   more, and instead use the arguments `location`, `allow_remote`
-##'   and `pull_metadata` directly.
+##'   and `fetch_metadata` directly.
 ##'
 ##' @param root The path to the root directory, or `NULL` (the
 ##'   default) to search for one from the current working
@@ -155,7 +155,7 @@
 ##' fs::dir_delete(path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                         location = NULL, allow_remote = NULL,
-                        pull_metadata = FALSE, search_options = NULL,
+                        fetch_metadata = FALSE, search_options = NULL,
                         root = NULL) {
   env_root_src <- Sys.getenv("ORDERLY_SRC_ROOT", NA_character_)
   root <- root_open(root, require_orderly = is.na(env_root_src),
@@ -181,7 +181,7 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
 
   search_options <- build_search_options(location = location,
                                          allow_remote = allow_remote,
-                                         pull_metadata = pull_metadata)
+                                         fetch_metadata = fetch_metadata)
 
   id <- outpack_id()
   path <- file.path(root_src, "draft", name, id)

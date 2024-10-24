@@ -740,7 +740,7 @@ test_that("can pull in dependency when not found, if requested", {
   expect_equal(nrow(root$a$index$data()$location), 0)
   expect_equal(length(root$a$index$data()$unpacked), 0)
 
-  options <- build_search_options(pull_metadata = TRUE, allow_remote = TRUE)
+  options <- build_search_options(fetch_metadata = TRUE, allow_remote = TRUE)
   suppressMessages(
     outpack_packet_use_dependency(p_a, query, c("data.rds" = "data.rds"),
                                   search_options = options))

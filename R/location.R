@@ -396,7 +396,7 @@ orderly_location_pull_metadata <- function(...) {
 orderly_location_pull <- function(expr,
                                   name = NULL,
                                   location = NULL,
-                                  pull_metadata = FALSE,
+                                  fetch_metadata = FALSE,
                                   recursive = NULL,
                                   options = NULL,
                                   root = NULL) {
@@ -410,14 +410,14 @@ orderly_location_pull <- function(expr,
                           name = name,
                           location = location,
                           allow_remote = TRUE,
-                          pull_metadata = pull_metadata,
+                          fetch_metadata = fetch_metadata,
                           root = root)
   }
 
   if (length(ids) == 0 || (length(ids) == 1 && is.na(ids))) {
-    if (!pull_metadata) {
+    if (!fetch_metadata) {
       hint <- c(i = paste("Did you forget to pull metadata? You can do this",
-                          "by using the argument {.code pull_metadata = TRUE}",
+                          "by using the argument {.code fetch_metadata = TRUE}",
                           "in the call to 'orderly_location_pull()', or",
                           "by running 'orderly_location_fetch_metadata()'"))
     } else {

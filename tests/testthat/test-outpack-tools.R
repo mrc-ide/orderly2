@@ -372,7 +372,7 @@ test_that("can differentiate remote metadata", {
   expect_equal(nrow(d3), 0)
 
   d4 <- orderly_metadata_extract(root = root, allow_remote = TRUE,
-                                 pull_metadata = TRUE)
+                                 fetch_metadata = TRUE)
   expect_equal(names(d4), c("id", "local", "location", "name", "parameters"))
   expect_equal(nrow(d4), 8)
   expect_equal(d4$local, rep(c(TRUE, FALSE), c(5, 3)))

@@ -82,7 +82,7 @@
 ##' @export
 orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
                                name = NULL, location = NULL,
-                               allow_remote = NULL, pull_metadata = FALSE,
+                               allow_remote = NULL, fetch_metadata = FALSE,
                                parameters = NULL, options = NULL,
                                envir = parent.frame(),
                                root = NULL) {
@@ -92,7 +92,7 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
   ## allow_remote later in error messages.
   options <- build_search_options(location = location,
                                   allow_remote = allow_remote,
-                                  pull_metadata = pull_metadata)
+                                  fetch_metadata = fetch_metadata)
 
   ## Validate files and dest early; it gives a better error where this
   ## was not provided with names.
@@ -112,7 +112,7 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
                          parameters = parameters,
                          location = options$location,
                          allow_remote = options$allow_remote,
-                         pull_metadata = options$pull_metadata,
+                         fetch_metadata = options$fetch_metadata,
                          root = root)
     if (length(id) > 1) {
       cli::cli_abort(

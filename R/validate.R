@@ -57,7 +57,7 @@ orderly_validate_archive <- function(expr = NULL, name = NULL,
                           name = name,
                           location = "local",
                           allow_remote = FALSE,
-                          pull_metadata = FALSE,
+                          fetch_metadata = FALSE,
                           root = root)
   }
 

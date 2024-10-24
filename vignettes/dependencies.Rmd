@@ -264,7 +264,7 @@ There are three components here that affect how packets are selected
 
 * `location`: is a character vector of locations, matching your location names. Only packets that can be found at these locations will be considered. So if you have a mix of locally created packets as well as ones that other people can see, specifying `location = "server"` would limit to packets that are available on the server, which means that you will end up with dependencies that you colleagues would also get.
 * `allow_remote`: controls if we are willing to download files from a location in order to satisfy a dependency. If `TRUE`, then when you run the report, it might download files if more recent packets are available on a location than what you have locally.
-* `pull_metadata`: only has an effect if `allow_remote` is also `TRUE`; this causes the metadata to be refreshed before dependency resolution.
+* `fetch_metadata`: only has an effect if `allow_remote` is also `TRUE`; this causes the metadata to be refreshed before dependency resolution.
 
 There is further discussion of the details in `?orderly_run`
 

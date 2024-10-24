@@ -5,24 +5,24 @@ test_that("can construct search options", {
     unclass(defaults),
     list(location = NULL,
          allow_remote = FALSE,
-         pull_metadata = FALSE))
+         fetch_metadata = FALSE))
 
   opts <- build_search_options(location = c("x", "y"),
-                               pull_metadata = TRUE)
+                               fetch_metadata = TRUE)
   expect_s3_class(opts, "orderly_search_options")
   expect_mapequal(
     unclass(opts),
     list(location = c("x", "y"),
          allow_remote = TRUE,
-         pull_metadata = TRUE))
+         fetch_metadata = TRUE))
 })
 
 
-test_that("pull_metadata implies allow_remote", {
-  opts <- build_search_options(pull_metadata = TRUE)
+test_that("fetch_metadata implies allow_remote", {
+  opts <- build_search_options(fetch_metadata = TRUE)
   expect_equal(opts, build_search_options(location = NULL,
                                           allow_remote = TRUE,
-                                          pull_metadata = TRUE))
+                                          fetch_metadata = TRUE))
 })
 
 
@@ -866,7 +866,7 @@ test_that("allow search before query", {
     character(0))
   expect_equal(
     orderly_search(quote(name == "data"), root = root$a,
-                   pull_metadata = TRUE, allow_remote = TRUE),
+                   fetch_metadata = TRUE, allow_remote = TRUE),
     ids)
   expect_setequal(names(root$a$index$data()$metadata), ids)
 })

@@ -21,7 +21,7 @@
 ##'
 ##' @param options **DEPRECATED**. Please don't use this any more, and
 ##'   instead use the arguments `location`, `allow_remote` and
-##'   `pull_metadata` directly.
+##'   `fetch_metadata` directly.
 ##'
 ##' @return A character vector of matching ids. In the case of no
 ##'   match from a query returning a single value (e.g., `latest(...)`
@@ -32,14 +32,14 @@
 orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
                            parameters = NULL, envir = parent.frame(),
                            location = NULL, allow_remote = NULL,
-                           pull_metadata = FALSE, options = NULL,
+                           fetch_metadata = FALSE, options = NULL,
                            root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   compatibility_fix_options(options, "orderly_search")
   query <- as_orderly_query(expr, name, scope, subquery)
   options <- build_search_options(location = location,
                                   allow_remote = allow_remote,
-                                  pull_metadata = pull_metadata)
+                                  fetch_metadata = fetch_metadata)
   validate_parameters(parameters, environment())
   orderly_query_eval(query, parameters, envir, options, root,
                      call = environment())
@@ -64,9 +64,9 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##'   you might pull a large quantity of data.  The default is `NULL`. This is
 ##'   `TRUE` if remote locations are listed explicitly as a character
 ##'   vector in the `location` argument, or if you have specified
-##'   `pull_metadata = TRUE`, otherwise `FALSE`.
+##'   `fetch_metadata = TRUE`, otherwise `FALSE`.
 ##'
-##' @param pull_metadata Logical, indicating if we should pull
+##' @param fetch_metadata Logical, indicating if we should pull
 ##'   metadata immediately before the search. If `location` is given,
 ##'   then we will pass this through to
 ##'   [orderly2::orderly_location_fetch_metadata] to filter locations
@@ -76,7 +76,7 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##'   needlessly slow.
 ##'
 ##' @return An object of class `orderly_search_options` which should
-##'   not be modified after creation (but see note about `pull_metadata`)
+##'   not be modified after creation (but see note about `fetch_metadata`)
 ##'
 ##' @export
 orderly_search_options <- function(location = NULL,
@@ -85,7 +85,8 @@ orderly_search_options <- function(location = NULL,
   cli::cli_warn(
     c("Use of 'orderly_search_options' is deprecated",
       i = paste("You should just pass these arguments directly into functions",
-                "that previously accepted 'options'")),
+                "that previously accepted 'options'"),
+      i = "Please note that 'pull_metadata' has become 'fetch_metadata'"),
     .frequency = "regularly",
     .frequency_id = "orderly_search_options")
   build_search_options(location, allow_remote, pull_metadata)
@@ -99,7 +100,7 @@ compatibility_fix_options <- function(options, name,
     cli::cli_warn(
       c("Use of '{arg}' in '{name}()' is deprecated and will be removed soon",
         i = paste("Please pass the arguments to options ('location',",
-                  "'allow_remote' and 'pull_metadata') directly to '{name}'"),
+                  "'allow_remote' and 'fetch_metadata') directly to '{name}'"),
         "!" = paste("If you have {.strong also} passed these options in",
                     "to your function I am about to silently overwrite them")),
       .frequency = "regularly",
@@ -111,22 +112,23 @@ compatibility_fix_options <- function(options, name,
 
 
 build_search_options <- function(location = NULL, allow_remote = NULL,
-                                 pull_metadata = FALSE, call = parent.frame()) {
+                                 fetch_metadata = FALSE,
+                                 call = parent.frame()) {
   if (!is.null(location)) {
     assert_character(location, call = call)
   }
   has_remote_location <- !is.null(location) &&
     length(setdiff(location, c("local", "orphan")) > 0)
 
-  assert_scalar_logical(pull_metadata, call = call)
+  assert_scalar_logical(fetch_metadata, call = call)
   if (is.null(allow_remote)) {
-    allow_remote <- has_remote_location || pull_metadata
+    allow_remote <- has_remote_location || fetch_metadata
   } else {
     assert_scalar_logical(allow_remote, call = call)
   }
   ret <- list(location = location,
               allow_remote = allow_remote,
-              pull_metadata = pull_metadata)
+              fetch_metadata = fetch_metadata)
   class(ret) <- "orderly_search_options"
   ret
 }

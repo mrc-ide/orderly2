@@ -8,7 +8,7 @@ orderly_location_pull(
   expr,
   name = NULL,
   location = NULL,
-  pull_metadata = FALSE,
+  fetch_metadata = FALSE,
   recursive = NULL,
   options = NULL,
   root = NULL
@@ -24,7 +24,7 @@ will be intersected with \code{scope} arg and is a shorthand way of running
 \item{location}{Optional vector of locations to pull from. We
 might in future expand this to allow wildcards or exceptions.}
 
-\item{pull_metadata}{Logical, indicating if we should pull
+\item{fetch_metadata}{Logical, indicating if we should pull
 metadata immediately before the search. If \code{location} is given,
 then we will pass this through to
 \link{orderly_location_fetch_metadata} to filter locations
@@ -41,7 +41,7 @@ we default to the value given by the the configuration option
 
 \item{options}{\strong{DEPRECATED}. Please don't use this any more, and
 instead use the arguments \code{location}, \code{allow_remote} and
-\code{pull_metadata} directly.}
+\code{fetch_metadata} directly.}
 
 \item{root}{The path to the root directory, or \code{NULL} (the
 default) to search for one from the current working

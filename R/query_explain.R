@@ -25,7 +25,7 @@ orderly_query_explain <- function(expr, name = NULL, scope = NULL,
   found <- orderly_search(query, parameters = parameters, envir = envir,
                           location = location,
                           allow_remote = allow_remote,
-                          pull_metadata = FALSE,
+                          fetch_metadata = FALSE,
                           root = root)
   query_simplified <- query_simplify(query)
   ret <- list(found = found,
@@ -40,7 +40,7 @@ orderly_query_explain <- function(expr, name = NULL, scope = NULL,
                             envir = envir,
                             location = location,
                             allow_remote = allow_remote,
-                            pull_metadata = FALSE,
+                            fetch_metadata = FALSE,
                             root = root)
     ret$parts[[name]] <- list(
       name = name,

@@ -41,7 +41,7 @@ compare_filesets <- function(target, current) {
 orderly_compare_packets <- function(target, current,
                                     location = NULL,
                                     allow_remote = NULL,
-                                    pull_metadata = FALSE,
+                                    fetch_metadata = FALSE,
                                     root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   validate_outpack_id(target, call = environment())
@@ -49,9 +49,9 @@ orderly_compare_packets <- function(target, current,
 
   options <- build_search_options(location = location,
                                   allow_remote = allow_remote,
-                                  pull_metadata = pull_metadata)
+                                  fetch_metadata = fetch_metadata)
 
-  if (options$pull_metadata) {
+  if (options$fetch_metadata) {
     orderly_location_fetch_metadata(options$location, root = root)
   }
 
@@ -115,7 +115,7 @@ compare_file_contents <- function(cmp, files) {
   # very straightforward, and covers the case where the file only exists
   # remotely transparent.
   #
-  # pull_metadata is intentionally hardcoded to FALSE, regardless of what the
+  # fetch_metadata is intentionally hardcoded to FALSE, regardless of what the
   # user may have specified as an argument to orderly_compare_packets: the
   # latter would have already pulled the files once, and we don't need to do it
   # again.
@@ -124,7 +124,7 @@ compare_file_contents <- function(cmp, files) {
                      files = files,
                      location = cmp$search_options$location,
                      allow_remote = cmp$search_options$allow_remote,
-                     pull_metadata = FALSE,
+                     fetch_metadata = FALSE,
                      root = cmp$root)
 
   orderly_copy_files(cmp$current$id,
@@ -132,7 +132,7 @@ compare_file_contents <- function(cmp, files) {
                      files = files,
                      location = cmp$search_options$location,
                      allow_remote = cmp$search_options$allow_remote,
-                     pull_metadata = FALSE,
+                     fetch_metadata = FALSE,
                      root = cmp$root)
 
 

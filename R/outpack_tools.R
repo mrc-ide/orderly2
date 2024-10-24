@@ -198,7 +198,8 @@
 ##'
 ##' @export
 orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
-                                     allow_remote = NULL, pull_metadata = FALSE,
+                                     allow_remote = NULL,
+                                     fetch_metadata = FALSE,
                                      extract = NULL, options = NULL,
                                      root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
@@ -211,7 +212,7 @@ orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
                           name = name,
                           location = location,
                           allow_remote = allow_remote,
-                          pull_metadata = pull_metadata,
+                          fetch_metadata = fetch_metadata,
                           root = root)
   }
   extract <- parse_extract(extract, environment())
