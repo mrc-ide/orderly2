@@ -1213,3 +1213,32 @@ test_that("verify location on addition", {
                               root = root))
   expect_equal(orderly_location_list(root = root), c("local", "upstream"))
 })
+
+
+test_that("print list of pulled packets", {
+  withr::local_options(orderly.quiet = FALSE)
+  root <- list()
+  for (name in c("src", "dst")) {
+    root[[name]] <- create_temporary_root()
+  }
+
+  id <- create_random_packet(root$src)
+  suppressMessages({
+    orderly_location_add_path("src", path = root$src$path, root = root$dst)
+    orderly_location_fetch_metadata(root = root$dst)
+  })
+
+  msgs <- capture_messages(
+    orderly_location_pull(id, root = root$dst))
+  expect_match(msgs, sprintf("Pulling 1 packet: '%s'", id),
+               all = FALSE, fixed = TRUE)
+  expect_match(msgs, "Unpacked 1 packet",
+               all = FALSE, fixed = TRUE)
+
+  msgs <- capture_messages(
+    orderly_location_pull(id, root = root$dst))
+  expect_match(msgs, sprintf("Pulling 1 packet: '%s'", id),
+               all = FALSE, fixed = TRUE)
+  expect_match(msgs, "Nothing to do, everything is available locally",
+               all = FALSE, fixed = TRUE)
+})
