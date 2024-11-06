@@ -430,18 +430,27 @@ orderly_location_pull <- function(expr,
         hint))
   }
 
+  cli_alert_info(
+    "Pulling {length(ids)} packet{?s}: {squote(ids)}")
+
   plan <- location_build_pull_plan(ids, location, recursive, root,
                                    call = environment())
 
   if (plan$info$n_extra > 0) {
-    cli::cli_alert_info(paste(
+    cli_alert_info(paste(
       "Also pulling {plan$info$n_extra} packet{?s},",
       "dependencies of those requested"))
   }
   if (plan$info$n_skip > 0) {
-    cli::cli_alert_info(paste(
+    cli_alert_info(paste(
       "Skipping {plan$info$n_skip} of {plan$info$n_total} packet{?s}",
       "already unpacked"))
+  }
+
+  n_pull <- plan$info$n_total - plan$info$n_skip
+  if (n_pull == 0) {
+    cli_alert_success("Nothing to do, everything is available locally")
+    return(plan$packet_id)
   }
 
   store <- location_pull_files(plan$files, root)
@@ -449,7 +458,7 @@ orderly_location_pull <- function(expr,
   use_archive <- !is.null(root$config$core$path_archive)
   if (use_archive) {
     n <- length(plan$packet_id)
-    cli::cli_progress_bar(
+    cli_progress_bar(
       format = paste(
         "{cli::pb_spin} Writing files for '{id}' (packet {i} / {n})",
         "| ETA: {cli::pb_eta} [{cli::pb_elapsed}]"),
@@ -462,12 +471,14 @@ orderly_location_pull <- function(expr,
   for (i in seq_along(plan$packet_id)) {
     id <- plan$packet_id[[i]]
     if (use_archive) {
-      cli::cli_progress_update()
+      cli_progress_update()
       location_pull_files_archive(id, store$value, root)
     }
     mark_packet_known(id, local, plan$hash[[id]], Sys.time(), root)
   }
   store$cleanup()
+
+  cli_alert_success("Unpacked {n_pull} packet{?s}")
 
   invisible(plan$packet_id)
 }
