@@ -113,6 +113,7 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
                          location = options$location,
                          allow_remote = options$allow_remote,
                          fetch_metadata = options$fetch_metadata,
+                         envir = envir,
                          root = root)
     if (length(id) > 1) {
       cli::cli_abort(
