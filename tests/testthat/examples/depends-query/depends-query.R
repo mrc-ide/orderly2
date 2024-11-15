@@ -1,9 +1,11 @@
 orderly2::orderly_parameters(a = NULL, b = NULL, c = NULL)
+
+value <- c
 orderly2::orderly_dependency(
   "parameters",
   paste("latest(parameter:a == this:a &&",
         "parameter:b == this:b &&",
-        "parameter:c == this:c)"),
+        "parameter:c == environment:value)"),
   c(input.rds = "data.rds"))
 orderly2::orderly_artefact("result.rds", description = "Processed data")
 d <- readRDS("input.rds")
