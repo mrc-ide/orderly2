@@ -6,6 +6,7 @@
     "type": "object",
     "properties": {
         "artefacts": {
+            "comment": "Artefacts are sets of (at least 1) output files that result from running a packet",
             "type": "array",
             "items": {
                 "type": "object",
@@ -40,6 +41,7 @@
             }
         },
         "role": {
+            "comment": "Assigns a 'role' (category) to input files. Any file that is not an output is considered an input.",
             "type": "array",
             "items": {
                 "type": "object",
@@ -72,7 +74,7 @@
         },
 
         "session": {
-            "description": "Information about the session",
+            "description": "Information about the session in which the packet was run",
             "type": "object",
             "properties": {
                 "platform": {
@@ -91,6 +93,7 @@
                     "required": ["version", "os", "system"]
                 },
                 "packages": {
+                    "comment": "Records metadata on the packages that were loaded during the session",  
                     "type": "array",
                     "items": {
                         "type": "object",
