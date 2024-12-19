@@ -155,7 +155,9 @@ static_orderly_description <- function(args) {
 ##'
 ##' @title Declare orderly resources
 ##'
-##' @param files Any number of names of files
+##' @param files Any number of names of files or directories.  If you
+##'   list a directory it is expanded recursively to include all
+##'   subdirectories and files.
 ##'
 ##' @return Invisibly, a character vector of resources included by the
 ##'   call. Don't rely on the order of these files if they are
