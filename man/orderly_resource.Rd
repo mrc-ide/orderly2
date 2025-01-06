@@ -7,7 +7,9 @@
 orderly_resource(files)
 }
 \arguments{
-\item{files}{Any number of names of files}
+\item{files}{Any number of names of files or directories.  If you
+list a directory it is expanded recursively to include all
+subdirectories and files.}
 }
 \value{
 Invisibly, a character vector of resources included by the
