@@ -589,3 +589,18 @@ describe("copy_files", {
                  "have different lengths")
   })
 })
+
+
+test_that("can make a strict list", {
+  obj <- strict_list(apple = 1, banana = 2, carrot = 3)
+  expect_equal(obj$apple, 1)
+  expect_error(obj$app, "'app' is not found in 'obj'")
+  expect_error(obj$dog, "'dog' is not found in 'obj'")
+
+  expect_equal(obj[["banana"]], 2)
+  expect_error(obj[["appl"]], "'appl' is not found in 'obj'")
+
+  expect_equal(obj[c("apple", "banana")], strict_list(apple = 1, banana = 2))
+  expect_error(obj[c("apple", "banan")],
+               "'banan' not found in 'obj'")
+})
