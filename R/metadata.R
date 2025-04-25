@@ -451,7 +451,7 @@ static_eval <- function(fn, expr, call = NULL) {
     expr[[1]] <- expr[[1]][[3]]
   }
   name <- expr[[1]]
-  tryCatch(
+  args <- tryCatch(
     as.list(match.call(match.fun(name), expr))[-1],
     error = function(e) {
       msg <- conditionMessage(e)
