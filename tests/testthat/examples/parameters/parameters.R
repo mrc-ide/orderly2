@@ -1,2 +1,3 @@
-orderly2::orderly_parameters(a = NULL, b = 2, c = NULL)
-saveRDS(list(a = a, b = b, c = c), "data.rds")
+pars <- orderly2::orderly_parameters(a = NULL, b = 2, c = NULL,
+                                     .export = FALSE)
+saveRDS(list(a = pars$a, b = pars$b, c = pars$c), "data.rds")

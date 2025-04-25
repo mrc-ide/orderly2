@@ -64,23 +64,33 @@ static_orderly_strict_mode <- function(args) {
 ##'
 ##' @param ... Any number of parameters
 ##'
-##' @return Undefined
+##' @param .export Logical, indicating if parameters should be
+##'   exported into the global environment.  If `TRUE`, then at the
+##'   start of running a packet, all parameters are set, but if
+##'   `FALSE` then you must access parameters via the return value of
+##'   this function.  For the behaviour of `.export = NULL`, please
+##'   see Details.
+##'
+##' @return Invisibly, a list of parameters.
 ##'
 ##' @export
-orderly_parameters <- function(...) {
+orderly_parameters <- function(..., .export = NULL) {
   p <- get_active_packet()
   if (is.null(p)) {
     call <- environment()
     envir <- parent.frame()
     pars <- static_orderly_parameters(list(...), call)
-    check_parameters_interactive(envir, pars, call)
+    check_parameters_interactive(envir, pars, .export, call)
+  } else {
+    pars <- p$parameters
   }
 
-  invisible()
+  invisible(pars)
 }
 
 
 static_orderly_parameters <- function(args, call) {
+  args <- args[names(args) != ".export"]
   if (length(args) == 0L) {
     return(NULL)
   }
