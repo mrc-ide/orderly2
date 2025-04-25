@@ -446,13 +446,30 @@ static_character_vector <- function(x, named) {
 
 
 
-static_eval <- function(fn, call) {
-  if (is_call(call[[1]], "::")) {
-    call[[1]] <- call[[1]][[3]]
+static_eval <- function(fn, expr, call = NULL) {
+  if (is_call(expr[[1]], "::")) {
+    expr[[1]] <- expr[[1]][[3]]
   }
-  args <- as.list(match.call(match.fun(call[[1]]), call)[-1])
+  name <- expr[[1]]
+  tryCatch(
+    as.list(match.call(match.fun(name), expr))[-1],
+    error = function(e) {
+      msg <- conditionMessage(e)
+      expr_str <- deparse1(expr)
+      if (grepl("alist()", msg, fixed = TRUE)) {
+        hint <- c(i = "Check for a trailing comma with no argument following")
+      } else {
+        hint <- NULL
+      }
+      cli::cli_abort(c("Failed to parse call to '{name}()'",
+                       ">" = expr_str,
+                       hint),
+                     parent = e,
+                     call = call)
+    })
   fn(args)
 }
+
 
 
 current <- new.env(parent = emptyenv())
