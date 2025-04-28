@@ -122,7 +122,7 @@ file_canonical_case <- function(path, workdir) {
   base <- workdir
   ret <- character(length(path_split))
   for (i in seq_along(path_split)) {
-    pos <- dir(base)
+    pos <- dir(base, all.files = TRUE, no.. = TRUE)
     j <- which(path_split[[i]] == tolower(pos))
     if (length(j) != 1) {
       return(NA_character_)
