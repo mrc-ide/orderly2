@@ -760,18 +760,21 @@ read_file_lossy <- function(path) {
 }
 
 
-strict_list <- function(...) {
+strict_list <- function(..., .name = NULL) {
   ret <- list(...)
   class(ret) <- "strict_list"
+  attr(ret, "name") <- .name %||% "list"
   ret
 }
 
 
+
 ##' @export
-"[[.strict_list" <- function(x, i, ..., name. = deparse(substitute(x))) {
+"[[.strict_list" <- function(x, i, ...) {
   assert_scalar_character(i)
   if (!(i %in% names(x))) {
-    cli::cli_abort("'{i}' is not found in '{name.}'")
+    name <- attr(x, "name")
+    cli::cli_abort("'{i}' is not found in '{name}'")
   }
   unclass(x)[[i]]
 }
@@ -779,19 +782,20 @@ strict_list <- function(...) {
 
 ##' @export
 "$.strict_list" <- function(x, name) {
-  name. <- deparse(substitute(x))
-  x[[name, name. = name.]]
+  x[[name]]
 }
 
 
 ##' @export
-"[.strict_list" <- function(x, i, name. = deparse(substitute(x))) {
+"[.strict_list" <- function(x, i) {
   assert_character(i)
   msg <- setdiff(i, names(x))
+  name <- attr(x, "name")
   if (length(msg) > 0) {
-    cli::cli_abort("{squote(msg)} not found in '{name.}'")
+    cli::cli_abort("{squote(msg)} not found in '{name}'")
   }
   ret <- unclass(x)[i]
   class(ret) <- "strict_list"
+  attr(ret, "name") <- name
   ret
 }
