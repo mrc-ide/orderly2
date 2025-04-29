@@ -139,3 +139,27 @@ test_that("read shared resource", {
 
   expect_null(static_orderly_shared_resource(list(quote(c("a", "b")))))
 })
+
+
+test_that("cope with extra arguments", {
+  tmp <- withr::local_tempfile()
+  writeLines('orderly_artefact("a", "b", "c", "d")', tmp)
+  e <- expect_error(orderly_parse_file(tmp),
+                    "Failed to parse call to 'orderly_artefact()'",
+                    fixed = TRUE)
+  skip_on_cran()
+  msg <- conditionMessage(e)
+  expect_no_match(msg, "Check for a trailing comma")
+})
+
+
+test_that("cope with extra empty arguments", {
+  tmp <- withr::local_tempfile()
+  writeLines('orderly_artefact("a", "b", )', tmp)
+  e <- expect_error(orderly_parse_file(tmp),
+                    "Failed to parse call to 'orderly_artefact()'",
+                    fixed = TRUE)
+  skip_on_cran()
+  msg <- conditionMessage(e)
+  expect_match(msg, "Check for a trailing comma")
+})
