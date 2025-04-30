@@ -37,18 +37,82 @@ static_orderly_strict_mode <- function(args) {
 
 
 ##' Declare orderly parameters. You should only have one call to this
-##' within your file, though this is not enforced! Typically you'd put
-##' it very close to the top, though the order does not really matter.
-##' Parameters are scalar atomic values (e.g. a string, number or
-##' boolean) and defaults must be present literally (i.e., they may
-##' not come from a variable itself). Provide `NULL` if you do not
-##' have a default, in which case this parameter will be required.
+##' within your file! Typically you'd put the call to this function
+##' very close to the top so that it easy to scan, though the order
+##' does not really matter.  Parameters are scalar atomic values
+##' (e.g. a string, number or boolean) and defaults must be present
+##' literally (i.e., they may not come from a variable
+##' itself). Provide `NULL` if you do not have a default, in which
+##' case this parameter will be required.
 ##'
-##' @section Behaviour in interactive sessions:
+##' # Parameters and variables
+##'
+##' Prior to orderly 1.99.61, parameters are always available as
+##' variables in the execution environment.  In order to harmonise the
+##' R and Python versions of orderly, we are moving away from this, at
+##' least by default.  The recommended way of using parameters is to
+##' assign it to a variable, for example:
+##'
+##' ```
+##' pars <- orderly_parameters(debug = FALSE, replicates = NULL)
+##' ```
+##'
+##' This defines two parameters, `debug` (with a default) and
+##' `replicates` (without a default).  In the running report, you can
+##' access these by subsetting the `pars` object (e.g., `pars$debug`
+##' or `pars[["replicates"]]`).
+##'
+##' To get the old behaviour, do not assign to a variable:
+##'
+##' ```
+##' orderly_parameters(debug = FALSE, replicates = NULL)
+##' ```
+##'
+##' This will create two bindings in the environment (`debug` and
+##' `replicates`) but will also generate a deprecation warning and we
+##' will remove support in a release of orderly 2.x.  If really want
+##' the old behaviour, you can achieve it by writing:
+##'
+##' ```
+##' pars <- orderly_parameters(debug = FALSE, replicates = NULL)
+##' list2env(pars, environment())
+##' ```
+##'
+##' # Behaviour in interactive sessions
+##'
+##' We want you to be able to run through an orderly report
+##' interactively, e.g. via `source()`, by copy/paste or via the "Run"
+##' or "Source" button in RStudio.  This is not very compatible with
+##' use of orderly parameters, because normally you'd provide these to
+##' [orderly_run()], so we need a mechanism to get the parameters from
+##' you.
+##'
+##' The behavoiur differs if you have assigned the result of
+##' `orderly_parameters` to a variable or are using the (deprecated)
+##' behaviour of exporting parameters as variables.
+##'
+##' ## New behaviour
+##'
+##' Suppose that you are assigning to `pars`.  The first time we run
+##' though your code we won't see a value of `pars` and we'll prompt
+##' for values for each parameter.  Those that have default values in
+##' your list will offer these values to make selection of parameters
+##' faster.
+##'
+##' On subsequent calls, `pars` will be present with the values you
+##' used previously; these will be reused.  If you want to be
+##' re-prompted, delete `pars` (i.e., `rm("pars")`) or assign `NULL`
+##' (i.e., `pars <- NULL`).
+##'
+##' ## Old behaviour
+##'
+##' (subject to review!)
 ##'
 ##' When running interactively (i.e., via `source()` or running an
 ##'   orderly file session by copy/paste or in Rstudio), the
-##'   `orderly_parameters()` function has different behaviour.
+##'   `orderly_parameters()` function has different behaviour, and
+##'   this behaviour depends on if parameters will be exported to the
+##'   environment or not.
 ##'
 ##' First, we look in the current environment (most likely the global
 ##'   environment) for values of your parameters - that is, variables
@@ -64,23 +128,13 @@ static_orderly_strict_mode <- function(args) {
 ##'
 ##' @param ... Any number of parameters
 ##'
-##' @param .export Logical, indicating if parameters should be
-##'   exported into the global environment.  If `TRUE`, then at the
-##'   start of running a packet, all parameters are set, but if
-##'   `FALSE` then you must access parameters via the return value of
-##'   this function.  For the behaviour of `.export = NULL`, please
-##'   see Details.
-##'
 ##' @return Invisibly, a list of parameters.
 ##'
 ##' @export
-orderly_parameters <- function(..., .export = NULL) {
+orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
-    call <- environment()
-    envir <- parent.frame()
-    pars <- static_orderly_parameters(list(...), call)
-    check_parameters_interactive(envir, pars, .export, call)
+    pars <- orderly_context(rlang::caller_env())$parameters
   } else {
     pars <- p$parameters
   }
@@ -90,23 +144,21 @@ orderly_parameters <- function(..., .export = NULL) {
 
 
 static_orderly_parameters <- function(args, call) {
-  args <- args[names(args) != ".export"]
   if (length(args) == 0L) {
     return(NULL)
   }
   assert_named(args, unique = TRUE, name = "Arguments to 'orderly_parameters'",
                call = call, arg = NULL)
   check_parameter_values(args, TRUE, call)
-
-  args
+  as_strict_list(args, name = "parameters")
 }
 
 
 current_orderly_parameters <- function(src, envir) {
   dat <- orderly_read(src)
-  pars <- static_orderly_parameters(dat$parameters)
-  values <- check_parameters_interactive(envir, pars, NULL)
-  values
+  base <- dat$parameters
+  target <- dat$parameters_target
+  check_parameters_interactive(envir, base, target, NULL)
 }
 
 

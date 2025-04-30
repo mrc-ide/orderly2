@@ -153,10 +153,13 @@ test_that("fall back on parameter defaults", {
 
 test_that("can run orderly with parameters, without orderly", {
   path <- test_prepare_orderly_example("parameters")
-  envir <- list2env(list(a = 10, c = 30), parent = new.env())
+  envir <- new.env()
+  envir$pars <- strict_list(a = 10, b = 2, c = 30, .name = "parameters")
   path_src <- file.path(path, "src", "parameters")
-  withr::with_dir(path_src,
-                  sys.source("parameters.R", envir))
+  withr::with_dir(
+    path_src,
+    msg <- testthat::capture_messages(sys.source("parameters.R", envir)))
+  expect_match(msg, "Reusing previous parameters in 'pars'")
 
   path_rds <- file.path(path_src, "data.rds")
   expect_true(file.exists(path_rds))

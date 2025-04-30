@@ -70,14 +70,14 @@ test_that("combine default and given parameters", {
 
 test_that("do nothing when no spec given", {
   envir <- new.env()
-  expect_null(check_parameters_interactive(envir, NULL))
+  expect_null(check_parameters_interactive(envir, NULL, TRUE))
   expect_equal(ls(envir), character())
 })
 
 
 test_that("set defaults into environment if missing", {
   envir <- new.env()
-  check_parameters_interactive(envir, list(a = 1, b = 2))
+  check_parameters_interactive(envir, list(a = 1, b = 2), TRUE)
   expect_setequal(names(envir), c("a", "b"))
   expect_equal(envir$a, 1)
   expect_equal(envir$b, 2)
@@ -90,7 +90,8 @@ test_that("fill in missing parameters", {
   mockery::stub(check_parameters_interactive,
                 "get_missing_parameters_interactive",
                 mock_get)
-  check_parameters_interactive(envir, list(a = NULL, b = NULL, c = NULL), NULL)
+  check_parameters_interactive(envir, list(a = NULL, b = NULL, c = NULL),
+                               TRUE, NULL)
   mockery::expect_called(mock_get, 1)
   expect_equal(mockery::mock_args(mock_get)[[1]],
                list(c("a", "b", "c"), envir, NULL))
@@ -165,9 +166,9 @@ test_that("parameters must be atomic scalars", {
 test_that("parse parameter metadata", {
   expect_null(static_orderly_parameters(list()))
   expect_equal(static_orderly_parameters(list(a = NULL)),
-               list(a = NULL))
+               strict_list(a = NULL, .name = "parameters"))
   expect_equal(static_orderly_parameters(list(a = 1)),
-               list(a = 1))
+               strict_list(a = 1, .name = "parameters"))
 })
 
 

@@ -100,8 +100,8 @@ This takes control of all the metadata. As such there is a split between "`order
 
 # What is missing compared with `orderly1`
 
-* the changelog feature (we will implement something to support this)
-* extraction of secrets from vault (we will support this)
+* the changelog feature (we may implement something to support this)
+* extraction of secrets from vault (we may support this)
 * automatic handling of README files (we may implement support for this)
 
 # How to migrate

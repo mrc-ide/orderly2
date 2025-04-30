@@ -408,23 +408,40 @@ check_parameter_values <- function(given, is_defaults, call) {
 }
 
 
-check_parameters_interactive <- function(envir, spec, call) {
+check_parameters_interactive <- function(envir, spec, target, call) {
   if (length(spec) == 0) {
     return()
   }
 
-  required <- names(spec)[vlapply(spec, is.null)]
-  get_missing_parameters_interactive(required, envir, call)
+  if (is.null(target)) {
+    browser()
+    ## This is the old style version; we try and find parameters in
+    ## the environment:
+    required <- names(spec)[vlapply(spec, is.null)]
+    get_missing_parameters_interactive(required, envir, call)
+    list2env(spec[setdiff(names(spec), names(envir))], envir)
 
-  ## Set any missing values into the environment:
-  list2env(spec[setdiff(names(spec), names(envir))], envir)
-
-  ## We might need a slightly better error message here that indicates
-  ## that we're running in a pecular mode so the value might just have
-  ## been overwritten
-  found <- set_names(lapply(names(spec), function(v) envir[[v]]), names(spec))
-  check_parameter_values(found[!vlapply(found, is.null)], FALSE, call)
-  invisible(found)
+    ## We might need a slightly better error message here that indicates
+    ## that we're running in a pecular mode so the value might just have
+    ## been overwritten
+    found <- set_names(lapply(names(spec), function(v) envir[[v]]), names(spec))
+    check_parameter_values(found[!vlapply(found, is.null)], FALSE, call)
+    invisible(found)
+  } else {
+    prev <- envir[[target]]
+    if (inherits(prev, "strict_list")) {
+      if (identical(names(prev), names(spec))) {
+        cli::cli_alert_info("Reusing previous parameters in '{target}'")
+        ## TODO: show parameters here
+        return(prev)
+      }
+      cli::cli_alert_warning(
+        "Ignoring parameters in '{target}' which are different to this report")
+    }
+    pars <- prompt_parameters_interactive(spec, call)
+    envir[[target]] <- pars
+    pars
+  }
 }
 
 

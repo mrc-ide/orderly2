@@ -761,12 +761,17 @@ read_file_lossy <- function(path) {
 
 
 strict_list <- function(..., .name = NULL) {
-  ret <- list(...)
-  class(ret) <- "strict_list"
-  attr(ret, "name") <- .name %||% "list"
-  ret
+  as_strict_list(list(...), name = .name)
 }
 
+
+as_strict_list <- function(obj, name = NULL) {
+  assert_list(obj)
+  assert_named(obj, unique = TRUE)
+  class(obj) <- "strict_list"
+  attr(obj, "name") <- name %||% "list"
+  obj
+}
 
 
 ##' @export
@@ -798,4 +803,22 @@ strict_list <- function(..., .name = NULL) {
   class(ret) <- "strict_list"
   attr(ret, "name") <- name
   ret
+}
+
+##' @export
+"<-.strict_list" <- function(x, i, value) {
+  name <- attr(x, "name")
+  cli::cli_abort("'{name}' is immutable (trying to set '{i}')")
+}
+
+
+##' @export
+"$<-.strict_list" <- function(x, name, value) {
+  x[[name]] <- value
+}
+
+
+##' @export
+"[<-.strict_list" <- function(x, i, value) {
+  x[[i]] <- value
 }

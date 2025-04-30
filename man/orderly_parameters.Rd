@@ -4,13 +4,20 @@
 \alias{orderly_parameters}
 \title{Declare orderly parameters}
 \usage{
-orderly_parameters(...)
+orderly_parameters(..., .export = NULL)
 }
 \arguments{
 \item{...}{Any number of parameters}
+
+\item{.export}{Logical, indicating if parameters should be
+exported into the global environment.  If \code{TRUE}, then at the
+start of running a packet, all parameters are set, but if
+\code{FALSE} then you must access parameters via the return value of
+this function.  For the behaviour of \code{.export = NULL}, please
+see Details.}
 }
 \value{
-Undefined
+Invisibly, a list of parameters.
 }
 \description{
 Declare orderly parameters. You should only have one call to this
