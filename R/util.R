@@ -802,7 +802,7 @@ as_strict_list <- function(obj, name = NULL) {
     }
   }
   ret <- unclass(x)[i]
-  class(ret) <- "strict_list"
+  class(ret) <- class(x)
   attr(ret, "name") <- name
   ret
 }

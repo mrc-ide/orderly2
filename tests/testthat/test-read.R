@@ -101,13 +101,15 @@ test_that("can parse expressions that might be interesting", {
     orderly_read_expr(quote(z <- orderly2::orderly_a(x, y)), nms),
     list(is_orderly = TRUE,
          name = "orderly_a",
-         expr = quote(orderly2::orderly_a(x, y))))
+         expr = quote(orderly2::orderly_a(x, y)),
+         assigned_to = "z"))
   ## Can't use quote(a = expr) here or we fail on matching
   expect_equal(
     orderly_read_expr(parse(text = "z = orderly2::orderly_a(x, y)")[[1]], nms),
     list(is_orderly = TRUE,
          name = "orderly_a",
-         expr = quote(orderly2::orderly_a(x, y))))
+         expr = quote(orderly2::orderly_a(x, y)),
+         assigned_to = "z"))
 
   expect_equal(
     orderly_read_expr(quote(orderly_a(x, y)), nms),
@@ -115,10 +117,11 @@ test_that("can parse expressions that might be interesting", {
          name = "orderly_a",
          expr = quote(orderly_a(x, y))))
   expect_equal(
-    orderly_read_expr(z <- quote(orderly_a(x, y)), nms),
+    orderly_read_expr(quote(z <- orderly_a(x, y)), nms),
     list(is_orderly = TRUE,
          name = "orderly_a",
-         expr = quote(orderly_a(x, y))))
+         expr = quote(orderly_a(x, y)),
+         assigned_to = "z"))
 
   expect_equal(
     orderly_read_expr(quote(orderly2::orderly_c(x, y)), nms),
