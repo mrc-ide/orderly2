@@ -93,7 +93,7 @@ test_that("fill in missing parameters", {
                 "get_missing_parameters_interactive",
                 mock_get)
   check_parameters_interactive(envir, list(a = NULL, b = NULL, c = NULL),
-                               TRUE, NULL)
+                               NULL, NULL)
   mockery::expect_called(mock_get, 1)
   expect_equal(mockery::mock_args(mock_get)[[1]],
                list(c("a", "b", "c"), envir, NULL))
@@ -117,11 +117,11 @@ test_that("prompt for missing parameters", {
   mockery::stub(get_missing_parameters_interactive, "get_parameter_interactive",
                 mock_get)
   expect_message(
-    get_missing_parameters_interactive(c("a", "b", "c"), NULL, envir),
+    get_missing_parameters_interactive(c("a", "b", "c"), envir),
     "Please enter values for 2 missing parameters:")
   mockery::expect_called(mock_get, 2)
   expect_equal(mockery::mock_args(mock_get),
-               list(list("a", NULL), list("b", NULL)))
+               list(list("a", NULL, NULL), list("b", NULL, NULL)))
   expect_mapequal(as.list(envir), list(a = 1, b = 2, c = 4))
 })
 
