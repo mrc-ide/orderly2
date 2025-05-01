@@ -4,36 +4,88 @@
 \alias{orderly_parameters}
 \title{Declare orderly parameters}
 \usage{
-orderly_parameters(..., .export = NULL)
+orderly_parameters(...)
 }
 \arguments{
 \item{...}{Any number of parameters}
-
-\item{.export}{Logical, indicating if parameters should be
-exported into the global environment.  If \code{TRUE}, then at the
-start of running a packet, all parameters are set, but if
-\code{FALSE} then you must access parameters via the return value of
-this function.  For the behaviour of \code{.export = NULL}, please
-see Details.}
 }
 \value{
 Invisibly, a list of parameters.
 }
 \description{
 Declare orderly parameters. You should only have one call to this
-within your file, though this is not enforced! Typically you'd put
-it very close to the top, though the order does not really matter.
-Parameters are scalar atomic values (e.g. a string, number or
-boolean) and defaults must be present literally (i.e., they may
-not come from a variable itself). Provide \code{NULL} if you do not
-have a default, in which case this parameter will be required.
+within your file! Typically you'd put the call to this function
+very close to the top so that it easy to scan, though the order
+does not really matter.  Parameters are scalar atomic values
+(e.g. a string, number or boolean) and defaults must be present
+literally (i.e., they may not come from a variable
+itself). Provide \code{NULL} if you do not have a default, in which
+case this parameter will be required.
 }
-\section{Behaviour in interactive sessions}{
+\section{Parameters and variables}{
+Prior to orderly 1.99.61, parameters are always available as
+variables in the execution environment.  In order to harmonise the
+R and Python versions of orderly, we are moving away from this, at
+least by default.  The recommended way of using parameters is to
+assign it to a variable, for example:
 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{pars <- orderly_parameters(debug = FALSE, replicates = NULL)
+}\if{html}{\out{</div>}}
+
+This defines two parameters, \code{debug} (with a default) and
+\code{replicates} (without a default).  In the running report, you can
+access these by subsetting the \code{pars} object (e.g., \code{pars$debug}
+or \code{pars[["replicates"]]}).
+
+To get the old behaviour, do not assign to a variable:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{orderly_parameters(debug = FALSE, replicates = NULL)
+}\if{html}{\out{</div>}}
+
+This will create two bindings in the environment (\code{debug} and
+\code{replicates}) but will also generate a deprecation warning and we
+will remove support in a release of orderly 2.x.  If really want
+the old behaviour, you can achieve it by writing:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{pars <- orderly_parameters(debug = FALSE, replicates = NULL)
+list2env(pars, environment())
+}\if{html}{\out{</div>}}
+}
+
+\section{Behaviour in interactive sessions}{
+We want you to be able to run through an orderly report
+interactively, e.g. via \code{source()}, by copy/paste or via the "Run"
+or "Source" button in RStudio.  This is not very compatible with
+use of orderly parameters, because normally you'd provide these to
+\code{\link[=orderly_run]{orderly_run()}}, so we need a mechanism to get the parameters from
+you.
+
+The behavoiur differs if you have assigned the result of
+\code{orderly_parameters} to a variable or are using the (deprecated)
+behaviour of exporting parameters as variables.
+\subsection{New behaviour}{
+
+Suppose that you are assigning to \code{pars}.  The first time we run
+though your code we won't see a value of \code{pars} and we'll prompt
+for values for each parameter.  Those that have default values in
+your list will offer these values to make selection of parameters
+faster.
+
+On subsequent calls, \code{pars} will be present with the values you
+used previously; these will be reused.  If you want to be
+re-prompted, delete \code{pars} (i.e., \code{rm("pars")}) or assign \code{NULL}
+(i.e., \code{pars <- NULL}).
+}
+
+\subsection{Old behaviour}{
+
+(subject to review!)
 
 When running interactively (i.e., via \code{source()} or running an
 orderly file session by copy/paste or in Rstudio), the
-\code{orderly_parameters()} function has different behaviour.
+\code{orderly_parameters()} function has different behaviour, and
+this behaviour depends on if parameters will be exported to the
+environment or not.
 
 First, we look in the current environment (most likely the global
 environment) for values of your parameters - that is, variables
@@ -44,5 +96,6 @@ prompt based on the global option
 \code{orderly_interactive_parameters_missing_error}. If this is
 \code{TRUE}, then we will ask you to enter a value for the parameters
 (strings will need to be entered with quotes).
+}
 }
 

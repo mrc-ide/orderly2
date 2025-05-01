@@ -1,6 +1,6 @@
-orderly2::orderly_parameters(a = NULL, b = NULL, c = NULL)
+pars <- orderly2::orderly_parameters(a = NULL, b = NULL, c = NULL)
 
-value <- c
+value <- pars$c
 orderly2::orderly_dependency(
   "parameters",
   paste("latest(parameter:a == this:a &&",

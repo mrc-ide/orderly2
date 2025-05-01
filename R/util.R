@@ -767,8 +767,10 @@ strict_list <- function(..., .name = NULL) {
 
 as_strict_list <- function(obj, name = NULL) {
   assert_list(obj)
-  assert_named(obj, unique = TRUE)
-  class(obj) <- "strict_list"
+  if (length(obj) > 0) {
+    assert_named(obj, unique = TRUE)
+  }
+  class(obj) <- c("strict_list", "list")
   attr(obj, "name") <- name %||% "list"
   obj
 }
@@ -776,8 +778,7 @@ as_strict_list <- function(obj, name = NULL) {
 
 ##' @export
 "[[.strict_list" <- function(x, i, ...) {
-  assert_scalar_character(i)
-  if (!(i %in% names(x))) {
+  if (is.character(i) && !(i %in% names(x))) {
     name <- attr(x, "name")
     cli::cli_abort("'{i}' is not found in '{name}'")
   }
@@ -793,11 +794,12 @@ as_strict_list <- function(obj, name = NULL) {
 
 ##' @export
 "[.strict_list" <- function(x, i) {
-  assert_character(i)
-  msg <- setdiff(i, names(x))
-  name <- attr(x, "name")
-  if (length(msg) > 0) {
-    cli::cli_abort("{squote(msg)} not found in '{name}'")
+  if (is.character(i)) {
+    msg <- setdiff(i, names(x))
+    name <- attr(x, "name")
+    if (length(msg) > 0) {
+      cli::cli_abort("{squote(msg)} not found in '{name}'")
+    }
   }
   ret <- unclass(x)[i]
   class(ret) <- "strict_list"
@@ -805,20 +807,21 @@ as_strict_list <- function(obj, name = NULL) {
   ret
 }
 
+
 ##' @export
-"<-.strict_list" <- function(x, i, value) {
+"[[<-.strict_list" <- function(x, i, value) {
   name <- attr(x, "name")
-  cli::cli_abort("'{name}' is immutable (trying to set '{i}')")
+  cli::cli_abort("'{name}' is immutable (trying to set {squote(i)})")
 }
 
 
 ##' @export
 "$<-.strict_list" <- function(x, name, value) {
-  x[[name]] <- value
+  x[[name]] <- value  # will throw via '[[<-.'
 }
 
 
 ##' @export
 "[<-.strict_list" <- function(x, i, value) {
-  x[[i]] <- value
+  x[[i]] <- value  # will throw via '[[<-.'
 }

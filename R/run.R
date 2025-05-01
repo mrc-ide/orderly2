@@ -410,11 +410,10 @@ check_parameter_values <- function(given, is_defaults, call) {
 
 check_parameters_interactive <- function(envir, spec, target, call) {
   if (length(spec) == 0) {
-    return()
+    return(strict_list(.name = "parameters"))
   }
 
   if (is.null(target)) {
-    browser()
     ## This is the old style version; we try and find parameters in
     ## the environment:
     required <- names(spec)[vlapply(spec, is.null)]
@@ -426,7 +425,8 @@ check_parameters_interactive <- function(envir, spec, target, call) {
     ## been overwritten
     found <- set_names(lapply(names(spec), function(v) envir[[v]]), names(spec))
     check_parameter_values(found[!vlapply(found, is.null)], FALSE, call)
-    invisible(found)
+
+    as_strict_list(found, name = "parameters")
   } else {
     prev <- envir[[target]]
     if (inherits(prev, "strict_list")) {

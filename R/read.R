@@ -53,6 +53,14 @@ orderly_parse_expr <- function(exprs, filename) {
       nm <- e$name
       dat[[nm]] <- c(dat[[nm]], list(static_eval(check[[nm]], e$expr)))
       if (nm == "orderly_parameters") {
+        if (is.null(e$assigned_to)) {
+          cli::cli_warn(
+            c("You must assign calls to 'orderly_parameters()' to a variable",
+              i = paste("The old behaviour of automatically copying parameters",
+                        "into the environment has been deprecated, and you",
+                        "should move to the new behaviour as soon as possible"),
+              i = "See {.help orderly_parameters} for details"))
+        }
         dat$parameters_target <- e$assigned_to
       }
     } else {
