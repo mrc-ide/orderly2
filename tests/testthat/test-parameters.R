@@ -70,7 +70,7 @@ test_that("combine default and given parameters", {
 
 test_that("do nothing when no spec given", {
   envir <- new.env()
-  expect_equal(check_parameters_interactive(envir, NULL, TRUE),
+  expect_equal(check_parameters_interactive(envir, NULL, NULL),
                strict_list(.name = "parameters"))
   expect_equal(ls(envir), character())
 })
@@ -81,7 +81,7 @@ test_that("do nothing when no spec given", {
 test_that("return empty pars when no spec given but target present", {
   envir <- new.env()
   expected <- strict_list(.name = "parameters")
-  expect_equal(check_parameters_interactive(envir, "target", TRUE),
+  expect_equal(check_parameters_interactive(envir, NULL, "target"),
                expected)
   expect_equal(ls(envir), "target")
   expect_equal(envir$target, expected)
