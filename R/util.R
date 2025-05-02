@@ -806,22 +806,3 @@ as_strict_list <- function(obj, name = NULL) {
   attr(ret, "name") <- name
   ret
 }
-
-
-##' @export
-"[[<-.strict_list" <- function(x, i, value) {
-  name <- attr(x, "name")
-  cli::cli_abort("'{name}' is immutable (trying to set {squote(i)})")
-}
-
-
-##' @export
-"$<-.strict_list" <- function(x, name, value) {
-  x[[name]] <- value  # will throw via '[[<-.'
-}
-
-
-##' @export
-"[<-.strict_list" <- function(x, i, value) {
-  x[[i]] <- value  # will throw via '[[<-.'
-}
