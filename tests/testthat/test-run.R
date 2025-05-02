@@ -1419,31 +1419,31 @@ test_that("warn if description unnamed in artefact", {
 
 
 test_that("run a packet with legacy parameters", {
-  path <- test_prepare_orderly_example("parameters-old")
+  path <- test_prepare_orderly_example("parameters-legacy")
   envir <- new.env()
   w <- expect_warning(
-    id <- orderly_run_quietly("parameters-old",
+    id <- orderly_run_quietly("parameters-legacy",
                               parameters = list(a = 10, b = 20, c = 30),
                               envir = envir, root = path),
     "You must assign calls to 'orderly_parameters\\(\\)' to a variable")
 
-  path_rds <- file.path(path, "archive", "parameters-old", id, "data.rds")
+  path_rds <- file.path(path, "archive", "parameters-legacy", id, "data.rds")
   expect_true(file.exists(path_rds))
   expect_equal(readRDS(path_rds), list(a = 10, b = 20, c = 30))
 })
 
 
 test_that("interactively run a packet with legacy parameters", {
-  path <- test_prepare_orderly_example("parameters-old")
+  path <- test_prepare_orderly_example("parameters-legacy")
   envir <- list2env(list(a = 10, c = 30), parent = new.env())
 
-  path_src <- file.path(path, "src", "parameters-old")
+  path_src <- file.path(path, "src", "parameters-legacy")
   expect_warning(
     withr::with_dir(path_src,
-                    sys.source("parameters-old.R", envir)),
+                    sys.source("parameters-legacy.R", envir)),
     "You must assign calls to 'orderly_parameters\\(\\)' to a variable")
 
-  path_rds <- file.path(path, "src", "parameters-old", "data.rds")
+  path_rds <- file.path(path, "src", "parameters-legacy", "data.rds")
   expect_true(file.exists(path_rds))
   expect_equal(readRDS(path_rds), list(a = 10, b = 2, c = 30))
 })
