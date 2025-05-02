@@ -76,6 +76,18 @@ test_that("do nothing when no spec given", {
 })
 
 
+## Very unlikely but is at least consistent. The other option would be
+## to error if empty parameters are provided.
+test_that("return empty pars when no spec given but target present", {
+  envir <- new.env()
+  expected <- strict_list(.name = "parameters")
+  expect_equal(check_parameters_interactive(envir, "target", TRUE),
+               expected)
+  expect_equal(ls(envir), "target")
+  expect_equal(envir$target, expected)
+})
+
+
 test_that("set defaults into environment if missing", {
   envir <- new.env()
   res <- check_parameters_interactive(envir, list(a = 1, b = 2), NULL, TRUE)
@@ -87,17 +99,47 @@ test_that("set defaults into environment if missing", {
 
 
 test_that("fill in missing parameters", {
-  envir <- list2env(list(b = 3, c = 4), parent = new.env())
-  mock_get <- mockery::mock(envir$a <- 1)
+  envir <- new.env()
+  spec <- list(a = NULL, b = NULL, c = NULL)
+  pars <- strict_list(a = 1, b = 2, c = 3, .name = "parameters")
+  mock_get <- mockery::mock(envir$pars <- pars)
   mockery::stub(check_parameters_interactive,
-                "get_missing_parameters_interactive",
+                "prompt_parameters_interactive",
                 mock_get)
-  check_parameters_interactive(envir, list(a = NULL, b = NULL, c = NULL),
-                               NULL, NULL)
+
+  res <- check_parameters_interactive(envir, spec, "pars", NULL)
+  expect_equal(res, pars)
   mockery::expect_called(mock_get, 1)
-  expect_equal(mockery::mock_args(mock_get)[[1]],
-               list(c("a", "b", "c"), envir, NULL))
-  expect_mapequal(as.list(envir), list(a = 1, b = 3, c = 4))
+  expect_equal(mockery::mock_args(mock_get)[[1]], list(spec, NULL))
+  expect_equal(as.list(envir), list(pars = pars))
+
+  expect_message(
+    res <- check_parameters_interactive(envir, spec, "pars", NULL),
+    "Reusing previous parameters in 'pars'")
+  expect_equal(res, pars)
+  mockery::expect_called(mock_get, 1)
+})
+
+
+test_that("fill in missing parameters", {
+  envir <- new.env()
+  spec <- list(a = NULL, b = NULL, c = NULL)
+  pars <- strict_list(a = 1, b = 2, c = 3, .name = "parameters")
+  mock_get <- mockery::mock(envir$pars <- pars)
+  mockery::stub(check_parameters_interactive,
+                "prompt_parameters_interactive",
+                mock_get)
+
+  envir$pars <- strict_list(a = 1, b = 2, .name = "parameters")
+
+  expect_message(
+    res <- check_parameters_interactive(envir, spec, "pars", NULL),
+    "Ignoring parameters in 'pars' which are different")
+
+  expect_equal(res, pars)
+  mockery::expect_called(mock_get, 1)
+  expect_equal(mockery::mock_args(mock_get)[[1]], list(spec, NULL))
+  expect_equal(as.list(envir), list(pars = pars))
 })
 
 

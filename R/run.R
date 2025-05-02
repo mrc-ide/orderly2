@@ -410,7 +410,11 @@ check_parameter_values <- function(given, is_defaults, call) {
 
 check_parameters_interactive <- function(envir, spec, target, call) {
   if (length(spec) == 0) {
-    return(strict_list(.name = "parameters"))
+    pars <- strict_list(.name = "parameters")
+    if (!is.null(target)) {
+      envir[[target]] <- pars
+    }
+    return(pars)
   }
 
   if (is.null(target)) {
