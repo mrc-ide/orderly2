@@ -92,17 +92,17 @@ orderly_interactive_set_search_options <- function(location = NULL,
 get_parameter_interactive <- function(name, default = NULL, call = NULL) {
   if (is.null(default)) {
     value <- readline(sprintf("%s > ", name))
+    if (!nzchar(value)) {
+      cli::cli_abort("Expected a value for parameter '{name}'", call = call)
+    }
   } else {
     value <- readline(sprintf("%s [default: %s] > ", name, default))
-  }
-  if (!nzchar(value)) {
-    if (is.null(default)) {
-      cli::cli_abort("Expected a value for parameter '{name}'", call = call)
-    } else {
-      value <- default
-      cli::cli_alert_info("Using default value for '{name}': {value}")
+    if (!nzchar(value)) {
+      cli::cli_alert_info("Using default value for '{name}': {default}")
+      return(default)
     }
   }
+
   parsed <- tryCatch(parse(text = value)[[1L]], error = identity)
   explain_string <- paste(
     "If entering a string, you must use quotes, this helps",

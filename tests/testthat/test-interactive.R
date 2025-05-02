@@ -105,6 +105,22 @@ test_that("can validate interactive parameters", {
 })
 
 
+test_that("can prompt for parameter using defaults", {
+  mock_readline <- mockery::mock("", '"a"')
+  mockery::stub(get_parameter_interactive, "readline", mock_readline)
+
+  msg <- testthat::capture_messages(
+    res <- get_parameter_interactive("foo", "b"))
+  expect_equal(res, "b")
+  expect_match(msg, "Using default value for 'foo': b\\b")
+
+  msg <- testthat::capture_messages(
+    res <- get_parameter_interactive("foo", "b"))
+  expect_equal(res, "a")
+  expect_equal(msg, character())
+})
+
+
 test_that("can error when interactive parameters are invlid", {
   mock_readline <- mockery::mock("", "hey ho", "string", "c(1, 2)")
   mockery::stub(get_parameter_interactive, "readline", mock_readline)
