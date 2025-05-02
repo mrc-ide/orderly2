@@ -10,7 +10,9 @@ orderly_parameters(...)
 \item{...}{Any number of parameters}
 }
 \value{
-Invisibly, a list of parameters.
+A list of parameters.  This list is "strict" so accessing
+elements that are not present will throw an error rather than
+returning \code{NULL}.
 }
 \description{
 Declare orderly parameters. You should only have one call to this
@@ -79,7 +81,7 @@ re-prompted, delete \code{pars} (i.e., \code{rm("pars")}) or assign \code{NULL}
 
 \subsection{Old behaviour}{
 
-(subject to review!)
+This is now deprecated, and you should update your code.
 
 When running interactively (i.e., via \code{source()} or running an
 orderly file session by copy/paste or in Rstudio), the

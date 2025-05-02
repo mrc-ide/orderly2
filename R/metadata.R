@@ -106,7 +106,7 @@ static_orderly_strict_mode <- function(args) {
 ##'
 ##' ## Old behaviour
 ##'
-##' (subject to review!)
+##' This is now deprecated, and you should update your code.
 ##'
 ##' When running interactively (i.e., via `source()` or running an
 ##'   orderly file session by copy/paste or in Rstudio), the
@@ -128,7 +128,9 @@ static_orderly_strict_mode <- function(args) {
 ##'
 ##' @param ... Any number of parameters
 ##'
-##' @return Invisibly, a list of parameters.
+##' @return A list of parameters.  This list is "strict" so accessing
+##'   elements that are not present will throw an error rather than
+##'   returning `NULL`.
 ##'
 ##' @export
 orderly_parameters <- function(...) {
@@ -139,7 +141,7 @@ orderly_parameters <- function(...) {
     pars <- p$parameters
   }
 
-  invisible(pars)
+  pars
 }
 
 
