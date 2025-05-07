@@ -38,7 +38,7 @@ static_orderly_strict_mode <- function(args) {
 
 ##' Declare orderly parameters. You should only have one call to this
 ##' within your file! Typically you'd put the call to this function
-##' very close to the top so that it easy to scan, though the order
+##' very close to the top so that it's easy to scan, though the order
 ##' does not really matter.  Parameters are scalar atomic values
 ##' (e.g. a string, number or boolean) and defaults must be present
 ##' literally (i.e., they may not come from a variable
@@ -70,7 +70,7 @@ static_orderly_strict_mode <- function(args) {
 ##'
 ##' This will create two bindings in the environment (`debug` and
 ##' `replicates`) but will also generate a deprecation warning and we
-##' will remove support in a release of orderly 2.x.  If really want
+##' will remove support in a release of orderly 2.x.  If you really want
 ##' the old behaviour, you can achieve it by writing:
 ##'
 ##' ```
@@ -87,7 +87,7 @@ static_orderly_strict_mode <- function(args) {
 ##' [orderly_run()], so we need a mechanism to get the parameters from
 ##' you.
 ##'
-##' The behavoiur differs if you have assigned the result of
+##' The behaviour differs if you have assigned the result of
 ##' `orderly_parameters` to a variable or are using the (deprecated)
 ##' behaviour of exporting parameters as variables.
 ##'
@@ -111,7 +111,7 @@ static_orderly_strict_mode <- function(args) {
 ##' When running interactively (i.e., via `source()` or running an
 ##'   orderly file session by copy/paste or in Rstudio), the
 ##'   `orderly_parameters()` function has different behaviour, and
-##'   this behaviour depends on if parameters will be exported to the
+##'   this behaviour depends on whether parameters will be exported to the
 ##'   environment or not.
 ##'
 ##' First, we look in the current environment (most likely the global
