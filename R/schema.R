@@ -22,6 +22,7 @@ load_schema <- function(key) {
       ## orderly2 when it is installed itself as a real package...
       path <- file.path(pkg_root(key_split[[1]]), key_split[[2]])
     }
+    ensure_jsonvalidate()
     cache$schema[[key]] <- jsonvalidate::json_schema$new(path)
   }
   cache$schema[[key]]
@@ -30,4 +31,14 @@ load_schema <- function(key) {
 
 should_validate_schema <- function(schema) {
   !is.null(schema) && getOption("outpack.schema_validate", FALSE)
+}
+
+
+ensure_jsonvalidate <- function() {
+  if (!requireNamespace("jsonvalidate")) {
+    cli::cli_abort(
+      c("The jsonvalidate package is missing, but you have requested it",
+        i = paste("The option 'outpack.schema_validate' is 'TRUE', but you",
+                  "don't have 'jsonvalidate' installed so we can't do this.")))
+  }
 }
