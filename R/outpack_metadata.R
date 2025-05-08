@@ -63,7 +63,7 @@ orderly_metadata_read <- function(path, plugins = TRUE) {
 }
 
 outpack_metadata_create <- function(path, name, id, time, files,
-                                    depends, parameters, custom,
+                                    depends, parameters, git, custom,
                                     file_hash, file_ignore, hash_algorithm) {
   assert_scalar_character(name)
   assert_scalar_character(id)
@@ -143,10 +143,10 @@ outpack_metadata_create <- function(path, name, id, time, files,
                         vcapply(custom, "[[", "application"))
   }
 
-  git <- git_info(path)
   if (!is.null(git)) {
     git$sha <- scalar(git$sha)
     git$branch <- scalar(git$branch)
+    git$url <- git$url %||% character()
   }
 
   ret <- list(schema_version = scalar(outpack_schema_version()),
