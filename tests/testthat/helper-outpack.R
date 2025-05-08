@@ -1,8 +1,3 @@
-## Globally enable schema validation everywhere; really this should be
-## disabled on CRAN, and only enabled if jsonvalidate is found.
-options(outpack.schema_validate = TRUE)
-
-
 create_random_packet <- function(root, name = "data", parameters = NULL,
                                  id = NULL, n_files = 1) {
   src <- fs::dir_create(tempfile())

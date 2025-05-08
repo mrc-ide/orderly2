@@ -1,6 +1,6 @@
 Package: orderly2
 Title: Orderly Next Generation
-Version: 1.99.62
+Version: 1.99.63
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),
@@ -51,7 +51,5 @@ Suggests:
     stringr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Remotes:
-  ropensci/jsonvalidate
 VignetteBuilder: knitr
 Language: en-GB

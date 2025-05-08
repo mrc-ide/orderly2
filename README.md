@@ -66,6 +66,8 @@ install.packages(
 
 Without these, some tests will be skipped, but the suite will still run.
 
+If you want to force validation of schemas during testing, set the R option `outpack.schema_validate` to `TRUE`.  This will automatically be set on CI (as detected by the `CI` environment variable) and will be enabled if `jsonvalidate` is installed.  Set the option `outpack.schema_validate` as `FALSE` to disable checking.
+
 ## Licence
 
 MIT © Imperial College of Science, Technology and Medicine

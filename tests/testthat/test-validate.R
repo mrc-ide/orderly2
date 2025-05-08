@@ -145,3 +145,15 @@ test_that("don't invalidate children when complete tree off", {
     evaluate_promise(orderly_validate_archive(id3, root = root)),
     res)
 })
+
+
+test_that("can inform sensibly if jsonvalidate is missing", {
+  skip_if_not_installed("mockery")
+  mockery::stub(ensure_jsonvalidate,
+                "requireNamespace",
+                mockery::mock(TRUE, FALSE))
+  expect_no_error(ensure_jsonvalidate())
+  expect_error(
+    ensure_jsonvalidate(),
+    "The jsonvalidate package is missing, but you have requested it")
+})
