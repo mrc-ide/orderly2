@@ -61,7 +61,7 @@ path_example <- file.path(path_root, "src", "example")
 fs::dir_create(path_example)
 writeLines(c(
   'dat <- example.db::query("SELECT * FROM mtcars WHERE cyl == 4")',
-  'orderly2::orderly_artefact("Summary of data", "data.rds")',
+  'orderly2::orderly_artefact(description = "Summary of data", "data.rds")',
   "",
   'saveRDS(summary(dat), "data.rds")'),
   file.path(path_example, "example.R"))
