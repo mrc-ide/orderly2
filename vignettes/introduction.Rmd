@@ -175,7 +175,7 @@ For more information on dependencies, see `vignette("dependencies")`.
 The function `orderly2::orderly_dependency()` is designed to operate while the packet runs. These functions all act by adding metadata to the final packet, and perhaps by copying files into the directory.
 
 * `orderly2::orderly_description()`: Provide a longer name and description for your report; this can be reflected in tooling that uses orderly metadata to be much more informative than your short name.
-* `orderly2::orderly_parameters()`: Declares parameters that can be passed in to control the behaviour of the report. Parameters are key-value pairs of simple data (booleans, numbers, strings) which your report can respond to. They can also be used in queries to `orderly2::orderly_dependency()` to find packets that satisfy some criteria.
+* `orderly2::orderly_parameters()`: Declares parameters that can be passed in to control the behaviour of the report, returning a list of the parameters. Parameters are key-value pairs of simple data (booleans, numbers, strings) which your report can respond to. They can also be used in queries to `orderly2::orderly_dependency()` to find packets that satisfy some criteria.
 * `orderly2::orderly_resource()`: Declares that a file is a *resource*; a file that is an input to the the report, and which comes from this source directory. By default, orderly treats all files in the directory as a resource, but it can be useful to mark these explicitly, and necessary to do so in "strict mode" (see below). Files that have been marked as a resource are **immutable** and may not be deleted or modified.
 * `orderly2::orderly_shared_resource()`: Copies a file from the "shared resources" directory `shared/`, which can be data files or source code located at the root of the orderly repository. This can be a reasonable way of sharing data or commonly used code among several reports.
 * `orderly2::orderly_artefact()`: Declares that a file (or set of files) will be created by this report, before it is even run.  Doing this makes it easier to check that the report behaves as expected and can allow reasoning about what a related set of reports will do without running them. By declaring something as an artefact (especially in conjunction with "strict mode") it is also easier to clean up `src` directories that have been used in interactive development (see below).
@@ -192,7 +192,7 @@ code_data <- readLines(
 writeLines(c(
   "orderly2::orderly_strict_mode()",
   'orderly2::orderly_resource("data.csv")',
-  'orderly2::orderly_artefact("Processed data", "data.rds")',
+  'orderly2::orderly_artefact(description = "Processed data", "data.rds")',
   "",
   code_data),
   file.path(path, "src", "incoming_data", "incoming_data.R"))
@@ -217,9 +217,9 @@ For example, consider a simple report where we generate samples based on some pa
 ```{r, include = FALSE}
 fs::dir_create(file.path(path, "src", "random"))
 writeLines(c(
-  "orderly2::orderly_parameters(n_samples = 10)",
-  "x <- seq_len(n_samples)",
-  "d <- data.frame(x = x, y = x + rnorm(n_samples))",
+  "pars <- orderly2::orderly_parameters(n_samples = 10)",
+  "x <- seq_len(pars$n_samples)",
+  "d <- data.frame(x = x, y = x + rnorm(pars$n_samples))",
   'saveRDS(d, "data.rds")'),
   file.path(path, "src", "random", "random.R"))
 ```
@@ -231,13 +231,13 @@ r_output(readLines(file.path(path, "src/random/random.R")))
 This creates a report that has a single parameter `n_samples` with a default value of 10. We could have used
 
 ```r
-orderly2::orderly_parameters(n_samples = NULL)
+pars <- orderly2::orderly_parameters(n_samples = NULL)
 ```
 
 to define a parameter with no default, or defined multiple parameters with
 
 ```r
-orderly2::orderly_parameters(n_samples = 10, distribution = "normal")
+pars <- orderly2::orderly_parameters(n_samples = 10, distribution = "normal")
 ```
 
 You can do anything in your report that switches on the value of a parameter:
@@ -313,7 +313,7 @@ We can then write an orderly report `use_shared` that uses this shared file, wit
 fs::dir_create(file.path(path, "src", "use_shared"))
 writeLines(c(
   'orderly2::orderly_shared_resource("data.csv")',
-  'orderly2::orderly_artefact("analysis", "analysis.png")',
+  'orderly2::orderly_artefact(description = "analysis", "analysis.png")',
   "",
   'd <- read.csv("data.csv")',
   'png("analysis.png")',

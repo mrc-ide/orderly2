@@ -105,6 +105,22 @@ test_that("can validate interactive parameters", {
 })
 
 
+test_that("can prompt for parameter using defaults", {
+  mock_readline <- mockery::mock("", '"a"')
+  mockery::stub(get_parameter_interactive, "readline", mock_readline)
+
+  msg <- testthat::capture_messages(
+    res <- get_parameter_interactive("foo", "b"))
+  expect_equal(res, "b")
+  expect_match(msg, "Using default value for 'foo': b\\b")
+
+  msg <- testthat::capture_messages(
+    res <- get_parameter_interactive("foo", "b"))
+  expect_equal(res, "a")
+  expect_equal(msg, character())
+})
+
+
 test_that("can error when interactive parameters are invlid", {
   mock_readline <- mockery::mock("", "hey ho", "string", "c(1, 2)")
   mockery::stub(get_parameter_interactive, "readline", mock_readline)
@@ -132,4 +148,34 @@ test_that("can error when interactive parameters are invlid", {
     get_parameter_interactive("foo"),
     "Invalid input for parameter 'foo'")
   expect_equal(err$body[1], c(i = "Must be a simple boolean, number or string"))
+})
+
+
+test_that("error if prompting for parameters in non-interactive session", {
+  rlang::local_interactive(FALSE)
+  expect_error(
+    prompt_parameters_interactive(list(a = NULL)),
+    "Can't interactively fetch parameters in non-interactive session")
+})
+
+
+test_that("prompt for parameters interactively", {
+  rlang::local_interactive(TRUE)
+  mock_get <- mockery::mock(1, 2, 3)
+  testthat::local_mocked_bindings(get_parameter_interactive = mock_get)
+  expect_message(
+    res <- prompt_parameters_interactive(
+      list(a = NULL, b = 20, c = NULL), NULL),
+    "Please enter values for 3 parameters")
+  expect_equal(res, strict_list(a = 1, b = 2, c = 3, .name = "parameters"))
+  mockery::expect_called(mock_get, 3)
+  expect_equal(
+    mockery::mock_args(mock_get)[[1]],
+    list("a", NULL, NULL))
+  expect_equal(
+    mockery::mock_args(mock_get)[[2]],
+    list("b", 20, NULL))
+  expect_equal(
+    mockery::mock_args(mock_get)[[3]],
+    list("c", NULL, NULL))
 })

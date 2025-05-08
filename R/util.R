@@ -758,3 +758,51 @@ orderly_quiet <- function() {
 read_file_lossy <- function(path) {
   iconv(readLines(path, warn = FALSE), "UTF-8", "UTF-8", sub = "byte")
 }
+
+
+strict_list <- function(..., .name = NULL) {
+  as_strict_list(list(...), name = .name)
+}
+
+
+as_strict_list <- function(obj, name = NULL) {
+  assert_list(obj)
+  if (length(obj) > 0) {
+    assert_named(obj, unique = TRUE)
+  }
+  class(obj) <- c("strict_list", "list")
+  attr(obj, "name") <- name %||% "list"
+  obj
+}
+
+
+##' @export
+"[[.strict_list" <- function(x, i, ...) {
+  if (is.character(i) && !(i %in% names(x))) {
+    name <- attr(x, "name")
+    cli::cli_abort("'{i}' is not found in '{name}'")
+  }
+  unclass(x)[[i]]
+}
+
+
+##' @export
+"$.strict_list" <- function(x, name) {
+  x[[name]]
+}
+
+
+##' @export
+"[.strict_list" <- function(x, i) {
+  if (is.character(i)) {
+    msg <- setdiff(i, names(x))
+    name <- attr(x, "name")
+    if (length(msg) > 0) {
+      cli::cli_abort("{squote(msg)} not found in '{name}'")
+    }
+  }
+  ret <- unclass(x)[i]
+  class(ret) <- class(x)
+  attr(ret, "name") <- name
+  ret
+}

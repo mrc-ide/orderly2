@@ -1,4 +1,4 @@
-orderly2::orderly_parameters(a = NULL)
+pars <- orderly2::orderly_parameters(a = NULL)
 orderly2::orderly_dependency("parameters", "latest", c(input.rds = "data.rds"))
 orderly2::orderly_artefact("result.rds", description = "Processed data")
 d <- readRDS("input.rds")

@@ -42,11 +42,11 @@ artefacts:
 would end up within an orderly file that looks like:
 
 ```r
-orderly2::orderly_parameters(n_min = 10)
+pars <- orderly2::orderly_parameters(n_min = 10)
 orderly2::orderly_dependency("raw_data", "latest", 
                              files = c("raw_data.csv" = "data.csv"))
 orderly2::orderly_resource("metadata.csv")
-orderly2::orderly_artefact("Processed data", "data.rds")
+orderly2::orderly_artefact(description = "Processed data", "data.rds")
 source("functions.R")
 ```
 
@@ -100,8 +100,8 @@ This takes control of all the metadata. As such there is a split between "`order
 
 # What is missing compared with `orderly1`
 
-* the changelog feature (we will implement something to support this)
-* extraction of secrets from vault (we will support this)
+* the changelog feature (we may implement something to support this)
+* extraction of secrets from vault (we may support this)
 * automatic handling of README files (we may implement support for this)
 
 # How to migrate

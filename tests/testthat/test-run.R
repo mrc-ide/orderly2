@@ -153,10 +153,13 @@ test_that("fall back on parameter defaults", {
 
 test_that("can run orderly with parameters, without orderly", {
   path <- test_prepare_orderly_example("parameters")
-  envir <- list2env(list(a = 10, c = 30), parent = new.env())
+  envir <- new.env()
+  envir$pars <- strict_list(a = 10, b = 2, c = 30, .name = "parameters")
   path_src <- file.path(path, "src", "parameters")
-  withr::with_dir(path_src,
-                  sys.source("parameters.R", envir))
+  withr::with_dir(
+    path_src,
+    msg <- testthat::capture_messages(sys.source("parameters.R", envir)))
+  expect_match(msg[[1]], "Reusing previous parameters in 'pars'")
 
   path_rds <- file.path(path_src, "data.rds")
   expect_true(file.exists(path_rds))
@@ -170,7 +173,10 @@ test_that("can run orderly with parameters, without orderly, globally", {
                             parameters = list(a = 10, b = 20, c = 30),
                             envir = new.env(), root = path)
   path_src <- file.path(path, "src", "depends-query")
-  envir <- list2env(list(a = 10, b = 20, c = 30), parent = globalenv())
+  envir <- new.env()
+  envir$pars <- strict_list(a = 10, b = 20, c = 30, .name = "parameters")
+  ## TODO: we get *two* calls to 'Reusing previous parameters' here
+  ## which is too many; ideally we only get this once.
   withr::with_dir(path_src,
                   suppressMessages(sys.source("depends-query.R", envir)))
   path_rds <- file.path(path_src, "result.rds")
@@ -1409,4 +1415,35 @@ test_that("warn if description unnamed in artefact", {
   expect_warning(
     orderly_run_quietly("data", root = path, envir = envir),
     "Please use a named argument")
+})
+
+
+test_that("run a packet with legacy parameters", {
+  path <- test_prepare_orderly_example("parameters-legacy")
+  envir <- new.env()
+  w <- expect_warning(
+    id <- orderly_run_quietly("parameters-legacy",
+                              parameters = list(a = 10, b = 20, c = 30),
+                              envir = envir, root = path),
+    "You must assign calls to 'orderly_parameters\\(\\)' to a variable")
+
+  path_rds <- file.path(path, "archive", "parameters-legacy", id, "data.rds")
+  expect_true(file.exists(path_rds))
+  expect_equal(readRDS(path_rds), list(a = 10, b = 20, c = 30))
+})
+
+
+test_that("interactively run a packet with legacy parameters", {
+  path <- test_prepare_orderly_example("parameters-legacy")
+  envir <- list2env(list(a = 10, c = 30), parent = new.env())
+
+  path_src <- file.path(path, "src", "parameters-legacy")
+  expect_warning(
+    withr::with_dir(path_src,
+                    sys.source("parameters-legacy.R", envir)),
+    "You must assign calls to 'orderly_parameters\\(\\)' to a variable")
+
+  path_rds <- file.path(path, "src", "parameters-legacy", "data.rds")
+  expect_true(file.exists(path_rds))
+  expect_equal(readRDS(path_rds), list(a = 10, b = 2, c = 30))
 })

@@ -43,7 +43,8 @@ orderly_parse_expr <- function(exprs, filename) {
                 orderly_dependency = static_orderly_dependency)
   dat <- set_names(rep(list(NULL), length(check)), names(check))
 
-  single <- c("orderly_strict_mode", "orderly_description")
+  single <- c("orderly_strict_mode", "orderly_description",
+              "orderly_parameters")
   top_level <- c("orderly_strict_mode", "orderly_parameters")
 
   for (e in exprs) {
@@ -51,6 +52,17 @@ orderly_parse_expr <- function(exprs, filename) {
     if (e$is_orderly) {
       nm <- e$name
       dat[[nm]] <- c(dat[[nm]], list(static_eval(check[[nm]], e$expr)))
+      if (nm == "orderly_parameters") {
+        if (is.null(e$assigned_to)) {
+          cli::cli_warn(
+            c("You must assign calls to 'orderly_parameters()' to a variable",
+              i = paste("The old behaviour of automatically copying parameters",
+                        "into the environment has been deprecated, and you",
+                        "should move to the new behaviour as soon as possible"),
+              i = "See {.help orderly_parameters} for details"))
+        }
+        dat$parameters_target <- e$assigned_to
+      }
     } else {
       vars <- all.vars(e$expr, TRUE)
       ## TODO: As below, it is possible to return line numbers here,
@@ -90,6 +102,7 @@ orderly_parse_expr <- function(exprs, filename) {
     ## getSrcref or similar.
     stopifnot(!anyDuplicated(unlist(lapply(dat$parameters, names))))
     ret$parameters <- unlist(dat$parameters, FALSE, TRUE)
+    ret$parameters_target <- dat$parameters_target
   }
 
   ## TODO: probably some santisiation required here:
@@ -124,7 +137,13 @@ orderly_read_expr <- function(e, nms) {
   ## > a <- orderly2::orderly_fn()
   ## > a <- orderly_fn()
   if (is_assignment(e)) {
-    return(orderly_read_expr(e[[3]], nms))
+    lhs <- e[[2]]
+    rhs <- e[[3]]
+    value <- orderly_read_expr(rhs, nms)
+    if (is.name(lhs)) {
+      value$assigned_to <- deparse1(lhs)
+    }
+    return(value)
   } else if (is_orderly_ns_call(e)) {
     args <- e[-1]
     nm <- deparse(e[[1]][[3]])

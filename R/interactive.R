@@ -89,11 +89,20 @@ orderly_interactive_set_search_options <- function(location = NULL,
 }
 
 
-get_parameter_interactive <- function(name, call = NULL) {
-  value <- readline(sprintf("%s > ", name))
-  if (!nzchar(value)) {
-    cli::cli_abort("Expected a value for parameter '{name}'", call = call)
+get_parameter_interactive <- function(name, default = NULL, call = NULL) {
+  if (is.null(default)) {
+    value <- readline(sprintf("%s > ", name))
+    if (!nzchar(value)) {
+      cli::cli_abort("Expected a value for parameter '{name}'", call = call)
+    }
+  } else {
+    value <- readline(sprintf("%s [default: %s] > ", name, default))
+    if (!nzchar(value)) {
+      cli::cli_alert_info("Using default value for '{name}': {default}")
+      return(default)
+    }
   }
+
   parsed <- tryCatch(parse(text = value)[[1L]], error = identity)
   explain_string <- paste(
     "If entering a string, you must use quotes, this helps",
@@ -141,7 +150,24 @@ get_missing_parameters_interactive <- function(required, envir, call = NULL) {
     "Please enter values for {n} missing {cli::qty(n)}parameter{?s}:")
   found <- list()
   for (nm in msg) {
-    found[[nm]] <- get_parameter_interactive(nm, call)
+    found[[nm]] <- get_parameter_interactive(nm, NULL, call)
   }
   list2env(found, envir)
+}
+
+
+prompt_parameters_interactive <- function(pars, call) {
+  if (!rlang::is_interactive()) {
+    cli::cli_abort(
+      "Can't interactively fetch parameters in non-interactive session",
+      call = call)
+  }
+  n <- length(pars)
+  cli::cli_alert(
+    "Please enter values for {n} {cli::qty(n)}parameter{?s}:")
+  for (nm in names(pars)) {
+    pars[[nm]] <- get_parameter_interactive(nm, pars[[nm]], call)
+  }
+
+  as_strict_list(pars, name = "parameters")
 }

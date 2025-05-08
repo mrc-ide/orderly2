@@ -91,14 +91,14 @@ orderly2::orderly_init(path)
 
 fs::dir_create(file.path(path, "src", "data"))
 writeLines(c(
-  "orderly2::orderly_parameters(cyl = NULL)",
-  "d <- mtcars[mtcars$cyl == cyl, ]",
+  "pars <- orderly2::orderly_parameters(cyl = NULL)",
+  "d <- mtcars[mtcars$cyl == pars$cyl, ]",
   'saveRDS(d, "data.rds")'),
   file.path(path, "src", "data", "data.R"))
 
 fs::dir_create(file.path(path, "src", "analysis"))
 writeLines(c(
-  "orderly2::orderly_parameters(cyl = NULL)",
+  "pars <- orderly2::orderly_parameters(cyl = NULL)",
   "orderly2::orderly_dependency(",
   '  "data",',
   '  "latest(parameter:cyl == this:cyl)",',
