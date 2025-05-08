@@ -8,6 +8,7 @@ test_that("Can construct metadata with parameters", {
                                   parameters = parameters,
                                   files = character(),
                                   depends = NULL,
+                                  git = NULL,
                                   custom = NULL,
                                   file_hash = NULL,
                                   file_ignore = NULL)

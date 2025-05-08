@@ -94,6 +94,7 @@ outpack_packet_end <- function(packet, insert = TRUE) {
                                   files = NULL,
                                   depends = packet$depends,
                                   parameters = packet$parameters,
+                                  git = git_info(packet$path),
                                   custom = packet$custom,
                                   file_hash = packet$files$immutable,
                                   file_ignore = packet$files$ignored,
