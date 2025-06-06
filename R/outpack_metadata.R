@@ -87,6 +87,8 @@ outpack_metadata_create <- function(path, name, id, time, files,
 
   if (length(file_ignore) > 0) {
     files <- setdiff(files, file_ignore)
+  } else {
+    files <- unique(files)
   }
 
   ## In the most simple case we could just do nothing about inputs vs
