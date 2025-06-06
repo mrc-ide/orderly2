@@ -132,3 +132,24 @@ test_that("corrupted metadata is replaced automatically", {
   expect_message(outpack_index$new(root$path)$refresh(),
                  "outpack index corrupted, rebuilding")
 })
+
+
+test_that("can handle git metadata with no branch", {
+  id <- outpack_id()
+  name <- "example"
+  time <- list(start = Sys.time() - 1, end = Sys.time())
+  path <- "."
+  sha <- "7359a53e9790d6fb98528f494f6f4d92e1942247"
+  url <- "git@example.com"
+  git <- list(sha = sha, url = url, branch = NULL)
+  json <- outpack_metadata_create(path, name, id, time,
+                                  parameters = NULL,
+                                  files = character(),
+                                  depends = NULL,
+                                  git = git,
+                                  custom = NULL,
+                                  file_hash = NULL,
+                                  file_ignore = NULL)
+  d <- outpack_metadata_load(json)
+  expect_mapequal(d$git, git)
+})

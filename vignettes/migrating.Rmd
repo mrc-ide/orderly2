@@ -98,6 +98,8 @@ This takes control of all the metadata. As such there is a split between "`order
 
 **"Global" resources have become "shared" resources**, and always live in `shared/` at the orderly root (i.e., this is no longer configurable). The reason for this is that we want reports to be able to be run fairly independently of the `orderly2` configuration (the only exception to this are plugins). In practice people did not really vary this.
 
+**You can depend on anything**; if a packet has produced a file you can depend on it, regardless of if it was an artefact, a resource or simply just present.
+
 # What is missing compared with `orderly1`
 
 * the changelog feature (we may implement something to support this)
