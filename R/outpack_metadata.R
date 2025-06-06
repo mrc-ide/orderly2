@@ -99,7 +99,7 @@ outpack_metadata_create <- function(path, name, id, time, files,
   files <- withr::with_dir(
     path,
     data_frame(
-      path = files,
+      path = clean_path(files),
       size = file.size(files),
       hash = vcapply(files, hash_file, hash_algorithm, USE.NAMES = FALSE)))
 
@@ -119,6 +119,8 @@ outpack_metadata_create <- function(path, name, id, time, files,
     for (i in seq_along(depends)) {
       depends[[i]]$packet <- scalar(depends[[i]]$packet)
       depends[[i]]$query <- scalar(depends[[i]]$query)
+      depends[[i]]$files$here <- clean_path(depends[[i]]$files$here)
+      depends[[i]]$files$there <- clean_path(depends[[i]]$files$there)
     }
     ## TODO: Additional checks could be required, but will require a
     ## root.  We do some of these on insert and via
