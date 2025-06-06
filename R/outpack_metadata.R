@@ -146,8 +146,8 @@ outpack_metadata_create <- function(path, name, id, time, files,
   }
 
   if (!is.null(git)) {
-    git$sha <- scalar(git$sha)
-    git$branch <- scalar(git$branch)
+    v <- c("sha", "branch")
+    git[v] <- lapply(git[v], scalar)
     git$url <- git$url %||% character()
   }
 
