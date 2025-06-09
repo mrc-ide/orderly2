@@ -806,3 +806,12 @@ as_strict_list <- function(obj, name = NULL) {
   attr(ret, "name") <- name
   ret
 }
+
+
+## Replace back-slashes with forward and any duplicate pairs of
+## slashes with a single one.  Probably safest to *not* do that on the
+## first path to avoid breaking UNC paths, but they're not really
+## allowed anyway.
+clean_path <- function(p) {
+  gsub("[\\/]+", "/", p)
+}
