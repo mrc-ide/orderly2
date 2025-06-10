@@ -138,6 +138,24 @@ test_that("can error with instructions if files are added to git", {
 })
 
 
+test_that("can do git check in subdir", {
+  ## Make sure that these are never set for the tests
+  withr::local_options(
+    orderly_git_error_is_warning = NULL,
+    orderly_git_error_ignore = NULL)
+
+  path <- withr::local_tempdir()
+  root <- file.path(path, "root")
+  suppressMessages(orderly_init(root))
+
+  info <- helper_add_git(path)
+
+  expect_error(
+    root_check_git(list(path = root), NULL),
+    "Detected 1 outpack file committed to git")
+})
+
+
 test_that("can identify a plain source root", {
   info <- test_prepare_orderly_example_separate("explicit")
   expect_equal(normalise_path(orderly_src_root(info$src, FALSE)),
