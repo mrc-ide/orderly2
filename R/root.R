@@ -296,22 +296,31 @@ root_check_git <- function(root, call) {
   path_root_git <- gert::git_info(git_root)$path
   special <- paste0(c(".outpack", "draft", root$config$core$path_archive), "/")
 
-  ## We'd like to use fs::path_has_parent here but it's very slow with
-  ## a few thousand files, so we do this with string comparison which
-  ## is muich faster.  For montagu this was taking about 1.3s, vs
-  ## <0.001 with this approach.
+  hint_disable <- paste(
+    "To disable this check, set the option",
+    "'orderly_git_error_ignore' to TRUE by running",
+    "{.code options(orderly_git_error_ignore = TRUE)}")
 
   ## This is easiest to do if the outpack rep is at the git root,
   ## which is the most common situation.
   path_rel <- fs::path_rel(root$path, path_root_git)
   if (path_rel != ".") {
-    special <- file.path(path_rel, special)
+    cli::cli_warn(
+      c("Can't check if files are correctly gitignored",
+        i = paste("Your outpack repo is in a subdirectory '{path_rel}'",
+                  "of your git repo"),
+        i = hint_disable))
+    return()
   }
 
   ## Allow draft/README.md and archive/README.md, which are present in
   ## orderly1 and might be generally ok
   files <- setdiff(files, file.path(special[-1], "README.md"))
 
+  ## We'd like to use fs::path_has_parent here but it's very slow with
+  ## a few thousand files, so we do this with string comparison which
+  ## is muich faster.  For montagu this was taking about 1.3s, vs
+  ## <0.001 with this approach.
   err <- vapply(special, function(p) startsWith(files, p),
                 logical(length(files)))
 
@@ -337,11 +346,7 @@ root_check_git <- function(root, call) {
         "To turn this into a warning and continue anyway",
         "set the option 'orderly_git_error_is_warning' to TRUE",
         "by running {.code options(orderly_git_error_is_warning = TRUE)}")
-      hint_disable <- paste(
-        "To disable this check entirely, set the option",
-        "'orderly_git_error_ignore' to TRUE by running",
-        "{.code options(orderly_git_error_ignore = TRUE)}")
-      cli::cli_abort(c(msg, i = hint_warn_only), call = call)
+      cli::cli_abort(c(msg, i = hint_warn_only, i = hint_disable), call = call)
     }
   }
 

@@ -150,9 +150,9 @@ test_that("can do git check in subdir", {
 
   info <- helper_add_git(path)
 
-  expect_error(
+  expect_warning(
     root_check_git(list(path = root), NULL),
-    "Detected 1 outpack file committed to git")
+    "Can't check if files are correctly gitignored")
 })
 
 
