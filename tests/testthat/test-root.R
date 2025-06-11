@@ -85,6 +85,11 @@ test_that("can add gitignore if git setup is ok, but not present", {
 
 
 test_that("can error with instructions if files are added to git", {
+  ## Make sure that these are never set for the tests
+  withr::local_options(
+    orderly_git_error_is_warning = NULL,
+    orderly_git_error_ignore = NULL)
+
   root <- create_temporary_root()
   info <- helper_add_git(root$path)
   id <- create_random_packet(root$path)
@@ -104,10 +109,18 @@ test_that("can error with instructions if files are added to git", {
                "Detected files were found in '.outpack/' and 'archive/'")
   expect_match(err$body[[2]],
                "For tips on resolving this, please see .+troubleshooting.html")
-  expect_match(err$body[[3]],
+  expect_match(err$body[[3]], "^Found: ")
+  expect_match(err$body[[4]],
                "To turn this into a warning and continue anyway")
 
   expect_error(create_random_packet(root$path), err$message, fixed = TRUE)
+
+  path_ok <- file.path(root$path, ".outpack", "r", "git_ok")
+
+  ## Can ignore the warning entirely:
+  expect_silent(
+    withr::with_options(list(orderly_git_error_ignore = TRUE),
+                        root_check_git(root, NULL)))
 
   withr::with_options(
     list(orderly_git_error_is_warning = TRUE),
@@ -118,7 +131,28 @@ test_that("can error with instructions if files are added to git", {
   withr::with_options(
     list(orderly_git_error_is_warning = TRUE),
     expect_warning(id2 <- create_random_packet(root$path), NA)) # no warning
+
   expect_type(id2, "character")
+
+  expect_false(file_exists(path_ok))
+})
+
+
+test_that("can do git check in subdir", {
+  ## Make sure that these are never set for the tests
+  withr::local_options(
+    orderly_git_error_is_warning = NULL,
+    orderly_git_error_ignore = NULL)
+
+  path <- withr::local_tempdir()
+  root <- file.path(path, "root")
+  suppressMessages(orderly_init(root))
+
+  info <- helper_add_git(path)
+
+  expect_warning(
+    root_check_git(list(path = root), NULL),
+    "Can't check if files are correctly gitignored")
 })
 
 

@@ -278,6 +278,10 @@ root_validate_same_configuration <- function(args, config, root, call) {
 
 
 root_check_git <- function(root, call) {
+  if (isTRUE(getOption("orderly_git_error_ignore", FALSE))) {
+    return()
+  }
+
   path_ok <- file.path(root$path, ".outpack", "r", "git_ok")
   if (file.exists(path_ok)) {
     return()
@@ -288,21 +292,52 @@ root_check_git <- function(root, call) {
   }
 
   files <- gert::git_ls(git_root)$path
-  files_full <- file.path(gert::git_info(git_root)$path, files)
-  special <- c(".outpack", "draft", root$config$core$path_archive)
-  err <- vapply(special, function(p) {
-    fs::path_has_parent(files_full, file.path(root$path, p))
-  }, logical(length(files)))
+
+  path_root_git <- gert::git_info(git_root)$path
+  special <- paste0(c(".outpack", "draft", root$config$core$path_archive), "/")
+
+  hint_disable <- paste(
+    "To disable this check, set the option",
+    "'orderly_git_error_ignore' to TRUE by running",
+    "{.code options(orderly_git_error_ignore = TRUE)}")
+
+  ## This is easiest to do if the outpack rep is at the git root,
+  ## which is the most common situation.
+  path_rel <- fs::path_rel(root$path, path_root_git)
+  if (path_rel != ".") {
+    cli::cli_warn(
+      c("Can't check if files are correctly gitignored",
+        i = paste("Your outpack repo is in a subdirectory '{path_rel}'",
+                  "of your git repo"),
+        i = hint_disable))
+    return()
+  }
+
+  ## Allow draft/README.md and archive/README.md, which are present in
+  ## orderly1 and might be generally ok
+  files <- setdiff(files, file.path(special[-1], "README.md"))
+
+  ## We'd like to use fs::path_has_parent here but it's very slow with
+  ## a few thousand files, so we do this with string comparison which
+  ## is muich faster.  For montagu this was taking about 1.3s, vs
+  ## <0.001 with this approach.
+  err <- vapply(special, function(p) startsWith(files, p),
+                logical(length(files)))
+
+  ## Avoid paranoid case of a single file to check not being a matrix.
   dim(err) <- c(length(files), length(special))
 
-  if (any(err)) {
+  is_ok <- !any(err)
+
+  if (!is_ok) {
     files_err <- files[rowSums(err) > 0]
-    types_err <- paste0(special[colSums(err) > 0], "/")
+    types_err <- special[colSums(err) > 0]
     url <- "https://mrc-ide.github.io/orderly2/articles/troubleshooting.html"
     warn_only <- getOption("orderly_git_error_is_warning", FALSE)
     msg <- c("Detected {length(files_err)} outpack file{?s} committed to git",
              x = "Detected files were found in {squote(types_err)}",
-             i = "For tips on resolving this, please see {.url {url}}")
+             i = "For tips on resolving this, please see {.url {url}}",
+             x = "Found: {files_err}")
     if (warn_only) {
       cli::cli_warn(msg, call = call, .frequency = "once",
                     .frequency_id = paste0("orderly_git_warning-", root$path))
@@ -310,13 +345,15 @@ root_check_git <- function(root, call) {
       hint_warn_only <- paste(
         "To turn this into a warning and continue anyway",
         "set the option 'orderly_git_error_is_warning' to TRUE",
-        "by running options(orderly_git_error_is_warning = TRUE)")
-      cli::cli_abort(c(msg, i = hint_warn_only), call = call)
+        "by running {.code options(orderly_git_error_is_warning = TRUE)}")
+      cli::cli_abort(c(msg, i = hint_warn_only, i = hint_disable), call = call)
     }
   }
 
   do_orderly_gitignore_update("(root)", root$path)
 
-  fs::dir_create(dirname(path_ok))
-  fs::file_create(path_ok)
+  if (is_ok) {
+    fs::dir_create(dirname(path_ok))
+    fs::file_create(path_ok)
+  }
 }
