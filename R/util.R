@@ -158,13 +158,17 @@ expand_dirs_virtual <- function(files, is_dir, list_files) {
     expanded <- lapply(files[dirs], list_files)
     replace_ragged(files, dirs, Map(fs::path, files[dirs], expanded))
   } else {
+    fs_path <- function(a, b) {
+      if (a == "./") b else fs::path(a, b)
+    }
+
     dirs <- is_dir(files$there)
     expanded <- lapply(files$there[dirs], list_files)
 
     there <- replace_ragged(files$there, dirs,
-                            Map(fs::path, files$there[dirs], expanded))
+                            Map(fs_path, files$there[dirs], expanded))
     here <- replace_ragged(files$here, dirs,
-                           Map(fs::path, files$here[dirs], expanded))
+                           Map(fs_path, files$here[dirs], expanded))
 
     data_frame(here, there)
   }

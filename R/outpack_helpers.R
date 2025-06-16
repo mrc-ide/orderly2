@@ -66,6 +66,10 @@
 ##'   environment in the query is done by using `environment:x` and in
 ##'   the destination filename by doing `${x}`.
 ##'
+##' If you want to copy *all* files from the packet, use `./` (read
+##'   this as the directory of the packet).  The trailing slash is
+##'   required in order to be consistent with the rules above.
+##'
 ##' @param dest The directory to copy into
 ##'
 ##' @param overwrite Overwrite files at the destination; this is
@@ -174,6 +178,9 @@ plan_copy_files <- function(root, id, files, call = NULL) {
   meta <- outpack_metadata_core(id, root)
   is_dir <- function(p) grepl("/$", p)
   list_files <- function(p) {
+    if (p == "./") {
+      return(meta$files$path)
+    }
     j <- string_starts_with(p, meta$files$path)
     string_drop_prefix(p, meta$files$path[j])
   }

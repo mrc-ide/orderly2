@@ -166,7 +166,7 @@ validate_packet_has_file <- function(root, id, path, call = NULL) {
   is_dir <- grepl("/$", path)
   found <- path %in% files
   found[is_dir] <- vlapply(
-    path[is_dir], function(x) any(string_starts_with(x, files)),
+    path[is_dir], function(x) x == "./" || any(string_starts_with(x, files)),
     USE.NAMES = FALSE)
 
   if (all(found)) {

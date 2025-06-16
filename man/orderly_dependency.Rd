@@ -39,7 +39,11 @@ or other fancy features supported.
 Note that there is an unfortunate, but (to us) avoidable
 inconsistency here; interpolation of values from your
 environment in the query is done by using \code{environment:x} and in
-the destination filename by doing \verb{$\{x\}}.}
+the destination filename by doing \verb{$\{x\}}.
+
+If you want to copy \emph{all} files from the packet, use \verb{./} (read
+this as the directory of the packet).  The trailing slash is
+required in order to be consistent with the rules above.}
 }
 \value{
 Undefined

@@ -188,3 +188,19 @@ test_that("Can overwrite when copying files from packet", {
     readRDS(file.path(dst, "data.rds")),
     readRDS(file.path(root$path, "archive", "data", id2, "data.rds")))
 })
+
+
+test_that("can copy complete directory", {
+  path <- test_prepare_orderly_example("directories")
+  envir <- new.env()
+  id <- orderly_run_quietly("directories", root = path, envir = envir)
+  meta <- orderly_metadata(id, root = path)
+
+  dst <- temp_file()
+  res <-  orderly_copy_files(
+    id, files = "./", dest = dst, root = path)
+
+  expect_equal(res$files$here, res$files$there)
+  expect_true(all(file.exists(file.path(dst, res$files$here))))
+  expect_setequal(list.files(dst, recursive = TRUE), res$files$here)
+})
