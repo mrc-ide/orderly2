@@ -117,7 +117,7 @@ validate_file_from_to <- function(x, envir,
 
   if (any(from == ".")) {
     cli::cli_abort(
-      "Invalid file '.' in {name}, did you mean './' (with a trailing slash)",
+      "Invalid file '.' in {name}, did you mean './' (with a trailing slash)?",
       call = call)
   }
 
