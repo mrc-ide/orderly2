@@ -106,4 +106,11 @@ test_that("can validate file renaming inputs", {
     validate_file_from_to(c("a" = "x", "a" = "y"), envir, "files"),
     "Every destination filename (in 'files') must be unique",
     fixed = TRUE)
+
+  expect_error(
+    validate_file_from_to(".", envir, "files"),
+    "Invalid file '.' in files, did you mean './'")
+  expect_error(
+    validate_file_from_to(c("a", "b", ".", "c", "d"), envir, "files"),
+    "Invalid file '.' in files, did you mean './'")
 })
