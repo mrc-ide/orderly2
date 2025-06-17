@@ -200,6 +200,7 @@ test_that("can copy complete directory", {
   res <-  orderly_copy_files(
     id, files = "./", dest = dst, root = path)
 
+  expect_setequal(res$files$here, meta$files$path)
   expect_equal(res$files$here, res$files$there)
   expect_true(all(file.exists(file.path(dst, res$files$here))))
   expect_setequal(list.files(dst, recursive = TRUE), res$files$here)
