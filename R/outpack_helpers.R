@@ -185,14 +185,7 @@ plan_copy_files <- function(root, id, files, call = NULL) {
     string_drop_prefix(p, meta$files$path[j])
   }
   ret <- expand_dirs_virtual(files, is_dir, list_files)
-  ## We could do this correction in expand_dirs_virtual by not
-  ## constructing the path with the leading './' component, but doing
-  ## it here at least centralises the manipulations into this
-  ## function.
-  if (any("./" %in% files)) {
-    ret[] <- lapply(ret, function(x) sub("^\\./", "", x))
-  }
-  ret
+  fs::path_norm(ret)
 }
 
 
