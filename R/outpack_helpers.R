@@ -185,7 +185,8 @@ plan_copy_files <- function(root, id, files, call = NULL) {
     string_drop_prefix(p, meta$files$path[j])
   }
   ret <- expand_dirs_virtual(files, is_dir, list_files)
-  fs::path_norm(ret)
+  ret[] <- lapply(ret, fs::path_norm)
+  ret
 }
 
 
