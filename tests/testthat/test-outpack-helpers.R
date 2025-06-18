@@ -205,3 +205,40 @@ test_that("can copy complete directory", {
   expect_true(all(file.exists(file.path(dst, res$files$here))))
   expect_setequal(list.files(dst, recursive = TRUE), res$files$here)
 })
+
+
+test_that("allow duplicate files that point to the same place", {
+  path <- test_prepare_orderly_example("directories")
+  envir <- new.env()
+  id <- orderly_run_quietly("directories", root = path, envir = envir)
+  meta <- orderly_metadata(id, root = path)
+
+  dst <- temp_file()
+
+  ## This does not make a lot of sense, but is equivalent to what
+  ## happens where a packet contains duplicate filenames
+  res <-  orderly_copy_files(
+    id, files = c("./", "data/a.csv"), dest = dst, root = path)
+
+  expect_setequal(res$files$here, meta$files$path)
+  expect_equal(nrow(res$files), nrow(meta$files))
+  expect_equal(res$files$here, res$files$there)
+  expect_true(all(file.exists(file.path(dst, res$files$here))))
+  expect_setequal(list.files(dst, recursive = TRUE), res$files$here)
+})
+
+
+test_that("disallow duplicate files that point to different places", {
+  path <- test_prepare_orderly_example("directories")
+  envir <- new.env()
+  id <- orderly_run_quietly("directories", root = path, envir = envir)
+  meta <- orderly_metadata(id, root = path)
+
+  dst <- temp_file()
+
+  expect_error(
+    orderly_copy_files(
+      id, files = c("./", "data/b.csv" = "data/a.csv"),
+      dest = dst, root = path),
+    "Directory expansion would result in overwritten files")
+})

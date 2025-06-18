@@ -186,6 +186,23 @@ plan_copy_files <- function(root, id, files, call = NULL) {
   }
   ret <- expand_dirs_virtual(files, is_dir, list_files)
   ret[] <- lapply(ret, function(x) as.character(fs::path_norm(x)))
+
+  is_duplicated <- duplicated(ret$here)
+  if (any(is_duplicated)) {
+    i <- ret$here %in% ret$here[is_duplicated]
+    check <- split(ret$there[i], ret$here[i])
+    err <- check[vnapply(check, function(x) length(unique(x))) > 1]
+    if (length(err) > 0) {
+      details <- sprintf("%s from %s",
+                         names(err), vcapply(err, paste, collapse = ", "))
+      cli::cli_abort(
+        c("Directory expansion would result in overwritten files",
+          set_names(details, "i")),
+        call = call)
+    }
+    ret <- ret[!is_duplicated, ]
+  }
+
   ret
 }
 
