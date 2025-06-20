@@ -39,11 +39,6 @@ json_string <- function(s) {
   s
 }
 
-
-clear_auth_cache <- function() {
-  rm(list = ls(auth_cache), envir = auth_cache)
-}
-
 local_mock_response <- function(..., env = rlang::caller_env(), cycle = FALSE) {
   mock <- mockery::mock(mock_response(...), cycle = cycle)
   httr2::local_mocked_responses(function(req) mock(req), env = env)
