@@ -3,24 +3,19 @@ outpack_http_client <- R6::R6Class(
 
   public = list(
     url = NULL,
-    authorise = NULL,
+    customize = NULL,
 
-    initialize = function(url, authorise = NULL) {
+    initialize = function(url, customize = identity) {
       self$url <- sub("/$", "", url)
-      if (is.null(authorise)) {
-        self$authorise <- function() NULL
-      } else {
-        self$authorise <- authorise
-      }
+      self$customize <- customize
     },
 
     request = function(path, customize = identity, ...) {
-      auth_headers <- self$authorise()
       http_client_request(
         self$url,
         function(r) {
           r <- httr2::req_url_path_append(r, path)
-          r <- httr2::req_headers(r, !!!auth_headers)
+          r <- self$customize(r)
           customize(r)
         }, ...)
     }

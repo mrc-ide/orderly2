@@ -4,8 +4,8 @@ orderly_location_http <- R6::R6Class(
   public = list(
     client = NULL,
 
-    initialize = function(url, authorise = NULL) {
-      self$client <- outpack_http_client$new(url, authorise)
+    initialize = function(url, customize = identity) {
+      self$client <- outpack_http_client$new(url, customize)
     },
 
     verify = function() {
@@ -18,10 +18,6 @@ orderly_location_http <- R6::R6Class(
       ## the most likely source of errors (along with getting the URL
       ## wrong).
       stopifnot(identical(self$client$request("/")$status, "success"))
-    },
-
-    authorise = function() {
-      self$client$authorise()
     },
 
     list = function() {

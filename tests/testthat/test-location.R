@@ -882,9 +882,8 @@ test_that("cope with trailing slash in url if needed", {
 })
 
 
-test_that("can create an outpack location, disabling auth", {
+test_that("can create an outpack location", {
   loc <- orderly_location_http$new("https://example.com", NULL)
-  expect_equal(loc$client$authorise(), NULL)
   expect_equal(loc$client$url, "https://example.com")
 })
 
