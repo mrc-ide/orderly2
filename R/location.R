@@ -927,10 +927,8 @@ location_build_push_plan <- function(packet_id, location_name, root) {
     files_msg <- character(0)
   } else {
     packet_id_msg <- sort(packet_id_msg)
-    metadata <- metadata
     ## All files across all missing ids:
-    files <- unique(unlist(
-      lapply(packet_id_msg, function(i) metadata[[i]]$files$hash)))
+    files <- find_all_files(packet_id_msg, metadata)
 
     ## Which of these does the server not know about:
     files_msg <- driver$list_unknown_files(files)

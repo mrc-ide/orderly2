@@ -69,6 +69,10 @@ reference:
       - orderly_location_list
       - orderly_location_remove
       - orderly_location_rename
+  - title: Exporting packets
+    contents:
+      - orderly_zip_export
+      - orderly_zip_import
   - title: Help for developing
     contents:
       - orderly_new
