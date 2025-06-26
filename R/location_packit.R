@@ -20,7 +20,8 @@ url_append <- function(url, path) {
 #
 # This function is copied from httr2's req_oauth_device, just switching out the
 # flow function.  Unfortunately it involves poking at some unexported API for
-# the cache. We should just upstream this (as an option maybe) at some point.
+# the cache. Once https://github.com/r-lib/httr2/pull/763 is released, we should
+# be able to get rid of this and set `open_browser = FALSE`.
 req_oauth_device_noninteractive <- function(
   req, client, auth_url, scope = NULL, auth_params = list(),
   token_params = list(), cache_disk = FALSE, cache_key = NULL) {
