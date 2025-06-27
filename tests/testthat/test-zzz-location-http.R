@@ -152,7 +152,7 @@ describe("http location integration tests", {
     )
 
     ## Trigger the error directly:
-    cl <- outpack_http_client$new(url, NULL)
+    cl <- outpack_http_client$new(url)
     err <- expect_error(
       cl$request(sprintf("/packet/%s", hash),
                  function(r) httr2::req_body_raw(r, meta, "text/plain")),

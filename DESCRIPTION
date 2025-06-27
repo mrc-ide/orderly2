@@ -1,6 +1,6 @@
 Package: orderly2
 Title: Orderly Next Generation
-Version: 1.99.70
+Version: 1.99.71
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),
@@ -42,6 +42,7 @@ Imports:
 Suggests:
     DBI,
     RSQLite,
+    callr,
     jsonvalidate (>= 1.4.0),
     knitr,
     mockery,
@@ -49,7 +50,8 @@ Suggests:
     processx,
     rmarkdown,
     stringr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    webfakes
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Language: en-GB

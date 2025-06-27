@@ -96,7 +96,7 @@ test_that("handle errors from packit", {
 
   local_mock_response(json_string(str), status = 404L, wrap = FALSE)
 
-  cl <- outpack_http_client$new("http://example.com", NULL)
+  cl <- outpack_http_client$new("http://example.com")
   err <- expect_error(cl$request("path"), "Resource not found")
   expect_s3_class(err, "outpack_http_client_error")
   expect_equal(err$code, 404)
@@ -108,7 +108,7 @@ test_that("handle errors from packit", {
 test_that("handle plain text errors", {
   local_mock_response("Error", status = 503L, wrap = FALSE)
 
-  cl <- outpack_http_client$new("http://example.com", NULL)
+  cl <- outpack_http_client$new("http://example.com")
   err <- expect_error(cl$request("path"), "Service Unavailable")
 
   expect_s3_class(err, "outpack_http_client_error")
@@ -120,7 +120,7 @@ test_that("handle plain text errors", {
 test_that("handle empty errors", {
   local_mock_response(NA, status = 503L, wrap = FALSE)
 
-  cl <- outpack_http_client$new("http://example.com", NULL)
+  cl <- outpack_http_client$new("http://example.com")
   err <- expect_error(cl$request("path"), "Service Unavailable")
 
   expect_s3_class(err, "outpack_http_client_error")
@@ -134,7 +134,7 @@ test_that("can use the client to make requests", {
 
   mock <- local_mock_response(json_string("[1,2,3]"))
 
-  cl <- outpack_http_client$new("http://example.com", NULL)
+  cl <- outpack_http_client$new("http://example.com")
   res <- cl$request("/path")
   expect_mapequal(res,
                   list(status = "success", errors = NULL, data = list(1, 2, 3)))
@@ -144,11 +144,10 @@ test_that("can use the client to make requests", {
 })
 
 
-test_that("can add auth details to the client", {
-  h <- list("Authorization" = "Bearer yogi")
-  mock_authorise <- mockery::mock(h, cycle = TRUE)
-
-  cl <- outpack_http_client$new("http://example.com", mock_authorise)
+test_that("can add customization to the client", {
+  cl <- outpack_http_client$new("http://example.com", function(r) {
+    httr2::req_auth_bearer_token(r, "yogi")
+  })
 
   mock_get <- local_mock_response(json_string("[1,2,3]"))
   res <- cl$request("/path")
@@ -156,7 +155,6 @@ test_that("can add auth details to the client", {
     res,
     list(status = "success", errors = NULL, data = list(1, 2, 3)))
 
-  mockery::expect_called(mock_authorise, 1)
   mockery::expect_called(mock_get, 1)
 
   args <- mockery::mock_args(mock_get)[[1]]
