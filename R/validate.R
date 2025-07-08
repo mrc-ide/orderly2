@@ -40,6 +40,25 @@
 ##'   packets.
 ##'
 ##' @export
+##' @examples
+##' # Start with an archive containing 4 simple packets
+##' path <- orderly_example("default")
+##' ids <- vapply(1:4, function(i) orderly_run("data", root = path), "")
+##'
+##' # Suppose someone corrupts a packet by deleting a file:
+##' file.remove(file.path(path, "archive", "data", ids[[3]], "data.rds"))
+##'
+##' # We can check all packets, and report on validity
+##' orderly_validate_archive(root = path)
+##'
+##' # Alternatively, we can take action and orphan the invalid packet:
+##' orderly_validate_archive(action = "orphan", root = path)
+##'
+##' # At which point the validation will notr find this packet anymore
+##' orderly_validate_archive(root = path)
+##'
+##' # The orphaned packet will no longer be found in most operations:
+##' orderly_search(root = path)
 orderly_validate_archive <- function(expr = NULL, name = NULL,
                                      action = "inform", root = NULL) {
   root <- root_open(root, require_orderly = FALSE)

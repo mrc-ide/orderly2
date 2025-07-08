@@ -21,6 +21,8 @@
 ##' @title Enable orderly strict mode
 ##' @export
 ##' @return Undefined
+##' @examples
+##' orderly_strict_mode()
 orderly_strict_mode <- function() {
   p <- get_active_packet()
   if (!is.null(p)) {
@@ -133,6 +135,15 @@ static_orderly_strict_mode <- function(args) {
 ##'   returning `NULL`.
 ##'
 ##' @export
+##' # This function is hard to demonstrate in an example, because it
+##' # requires interactivity; it will prompt you for missing
+##' # parameters when it runs.
+##'
+##' # Here is a trivial example using a parameter to affect how code
+##' # behaves from the builtin examples:
+##' path <- system.file("example/src/parameters/parameters.R",
+##'                     package = "orderly2", mustWork = TRUE)
+##' cli::cli_code(readLines(path))
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
@@ -181,6 +192,12 @@ current_orderly_parameters <- function(src, envir) {
 ##'
 ##' @return Undefined
 ##' @export
+##' @examples
+##'
+##' # Simple descriptive metadata
+##' orderly_description(
+##'   display = "My report",
+##'   long = "A longer description, perhaps"))
 orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
   assert_scalar_character(display, allow_null = TRUE, call = environment())
   assert_scalar_character(long, allow_null = TRUE, call = environment())
@@ -225,7 +242,8 @@ static_orderly_description <- function(args) {
 ##'
 ##' @return Invisibly, a character vector of resources included by the
 ##'   call. Don't rely on the order of these files if they are
-##'   expanded from directories, as this is likely platform dependent.
+##'   expanded from directories, as this is likely platform
+##'   dependent. If a path was not found, then we throw an error.
 ##'
 ##' @export
 orderly_resource <- function(files) {
