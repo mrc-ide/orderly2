@@ -17,6 +17,16 @@
 ##'   (https://github.com/mrc-ide/outpack)
 ##'
 ##' @export
+##' @examples
+##' path <- orderly_example("default")
+##' id <- orderly_run("data", root = path)
+##'
+##' # Read metadata for this packet:
+##' meta <- orderly_metadata(id, root = path)
+##' names(meta)
+##'
+##' # Information on files produced by this packet:
+##' meta$files
 orderly_metadata <- function(id, root = NULL) {
   validate_outpack_id(id, call = environment())
   root <- root_open(root, require_orderly = FALSE)
@@ -57,10 +67,15 @@ orderly_metadata <- function(id, root = NULL) {
 ##'   scalar and length-one vectors into the expected types.
 ##'
 ##' @export
+##' path <- orderly_example("default")
+##' id <- orderly_run("data", root = path)
+##' meta <- orderly_metadata_read(file.path(path, ".outpack", "metadata", id))
+##' identical(meta, orderly_metadata(id, root = path))
 orderly_metadata_read <- function(path, plugins = TRUE) {
   assert_file_exists(path, call = environment())
   outpack_metadata_load(file(path), if (plugins) .plugins else NULL)
 }
+
 
 outpack_metadata_create <- function(path, name, id, time, files,
                                     depends, parameters, git, custom,
