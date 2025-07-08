@@ -38,6 +38,24 @@ compare_filesets <- function(target, current) {
 ##'  [orderly2::orderly_comparison_explain] to display more details.
 ##'
 ##' @export
+##' @examples
+##'
+##' # Here are two packets that are equivalent, differing only in id
+##' # and times:
+##' path <- orderly_example("default")
+##' id1 <- orderly_run("data", root = path)
+##' id2 <- orderly_run("data", root = path)
+##' orderly_compare_packets(id1, id2, root = path)
+##'
+##' # A more interesting comparison:
+##' id1 <- orderly_run("parameters", list(max_cyl = 6), root = path)
+##' id2 <- orderly_run("parameters", list(max_cyl = 4), root = path)
+##' cmp <- orderly_compare_packets(id1, id2, root = path)
+##' cmp
+##'
+##' # A verbose comparison will show differences in the constituent
+##' # components of each packet:
+##' orderly_comparison_explain(cmp, verbose = TRUE)
 orderly_compare_packets <- function(target, current,
                                     location = NULL,
                                     allow_remote = NULL,
@@ -235,6 +253,15 @@ print.orderly_comparison <- function(x, ...) {
 ##'   up to the given attributes.
 ##'
 ##' @export
+##' @examples
+##' path <- orderly_example("default")
+##' id1 <- orderly_run("parameters", list(max_cyl = 6), root = path)
+##' id2 <- orderly_run("parameters", list(max_cyl = 4), root = path)
+##' cmp <- orderly_compare_packets(id1, id2, root = path)
+##'
+##' orderly_comparison_explain(cmp)
+##' orderly_comparison_explain(cmp, verbose = TRUE)
+##' orderly_comparison_explain(cmp, "parameters", verbose = TRUE)
 orderly_comparison_explain <- function(cmp, attributes  = NULL,
                                        verbose = FALSE) {
   assert_is(cmp, "orderly_comparison")
