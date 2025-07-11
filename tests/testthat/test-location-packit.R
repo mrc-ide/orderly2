@@ -11,6 +11,7 @@
 # the request. Similary, tokens are managed using the `/token/:name` and
 # `/count` endpoints.
 packit_app <- function() {
+  testthat::skip_if_not_installed("webfakes")
   app <- webfakes::new_app()
   app$locals$requests <- list()
   app$locals$tokens <- list()
