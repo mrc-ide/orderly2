@@ -29,10 +29,14 @@ orderly_location_http <- R6::R6Class(
     },
 
     metadata = function(packet_ids) {
+      id_bar <- cli::cli_progress_bar(
+        "Downloading metadata",
+        total = length(packet_ids)
+      )
       ret <- vcapply(packet_ids, function(id) {
-        tryCatch(
-          trimws(self$client$request(sprintf("/metadata/%s/text", id),
-                                     parse_json = FALSE)),
+        data <- tryCatch(
+          self$client$request(sprintf("/metadata/%s/text", id),
+                              parse_json = FALSE),
           outpack_http_client_error = function(e) {
             if (e$code == 404) {
               e$message <- sprintf("Some packet ids not found: '%s'", id)
@@ -40,6 +44,8 @@ orderly_location_http <- R6::R6Class(
             }
             stop(e)
           })
+        cli::cli_progress_update(id = id_bar)
+        trimws(data)
       })
       names(ret) <- packet_ids
       ret
