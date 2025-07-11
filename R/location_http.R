@@ -45,7 +45,7 @@ orderly_location_http <- R6::R6Class(
             stop(e)
           })
         cli::cli_progress_update(id = id_bar)
-        data
+        trimws(data)
       })
       names(ret) <- packet_ids
       ret
