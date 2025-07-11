@@ -675,9 +675,6 @@ location_fetch_metadata <- function(location_name, root,
   is_new <- !(known_there$packet %in% names(index$metadata))
 
   if (any(is_new)) {
-    n_new <- sum(is_new)
-    cli::cli_alert_info(
-      "Fetching metadata for {n_new} new packet{?s} from '{location_name}'")
     metadata <- driver$metadata(known_there$packet[is_new])
     id_new <- known_there$packet[is_new]
     expected_hash <- known_there$hash[is_new]
