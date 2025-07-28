@@ -28,5 +28,5 @@ Describe the current packet
 # Simple descriptive metadata
 orderly_description(
   display = "My report",
-  long = "A longer description, perhaps"))
+  long = "A longer description, perhaps")
 }

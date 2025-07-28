@@ -42,7 +42,7 @@
 ##' @export
 ##' @examples
 ##' # Start with an archive containing 4 simple packets
-##' path <- orderly_example("default")
+##' path <- orderly_example("demo")
 ##' ids <- vapply(1:4, function(i) orderly_run("data", root = path), "")
 ##'
 ##' # Suppose someone corrupts a packet by deleting a file:
