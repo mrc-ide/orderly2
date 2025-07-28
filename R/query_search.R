@@ -88,7 +88,6 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##'   not be modified after creation (but see note about `fetch_metadata`)
 ##'
 ##' @export
-##' @examples
 orderly_search_options <- function(location = NULL,
                                    allow_remote = NULL,
                                    pull_metadata = FALSE) {

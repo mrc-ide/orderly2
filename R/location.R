@@ -82,6 +82,7 @@
 ##'
 ##' @return Nothing
 ##' @export
+##' @examples
 ##' # Two roots, one local and one representing some remote orderly location:
 ##' local <- orderly_example("default")
 ##' remote <- orderly_example("default")

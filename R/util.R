@@ -815,3 +815,15 @@ as_strict_list <- function(obj, name = NULL) {
 clean_path <- function(p) {
   gsub("[\\/]+", "/", p)
 }
+
+
+show_file <- function(filename, title = filename, language = "R") {
+  code <- readLines(filename)
+  # We have to insert something to stop cli dropping blank lines;
+  # anything seems to be enough, so inserting some whitespace here
+  # which should not affect most copy/paste uses badly:
+  code[code == ""] <- " "
+
+  cli::cli_h1(title)
+  cli::cli_code(code)
+}

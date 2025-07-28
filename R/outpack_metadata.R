@@ -67,6 +67,7 @@ orderly_metadata <- function(id, root = NULL) {
 ##'   scalar and length-one vectors into the expected types.
 ##'
 ##' @export
+##' @examples
 ##' path <- orderly_example("default")
 ##' id <- orderly_run("data", root = path)
 ##' meta <- orderly_metadata_read(file.path(path, ".outpack", "metadata", id))
