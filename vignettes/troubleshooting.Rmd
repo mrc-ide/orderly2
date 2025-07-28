@@ -7,6 +7,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r}
+library(orderly2)
+```
+
 # Outpack files accidentally committed to git
 
 As discussed in [the orderly introduction](/orderly2/articles/introduction.html#interaction-with-version-control), you do not want to commit any files from `.outpack/`, `drafts/` or `archive/` (if used) to git as this will create all sorts of problems down the line.
@@ -19,7 +23,7 @@ Once you are in this situation, `orderly2` will shout at you:
 
 ```{r, include = FALSE}
 source("common.R")
-path <- orderly2::orderly_example("default")
+path <- orderly2::orderly_example("simple")
 orderly2::orderly_run("data", root = path)
 gert::git_init(path)
 gert::git_add(".", repo = path)

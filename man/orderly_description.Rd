@@ -25,8 +25,6 @@ Undefined
 Describe the current packet
 }
 \examples{
-# Simple descriptive metadata
-orderly_description(
-  display = "My report",
-  long = "A longer description, perhaps")
+# An example in context within the orderly examples:
+orderly_example_show("data")
 }

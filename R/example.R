@@ -4,7 +4,7 @@
 ##' @title Copy a simple orderly example
 ##'
 ##' @param name The name of the example to copy. Currently only
-##'   "default" is supported.
+##'   "simple" and "demo" are supported.
 ##'
 ##' @param dest The destination. By default we use
 ##'   `withr::local_tempfile()` which will create a temporary

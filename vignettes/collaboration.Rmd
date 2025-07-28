@@ -19,7 +19,7 @@ path_server <- file.path(path, "server")
 path_sharepoint_alice <- file.path(path, "sharepoint")
 path_sharepoint_bob <- path_sharepoint_alice
 
-src <- system.file("example", package = "orderly2", mustWork = TRUE)
+src <- system.file("examples/simple", package = "orderly2", mustWork = TRUE)
 fs::dir_copy(src, path_git)
 
 gert::git_init(path_git)
@@ -104,6 +104,10 @@ The location system is somewhat extensible, but the details of this are subject 
 All the documentation below will behave the same regardless of where the location is stored and the mechanism of transport, so we can focus instead on workflows.
 
 # An example
+
+```{r}
+library(orderly2)
+```
 
 Suppose we have two researchers, [Alice and Bob](https://en.wikipedia.org/wiki/Alice_and_Bob), who are collaborating on a piece of analysis. For the purposes of this example (and we find the most common situation in practice) they share a source tree with their analysis in git.
 <!-- The source for the repository that they are using is on GitHub as
