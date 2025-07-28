@@ -24,3 +24,9 @@ Undefined
 \description{
 Describe the current packet
 }
+\examples{
+# Simple descriptive metadata
+orderly_description(
+  display = "My report",
+  long = "A longer description, perhaps"))
+}

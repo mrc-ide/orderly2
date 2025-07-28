@@ -32,3 +32,7 @@ came from.  Using this function requires the shared resources
 directory \verb{shared/} exists at the orderly root; an error will be
 raised if this is not configured when we attempt to fetch files.
 }
+\examples{
+# An example in context within the orderly examples:
+orderly_example_show("strict")
+}
