@@ -276,5 +276,4 @@ orderly_metadata_extract(
   quote(name == "parameters"),
   extract = c(max_cyl = "parameters.max_cyl is number"),
   root = path)
-
 }

@@ -224,7 +224,6 @@
 ##'   quote(name == "parameters"),
 ##'   extract = c(max_cyl = "parameters.max_cyl is number"),
 ##'   root = path)
-##' 
 orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
                                      allow_remote = NULL,
                                      fetch_metadata = FALSE,
