@@ -8,7 +8,7 @@ orderly_example(name, ..., dest = NULL)
 }
 \arguments{
 \item{name}{The name of the example to copy. Currently only
-"default" is supported.}
+"simple" and "demo" are supported.}
 
 \item{...}{Arguments passed through to \code{\link[=orderly_init]{orderly_init()}}}
 

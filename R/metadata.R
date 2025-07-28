@@ -189,10 +189,8 @@ current_orderly_parameters <- function(src, envir) {
 ##' @return Undefined
 ##' @export
 ##' @examples
-##' # Simple descriptive metadata
-##' orderly_description(
-##'   display = "My report",
-##'   long = "A longer description, perhaps")
+##' # An example in context within the orderly examples:
+##' orderly_example_show("data")
 orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
   assert_scalar_character(display, allow_null = TRUE, call = environment())
   assert_scalar_character(long, allow_null = TRUE, call = environment())
