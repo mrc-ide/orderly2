@@ -43,7 +43,7 @@
 ##' @export
 ##' @examples
 ##' # Create a simple example:
-##' path <- orderly2::orderly_example("default")
+##' path <- orderly2::orderly_example("demo")
 ##'
 ##' # We simulate running a packet interactively by using 'source';
 ##' # you might have run this line-by-line, or with the "Source"

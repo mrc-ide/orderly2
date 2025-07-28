@@ -140,7 +140,7 @@
 ##' @export
 ##' @examples
 ##' # Create a simple example:
-##' path <- orderly2::orderly_example("default")
+##' path <- orderly2::orderly_example("demo")
 ##'
 ##' # Run the 'data' task:
 ##' orderly2::orderly_run("data", root = path)

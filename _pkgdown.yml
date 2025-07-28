@@ -85,6 +85,7 @@ reference:
     contents:
       - orderly_copy_files
       - orderly_example
+      - orderly_example_show
       - orderly_prune_orphans
       - orderly_validate_archive
       - orderly_hash_data

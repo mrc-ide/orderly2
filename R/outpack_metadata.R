@@ -18,7 +18,7 @@
 ##'
 ##' @export
 ##' @examples
-##' path <- orderly_example("default")
+##' path <- orderly_example("demo")
 ##' id <- orderly_run("data", root = path)
 ##'
 ##' # Read metadata for this packet:
@@ -68,7 +68,7 @@ orderly_metadata <- function(id, root = NULL) {
 ##'
 ##' @export
 ##' @examples
-##' path <- orderly_example("default")
+##' path <- orderly_example("demo")
 ##' id <- orderly_run("data", root = path)
 ##' meta <- orderly_metadata_read(file.path(path, ".outpack", "metadata", id))
 ##' identical(meta, orderly_metadata(id, root = path))

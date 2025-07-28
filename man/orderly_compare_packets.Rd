@@ -58,7 +58,7 @@ IDs) are excluded from the comparison.
 
 # Here are two packets that are equivalent, differing only in id
 # and times:
-path <- orderly_example("default")
+path <- orderly_example("demo")
 id1 <- orderly_run("data", root = path)
 id2 <- orderly_run("data", root = path)
 orderly_compare_packets(id1, id2, root = path)

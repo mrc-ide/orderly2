@@ -84,8 +84,8 @@
 ##' @export
 ##' @examples
 ##' # Two roots, one local and one representing some remote orderly location:
-##' local <- orderly_example("default")
-##' remote <- orderly_example("default")
+##' local <- orderly_example("demo")
+##' remote <- orderly_example("demo")
 ##'
 ##' # We create a packet in the remote root:
 ##' orderly_run("data", root = remote)

@@ -27,7 +27,7 @@ This function allows to select what part of the packet to compare, and in
 how much details.
 }
 \examples{
-path <- orderly_example("default")
+path <- orderly_example("demo")
 id1 <- orderly_run("parameters", list(max_cyl = 6), root = path)
 id2 <- orderly_run("parameters", list(max_cyl = 4), root = path)
 cmp <- orderly_compare_packets(id1, id2, root = path)
