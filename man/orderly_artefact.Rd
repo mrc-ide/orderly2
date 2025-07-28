@@ -33,3 +33,7 @@ produce the things you need it to.
 (3) within the final metadata, your artefacts will have additional
 metadata; the description that you provide and a grouping
 }
+\examples{
+# An example in context within the orderly examples:
+orderly_example_show("strict")
+}

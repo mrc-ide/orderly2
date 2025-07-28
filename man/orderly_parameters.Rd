@@ -101,3 +101,8 @@ prompt based on the global option
 }
 }
 
+\examples{
+# An example in context within the orderly examples, using the
+# recommended new-style syntax:
+orderly_example_show("parameters")
+}

@@ -31,3 +31,7 @@ We will allow server processes to either override this value
 (enabling it even when it is not explicitly given) and/or require
 it.
 }
+\examples{
+# An example in context within the orderly examples:
+orderly_example_show("strict")
+}

@@ -27,3 +27,6 @@ but which can be passed to \code{\link[=orderly_search]{orderly_search()}}
 Construct an outpack query, typically then passed through to
 \link{orderly_search}
 }
+\examples{
+orderly_query(quote(latest(name == "data")))
+}
