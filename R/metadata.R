@@ -22,7 +22,8 @@
 ##' @export
 ##' @return Undefined
 ##' @examples
-##' orderly_strict_mode()
+##' # An example in context within the orderly examples:
+##' orderly_example_show("strict")
 orderly_strict_mode <- function() {
   p <- get_active_packet()
   if (!is.null(p)) {
@@ -135,15 +136,10 @@ static_orderly_strict_mode <- function(args) {
 ##'   returning `NULL`.
 ##'
 ##' @export
-##' # This function is hard to demonstrate in an example, because it
-##' # requires interactivity; it will prompt you for missing
-##' # parameters when it runs.
-##'
-##' # Here is a trivial example using a parameter to affect how code
-##' # behaves from the builtin examples:
-##' path <- system.file("example/src/parameters/parameters.R",
-##'                     package = "orderly2", mustWork = TRUE)
-##' cli::cli_code(readLines(path))
+##' @examples
+##' # An example in context within the orderly examples, using the
+##' # recommended new-style syntax:
+##' orderly_example_show("parameters")
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
@@ -193,7 +189,6 @@ current_orderly_parameters <- function(src, envir) {
 ##' @return Undefined
 ##' @export
 ##' @examples
-##'
 ##' # Simple descriptive metadata
 ##' orderly_description(
 ##'   display = "My report",
@@ -246,6 +241,9 @@ static_orderly_description <- function(args) {
 ##'   dependent. If a path was not found, then we throw an error.
 ##'
 ##' @export
+##' @examples
+##' # An example in context within the orderly examples:
+##' orderly_example_show("strict")
 orderly_resource <- function(files) {
   p <- get_active_packet()
   src <- if (is.null(p)) "." else p$orderly2$src
@@ -302,6 +300,9 @@ static_orderly_resource <- function(args) {
 ##' @return Undefined
 ##'
 ##' @export
+##' @examples
+##' # An example in context within the orderly examples:
+##' orderly_example_show("strict")
 orderly_artefact <- function(description = NULL, files) {
   assert_scalar_character(description, allow_null = TRUE, call = environment())
   assert_character(files, call = environment()) # also check length >0 ?
@@ -363,6 +364,8 @@ static_orderly_artefact <- function(args) {
 ##'
 ##' @return Undefined
 ##' @export
+##' @examples
+##' orderly_example_show("depends")
 orderly_dependency <- function(name, query, files) {
   assert_scalar_character(name, allow_null = TRUE, call = environment())
 
@@ -453,6 +456,9 @@ static_orderly_dependency <- function(args) {
 ##'   rely on the ordering where directory expansion was performed.
 ##'
 ##' @export
+##' @examples
+##' # An example in context within the orderly examples:
+##' orderly_example_show("strict")
 orderly_shared_resource <- function(...) {
   files <- validate_file_from_to(
     list(...), parent.frame(),
