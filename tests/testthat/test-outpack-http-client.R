@@ -30,9 +30,9 @@ test_that("client can add headers", {
   mockery::expect_called(mock, 1)
   args <- mockery::mock_args(mock)[[1]]
   expect_equal(args[[1]]$url, "http://example.com/path")
-  expect_equal(args[[1]]$headers,
-               list(Authorization = "Bearer yogi"),
-               ignore_attr = TRUE)
+  headers <- args[[1]]$headers
+  expect_equal(names(headers), "Authorization")
+  expect_equal(rlang::wref_value(headers$Authorization), "Bearer yogi")
 })
 
 
@@ -159,7 +159,7 @@ test_that("can add customization to the client", {
 
   args <- mockery::mock_args(mock_get)[[1]]
   expect_equal(args[[1]]$url, "http://example.com/path")
-  expect_equal(args[[1]]$headers,
-               list(Authorization = "Bearer yogi"),
-               ignore_attr = TRUE)
+  headers <- args[[1]]$headers
+  expect_equal(names(headers), "Authorization")
+  expect_equal(rlang::wref_value(headers$Authorization), "Bearer yogi")
 })

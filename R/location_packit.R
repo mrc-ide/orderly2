@@ -9,37 +9,6 @@ url_append <- function(url, path) {
   httr2::url_build(url)
 }
 
-# httr2 has a pretty unintuitive output when running interactively.  It waits
-# for the user to press <Enter> and then opens up a browser, but the wording
-# isn't super clear. It also does not work at all if a browser can't be opened,
-# eg. in an SSH session.
-#
-# Thankfully, if we pretend to not be interactive the behaviour is a lot more
-# obvious. It will just print the link to the console and with instructions for
-# the user to open it up.
-#
-# This function is copied from httr2's req_oauth_device, just switching out the
-# flow function.  Unfortunately it involves poking at some unexported API for
-# the cache. Once https://github.com/r-lib/httr2/pull/763 is released, we should
-# be able to get rid of this and set `open_browser = FALSE`.
-req_oauth_device_noninteractive <- function(
-  req, client, auth_url, scope = NULL, auth_params = list(),
-  token_params = list(), cache_disk = FALSE, cache_key = NULL) {
-  params <- list(
-    client = client,
-    auth_url = auth_url,
-    scope = scope,
-    auth_params = auth_params,
-    token_params = token_params
-  )
-  cache <- httr2:::cache_choose(client, cache_disk, cache_key)
-
-  flow <- function(...) {
-    rlang::with_interactive(value = FALSE, httr2::oauth_flow_device(...))
-  }
-  httr2::req_oauth(req, flow, params, cache = cache)
-}
-
 # This returns a function that modifies a httr2 request object, adding whatever
 # authentication mechanism is appropriate.
 packit_authentication <- function(base_url, token, save_token) {
@@ -65,10 +34,11 @@ packit_authentication <- function(base_url, token, save_token) {
       # OAuth authentication against GitHub instead of Packit, and has a NULL
       # cache_key. We don't want to accidentally use an old cached GitHub token
       # in place of a Packit one.
-      req_oauth_device_noninteractive(
+      httr2::req_oauth_device(
         r, client, auth_url,
         cache_disk = save_token,
-        cache_key = base_url)
+        cache_key = base_url,
+        open_browser = FALSE)
     }
   } else {
     if (grepl("^\\$", token)) {

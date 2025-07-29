@@ -1,6 +1,6 @@
 Package: orderly2
 Title: Orderly Next Generation
-Version: 1.99.72
+Version: 1.99.73
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),
@@ -32,7 +32,7 @@ Imports:
     diffobj,
     fs,
     gert (>= 1.9.3),
-    httr2,
+    httr2 (>= 1.2.1),
     jsonlite,
     openssl,
     rlang,
