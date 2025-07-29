@@ -44,13 +44,13 @@ See \link{orderly_init} for description of these options.
 # The default configuration does not include a file store, and
 # saves output within the "archive" directory:
 path <- withr::local_tempdir()
-orderly2::orderly_init(path)
+orderly_init(path)
 fs::dir_tree(path, all = TRUE)
 
 # Change this after the fact:
-orderly2::orderly_config_set(core.use_file_store = TRUE,
-                             core.path_archive = NULL,
-                             root = path)
+orderly_config_set(core.use_file_store = TRUE,
+                   core.path_archive = NULL,
+                   root = path)
 fs::dir_tree(path, all = TRUE)
 }
 \seealso{

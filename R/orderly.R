@@ -15,8 +15,8 @@
 ##'
 ##' @export
 ##' @examples
-##' path <- orderly2::orderly_example()
-##' orderly2::orderly_list_src(root = path)
+##' path <- orderly_example()
+##' orderly_list_src(root = path)
 ##' fs::dir_delete(path)
 orderly_list_src <- function(root = NULL) {
   root_path <- orderly_src_root(root)

@@ -60,7 +60,7 @@
 ##' * `use_draft = TRUE` is `location = "local"`
 ##' * `use_draft = FALSE` is `location = c(...)` where you should provide
 ##'   all locations *except* local
-##'   (`setdiff(orderly2::orderly_location_list(), "local")`)
+##'   (`setdiff(orderly_location_list(), "local")`)
 ##' * `use_draft = "newer"` is `location = NULL`
 ##'
 ##' (this last option was the one most people preferred so is the new
@@ -140,16 +140,16 @@
 ##' @export
 ##' @examples
 ##' # Create a simple example:
-##' path <- orderly2::orderly_example()
+##' path <- orderly_example()
 ##'
 ##' # Run the 'data' task:
-##' orderly2::orderly_run("data", root = path)
+##' orderly_run("data", root = path)
 ##'
 ##' # After running, a finished packet appears in the archive:
 ##' fs::dir_tree(path)
 ##'
 ##' # and we can query the metadata:
-##' orderly2::orderly_metadata_extract(name = "data", root = path)
+##' orderly_metadata_extract(name = "data", root = path)
 ##'
 ##' # Cleanup
 ##' fs::dir_delete(path)

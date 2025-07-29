@@ -20,8 +20,8 @@
 ##' @return Invisibly, the path to the example.
 ##' @export
 ##' @examples
-##' path <- orderly2::orderly_example()
-##' orderly2::orderly_list_src(root = path)
+##' path <- orderly_example()
+##' orderly_list_src(root = path)
 ##'
 ##' fs::dir_delete(path)
 orderly_example <- function(..., names = NULL, example = "demo", dest = NULL) {

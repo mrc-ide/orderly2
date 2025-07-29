@@ -31,13 +31,13 @@
 ##' # The default configuration does not include a file store, and
 ##' # saves output within the "archive" directory:
 ##' path <- withr::local_tempdir()
-##' orderly2::orderly_init(path)
+##' orderly_init(path)
 ##' fs::dir_tree(path, all = TRUE)
 ##'
 ##' # Change this after the fact:
-##' orderly2::orderly_config_set(core.use_file_store = TRUE,
-##'                              core.path_archive = NULL,
-##'                              root = path)
+##' orderly_config_set(core.use_file_store = TRUE,
+##'                    core.path_archive = NULL,
+##'                    root = path)
 ##' fs::dir_tree(path, all = TRUE)
 orderly_config_set <- function(..., options = list(...), root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
@@ -107,8 +107,8 @@ orderly_config_set <- function(..., options = list(...), root = NULL) {
 ##'
 ##' # A default configuration in a new temporary directory
 ##' path <- withr::local_tempdir()
-##' orderly2::orderly_init(path)
-##' orderly2::orderly_config(path)
+##' orderly_init(path)
+##' orderly_config(path)
 orderly_config <- function(root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   root$config
