@@ -4,13 +4,16 @@
 \alias{orderly_example}
 \title{Copy a simple orderly example}
 \usage{
-orderly_example(name, ..., dest = NULL)
+orderly_example(..., names = NULL, example = "demo", dest = NULL)
 }
 \arguments{
-\item{name}{The name of the example to copy. Currently only
-"simple" and "demo" are supported.}
-
 \item{...}{Arguments passed through to \code{\link[=orderly_init]{orderly_init()}}}
+
+\item{names}{Optionally, names of the reports to copy.  The
+default is to copy all reports.}
+
+\item{example}{The name of the example to copy. Currently only
+"simple" and "demo" are supported.}
 
 \item{dest}{The destination. By default we use
 \code{withr::local_tempfile()} which will create a temporary

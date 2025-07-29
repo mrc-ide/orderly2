@@ -80,10 +80,30 @@
 ##' @inheritParams orderly_search_options
 ##' @inheritParams orderly_metadata
 ##'
-##' @return Nothing, invisibly. Primarily called for its side effect
-##'   of copying files from a packet into the directory `dest`
+##' @return Primarily called for its side effect of copying files from
+##'   a packet into the directory `dest`.  Also returns a list with
+##'   information about the copy, containing elements:
+##'
+##' * `id`: The resolved id of the packet
+##' * `name`: The name of the packet
+##' * `files`: a [data.frame] of filenames with with columns `here`
+##'    (the name of the file in `dest`) and `there` (the name of the
+##'    file in the packet)
 ##'
 ##' @export
+##' @examples
+##' root <- orderly_example("demo")
+##' orderly_run("data", root = root)
+##'
+##' dest <- withr::local_tempdir()
+##' res <- orderly_copy_files("latest", name = "data", "data.rds",
+##'                           dest = dest, root = root)
+##'
+##' # We now have our data in the destination directory:
+##' fs::dir_tree(dest)
+##'
+##' # Information about the copy:
+##' res
 orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
                                name = NULL, location = NULL,
                                allow_remote = NULL, fetch_metadata = FALSE,

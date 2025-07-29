@@ -32,6 +32,23 @@ present within the output from this function (this is packets
 known at the current root), though you will typically be
 interested in \emph{other} locations.
 }
+\examples{
+# Two roots, one local and one representing some remote orderly location:
+local <- orderly_example("demo")
+remote <- orderly_example("demo")
+
+# No locations at first
+orderly_location_list(root = local)
+
+# Add a location
+orderly_location_add_path("remote", remote, root = local)
+
+# Here it is!
+orderly_location_list(root = local)
+
+# Add vebose = TRUE to find more about the location
+orderly_location_list(root = local)
+}
 \seealso{
 \link{orderly_location_fetch_metadata}, which can
 update your outpack index with metadata from any of the

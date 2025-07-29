@@ -104,8 +104,16 @@ configured for orderly, and can be any \code{outpack} root (see
 \link{orderly_init} for details).}
 }
 \value{
-Nothing, invisibly. Primarily called for its side effect
-of copying files from a packet into the directory \code{dest}
+Primarily called for its side effect of copying files from
+a packet into the directory \code{dest}.  Also returns a list with
+information about the copy, containing elements:
+\itemize{
+\item \code{id}: The resolved id of the packet
+\item \code{name}: The name of the packet
+\item \code{files}: a \link{data.frame} of filenames with with columns \code{here}
+(the name of the file in \code{dest}) and \code{there} (the name of the
+file in the packet)
+}
 }
 \description{
 Copy files from a packet to anywhere. Similar to
@@ -147,4 +155,18 @@ from whatever remote would be selected by
 }
 
 Note that empty directories might be created on failure.
+}
+\examples{
+root <- orderly_example("demo")
+orderly_run("data", root = root)
+
+dest <- withr::local_tempdir()
+res <- orderly_copy_files("latest", name = "data", "data.rds",
+                          dest = dest, root = root)
+
+# We now have our data in the destination directory:
+fs::dir_tree(dest)
+
+# Information about the copy:
+res
 }

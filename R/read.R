@@ -16,6 +16,16 @@ orderly_read <- function(path, call = NULL) {
 #'
 #' @return Parsed orderly entrypoint script
 #' @export
+#' @examples
+#' path <- orderly_example("demo")
+#' # About the simplest case
+#' orderly_parse_file(file.path(path, "src", "data", "data.R"))
+#'
+#' # Find out about parameters
+#' orderly_parse_file(file.path(path, "src", "parameters", "parameters.R"))
+#'
+#' # Find out about dependencies:
+#' orderly_parse_file(file.path(path, "src", "depends", "depends.R"))
 orderly_parse_file <- function(path) {
   assert_file_exists(path)
   exprs <- parse(file = path)

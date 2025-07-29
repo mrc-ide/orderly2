@@ -65,3 +65,18 @@ connection.  Cancelling and resuming a pull should be fairly
 efficient, as we keep track of files that are copied over even in
 the case of an interrupted pull.
 }
+\examples{
+# Two roots, one local and one representing some remote orderly location:
+local <- orderly_example("demo")
+remote <- orderly_example("demo")
+
+# We create a packet in the remote root:
+orderly_run("data", root = remote)
+
+# Add the remote as a path location to the local root:
+orderly_location_add_path("remote", remote, root = local)
+
+# Pull a packet into our local version
+orderly_location_pull(quote(latest(name == "data")),
+                      fetch_metadata = TRUE, root = local)
+}

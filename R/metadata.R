@@ -456,7 +456,19 @@ static_orderly_dependency <- function(args) {
 ##' @export
 ##' @examples
 ##' # An example in context within the orderly examples:
-##' orderly_example_show("strict")
+##' orderly_example_show("shared")
+##'
+##' # Here's the directory structure for this example:
+##' path <- orderly2::orderly_example(names = "shared")
+##' fs::dir_tree(path)
+##'
+##' # We can run this packet:
+##' orderly2::orderly_run("shared", root = path)
+##'
+##' # In the final archive version of the packet, 'cols.R' is copied
+##' # over from shared/, so we have a copy of the version of the code
+##' # that was used in the analysis
+##' fs::dir_tree(path)
 orderly_shared_resource <- function(...) {
   files <- validate_file_from_to(
     list(...), parent.frame(),

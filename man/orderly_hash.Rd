@@ -36,5 +36,11 @@ approach). However, if a string is provided for \code{algorithm} you
 can use an alternative algorithm.
 }
 \examples{
-orderly2::orderly_hash_data("hello", "md5")
+orderly_hash_data("hello", "md5")
+
+# If you run this function from within the working directory of an
+# orderly root, then you can omit the algorithm and it will use
+# the algorithm used by orderly (which will be sha256):
+path <- orderly_example("demo")
+withr::with_dir(path, orderly_hash_data("hello"))
 }

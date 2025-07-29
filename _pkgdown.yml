@@ -55,11 +55,6 @@ reference:
       - orderly_config
       - orderly_config_set
   - title: Interact with locations
-  - subtitle: Use locations
-    contents:
-      - orderly_location_fetch_metadata
-      - orderly_location_pull
-      - orderly_location_push
   - subtitle: Manage locations
     contents:
       - orderly_location_add
@@ -69,6 +64,11 @@ reference:
       - orderly_location_list
       - orderly_location_remove
       - orderly_location_rename
+  - subtitle: Use locations
+    contents:
+      - orderly_location_fetch_metadata
+      - orderly_location_pull
+      - orderly_location_push
   - title: Help for developing
     contents:
       - orderly_new

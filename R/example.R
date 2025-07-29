@@ -3,7 +3,10 @@
 ##'
 ##' @title Copy a simple orderly example
 ##'
-##' @param name The name of the example to copy. Currently only
+##' @param names Optionally, names of the reports to copy.  The
+##'   default is to copy all reports.
+##'
+##' @param example The name of the example to copy. Currently only
 ##'   "simple" and "demo" are supported.
 ##'
 ##' @param dest The destination. By default we use
@@ -21,7 +24,7 @@
 ##' orderly2::orderly_list_src(root = path)
 ##'
 ##' fs::dir_delete(path)
-orderly_example <- function(name, ..., dest = NULL) {
+orderly_example <- function(..., names = NULL, example = "demo", dest = NULL) {
   if (is.null(dest)) {
     dest <- tempfile("orderly2_ex_")
   } else {
@@ -30,9 +33,18 @@ orderly_example <- function(name, ..., dest = NULL) {
       cli::cli_abort("The path '{dest}' must not exist")
     }
   }
-  src <- orderly_example_path(name)
+  src <- orderly_example_path(example)
   orderly_init(..., root = dest)
-  fs::dir_copy(file.path(src, "src"), dest)
+  path_src <- file.path(src, "src")
+  if (is.null(names)) {
+    fs::dir_copy(path_src, dest)
+  } else {
+    fs::dir_create(file.path(dest, "src"))
+    fs::dir_copy(file.path(path_src, names), file.path(dest, "src"))
+  }
+  if (file.exists(file.path(src, "shared"))) {
+    fs::dir_copy(file.path(src, "shared"), dest)
+  }
   invisible(dest)
 }
 
