@@ -15,8 +15,6 @@ is to show the main orderly file (i.e., \verb{<name>.R})}
 \item{example}{The name of the example to look in.  The default
 \code{demo} is a sprawling set of source designed to show off
 different orderly features.}
-
-\item{...}{Arguments passed through to \code{\link[=orderly_init]{orderly_init()}}}
 }
 \value{
 Nothing, called for its side effects only.
@@ -38,6 +36,6 @@ that the dependency has been run first).
 orderly_example_show("data")
 
 # You can run this example:
-path <- orderly_example("demo")
+path <- orderly_example()
 orderly_run("data", root = path)
 }

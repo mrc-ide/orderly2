@@ -29,7 +29,7 @@ Copy a simple orderly example for use in the docs. This function
 should not form part of your workflow!
 }
 \examples{
-path <- orderly2::orderly_example("demo")
+path <- orderly2::orderly_example()
 orderly2::orderly_list_src(root = path)
 
 fs::dir_delete(path)

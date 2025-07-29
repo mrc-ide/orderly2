@@ -20,7 +20,7 @@
 ##' @return Invisibly, the path to the example.
 ##' @export
 ##' @examples
-##' path <- orderly2::orderly_example("demo")
+##' path <- orderly2::orderly_example()
 ##' orderly2::orderly_list_src(root = path)
 ##'
 ##' fs::dir_delete(path)
@@ -69,8 +69,6 @@ orderly_example <- function(..., names = NULL, example = "demo", dest = NULL) {
 ##' @param file The name of the file within the report.  The default
 ##'   is to show the main orderly file (i.e., `<name>.R`)
 ##'
-##' @param ... Arguments passed through to [orderly2::orderly_init()]
-##'
 ##' @return Nothing, called for its side effects only.
 ##' @export
 ##' @examples
@@ -79,7 +77,7 @@ orderly_example <- function(..., names = NULL, example = "demo", dest = NULL) {
 ##' orderly_example_show("data")
 ##'
 ##' # You can run this example:
-##' path <- orderly_example("demo")
+##' path <- orderly_example()
 ##' orderly_run("data", root = path)
 orderly_example_show <- function(name, file = NULL, example = "demo") {
   src <- orderly_example_path(example)

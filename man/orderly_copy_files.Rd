@@ -157,7 +157,7 @@ from whatever remote would be selected by
 Note that empty directories might be created on failure.
 }
 \examples{
-root <- orderly_example("demo")
+root <- orderly_example()
 orderly_run("data", root = root)
 
 dest <- withr::local_tempdir()

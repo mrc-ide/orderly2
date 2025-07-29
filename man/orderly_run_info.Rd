@@ -40,7 +40,7 @@ previously.
 orderly_example_show("run_info")
 
 # Prepare to run
-path <- orderly_example("demo")
+path <- orderly_example()
 orderly_run("data", root = path, echo = FALSE)
 
 # Here, see the printed information frmo a real running report

@@ -92,7 +92,7 @@
 ##'
 ##' @export
 ##' @examples
-##' root <- orderly_example("demo")
+##' root <- orderly_example()
 ##' orderly_run("data", root = root)
 ##'
 ##' dest <- withr::local_tempdir()

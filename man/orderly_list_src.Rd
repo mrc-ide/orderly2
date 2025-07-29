@@ -24,7 +24,7 @@ that contain an entrypoint file - a \code{.R} file with the same name
 as the directory (e.g., \code{src/data/data.R} corresponds to \code{data}).
 }
 \examples{
-path <- orderly2::orderly_example("demo")
+path <- orderly2::orderly_example()
 orderly2::orderly_list_src(root = path)
 fs::dir_delete(path)
 }

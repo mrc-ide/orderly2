@@ -61,7 +61,7 @@ files then compare that with the directory.
 
 \examples{
 # Create a simple example:
-path <- orderly2::orderly_example("demo")
+path <- orderly2::orderly_example()
 
 # We simulate running a packet interactively by using 'source';
 # you might have run this line-by-line, or with the "Source"

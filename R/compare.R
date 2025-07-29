@@ -42,7 +42,7 @@ compare_filesets <- function(target, current) {
 ##'
 ##' # Here are two packets that are equivalent, differing only in id
 ##' # and times:
-##' path <- orderly_example("demo")
+##' path <- orderly_example()
 ##' id1 <- orderly_run("data", root = path)
 ##' id2 <- orderly_run("data", root = path)
 ##' orderly_compare_packets(id1, id2, root = path)
@@ -254,7 +254,7 @@ print.orderly_comparison <- function(x, ...) {
 ##'
 ##' @export
 ##' @examples
-##' path <- orderly_example("demo")
+##' path <- orderly_example()
 ##' id1 <- orderly_run("parameters", list(max_cyl = 6), root = path)
 ##' id2 <- orderly_run("parameters", list(max_cyl = 4), root = path)
 ##' cmp <- orderly_compare_packets(id1, id2, root = path)

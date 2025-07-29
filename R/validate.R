@@ -42,11 +42,11 @@
 ##' @export
 ##' @examples
 ##' # Start with an archive containing 4 simple packets
-##' path <- orderly_example("demo")
+##' path <- orderly_example()
 ##' ids <- vapply(1:4, function(i) orderly_run("data", root = path), "")
 ##'
 ##' # Suppose someone corrupts a packet by deleting a file:
-##' file.remove(file.path(path, "archive", "data", ids[[3]], "data.rds"))
+##' fs::file_delete(file.path(path, "archive", "data", ids[[3]], "data.rds"))
 ##'
 ##' # We can check all packets, and report on validity
 ##' orderly_validate_archive(root = path)

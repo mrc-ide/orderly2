@@ -34,7 +34,7 @@
 ##' @return Nothing, called for its side effects
 ##' @export
 ##' @examples
-##' path <- orderly_example("demo")
+##' path <- orderly_example()
 ##'
 ##' # Update core orderly ignorables:
 ##' orderly_gitignore_update("(root)", root = path)

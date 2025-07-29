@@ -49,8 +49,8 @@ files and packets that were missed on a previous call.
 \examples{
 # Two roots, one local and one representing some remote orderly
 # location.  The remote location must use a file store at present.
-local <- orderly_example("demo")
-remote <- orderly_example("demo", use_file_store = TRUE)
+local <- orderly_example()
+remote <- orderly_example(use_file_store = TRUE)
 orderly_location_add_path("remote", remote, root = local)
 
 # We create a packet in the local root:

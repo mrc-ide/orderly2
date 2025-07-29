@@ -187,7 +187,7 @@ variable.
 
 \examples{
 # Create a simple example:
-path <- orderly2::orderly_example("demo")
+path <- orderly2::orderly_example()
 
 # Run the 'data' task:
 orderly2::orderly_run("data", root = path)

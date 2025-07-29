@@ -28,7 +28,7 @@ into intermediate representation for downstream use. Also validates
 that any calls to \verb{orderly_*} in-script functions are well-formed.
 }
 \examples{
-path <- orderly_example("demo")
+path <- orderly_example()
 # About the simplest case
 orderly_parse_file(file.path(path, "src", "data", "data.R"))
 

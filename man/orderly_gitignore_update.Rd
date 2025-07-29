@@ -47,7 +47,7 @@ If you get the error message, search and remove these lines and
 rerun.
 }
 \examples{
-path <- orderly_example("demo")
+path <- orderly_example()
 
 # Update core orderly ignorables:
 orderly_gitignore_update("(root)", root = path)

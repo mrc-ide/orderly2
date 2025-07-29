@@ -37,7 +37,7 @@ can force this by running \code{orderly2::orderly_config()} within any
 orderly directory, which will load any declared plugins.
 }
 \examples{
-path <- orderly_example("demo")
+path <- orderly_example()
 id <- orderly_run("data", root = path)
 meta <- orderly_metadata_read(file.path(path, ".outpack", "metadata", id))
 identical(meta, orderly_metadata(id, root = path))

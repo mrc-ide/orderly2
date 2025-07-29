@@ -26,7 +26,7 @@ Read metadata for a particular id. You may want to use
 particular query.
 }
 \examples{
-path <- orderly_example("demo")
+path <- orderly_example()
 id <- orderly_run("data", root = path)
 
 # Read metadata for this packet:

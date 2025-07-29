@@ -26,8 +26,8 @@ location instead.
 }
 \examples{
 # Two roots, one local and one representing some remote orderly location:
-local <- orderly_example("demo")
-remote <- orderly_example("demo")
+local <- orderly_example()
+remote <- orderly_example()
 orderly_location_add_path("remote", remote, root = local)
 
 orderly_location_list(root = local)

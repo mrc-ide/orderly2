@@ -198,7 +198,7 @@
 ##'
 ##' @export
 ##' @examples
-##' path <- orderly_example("demo")
+##' path <- orderly_example()
 ##'
 ##' # Generate a bunch of packets:
 ##' suppressMessages({

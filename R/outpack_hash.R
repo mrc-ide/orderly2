@@ -25,7 +25,7 @@
 ##' # If you run this function from within the working directory of an
 ##' # orderly root, then you can omit the algorithm and it will use
 ##' # the algorithm used by orderly (which will be sha256):
-##' path <- orderly_example("demo")
+##' path <- orderly_example()
 ##' withr::with_dir(path, orderly_hash_data("hello"))
 orderly_hash_file <- function(path, algorithm = NULL, root = NULL) {
   if (is.null(algorithm)) {

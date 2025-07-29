@@ -34,8 +34,8 @@ interested in \emph{other} locations.
 }
 \examples{
 # Two roots, one local and one representing some remote orderly location:
-local <- orderly_example("demo")
-remote <- orderly_example("demo")
+local <- orderly_example()
+remote <- orderly_example()
 
 # No locations at first
 orderly_location_list(root = local)
