@@ -76,7 +76,7 @@ already initialised with an \code{.outpack} directory but not an
 path <- withr::local_tempdir()
 
 # Initialise a new repository, setting an option:
-orderly(path, use_file_store = TRUE)
+orderly_init(path, use_file_store = TRUE)
 
 fs::dir_tree(path, all = TRUE)
 }
