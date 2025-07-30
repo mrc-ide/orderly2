@@ -43,3 +43,12 @@ example via \link{orderly_search} and
 the metadata alongside the query (that is, they're not part of the
 query even though they affect it).
 }
+\details{
+\strong{DEPRECATED}: \link{orderly_search} and
+\link{orderly_run} now accept these arguments directly, which
+is much easier to reason about and use.  A deprecation warning
+will be thrown by those functions if you pass \code{options} in.
+}
+\examples{
+orderly_search_options()
+}

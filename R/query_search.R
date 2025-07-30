@@ -61,6 +61,11 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##' the metadata alongside the query (that is, they're not part of the
 ##' query even though they affect it).
 ##'
+##' **DEPRECATED**: [orderly2::orderly_search] and
+##' [orderly2::orderly_run] now accept these arguments directly, which
+##' is much easier to reason about and use.  A deprecation warning
+##' will be thrown by those functions if you pass `options` in.
+##'
 ##' @title Packet search options
 ##'
 ##' @param location Optional vector of locations to pull from. We
@@ -88,6 +93,8 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##'   not be modified after creation (but see note about `fetch_metadata`)
 ##'
 ##' @export
+##' @examples
+##' orderly_search_options()
 orderly_search_options <- function(location = NULL,
                                    allow_remote = NULL,
                                    pull_metadata = FALSE) {
