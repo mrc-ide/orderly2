@@ -1,3 +1,4 @@
+AST
 AWS
 CodeFactor
 DateTimeClasses
@@ -8,6 +9,7 @@ Inf
 OOP
 OrderlyWeb
 R's
+RStudio
 Rstudio's
 SQLite
 SharePoint
@@ -27,11 +29,14 @@ cyl
 db
 deduplicates
 deparseable
+deserialisation
 deserialise
 deserialised
 deserialises
 deserialising
 ed
+entrypoint
+erroring
 etc
 github
 gitignore
@@ -63,5 +68,8 @@ standalone
 stderr
 stdout
 toJSON's
+tradeoff
+tradeoffs
+unserialising
 yaml
 yml

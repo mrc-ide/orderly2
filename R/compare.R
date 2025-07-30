@@ -26,8 +26,8 @@ compare_filesets <- function(target, current) {
 
 ##' Compare the metadata and contents of two packets.
 ##'
-##' Insignificant differences in the metadata (eg. different dates and packet
-##' IDs) are excluded from the comparison.
+##' Insignificant differences in the metadata (e.g., different dates
+##' and packet IDs) are excluded from the comparison.
 ##'
 ##' @param target The id of the packet to use in the comparison.
 ##' @param current The id of the other packet against which to compare.
@@ -246,7 +246,7 @@ print.orderly_comparison <- function(x, ...) {
 ##' @param attributes A character vector of attributes to include in the
 ##'  comparison. The values are keys of the packets' metadata, such as
 ##'  `parameters` or `files`. If NULL, the default, all attributes are compared,
-##'   except those that differ in trivial way (ie. `id` and `time`).
+##'   except those that differ in trivial way (i.e., `id` and `time`).
 ##' @param verbose Control over how much information is printed. It can either
 ##'   be a logical, or a character scalar `silent` or `summary`.
 ##' @return Invisibly, a logical indicating whether the packets are equivalent,

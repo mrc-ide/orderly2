@@ -88,7 +88,7 @@
 ##'   into a new temporary directory and then run the report there,
 ##'   but have it insert into an orderly repo at a fixed and
 ##'   non-temporary location.
-##' * we have a user for whom it is more convenient torun their report
+##' * we have a user for whom it is more convenient to run their report
 ##'   on a hard drive but store the archive and metadata on a (larger)
 ##'   shared drive.
 ##'

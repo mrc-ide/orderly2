@@ -19,7 +19,7 @@ to the interpolation you might be familiar with from
 or other fancy features supported.}
 }
 \value{
-Invisibly, a data.frame with columns \code{here} (the fileames
+Invisibly, a data.frame with columns \code{here} (the filenames
 as as copied into the running packet) and \code{there} (the filenames
 within \verb{shared/}).  As for \link{orderly_resource}, do not
 rely on the ordering where directory expansion was performed.

@@ -49,7 +49,7 @@
 ##'   location; if `TRUE` you will always have all the packets that
 ##'   you hold metadata about.
 ##'
-##' @param force Logical, indicating if we shold initialise orderly
+##' @param force Logical, indicating if we should initialise orderly
 ##'   even if the directory is not empty.
 ##'
 ##' @return The full, normalised, path to the root,

@@ -37,7 +37,7 @@ but set to \code{TRUE} if you want your archive to behave well as a
 location; if \code{TRUE} you will always have all the packets that
 you hold metadata about.}
 
-\item{force}{Logical, indicating if we shold initialise orderly
+\item{force}{Logical, indicating if we should initialise orderly
 even if the directory is not empty.}
 }
 \value{

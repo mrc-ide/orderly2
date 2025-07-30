@@ -112,7 +112,7 @@ static_orderly_strict_mode <- function(args) {
 ##' This is now deprecated, and you should update your code.
 ##'
 ##' When running interactively (i.e., via `source()` or running an
-##'   orderly file session by copy/paste or in Rstudio), the
+##'   orderly file session by copy/paste or in RStudio), the
 ##'   `orderly_parameters()` function has different behaviour, and
 ##'   this behaviour depends on whether parameters will be exported to the
 ##'   environment or not.
@@ -448,7 +448,7 @@ static_orderly_dependency <- function(args) {
 ##'   `glue::glue` or similar, but much simpler with no concatenation
 ##'   or other fancy features supported.
 ##'
-##' @return Invisibly, a data.frame with columns `here` (the fileames
+##' @return Invisibly, a data.frame with columns `here` (the filenames
 ##'   as as copied into the running packet) and `there` (the filenames
 ##'   within `shared/`).  As for [orderly2::orderly_resource], do not
 ##'   rely on the ordering where directory expansion was performed.

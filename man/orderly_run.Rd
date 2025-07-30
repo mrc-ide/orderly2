@@ -163,7 +163,7 @@ clean clone of the source tree at a particular git reference
 into a new temporary directory and then run the report there,
 but have it insert into an orderly repo at a fixed and
 non-temporary location.
-\item we have a user for whom it is more convenient torun their report
+\item we have a user for whom it is more convenient to run their report
 on a hard drive but store the archive and metadata on a (larger)
 shared drive.
 }

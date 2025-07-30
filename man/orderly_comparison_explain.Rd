@@ -13,7 +13,7 @@ orderly_comparison_explain(cmp, attributes = NULL, verbose = FALSE)
 \item{attributes}{A character vector of attributes to include in the
 comparison. The values are keys of the packets' metadata, such as
 \code{parameters} or \code{files}. If NULL, the default, all attributes are compared,
-except those that differ in trivial way (ie. \code{id} and \code{time}).}
+except those that differ in trivial way (i.e., \code{id} and \code{time}).}
 
 \item{verbose}{Control over how much information is printed. It can either
 be a logical, or a character scalar \code{silent} or \code{summary}.}

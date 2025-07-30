@@ -51,8 +51,8 @@ get a summary description of the differences, or passed to
 \link{orderly_comparison_explain} to display more details.
 }
 \description{
-Insignificant differences in the metadata (eg. different dates and packet
-IDs) are excluded from the comparison.
+Insignificant differences in the metadata (e.g., different dates
+and packet IDs) are excluded from the comparison.
 }
 \examples{
 
