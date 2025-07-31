@@ -80,7 +80,7 @@ suppressMessages({
 orderly_query_explain("parameter:max_cyl > 2 && name == 'parameters'",
                       root = path)
 
-Or misses:
+# Or misses:
 orderly_query_explain("parameter:max_cyl > 2 && name == 'data'",
                       root = path)
 }
