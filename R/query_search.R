@@ -38,6 +38,29 @@
 ##'   (`NA_character_`)
 ##'
 ##' @export
+##' @examples
+##' path <- orderly_example()
+##'
+##' # Generate a bunch of packets:
+##' suppressMessages({
+##'   orderly_run("data", echo = FALSE, root = path)
+##'   orderly_run("depends", echo = FALSE, root = path)
+##'   for (n in c(2, 4, 6, 8)) {
+##'     orderly_run("parameters", list(max_cyl = n), echo = FALSE, root = path)
+##'   }
+##' })
+##'
+##' # By default, search returns everything, which is rarely what you want:
+##' orderly_search(root = path)
+##'
+##' # Restricting by name is common enough that there's a shortcut for
+##' # it:
+##' orderly_search(name = "data", root = path)
+##' orderly_search(name = "parameters", root = path)
+##'
+##' # Restrict to a parameter value:
+##' orderly_search(quote(parameter:max_cyl > 4), name = "parameters",
+##'                root = path)
 orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
                            parameters = NULL, envir = parent.frame(),
                            location = NULL, allow_remote = NULL,
