@@ -22,6 +22,19 @@
 ##'
 ##' @return Invisibly, a character vector of orphaned packet ids
 ##' @export
+##' @examples
+##' # The same example as orderly_validate_archive; a corrupted
+##' # archive due to the local deletion of a file
+##' # Start with an archive containing 4 simple packets
+##' path <- orderly_example()
+##' ids <- vapply(1:4, function(i) orderly_run("data", root = path), "")
+##' fs::file_delete(file.path(path, "archive", "data", ids[[3]], "data.rds"))
+##'
+##' # Validate the archive ands orphan corrupt packets:
+##' orderly_validate_archive(action = "orphan", root = path)
+##'
+##' # Prune our orphans:
+##' orderly_prune_orphans(root = path)
 orderly_prune_orphans <- function(root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   id <- root$index$location("orphan")$packet

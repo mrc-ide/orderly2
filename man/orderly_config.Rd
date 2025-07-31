@@ -48,6 +48,6 @@ root, along with any orderly-specific extensions.
 
 # A default configuration in a new temporary directory
 path <- withr::local_tempdir()
-orderly2::orderly_init(path)
-orderly2::orderly_config(path)
+orderly_init(path)
+orderly_config(path)
 }

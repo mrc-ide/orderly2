@@ -133,7 +133,7 @@ The above location handling generalises orderly (v1)'s old
 \item \code{use_draft = TRUE} is \code{location = "local"}
 \item \code{use_draft = FALSE} is \code{location = c(...)} where you should provide
 all locations \emph{except} local
-(\code{setdiff(orderly2::orderly_location_list(), "local")})
+(\code{setdiff(orderly_location_list(), "local")})
 \item \code{use_draft = "newer"} is \code{location = NULL}
 }
 
@@ -163,7 +163,7 @@ clean clone of the source tree at a particular git reference
 into a new temporary directory and then run the report there,
 but have it insert into an orderly repo at a fixed and
 non-temporary location.
-\item we have a user for whom it is more convenient torun their report
+\item we have a user for whom it is more convenient to run their report
 on a hard drive but store the archive and metadata on a (larger)
 shared drive.
 }
@@ -187,16 +187,16 @@ variable.
 
 \examples{
 # Create a simple example:
-path <- orderly2::orderly_example("default")
+path <- orderly_example()
 
 # Run the 'data' task:
-orderly2::orderly_run("data", root = path)
+orderly_run("data", root = path)
 
 # After running, a finished packet appears in the archive:
 fs::dir_tree(path)
 
 # and we can query the metadata:
-orderly2::orderly_metadata_extract(name = "data", root = path)
+orderly_metadata_extract(name = "data", root = path)
 
 # Cleanup
 fs::dir_delete(path)

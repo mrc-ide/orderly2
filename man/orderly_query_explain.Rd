@@ -67,3 +67,21 @@ and the output will change. At the moment, it can tell you why a
 query matches, or if fails to match based on one of a number of
 \code{&&}-ed together clauses.
 }
+\examples{
+path <- orderly_example()
+suppressMessages({
+  orderly_run("data", echo = FALSE, root = path)
+  orderly_run("depends", echo = FALSE, root = path)
+  for (n in c(2, 4, 6, 8)) {
+    orderly_run("parameters", list(max_cyl = n), echo = FALSE, root = path)
+  }
+})
+
+# Explain why a query matches some packets:
+orderly_query_explain("parameter:max_cyl > 2 && name == 'parameters'",
+                      root = path)
+
+# Or misses:
+orderly_query_explain("parameter:max_cyl > 2 && name == 'data'",
+                      root = path)
+}

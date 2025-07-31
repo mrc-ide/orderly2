@@ -82,6 +82,25 @@
 ##'
 ##' @return Nothing
 ##' @export
+##' @examples
+##' # Two roots, one local and one representing some remote orderly location:
+##' local <- orderly_example()
+##' remote <- orderly_example()
+##'
+##' # We create a packet in the remote root:
+##' orderly_run("data", root = remote)
+##'
+##' # Add the remote as a path location to the local root:
+##' orderly_location_add_path("remote", remote, root = local)
+##'
+##' # Pull metadata from 'remote' into our local version
+##' orderly_location_fetch_metadata(root = local)
+##'
+##' # Pull a packet into our local version
+##' orderly_location_pull(quote(latest(name == "data")), root = local)
+##'
+##' # Drop the location
+##' orderly_location_remove("remote", root = local)
 orderly_location_add <- function(name, type, args, verify = TRUE, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   assert_scalar_character(name)
@@ -210,6 +229,17 @@ orderly_location_add_packit <- function(name, url, token = NULL,
 ##'
 ##' @return Nothing
 ##' @export
+##' @examples
+##' # Two roots, one local and one representing some remote orderly location:
+##' local <- orderly_example()
+##' remote <- orderly_example()
+##' orderly_location_add_path("remote", remote, root = local)
+##'
+##' orderly_location_list(root = local, verbose = TRUE)
+##'
+##' # Rename the remote location:
+##' orderly_location_rename("remote", "bob", root = local)
+##' orderly_location_list(root = local, verbose = TRUE)
 orderly_location_rename <- function(old, new, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   assert_scalar_character(new, call = call)
@@ -240,6 +270,17 @@ orderly_location_rename <- function(old, new, root = NULL) {
 ##'
 ##' @return Nothing
 ##' @export
+##' @examples
+##' # Two roots, one local and one representing some remote orderly location:
+##' local <- orderly_example()
+##' remote <- orderly_example()
+##' orderly_location_add_path("remote", remote, root = local)
+##'
+##' orderly_location_list(root = local)
+##'
+##' # Remove the remote location:
+##' orderly_location_remove("remote", root = local)
+##' orderly_location_list(root = local)
 orderly_location_remove <- function(name, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
 
@@ -295,6 +336,22 @@ orderly_location_remove <- function(name, root = NULL) {
 ##'   locations listed here.
 ##'
 ##' @export
+##' @examples
+##' # Two roots, one local and one representing some remote orderly location:
+##' local <- orderly_example()
+##' remote <- orderly_example()
+##'
+##' # No locations at first
+##' orderly_location_list(root = local)
+##'
+##' # Add a location
+##' orderly_location_add_path("remote", remote, root = local)
+##'
+##' # Here it is!
+##' orderly_location_list(root = local)
+##'
+##' # Add vebose = TRUE to find more about the location
+##' orderly_location_list(root = local)
 orderly_location_list <- function(verbose = FALSE, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   if (verbose) {
@@ -322,6 +379,19 @@ orderly_location_list <- function(verbose = FALSE, root = NULL) {
 ##' @return Nothing
 ##'
 ##' @export
+##' @examples
+##' # Two roots, one local and one representing some remote orderly location:
+##' local <- orderly_example()
+##' remote <- orderly_example()
+##'
+##' # We create a packet in the remote root:
+##' orderly_run("data", root = remote)
+##'
+##' # Add the remote as a path location to the local root:
+##' orderly_location_add_path("remote", remote, root = local)
+##'
+##' # Pull metadata from 'remote' into our local version
+##' orderly_location_fetch_metadata(root = local)
 orderly_location_fetch_metadata <- function(location = NULL, root = NULL) {
   root <- root_open(root, require_orderly = FALSE)
   location_name <- location_resolve_valid(location, root,
@@ -393,6 +463,20 @@ orderly_location_pull_metadata <- function(...) {
 ##'
 ##' @return Invisibly, the ids of packets that were pulled
 ##' @export
+##' @examples
+##' # Two roots, one local and one representing some remote orderly location:
+##' local <- orderly_example()
+##' remote <- orderly_example()
+##'
+##' # We create a packet in the remote root:
+##' orderly_run("data", root = remote)
+##'
+##' # Add the remote as a path location to the local root:
+##' orderly_location_add_path("remote", remote, root = local)
+##'
+##' # Pull a packet into our local version
+##' orderly_location_pull(quote(latest(name == "data")),
+##'                       fetch_metadata = TRUE, root = local)
 orderly_location_pull <- function(expr,
                                   name = NULL,
                                   location = NULL,
@@ -524,6 +608,18 @@ orderly_location_pull_packet <- function(...) {
 ##'   known on the other location).
 ##'
 ##' @export
+##' @examples
+##' # Two roots, one local and one representing some remote orderly
+##' # location.  The remote location must use a file store at present.
+##' local <- orderly_example()
+##' remote <- orderly_example(use_file_store = TRUE)
+##' orderly_location_add_path("remote", remote, root = local)
+##'
+##' # We create a packet in the local root:
+##' id <- orderly_run("data", root = local)
+##'
+##' # Push a packet into our remote version
+##' orderly_location_push(id, location = "remote", root = local)
 orderly_location_push <- function(expr, location, name = NULL, dry_run = FALSE,
                                   root = NULL) {
   root <- root_open(root, require_orderly = FALSE)

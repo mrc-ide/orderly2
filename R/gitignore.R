@@ -33,6 +33,16 @@
 ##'
 ##' @return Nothing, called for its side effects
 ##' @export
+##' @examples
+##' path <- orderly_example()
+##'
+##' # Update core orderly ignorables:
+##' orderly_gitignore_update("(root)", root = path)
+##' cli::cli_code(readLines(file.path(path, ".gitignore")))
+##'
+##' # Report-specific ignores:
+##' orderly_gitignore_update("data", root = path)
+##' cli::cli_code(readLines(file.path(path, "src", "data", ".gitignore")))
 orderly_gitignore_update <- function(name, root = NULL) {
   root_path <- orderly_src_root(root)
   do_orderly_gitignore_update(name, root_path, environment())

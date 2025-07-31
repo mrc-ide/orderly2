@@ -26,8 +26,8 @@ compare_filesets <- function(target, current) {
 
 ##' Compare the metadata and contents of two packets.
 ##'
-##' Insignificant differences in the metadata (eg. different dates and packet
-##' IDs) are excluded from the comparison.
+##' Insignificant differences in the metadata (e.g., different dates
+##' and packet IDs) are excluded from the comparison.
 ##'
 ##' @param target The id of the packet to use in the comparison.
 ##' @param current The id of the other packet against which to compare.
@@ -38,6 +38,24 @@ compare_filesets <- function(target, current) {
 ##'  [orderly2::orderly_comparison_explain] to display more details.
 ##'
 ##' @export
+##' @examples
+##'
+##' # Here are two packets that are equivalent, differing only in id
+##' # and times:
+##' path <- orderly_example()
+##' id1 <- orderly_run("data", root = path)
+##' id2 <- orderly_run("data", root = path)
+##' orderly_compare_packets(id1, id2, root = path)
+##'
+##' # A more interesting comparison:
+##' id1 <- orderly_run("parameters", list(max_cyl = 6), root = path)
+##' id2 <- orderly_run("parameters", list(max_cyl = 4), root = path)
+##' cmp <- orderly_compare_packets(id1, id2, root = path)
+##' cmp
+##'
+##' # A verbose comparison will show differences in the constituent
+##' # components of each packet:
+##' orderly_comparison_explain(cmp, verbose = TRUE)
 orderly_compare_packets <- function(target, current,
                                     location = NULL,
                                     allow_remote = NULL,
@@ -228,13 +246,22 @@ print.orderly_comparison <- function(x, ...) {
 ##' @param attributes A character vector of attributes to include in the
 ##'  comparison. The values are keys of the packets' metadata, such as
 ##'  `parameters` or `files`. If NULL, the default, all attributes are compared,
-##'   except those that differ in trivial way (ie. `id` and `time`).
+##'   except those that differ in trivial way (i.e., `id` and `time`).
 ##' @param verbose Control over how much information is printed. It can either
 ##'   be a logical, or a character scalar `silent` or `summary`.
 ##' @return Invisibly, a logical indicating whether the packets are equivalent,
 ##'   up to the given attributes.
 ##'
 ##' @export
+##' @examples
+##' path <- orderly_example()
+##' id1 <- orderly_run("parameters", list(max_cyl = 6), root = path)
+##' id2 <- orderly_run("parameters", list(max_cyl = 4), root = path)
+##' cmp <- orderly_compare_packets(id1, id2, root = path)
+##'
+##' orderly_comparison_explain(cmp)
+##' orderly_comparison_explain(cmp, verbose = TRUE)
+##' orderly_comparison_explain(cmp, "parameters", verbose = TRUE)
 orderly_comparison_explain <- function(cmp, attributes  = NULL,
                                        verbose = FALSE) {
   assert_is(cmp, "orderly_comparison")

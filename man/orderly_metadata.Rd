@@ -25,3 +25,14 @@ Read metadata for a particular id. You may want to use
 \link{orderly_search} to find an id corresponding to a
 particular query.
 }
+\examples{
+path <- orderly_example()
+id <- orderly_run("data", root = path)
+
+# Read metadata for this packet:
+meta <- orderly_metadata(id, root = path)
+names(meta)
+
+# Information on files produced by this packet:
+meta$files
+}

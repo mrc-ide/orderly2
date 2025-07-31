@@ -126,3 +126,19 @@ We will merge `orderly2` into the `orderly` package, so once we are ready for re
 * It was too focussed around our initial needs with the [Vaccine Impact Modelling Consortium](https://vaccineimpact.org)
 * It was fairly easy to get your archive and SQLite database into an inconsistent state (e.g., by deleting or moving files from the archive)
 * The SQLite database behaved poorly on shared file systems
+
+# Working with old versions without migrating
+
+Sometimes, you will want to use the old version of orderly without migrating any source, for example to rerun something as it was run in 2003.  You can do this by installing `orderly1`, which can be safely installed alongside `orderly2`.  You should, however, avoid loading both packages at once (i.e., with `library()`) as this will cause ambiguity in a number of functions, notably `orderly_run()`
+
+Install `orderly1` with:
+
+```
+install.packages(
+  "orderly1",
+  repos = c("https://vimc.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+and you can work with the sources or outputs as you wish.  You will need to replace any namespaced calls `orderly::fn` with `orderly1::fn` (these might appear in your documentation, helper scripts, or similar).
+
+If you try to use `orderly2` with version 1 sources, then you will get an error message that will direct you to this document to decide the best way forward.

@@ -29,7 +29,7 @@
 #' orderly_query_format(
 #'   quote(parameter:x == environment:x), envir = list2env(list(x = 1)))
 #'
-#' format(orderly2::orderly_query("latest", name = "a"))
+#' format(orderly_query("latest", name = "a"))
 orderly_query_format <- function(query, subquery = NULL, envir = NULL) {
   if (!is_deparseable_query(query)) {
     stop("Cannot format query, it must be a language object or be length 1.")

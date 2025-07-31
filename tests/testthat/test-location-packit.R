@@ -11,7 +11,6 @@
 # the request. Similary, tokens are managed using the `/token/:name` and
 # `/count` endpoints.
 packit_app <- function() {
-  testthat::skip_if_not_installed("webfakes")
   app <- webfakes::new_app()
   app$locals$requests <- list()
   app$locals$tokens <- list()
@@ -59,9 +58,20 @@ packit_app <- function() {
   app
 }
 
-# Setting up the app is a bit slow so we use a single instance of it across all
-# tests in the file.
-packit <- webfakes::local_app_process(packit_app())
+# Setting up the app is a bit slow so we use a single instance of it
+# across all tests in the file.  We need this to work where webfakes
+# is not available so create a fake webfake (!) that skips tests on
+# use in that case.
+if (requireNamespace("webfakes", quietly = TRUE)) {
+  packit <- webfakes::local_app_process(packit_app())
+} else {
+  packit <- list(
+    url = function(...) {
+      testthat::skip("webfakes is not installed")
+    }
+  )
+}
+
 packit_url <- function(name = "default") {
   packit$url(paste0("/instance/", name, "/"))
 }

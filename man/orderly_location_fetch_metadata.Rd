@@ -27,3 +27,17 @@ Fetch metadata from a location, updating the index.  This should
 always be relatively quick as it updates only small files that
 contain information about what can be found in remote packets.
 }
+\examples{
+# Two roots, one local and one representing some remote orderly location:
+local <- orderly_example()
+remote <- orderly_example()
+
+# We create a packet in the remote root:
+orderly_run("data", root = remote)
+
+# Add the remote as a path location to the local root:
+orderly_location_add_path("remote", remote, root = local)
+
+# Pull metadata from 'remote' into our local version
+orderly_location_fetch_metadata(root = local)
+}

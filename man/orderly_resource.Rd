@@ -14,11 +14,16 @@ subdirectories and files.}
 \value{
 Invisibly, a character vector of resources included by the
 call. Don't rely on the order of these files if they are
-expanded from directories, as this is likely platform dependent.
+expanded from directories, as this is likely platform
+dependent. If a path was not found, then we throw an error.
 }
 \description{
 Declare that a file, or group of files, are an orderly
 resource. By explicitly declaring files as resources orderly will
 mark the files as immutable inputs and validate that your analysis
 does not modify them when run with \code{\link[=orderly_run]{orderly_run()}}
+}
+\examples{
+# An example in context within the orderly examples:
+orderly_example_show("strict")
 }

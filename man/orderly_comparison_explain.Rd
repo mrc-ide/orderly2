@@ -13,7 +13,7 @@ orderly_comparison_explain(cmp, attributes = NULL, verbose = FALSE)
 \item{attributes}{A character vector of attributes to include in the
 comparison. The values are keys of the packets' metadata, such as
 \code{parameters} or \code{files}. If NULL, the default, all attributes are compared,
-except those that differ in trivial way (ie. \code{id} and \code{time}).}
+except those that differ in trivial way (i.e., \code{id} and \code{time}).}
 
 \item{verbose}{Control over how much information is printed. It can either
 be a logical, or a character scalar \code{silent} or \code{summary}.}
@@ -25,4 +25,14 @@ up to the given attributes.
 \description{
 This function allows to select what part of the packet to compare, and in
 how much details.
+}
+\examples{
+path <- orderly_example()
+id1 <- orderly_run("parameters", list(max_cyl = 6), root = path)
+id2 <- orderly_run("parameters", list(max_cyl = 4), root = path)
+cmp <- orderly_compare_packets(id1, id2, root = path)
+
+orderly_comparison_explain(cmp)
+orderly_comparison_explain(cmp, verbose = TRUE)
+orderly_comparison_explain(cmp, "parameters", verbose = TRUE)
 }

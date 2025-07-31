@@ -38,7 +38,9 @@ orderly_config_validate_minimum_orderly_version <- function(value, filename,
   if (version < numeric_version("1.99.0")) {
     cli::cli_abort(
       c("Detected old orderly version, you need to migrate to orderly2",
-        i = 'Please see documentation at vignette("migrating")'),
+        i = 'Please see documentation at vignette("migrating")',
+        i = paste("You can also use this project with the 'orderly1' package,",
+                  "which can safely be installed alongside the new version")),
       call = call)
   }
   if (version > current_orderly_version()) {

@@ -46,3 +46,16 @@ packets and then pushes the missing metadata to the server. If the
 process is interrupted it is safe to resume and will only transfer
 files and packets that were missed on a previous call.
 }
+\examples{
+# Two roots, one local and one representing some remote orderly
+# location.  The remote location must use a file store at present.
+local <- orderly_example()
+remote <- orderly_example(use_file_store = TRUE)
+orderly_location_add_path("remote", remote, root = local)
+
+# We create a packet in the local root:
+id <- orderly_run("data", root = local)
+
+# Push a packet into our remote version
+orderly_location_push(id, location = "remote", root = local)
+}

@@ -46,3 +46,14 @@ We can't edit the file if:
 If you get the error message, search and remove these lines and
 rerun.
 }
+\examples{
+path <- orderly_example()
+
+# Update core orderly ignorables:
+orderly_gitignore_update("(root)", root = path)
+cli::cli_code(readLines(file.path(path, ".gitignore")))
+
+# Report-specific ignores:
+orderly_gitignore_update("data", root = path)
+cli::cli_code(readLines(file.path(path, "src", "data", ".gitignore")))
+}

@@ -19,6 +19,8 @@
 ##'   but which can be passed to [orderly2::orderly_search()]
 ##'
 ##' @export
+##' @examples
+##' orderly_query(quote(latest(name == "data")))
 orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
   subquery_envir <- make_subquery_envir(subquery, call = environment())
   expr_parsed <- query_parse(expr, expr, subquery_envir)

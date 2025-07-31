@@ -84,7 +84,7 @@ re-prompted, delete \code{pars} (i.e., \code{rm("pars")}) or assign \code{NULL}
 This is now deprecated, and you should update your code.
 
 When running interactively (i.e., via \code{source()} or running an
-orderly file session by copy/paste or in Rstudio), the
+orderly file session by copy/paste or in RStudio), the
 \code{orderly_parameters()} function has different behaviour, and
 this behaviour depends on whether parameters will be exported to the
 environment or not.
@@ -101,3 +101,8 @@ prompt based on the global option
 }
 }
 
+\examples{
+# An example in context within the orderly examples, using the
+# recommended new-style syntax:
+orderly_example_show("parameters")
+}

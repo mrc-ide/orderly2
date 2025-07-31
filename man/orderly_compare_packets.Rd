@@ -51,6 +51,25 @@ get a summary description of the differences, or passed to
 \link{orderly_comparison_explain} to display more details.
 }
 \description{
-Insignificant differences in the metadata (eg. different dates and packet
-IDs) are excluded from the comparison.
+Insignificant differences in the metadata (e.g., different dates
+and packet IDs) are excluded from the comparison.
+}
+\examples{
+
+# Here are two packets that are equivalent, differing only in id
+# and times:
+path <- orderly_example()
+id1 <- orderly_run("data", root = path)
+id2 <- orderly_run("data", root = path)
+orderly_compare_packets(id1, id2, root = path)
+
+# A more interesting comparison:
+id1 <- orderly_run("parameters", list(max_cyl = 6), root = path)
+id2 <- orderly_run("parameters", list(max_cyl = 4), root = path)
+cmp <- orderly_compare_packets(id1, id2, root = path)
+cmp
+
+# A verbose comparison will show differences in the constituent
+# components of each packet:
+orderly_comparison_explain(cmp, verbose = TRUE)
 }

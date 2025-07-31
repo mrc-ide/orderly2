@@ -319,7 +319,7 @@ json_output(readLines(path_schema))
 
 We save this file as `inst/schema.json` within the package (any path within `inst` is fine).
 
-Finally, we can also add a deserialiation hook to convert the loaded metadata into a nice `data.frame`:
+Finally, we can also add a deserialisation hook to convert the loaded metadata into a nice `data.frame`:
 
 ```{r, echo = FALSE, results = "asis"}
 db_deserialise <- function(data) {
