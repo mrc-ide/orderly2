@@ -17,6 +17,8 @@
 * track outputs of an analysis
 * create analyses that depend on the outputs of previous analyses
 
+You can [watch a short talk](https://www.youtube.com/watch?v=lkPgihFQbrk) that describes the ideas in the package, and why it differs to other approaches to reproducibility and workflows.
+
 ## Get started
 
 Two vignettes provide an overview of the package, depending on your tastes:
