@@ -68,6 +68,7 @@ query matches, or if fails to match based on one of a number of
 \code{&&}-ed together clauses.
 }
 \examples{
+path <- orderly_example()
 suppressMessages({
   orderly_run("data", echo = FALSE, root = path)
   orderly_run("depends", echo = FALSE, root = path)

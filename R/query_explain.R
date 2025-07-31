@@ -15,6 +15,7 @@
 ##'
 ##' @export
 ##' @examples
+##' path <- orderly_example()
 ##' suppressMessages({
 ##'   orderly_run("data", echo = FALSE, root = path)
 ##'   orderly_run("depends", echo = FALSE, root = path)
