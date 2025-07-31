@@ -24,6 +24,8 @@ Two vignettes provide an overview of the package, depending on your tastes:
 * `vignette("orderly2")` describes the problem that `orderly2` tries to solve ([read on package website](https://mrc-ide.github.io/orderly2/articles/orderly2.html))
 * `vignette("introduction")` describes `orderly2` by example, walking through the basic features ([read on package website](https://mrc-ide.github.io/orderly2/articles/introduction.html))
 
+There is also an [orderly tutorial](https://mrc-ide.github.io/orderly-tutorial/) from a 3-hour interactive session.
+
 ## Roadmap
 
 This package is a ground-up rewrite of our [`orderly`](https://vaccineimpact.org/orderly) package, which is now ready for use on new projects or by adventurous users of the original package.
