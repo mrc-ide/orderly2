@@ -36,3 +36,17 @@ We expose this function mostly for users who want to expunge
 permanently any reference to previously run packets. We hope that
 there should never need to really be a reason to run it.
 }
+\examples{
+# The same example as orderly_validate_archive; a corrupted
+# archive due to the local deletion of a file
+# Start with an archive containing 4 simple packets
+path <- orderly_example()
+ids <- vapply(1:4, function(i) orderly_run("data", root = path), "")
+fs::file_delete(file.path(path, "archive", "data", ids[[3]], "data.rds"))
+
+# Validate the archive ands orphan corrupt packets:
+orderly_validate_archive(action = "orphan", root = path)
+
+# Prune our orphans:
+orderly_prune_orphans(root = path)
+}

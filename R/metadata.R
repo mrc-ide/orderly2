@@ -21,6 +21,9 @@
 ##' @title Enable orderly strict mode
 ##' @export
 ##' @return Undefined
+##' @examples
+##' # An example in context within the orderly examples:
+##' orderly_example_show("strict")
 orderly_strict_mode <- function() {
   p <- get_active_packet()
   if (!is.null(p)) {
@@ -109,7 +112,7 @@ static_orderly_strict_mode <- function(args) {
 ##' This is now deprecated, and you should update your code.
 ##'
 ##' When running interactively (i.e., via `source()` or running an
-##'   orderly file session by copy/paste or in Rstudio), the
+##'   orderly file session by copy/paste or in RStudio), the
 ##'   `orderly_parameters()` function has different behaviour, and
 ##'   this behaviour depends on whether parameters will be exported to the
 ##'   environment or not.
@@ -133,6 +136,10 @@ static_orderly_strict_mode <- function(args) {
 ##'   returning `NULL`.
 ##'
 ##' @export
+##' @examples
+##' # An example in context within the orderly examples, using the
+##' # recommended new-style syntax:
+##' orderly_example_show("parameters")
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
@@ -181,6 +188,9 @@ current_orderly_parameters <- function(src, envir) {
 ##'
 ##' @return Undefined
 ##' @export
+##' @examples
+##' # An example in context within the orderly examples:
+##' orderly_example_show("data")
 orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
   assert_scalar_character(display, allow_null = TRUE, call = environment())
   assert_scalar_character(long, allow_null = TRUE, call = environment())
@@ -225,9 +235,13 @@ static_orderly_description <- function(args) {
 ##'
 ##' @return Invisibly, a character vector of resources included by the
 ##'   call. Don't rely on the order of these files if they are
-##'   expanded from directories, as this is likely platform dependent.
+##'   expanded from directories, as this is likely platform
+##'   dependent. If a path was not found, then we throw an error.
 ##'
 ##' @export
+##' @examples
+##' # An example in context within the orderly examples:
+##' orderly_example_show("strict")
 orderly_resource <- function(files) {
   p <- get_active_packet()
   src <- if (is.null(p)) "." else p$orderly2$src
@@ -284,6 +298,9 @@ static_orderly_resource <- function(args) {
 ##' @return Undefined
 ##'
 ##' @export
+##' @examples
+##' # An example in context within the orderly examples:
+##' orderly_example_show("strict")
 orderly_artefact <- function(description = NULL, files) {
   assert_scalar_character(description, allow_null = TRUE, call = environment())
   assert_character(files, call = environment()) # also check length >0 ?
@@ -345,6 +362,8 @@ static_orderly_artefact <- function(args) {
 ##'
 ##' @return Undefined
 ##' @export
+##' @examples
+##' orderly_example_show("depends")
 orderly_dependency <- function(name, query, files) {
   assert_scalar_character(name, allow_null = TRUE, call = environment())
 
@@ -429,12 +448,27 @@ static_orderly_dependency <- function(args) {
 ##'   `glue::glue` or similar, but much simpler with no concatenation
 ##'   or other fancy features supported.
 ##'
-##' @return Invisibly, a data.frame with columns `here` (the fileames
+##' @return Invisibly, a data.frame with columns `here` (the filenames
 ##'   as as copied into the running packet) and `there` (the filenames
-##'   within `shared/`).  As for [orderly2::orderly_resource], do not
-##'   rely on the ordering where directory expansion was performed.
+##'   within `shared/`).  Do not rely on the ordering where directory
+##'   expansion was performed.
 ##'
 ##' @export
+##' @examples
+##' # An example in context within the orderly examples:
+##' orderly_example_show("shared")
+##'
+##' # Here's the directory structure for this example:
+##' path <- orderly_example(names = "shared")
+##' fs::dir_tree(path)
+##'
+##' # We can run this packet:
+##' orderly_run("shared", root = path)
+##'
+##' # In the final archive version of the packet, 'cols.R' is copied
+##' # over from `shared/`, so we have a copy of the version of the code
+##' # that was used in the analysis
+##' fs::dir_tree(path)
 orderly_shared_resource <- function(...) {
   files <- validate_file_from_to(
     list(...), parent.frame(),

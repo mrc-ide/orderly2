@@ -24,3 +24,15 @@ Remove an existing location. Any packets from this location and
 not known elsewhere will now be associated with the 'orphan'
 location instead.
 }
+\examples{
+# Two roots, one local and one representing some remote orderly location:
+local <- orderly_example()
+remote <- orderly_example()
+orderly_location_add_path("remote", remote, root = local)
+
+orderly_location_list(root = local)
+
+# Remove the remote location:
+orderly_location_remove("remote", root = local)
+orderly_location_list(root = local)
+}

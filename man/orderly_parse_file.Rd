@@ -27,3 +27,14 @@ Parses details of any calls to the orderly_ in-script functions
 into intermediate representation for downstream use. Also validates
 that any calls to \verb{orderly_*} in-script functions are well-formed.
 }
+\examples{
+path <- orderly_example()
+# About the simplest case
+orderly_parse_file(file.path(path, "src", "data", "data.R"))
+
+# Find out about parameters
+orderly_parse_file(file.path(path, "src", "parameters", "parameters.R"))
+
+# Find out about dependencies:
+orderly_parse_file(file.path(path, "src", "depends", "depends.R"))
+}

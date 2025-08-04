@@ -19,7 +19,7 @@ path_server <- file.path(path, "server")
 path_sharepoint_alice <- file.path(path, "sharepoint")
 path_sharepoint_bob <- path_sharepoint_alice
 
-src <- system.file("example", package = "orderly2", mustWork = TRUE)
+src <- system.file("examples/simple", package = "orderly2", mustWork = TRUE)
 fs::dir_copy(src, path_git)
 
 gert::git_init(path_git)
@@ -104,6 +104,10 @@ The location system is somewhat extensible, but the details of this are subject 
 All the documentation below will behave the same regardless of where the location is stored and the mechanism of transport, so we can focus instead on workflows.
 
 # An example
+
+```{r}
+library(orderly2)
+```
 
 Suppose we have two researchers, [Alice and Bob](https://en.wikipedia.org/wiki/Alice_and_Bob), who are collaborating on a piece of analysis. For the purposes of this example (and we find the most common situation in practice) they share a source tree with their analysis in git.
 <!-- The source for the repository that they are using is on GitHub as
@@ -251,36 +255,38 @@ There is no requirement for different repositories to share configuration option
 One of the simplest ways to share packets with a collaborator is through a shared file system, for example on a network share, or on a cloud-synced file system such as Dropbox or OneDrive. You can do this as follows.
 
 1. Create a a new folder for your orderly remote in the shared file system. Here Alice has synced to `path_sharepoint_alice`.
-1. Initialise an orderly location on the shared file system
-    ```{r as="alice"}
+2. Initialise an orderly location on the shared file system
+```{r as="alice"}
 orderly2::orderly_init(
   root = path_sharepoint_alice,
   path_archive = NULL,
   use_file_store = TRUE,
   require_complete_tree = TRUE
 )
-    ```
+```
 
-   Create an orderly store with a file store and a complete tree. See `orderly2::orderly_init()` for more details.
-1. Add this as a location
-    ```{r, as="alice", orderly_root = path_alice}
+which creates an orderly store with a file store and a complete tree. See `orderly2::orderly_init()` for more details.
+
+3. Add this as a location
+```{r, as="alice", orderly_root = path_alice}
 orderly2::orderly_location_add_path("sharepoint", path = path_sharepoint_alice)
-    ```
+```
 
-1. Push any packets you want to share
-    ```{r, as="alice", orderly_root = path_alice}
+4. Push any packets you want to share
+```{r, as="alice", orderly_root = path_alice}
 orderly2::orderly_location_push(id, "sharepoint")
-    ```
+```
 
 Then these will be available for your collaborator to pull. Note that the data is pushed into a file store in the `.outpack` directory. `.dot` files are considered hidden by your operating system, so if you have "show hidden files" off in your file browser you will not see the pushed packet. But your collaborator can now pull the shared file. To do so, they will have to:
 
 1. Sync the same drive to a location on their machine. Here Bob has synced to `path_sharepoint_bob`
-1. Add the location
-    ```{r, as="bob", orderly_root = path_bob}
-orderly2::orderly_location_add_path("alices_orderly", path_sharepoint_bob)
-    ```
 
-1. Pull the metadata and use the packets as desired
-    ```{r, as="bob", orderly_root = path_bob}
+2. Add the location
+```{r, as="bob", orderly_root = path_bob}
+orderly2::orderly_location_add_path("alices_orderly", path_sharepoint_bob)
+```
+
+3. Pull the metadata and use the packets as desired
+```{r, as="bob", orderly_root = path_bob}
 orderly2::orderly_location_fetch_metadata("alices_orderly")
-    ```
+```

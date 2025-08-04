@@ -37,7 +37,7 @@ but set to \code{TRUE} if you want your archive to behave well as a
 location; if \code{TRUE} you will always have all the packets that
 you hold metadata about.}
 
-\item{force}{Logical, indicating if we shold initialise orderly
+\item{force}{Logical, indicating if we should initialise orderly
 even if the directory is not empty.}
 }
 \value{
@@ -72,12 +72,11 @@ already initialised with an \code{.outpack} directory but not an
 \code{orderly_config.yml} file, then we will write that file too.
 }
 \examples{
-
 # We'll use an automatically cleaned-up directory for the root:
 path <- withr::local_tempdir()
 
 # Initialise a new repository, setting an option:
-orderly2::orderly_init(path, use_file_store = TRUE)
+orderly_init(path, use_file_store = TRUE)
 
-# fs::dir_tree(path, all = TRUE)
+fs::dir_tree(path, all = TRUE)
 }

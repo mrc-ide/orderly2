@@ -38,6 +38,29 @@
 ##'   (`NA_character_`)
 ##'
 ##' @export
+##' @examples
+##' path <- orderly_example()
+##'
+##' # Generate a bunch of packets:
+##' suppressMessages({
+##'   orderly_run("data", echo = FALSE, root = path)
+##'   orderly_run("depends", echo = FALSE, root = path)
+##'   for (n in c(2, 4, 6, 8)) {
+##'     orderly_run("parameters", list(max_cyl = n), echo = FALSE, root = path)
+##'   }
+##' })
+##'
+##' # By default, search returns everything, which is rarely what you want:
+##' orderly_search(root = path)
+##'
+##' # Restricting by name is common enough that there's a shortcut for
+##' # it:
+##' orderly_search(name = "data", root = path)
+##' orderly_search(name = "parameters", root = path)
+##'
+##' # Restrict to a parameter value:
+##' orderly_search(quote(parameter:max_cyl > 4), name = "parameters",
+##'                root = path)
 orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
                            parameters = NULL, envir = parent.frame(),
                            location = NULL, allow_remote = NULL,
@@ -60,6 +83,11 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##' [orderly2::orderly_run]. The details here are never included in
 ##' the metadata alongside the query (that is, they're not part of the
 ##' query even though they affect it).
+##'
+##' **DEPRECATED**: [orderly2::orderly_search] and
+##' [orderly2::orderly_run] now accept these arguments directly, which
+##' is much easier to reason about and use.  A deprecation warning
+##' will be thrown by those functions if you pass `options` in.
 ##'
 ##' @title Packet search options
 ##'
@@ -88,6 +116,8 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##'   not be modified after creation (but see note about `fetch_metadata`)
 ##'
 ##' @export
+##' @examples
+##' orderly_search_options()
 orderly_search_options <- function(location = NULL,
                                    allow_remote = NULL,
                                    pull_metadata = FALSE) {

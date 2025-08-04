@@ -197,6 +197,33 @@
 ##'   names of `extract`; see Details for more information.
 ##'
 ##' @export
+##' @examples
+##' path <- orderly_example()
+##'
+##' # Generate a bunch of packets:
+##' suppressMessages({
+##'   orderly_run("data", echo = FALSE, root = path)
+##'   for (n in c(2, 4, 6, 8)) {
+##'     orderly_run("parameters", list(max_cyl = n), echo = FALSE, root = path)
+##'   }
+##' })
+##'
+##' # Without a query, we get a summary over all packets; this will
+##' # often be too much:
+##' orderly_metadata_extract(root = path)
+##'
+##' # Pass in a query to limit things:
+##' meta <- orderly_metadata_extract(quote(name == "parameters"), root = path)
+##' meta
+##'
+##' # The parameters are present as a list column:
+##' meta$parameters
+##'
+##' # You can also lift values from the parameters into columns of their own:
+##' orderly_metadata_extract(
+##'   quote(name == "parameters"),
+##'   extract = c(max_cyl = "parameters.max_cyl is number"),
+##'   root = path)
 orderly_metadata_extract <- function(expr = NULL, name = NULL, location = NULL,
                                      allow_remote = NULL,
                                      fetch_metadata = FALSE,

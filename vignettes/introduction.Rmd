@@ -13,6 +13,8 @@ source("common.R")
 
 This vignette provides a how-to style introduction to `orderly2`, an overview of key ingredients to writing orderly reports, and a summary of key features and ideas. It may be useful to look at `vignette("orderly2")` for a more roundabout discussion of what `orderly2` is trying to achieve, or `vignette("migrating")` if you are familiar with version 1 of orderly as this explains concepts in terms of differences from the previous version.
 
+You might also prefer the [orderly tutorial](https://mrc-ide.github.io/orderly-tutorial) which works through similar material in slide form, or [watch a short talk](https://www.youtube.com/watch?v=lkPgihFQbrk) that describes the ideas in the package, and why it differs to other approaches to reproducibility and workflows.
+
 # Installation
 
 ```r

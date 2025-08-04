@@ -24,3 +24,7 @@ Undefined
 \description{
 Describe the current packet
 }
+\examples{
+# An example in context within the orderly examples:
+orderly_example_show("data")
+}

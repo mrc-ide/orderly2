@@ -56,6 +56,16 @@ orderly_context <- function(envir) {
 ##'     - `filename`: the file used from the packet
 ##'     - `as`: the filename used locally
 ##' @export
+##' @examples
+##' # An example from the orderly examples
+##' orderly_example_show("run_info")
+##'
+##' # Prepare to run
+##' path <- orderly_example()
+##' orderly_run("data", root = path, echo = FALSE)
+##'
+##' # Here, see the printed information from a real running report
+##' orderly_run("run_info", root = path)
 orderly_run_info <- function() {
   ctx <- orderly_context(rlang::caller_env())
 

@@ -49,7 +49,7 @@
 ##'   location; if `TRUE` you will always have all the packets that
 ##'   you hold metadata about.
 ##'
-##' @param force Logical, indicating if we shold initialise orderly
+##' @param force Logical, indicating if we should initialise orderly
 ##'   even if the directory is not empty.
 ##'
 ##' @return The full, normalised, path to the root,
@@ -57,14 +57,13 @@
 ##'
 ##' @export
 ##' @examples
-##'
 ##' # We'll use an automatically cleaned-up directory for the root:
 ##' path <- withr::local_tempdir()
 ##'
 ##' # Initialise a new repository, setting an option:
-##' orderly2::orderly_init(path, use_file_store = TRUE)
+##' orderly_init(path, use_file_store = TRUE)
 ##'
-##' # fs::dir_tree(path, all = TRUE)
+##' fs::dir_tree(path, all = TRUE)
 orderly_init <- function(root = ".",
                          path_archive = "archive",
                          use_file_store = FALSE,

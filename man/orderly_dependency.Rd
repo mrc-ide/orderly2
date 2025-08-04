@@ -59,3 +59,6 @@ interactively, this will obviously not work, so you should use
 \code{\link[=orderly_interactive_set_search_options]{orderly_interactive_set_search_options()}} to set the
 options that this function will respond to.
 }
+\examples{
+orderly_example_show("depends")
+}

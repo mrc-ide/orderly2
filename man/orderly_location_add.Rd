@@ -139,3 +139,23 @@ The API here may change as we move to support different types of
 locations.
 }
 
+\examples{
+# Two roots, one local and one representing some remote orderly location:
+local <- orderly_example()
+remote <- orderly_example()
+
+# We create a packet in the remote root:
+orderly_run("data", root = remote)
+
+# Add the remote as a path location to the local root:
+orderly_location_add_path("remote", remote, root = local)
+
+# Pull metadata from 'remote' into our local version
+orderly_location_fetch_metadata(root = local)
+
+# Pull a packet into our local version
+orderly_location_pull(quote(latest(name == "data")), root = local)
+
+# Drop the location
+orderly_location_remove("remote", root = local)
+}

@@ -31,3 +31,19 @@ Nothing, called for its side effects only
 \description{
 Create a new empty report.
 }
+\examples{
+path <- withr::local_tempdir()
+
+# Initialise a new repository, setting an option:
+orderly_init(path)
+
+# Create a new report 'myreport' in this root:
+orderly_new("myreport", root = path)
+
+# We now see:
+fs::dir_tree(path, all = TRUE)
+
+# By default, the new path will contain some hints, you can
+# customise this by writing a template
+cli::cli_code(readLines(file.path(path, "src", "myreport", "myreport.R")))
+}

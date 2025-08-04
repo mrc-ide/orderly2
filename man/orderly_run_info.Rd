@@ -35,3 +35,14 @@ slightly different format to orderly version 1.x and does not
 outside of \link{orderly_run}, but this was never reliable
 previously.
 }
+\examples{
+# An example from the orderly examples
+orderly_example_show("run_info")
+
+# Prepare to run
+path <- orderly_example()
+orderly_run("data", root = path, echo = FALSE)
+
+# Here, see the printed information from a real running report
+orderly_run("run_info", root = path)
+}

@@ -19,10 +19,10 @@ to the interpolation you might be familiar with from
 or other fancy features supported.}
 }
 \value{
-Invisibly, a data.frame with columns \code{here} (the fileames
+Invisibly, a data.frame with columns \code{here} (the filenames
 as as copied into the running packet) and \code{there} (the filenames
-within \verb{shared/}).  As for \link{orderly_resource}, do not
-rely on the ordering where directory expansion was performed.
+within \verb{shared/}).  Do not rely on the ordering where directory
+expansion was performed.
 }
 \description{
 Copy shared resources into a packet directory. You can use this to
@@ -31,4 +31,20 @@ Additional metadata will be added to keep track of where the files
 came from.  Using this function requires the shared resources
 directory \verb{shared/} exists at the orderly root; an error will be
 raised if this is not configured when we attempt to fetch files.
+}
+\examples{
+# An example in context within the orderly examples:
+orderly_example_show("shared")
+
+# Here's the directory structure for this example:
+path <- orderly_example(names = "shared")
+fs::dir_tree(path)
+
+# We can run this packet:
+orderly_run("shared", root = path)
+
+# In the final archive version of the packet, 'cols.R' is copied
+# over from `shared/`, so we have a copy of the version of the code
+# that was used in the analysis
+fs::dir_tree(path)
 }

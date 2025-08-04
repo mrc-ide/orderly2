@@ -61,3 +61,23 @@ packets if a complete tree is required.
 The validation will also interact with \code{core.use_file_store} once
 repair is supported, as this becomes trivial.
 }
+\examples{
+# Start with an archive containing 4 simple packets
+path <- orderly_example()
+ids <- vapply(1:4, function(i) orderly_run("data", root = path), "")
+
+# Suppose someone corrupts a packet by deleting a file:
+fs::file_delete(file.path(path, "archive", "data", ids[[3]], "data.rds"))
+
+# We can check all packets, and report on validity
+orderly_validate_archive(root = path)
+
+# Alternatively, we can take action and orphan the invalid packet:
+orderly_validate_archive(action = "orphan", root = path)
+
+# At which point the validation will not find this packet anymore
+orderly_validate_archive(root = path)
+
+# The orphaned packet will no longer be found in most operations:
+orderly_search(root = path)
+}
