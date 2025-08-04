@@ -450,8 +450,8 @@ static_orderly_dependency <- function(args) {
 ##'
 ##' @return Invisibly, a data.frame with columns `here` (the filenames
 ##'   as as copied into the running packet) and `there` (the filenames
-##'   within `shared/`).  As for [orderly2::orderly_resource], do not
-##'   rely on the ordering where directory expansion was performed.
+##'   within `shared/`).  Do not rely on the ordering where directory
+##'   expansion was performed.
 ##'
 ##' @export
 ##' @examples

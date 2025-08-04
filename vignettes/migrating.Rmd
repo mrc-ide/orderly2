@@ -129,7 +129,7 @@ We will merge `orderly2` into the `orderly` package, so once we are ready for re
 
 # Working with old versions without migrating
 
-Sometimes, you will want to use the old version of orderly without migrating any source, for example to rerun something as it was run in 2003.  You can do this by installing `orderly1`, which can be safely installed alongside `orderly2`.  You should, however, avoid loading both packages at once (i.e., with `library()`) as this will cause ambiguity in a number of functions, notably `orderly_run()`
+Sometimes, you will want to use the old version of orderly without migrating any source, for example to rerun something as it was run in 2020.  You can do this by installing `orderly1`, which can be safely installed alongside `orderly2`.  You should, however, avoid loading both packages at once (i.e., with `library()`) as this will cause ambiguity in a number of functions, notably `orderly_run()`
 
 Install `orderly1` with:
 

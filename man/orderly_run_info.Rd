@@ -43,6 +43,6 @@ orderly_example_show("run_info")
 path <- orderly_example()
 orderly_run("data", root = path, echo = FALSE)
 
-# Here, see the printed information frmo a real running report
+# Here, see the printed information from a real running report
 orderly_run("run_info", root = path)
 }

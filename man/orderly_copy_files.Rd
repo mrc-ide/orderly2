@@ -110,7 +110,7 @@ information about the copy, containing elements:
 \itemize{
 \item \code{id}: The resolved id of the packet
 \item \code{name}: The name of the packet
-\item \code{files}: a \link{data.frame} of filenames with with columns \code{here}
+\item \code{files}: a \link{data.frame} of filenames with columns \code{here}
 (the name of the file in \code{dest}) and \code{there} (the name of the
 file in the packet)
 }

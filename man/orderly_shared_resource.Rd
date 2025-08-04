@@ -21,8 +21,8 @@ or other fancy features supported.}
 \value{
 Invisibly, a data.frame with columns \code{here} (the filenames
 as as copied into the running packet) and \code{there} (the filenames
-within \verb{shared/}).  As for \link{orderly_resource}, do not
-rely on the ordering where directory expansion was performed.
+within \verb{shared/}).  Do not rely on the ordering where directory
+expansion was performed.
 }
 \description{
 Copy shared resources into a packet directory. You can use this to
@@ -44,7 +44,7 @@ fs::dir_tree(path)
 orderly_run("shared", root = path)
 
 # In the final archive version of the packet, 'cols.R' is copied
-# over from shared/, so we have a copy of the version of the code
+# over from `shared/`, so we have a copy of the version of the code
 # that was used in the analysis
 fs::dir_tree(path)
 }
