@@ -86,7 +86,7 @@
 ##'
 ##' * `id`: The resolved id of the packet
 ##' * `name`: The name of the packet
-##' * `files`: a [data.frame] of filenames with with columns `here`
+##' * `files`: a [data.frame] of filenames with columns `here`
 ##'    (the name of the file in `dest`) and `there` (the name of the
 ##'    file in the packet)
 ##'

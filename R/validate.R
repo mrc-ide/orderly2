@@ -54,7 +54,7 @@
 ##' # Alternatively, we can take action and orphan the invalid packet:
 ##' orderly_validate_archive(action = "orphan", root = path)
 ##'
-##' # At which point the validation will notr find this packet anymore
+##' # At which point the validation will not find this packet anymore
 ##' orderly_validate_archive(root = path)
 ##'
 ##' # The orphaned packet will no longer be found in most operations:

@@ -466,7 +466,7 @@ static_orderly_dependency <- function(args) {
 ##' orderly_run("shared", root = path)
 ##'
 ##' # In the final archive version of the packet, 'cols.R' is copied
-##' # over from shared/, so we have a copy of the version of the code
+##' # over from `shared/`, so we have a copy of the version of the code
 ##' # that was used in the analysis
 ##' fs::dir_tree(path)
 orderly_shared_resource <- function(...) {
