@@ -269,3 +269,12 @@ test_that("can construct query without expression", {
   res <- orderly_query(NULL, name = "foo")
   expect_equal(format(res), 'name == "foo"')
 })
+
+
+test_that("can print a query", {
+  obj <- orderly_query('latest(name == "data")')
+  res <- testthat::evaluate_promise(withVisible(print(obj)))
+  expect_mapequal(res$result, list(value = obj, visible = FALSE))
+  expect_match(res$messages, '<orderly_query>: `latest(name == "data")',
+               fixed = TRUE)
+})
