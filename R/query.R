@@ -51,6 +51,14 @@ orderly_query <- function(expr, name = NULL, scope = NULL, subquery = NULL) {
 }
 
 
+##' @export
+print.orderly_query <- function(x, ...) {
+  query_str <- format(x, ...)
+  cli::cli_text("<orderly_query>: {.code {query_str}}")
+  invisible(x)
+}
+
+
 expr_is_literal_id <- function(expr, ...) {
   all(vlapply(list(...), is.null)) &&
     is.character(expr) &&
