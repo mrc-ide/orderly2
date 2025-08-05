@@ -605,3 +605,29 @@ test_that("can make a strict list", {
   expect_error(obj[c("apple", "banan")],
                "'banan' not found in 'obj'")
 })
+
+
+test_that("can find calling env", {
+  ## The curly braces here are required, otherwise we don't properly
+  ## come through with calls that can be processed by find_calling_env :-/
+  f1 <- function(nm) {
+    f2(nm)
+  }
+  f2 <- function(nm) {
+    f3(nm)
+  }
+  f3 <- function(nm) {
+    f4(nm)
+  }
+  f4 <- function(nm) {
+    f5(nm)
+  }
+  f5 <- function(nm) {
+    env <- find_calling_env(nm)
+    calls <- sys.calls()
+    which(vlapply(calls, function(e) identical(e, env)))
+  }
+
+  expect_equal(f1("foo"), integer(0))
+  expect_equal(f1("f2"), integer(0))
+})

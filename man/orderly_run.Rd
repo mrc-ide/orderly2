@@ -197,7 +197,4 @@ fs::dir_tree(path)
 
 # and we can query the metadata:
 orderly_metadata_extract(name = "data", root = path)
-
-# Cleanup
-fs::dir_delete(path)
 }

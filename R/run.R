@@ -150,9 +150,6 @@
 ##'
 ##' # and we can query the metadata:
 ##' orderly_metadata_extract(name = "data", root = path)
-##'
-##' # Cleanup
-##' fs::dir_delete(path)
 orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
                         location = NULL, allow_remote = NULL,
                         fetch_metadata = FALSE, search_options = NULL,
