@@ -21,3 +21,30 @@ test_that("error if path exists", {
   expect_error(orderly_example(example = "simple", dest = path),
                "The path '.+' must not exist")
 })
+
+
+test_that("don't provide filename with example.db", {
+  expect_error(
+    orderly_example_show(example = "example.db", file = "DESCRIPTION"),
+    "Don't use 'file' with 'example.db'",
+    fixed = TRUE)
+})
+
+
+test_that("can show files from example.db", {
+  res <- evaluate_promise(
+    orderly_example_show("R/plugin.R", example = "example.db"))
+  expect_match(res$messages, "R/plugin.R", fixed = TRUE, all = FALSE)
+  expect_match(res$messages, "db_config <- function(data, filename) {",
+               fixed = TRUE, all = FALSE)
+})
+
+
+test_that("can show files from the ecxamples", {
+  res <- evaluate_promise(
+    orderly_example_show("shared"))
+  expect_match(res$messages, "src/shared/shared.R", fixed = TRUE, all = FALSE)
+  expect_match(res$messages,
+               "Pull in the file 'shared/palette.R' as 'cols.R'",
+               fixed = TRUE, all = FALSE)
+})

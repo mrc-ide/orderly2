@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sql": {
+                "type": "string"
+            },
+            "rows": {
+                "type": "number"
+            },
+            "cols": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "required": ["sql", "rows", "cols"],
+        "additionalProperties": false
+    }
+}

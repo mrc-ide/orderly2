@@ -57,6 +57,13 @@ report. The plugin needs to be able to support both modes, and
 this function will return information about the state to help you
 cope with either case.
 }
+\examples{
+# The example code from vignette("plugins") is available in the package
+fs::dir_tree(system.file("example.db", package = "orderly2"))
+
+# See orderly_plugin_context in context here:
+orderly_example_show("R/plugin.R", example = "example.db")
+}
 \seealso{
 \link{orderly_plugin_register},
 \link{orderly_plugin_add_metadata}

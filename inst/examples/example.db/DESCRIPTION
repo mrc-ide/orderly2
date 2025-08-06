@@ -1,0 +1,8 @@
+Package: example.db
+Version: 0.0.1
+License: CC0
+Title: Orderly Database Example Plugin
+Description: Simple example of an orderly plugin.
+Authors@R: person('Orderly Authors', role = c('aut', 'cre'),
+    email = 'email@example.com')
+Imports: orderly2

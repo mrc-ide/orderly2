@@ -27,3 +27,10 @@ Add plugin-specific metadata to a running packet. This will take
 some describing. You accumulate any number of bits of metadata
 into arbitrary fields, and then later on serialise these to json.
 }
+\examples{
+# The example code from vignette("plugins") is available in the package
+fs::dir_tree(system.file("example.db", package = "orderly2"))
+
+# See orderly_plugin_add_metadata in context here:
+orderly_example_show("R/plugin.R", example = "example.db")
+}
