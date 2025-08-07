@@ -80,9 +80,16 @@ orderly_example <- function(..., names = NULL, example = "demo", dest = NULL) {
 ##' orderly_run("data", root = path)
 orderly_example_show <- function(name, file = NULL, example = "demo") {
   src <- orderly_example_path(example)
-  valid <- dir(file.path(src, "src"))
-  match_value(name, valid)
-  filename <- file.path("src", name, file %||% paste0(name, ".R"))
+  if (example == "example.db") {
+    if (!is.null(file)) {
+      cli::cli_abort("Don't use 'file' with 'example.db'")
+    }
+    filename <- name
+  } else {
+    valid <- dir(file.path(src, "src"))
+    match_value(name, valid)
+    filename <- file.path("src", name, file %||% paste0(name, ".R"))
+  }
   show_file(file.path(src, filename), filename)
   invisible()
 }

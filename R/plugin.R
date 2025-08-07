@@ -55,6 +55,12 @@
 ##'   registering a plugin.
 ##'
 ##' @export
+##' @examples
+##' # The example code from vignette("plugins") is available in the package
+##' fs::dir_tree(system.file("examples/example.db", package = "orderly2"))
+##'
+##' # See orderly_plugin_register in context here:
+##' orderly_example_show("R/plugin.R", example = "example.db")
 orderly_plugin_register <- function(name, config, serialise = NULL,
                                     deserialise = NULL, cleanup = NULL,
                                     schema = NULL) {
@@ -174,6 +180,12 @@ orderly_plugin <- function(package, config, serialise, deserialise, cleanup,
 ##' @seealso [orderly2::orderly_plugin_register],
 ##' [orderly2::orderly_plugin_add_metadata]
 ##' @export
+##' @examples
+##' # The example code from vignette("plugins") is available in the package
+##' fs::dir_tree(system.file("examples/example.db", package = "orderly2"))
+##'
+##' # See orderly_plugin_context in context here:
+##' orderly_example_show("R/plugin.R", example = "example.db")
 orderly_plugin_context <- function(name, envir) {
   assert_scalar_character(name, call = environment())
   ctx <- orderly_context(envir)
@@ -208,6 +220,12 @@ orderly_plugin_context <- function(name, envir) {
 ##' @return Nothing, called only for its side effects
 ##'
 ##' @export
+##' @examples
+##' # The example code from vignette("plugins") is available in the package
+##' fs::dir_tree(system.file("examples/example.db", package = "orderly2"))
+##'
+##' # See orderly_plugin_add_metadata in context here:
+##' orderly_example_show("R/plugin.R", example = "example.db")
 orderly_plugin_add_metadata <- function(name, field, data) {
   assert_scalar_character(name, call = environment())
   assert_scalar_character(field, call = environment())
