@@ -1,6 +1,6 @@
 Package: orderly2
 Title: Lightweight Reproducible Reporting
-Version: 1.99.76
+Version: 1.99.77
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),

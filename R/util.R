@@ -827,3 +827,23 @@ show_file <- function(filename, title = filename, language = "R") {
   cli::cli_h1(title)
   cli::cli_code(code)
 }
+
+
+## There might be an easier way of doing this, but it's not totally
+## obvious.  We want to search through the calls to find a plausible
+## match for some function 'fn' (in the case where we use this,
+## "source", as we're trying to find the environment that triggers
+## running an example - this is called by "example()" and by devtools'
+## example runner).
+##
+## The approach here is simply to look at the stack and if there's one
+## call to that function use that; don't try and be clever and find
+## the shallowest or deepest in the case where more than one is
+## present.  If we fail, return the global environment, which is
+## suitable for using as .local_envir in withr functions anyway but
+## requires manual cleanup.
+find_calling_env <- function(fn) {
+  calls <- sys.calls()
+  i <- which(vlapply(calls, function(x) rlang::is_call(x, fn)))
+  if (length(i) == 1) sys.frame(i) else globalenv()
+}

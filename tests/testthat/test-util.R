@@ -605,3 +605,42 @@ test_that("can make a strict list", {
   expect_error(obj[c("apple", "banan")],
                "'banan' not found in 'obj'")
 })
+
+
+test_that("can find calling env", {
+  ## The curly braces here are required, otherwise we don't properly
+  ## come through with calls that can be processed by find_calling_env :-/
+  f1 <- function(nm) {
+    f2(nm)
+  }
+  f2 <- function(nm) {
+    f3(nm)
+  }
+  f3 <- function(nm) {
+    f4(nm)
+  }
+  f4 <- function(nm) {
+    f5(nm)
+  }
+  f5 <- function(nm) {
+    env <- find_calling_env(nm)
+    calls <- sys.calls()
+    frames <- sys.frames()
+    ## This is all quite gross; the actual environment found will be
+    ## at a depth that depends on how many calls exist betwen the main
+    ## R event loop and the call to f1, so it's hard to get right in
+    ## tess - exactly the problem we're trying to solve.  So here we
+    ## just find an environment, check where that environment is
+    ## within the stack of frames and then check that the call at that
+    ## depth matches our function.  Which is the same logic as used in
+    ## the initial discovery.
+    i <- which(vlapply(frames, function(e) identical(e, env)))
+    if (length(i) == 1) {
+      rlang::is_call(calls[[i]], nm)
+    } else {
+      FALSE
+    }
+  }
+  expect_false(f1("foo"))
+  expect_true(f1("f2"))
+})

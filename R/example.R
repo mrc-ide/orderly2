@@ -10,10 +10,10 @@
 ##'   "simple" and "demo" are supported.
 ##'
 ##' @param dest The destination. By default we use
-##'   `withr::local_tempfile()` which will create a temporary
-##'   directory that will clean itself up. This is suitable for use
-##'   from the orderly examples, but you may prefer to provide your
-##'   own path. The path must not already exist.
+##'   `withr::local_tempdir()` which will create a temporary directory
+##'   that will clean itself up. This is suitable for use from the
+##'   orderly examples, but you may prefer to provide your own path,
+##'   in which case the path must not already exist.
 ##'
 ##' @param ... Arguments passed through to [orderly2::orderly_init()]
 ##'
@@ -22,11 +22,10 @@
 ##' @examples
 ##' path <- orderly_example()
 ##' orderly_list_src(root = path)
-##'
-##' fs::dir_delete(path)
 orderly_example <- function(..., names = NULL, example = "demo", dest = NULL) {
   if (is.null(dest)) {
-    dest <- tempfile("orderly2_ex_")
+    env <- find_calling_env("source")
+    dest <- withr::local_tempdir(pattern = "orderly2_ex_", .local_envir = env)
   } else {
     assert_scalar_character(dest)
     if (file.exists(dest)) {

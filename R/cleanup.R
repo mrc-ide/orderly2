@@ -65,8 +65,6 @@
 ##'
 ##' # Do the actual deletion:
 ##' orderly2::orderly_cleanup("data", root = path)
-##'
-##' fs::dir_delete(path)
 orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL) {
   status <- orderly_cleanup_status(name, root)
   n <- length(status$delete)

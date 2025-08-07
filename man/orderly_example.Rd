@@ -16,10 +16,10 @@ default is to copy all reports.}
 "simple" and "demo" are supported.}
 
 \item{dest}{The destination. By default we use
-\code{withr::local_tempfile()} which will create a temporary
-directory that will clean itself up. This is suitable for use
-from the orderly examples, but you may prefer to provide your
-own path. The path must not already exist.}
+\code{withr::local_tempdir()} which will create a temporary directory
+that will clean itself up. This is suitable for use from the
+orderly examples, but you may prefer to provide your own path,
+in which case the path must not already exist.}
 }
 \value{
 Invisibly, the path to the example.
@@ -31,6 +31,4 @@ should not form part of your workflow!
 \examples{
 path <- orderly_example()
 orderly_list_src(root = path)
-
-fs::dir_delete(path)
 }
