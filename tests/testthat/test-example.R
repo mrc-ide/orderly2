@@ -40,7 +40,7 @@ test_that("can show files from example.db", {
 })
 
 
-test_that("can show files from the ecxamples", {
+test_that("can show files from the examples", {
   res <- evaluate_promise(
     orderly_example_show("shared"))
   expect_match(res$messages, "src/shared/shared.R", fixed = TRUE, all = FALSE)
