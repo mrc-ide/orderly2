@@ -72,7 +72,7 @@ in breaking ways) soon.
 }
 \examples{
 # The example code from vignette("plugins") is available in the package
-fs::dir_tree(system.file("example.db", package = "orderly2"))
+fs::dir_tree(system.file("examples/example.db", package = "orderly2"))
 
 # See orderly_plugin_register in context here:
 orderly_example_show("R/plugin.R", example = "example.db")
