@@ -12,7 +12,7 @@
 ##'   names must be unique, and the values must all be non-NA scalar
 ##'   atomics (logical, integer, numeric, character)
 ##'
-##' @param id Optionally, an outpack id via [orderly2::outpack_id]. If
+##' @param id Optionally, an outpack id via [orderly::outpack_id]. If
 ##'   not given a new id will be generated.
 ##'
 ##' @inheritParams outpack_metadata
@@ -111,11 +111,11 @@ outpack_packet_end <- function(packet, insert = TRUE) {
 }
 
 
-##' @param query An [orderly2::orderly_query] object, or something
+##' @param query An [orderly::orderly_query] object, or something
 ##'   (e.g., a string) that can be trivially converted into one.
 ##'
 ##' @param search_options Optional search options for restricting the
-##'   search (see [orderly2::orderly_search] for details)
+##'   search (see [orderly::orderly_search] for details)
 ##'
 ##' @param envir Optional environment for `environment:` lookups in
 ##'   `query`, and for interpolating filenames in `files`; the default
@@ -279,7 +279,7 @@ outpack_packet_add_custom <- function(packet, application, data) {
 ##' Mark file within an in-progress packet. This will store the hash
 ##' of the file within the internal outpack structures and force an
 ##' error if the file is changed or deleted later.  The function
-##' [orderly2::outpack_packet_file_list()] will report on which files
+##' [orderly::outpack_packet_file_list()] will report on which files
 ##' are marked (or unmarked) within the directory.
 ##'
 ##' @title Mark files during packet run

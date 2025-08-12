@@ -8,23 +8,23 @@ vignette: >
 ---
 
 ```{r}
-library(orderly2)
+library(orderly)
 ```
 
 # Outpack files accidentally committed to git
 
-As discussed in [the orderly introduction](/orderly2/articles/introduction.html#interaction-with-version-control), you do not want to commit any files from `.outpack/`, `drafts/` or `archive/` (if used) to git as this will create all sorts of problems down the line.
+As discussed in [the orderly introduction](/orderly/articles/introduction.html#interaction-with-version-control), you do not want to commit any files from `.outpack/`, `drafts/` or `archive/` (if used) to git as this will create all sorts of problems down the line.
 
 If you were directed here, it is probably because you have ended up with these files in git and want to undo this situation. The least painful way depends on your situation.
 
 We have now put in guard rails to try and prevent this happening, but it could still happen to you if you modify the `.gitignore` file or force-add files for example.
 
-Once you are in this situation, `orderly2` will shout at you:
+Once you are in this situation, `orderly` will shout at you:
 
 ```{r, include = FALSE}
 source("common.R")
-path <- orderly2::orderly_example("simple")
-orderly2::orderly_run("data", root = path)
+path <- orderly::orderly_example("simple")
+orderly::orderly_run("data", root = path)
 gert::git_init(path)
 gert::git_add(".", repo = path)
 user <- "author <author@example.com>"
@@ -32,7 +32,7 @@ gert::git_commit("initial", author = user, committer = user, repo = path)
 ```
 
 ```{r, error = TRUE, orderly_root = path}
-orderly2::orderly_run("data")
+orderly_run("data")
 ```
 
 which may have directed you to this very page.  If you just want to continue working anyway, then run the suggested command:
@@ -44,13 +44,13 @@ options(orderly_git_error_is_warning = TRUE)
 after which things will work with a warning the first time that session:
 
 ```{r, orderly_root = path}
-orderly2::orderly_run("data")
+orderly_run("data")
 ```
 
 subsequent calls will not display the warning:
 
 ```{r, orderly_root = path}
-orderly2::orderly_run("data")
+orderly_run("data")
 ```
 
 ```{r, include = FALSE}
@@ -64,7 +64,7 @@ The rest of this section discusses how you might permanently fix the issue.
 This is the case if you have just started a project, and are not yet collaborating on it with anyone else (or if that person is willing to re-clone their sources).  The simplest thing to do is:
 
 1. Delete the `.git` directory entirely
-2. Run `orderly2::orderly_gitignore_update("(root)")` to set up a reasonable `.gitignore` that will prevent this situation happening again
+2. Run `orderly_gitignore_update("(root)")` to set up a reasonable `.gitignore` that will prevent this situation happening again
 3. Run `git add .` to add everything back in (review this with `git status` to make sure you're happy)
 4. Run `git commit -m "Initial commit"` to create a single commit that contains all the files in currently in your repo *with no history*, and also with no `.outpack` files
 
@@ -81,7 +81,7 @@ Note that this is **destructive** and will require coordination with any collabo
 If you do care about your history, but you also have only committed a few files (e.g., you have committed files from `.outpack/` which are small but not a large 100MB file in `archive/` that is preventing you [pushing to GitHub](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github)) then you could just delete the offending files from git without updating the history, or affecting your local copies.
 
 1. Run `git rm --cached .outpack` (repeating with `draft` and `archive` as needed)
-2. Run `orderly2::orderly_gitignore_update("(root)")` to set up a reasonable `.gitignore` that will prevent this situation happening again
+2. Run `orderly_gitignore_update("(root)")` to set up a reasonable `.gitignore` that will prevent this situation happening again
 3. Run `git add .gitignore` to also stage this
 4. Run `git commit -m "Delete unwanted outpack files"`
 

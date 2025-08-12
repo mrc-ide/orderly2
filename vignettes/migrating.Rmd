@@ -7,11 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-The new version of orderly (codename `orderly2` for now) is very different to the previously released version on CRAN (orderly 1.4.3; September 2021) or the last development version of the 1.x line (orderly 1.6.x; June 2023).  These changes constitute a ground-up rewrite in order to bring out the best features we found that orderly enabled within workflows, while removing some features we felt have outlived their usefulness.  This is disruptive change, but we hope that it will be worth it.
+The new version of orderly (version 1.99.x, known as `orderly2` during development) is very different to the previously released version on CRAN (orderly 1.4.3; September 2021) or the last development version of the 1.x line (orderly 1.6.x; June 2023).  These changes constitute a ground-up rewrite in order to bring out the best features we found that orderly enabled within workflows, while removing some features we felt have outlived their usefulness.  This is disruptive change, but we hope that it will be worth it.
 
-This vignette is divided into two parts; one covers the conceptual differences between `orderly1` and `orderly2` while the second covers the mechanical process of migrating from an existing orderly source tree and archive to take advantage of the new features.
+This vignette is divided into two parts; one covers the conceptual differences between `orderly1` and `orderly` while the second covers the mechanical process of migrating from an existing orderly source tree and archive to take advantage of the new features.
 
-If you have never used version 1.x of orderly, you should not read this document unless you are curious about the history of design decisions. Instead you should read the introductory vignette (`vignette("orderly2")`).
+If you have never used version 1.x of orderly, you should not read this document unless you are curious about the history of design decisions. Instead you should read the introductory vignette (`vignette("orderly")`).
 
 # Summary of changes
 
@@ -42,23 +42,23 @@ artefacts:
 would end up within an orderly file that looks like:
 
 ```r
-pars <- orderly2::orderly_parameters(n_min = 10)
-orderly2::orderly_dependency("raw_data", "latest", 
-                             files = c("raw_data.csv" = "data.csv"))
-orderly2::orderly_resource("metadata.csv")
-orderly2::orderly_artefact(description = "Processed data", "data.rds")
+pars <- orderly::orderly_parameters(n_min = 10)
+orderly::orderly_dependency("raw_data", "latest", 
+                            files = c("raw_data.csv" = "data.csv"))
+orderly::orderly_resource("metadata.csv")
+orderly::orderly_artefact(description = "Processed data", "data.rds")
 source("functions.R")
 ```
 
 We think this is much clearer, and comes with documentation and autocomplete support in most IDEs.
 
-In fact, for simple reports, **no** special functions are required, though you'll find that some will be useful (see `vignette("orderly2")`)
+In fact, for simple reports, **no** special functions are required, though you'll find that some will be useful (see `vignette("orderly")`)
 
 Some specific changes:
 
 * you no longer need to list packages with `packages:`, instead just use `library()` as in an ordinary script. We will record the state of the session regardless so you will get a record of what was used
 * you no longer need to use `sources:` to list scripts you want to source, instead use `source()` as normal
-* `global_resources` has become `orderly2::orderly_shared_resource` (these aren't really global so much as shared). Note that the directory they are in is now always `shared/` at the orderly root, you may not configure it.
+* `global_resources` has become `orderly::orderly_shared_resource` (these aren't really global so much as shared). Note that the directory they are in is now always `shared/` at the orderly root, you may not configure it.
 
 ### Implications
 
@@ -73,9 +73,9 @@ In version 1, we had built-in support for accessing data from SQL databases; thi
 
 ## No more commit
 
-`orderly2` no longer requires a separate `orderly_commit()` call after `orderly_run()`; we no longer make a distinction between local draft and archive packets. Instead, we have added finer-grained control over where dependencies are resolved from (locally, or from some subset of your servers), which generalises the way that draft/archive was used in practice.  See `?orderly_run` for more details on how dependencies are resolved.
+`orderly` no longer requires a separate `orderly_commit()` call after `orderly_run()`; we no longer make a distinction between local draft and archive packets. Instead, we have added finer-grained control over where dependencies are resolved from (locally, or from some subset of your servers), which generalises the way that draft/archive was used in practice.  See `?orderly_run` for more details on how dependencies are resolved.
 
-This has implications for deleting things; the draft directory was always an easy target for deletion, but now after deletion you will need to tell `orderly2` that you have deleted things. See `vignette("introduction")` for details on this (section "Deleting things from the archive").
+This has implications for deleting things; the draft directory was always an easy target for deletion, but now after deletion you will need to tell `orderly` that you have deleted things. See `vignette("introduction")` for details on this (section "Deleting things from the archive").
 
 ## No more testing or development mode
 
@@ -84,7 +84,7 @@ We have had two different, but unsatisfactory, mechanisms for developing an orde
 * `orderly_test_start` (up to version 1.1.0)
 * `orderly_develop_start` (from 1.1.0 onwards)
 
-These worked by doing the initial setup, and copying of dependencies etc to a location you could work (a new draft for `orderly_test_start` and the source directory for `orderly_develop_start`). From `orderly2` you can just work directly within the source directory, and so long as your working directory is set to `src/<report-name>`, all `orderly2` commands will work as expected.
+These worked by doing the initial setup, and copying of dependencies etc to a location you could work (a new draft for `orderly_test_start` and the source directory for `orderly_develop_start`). From `orderly` you can just work directly within the source directory, and so long as your working directory is set to `src/<report-name>`, all `orderly` commands will work as expected.
 
 As with `orderly1`, you will need to be careful not to commit (to git) results of running your analysis, and we encourage per-report `.gitignore` files to help with this.
 
@@ -96,7 +96,7 @@ This takes control of all the metadata. As such there is a split between "`order
 
 ## Other, smaller changes
 
-**"Global" resources have become "shared" resources**, and always live in `shared/` at the orderly root (i.e., this is no longer configurable). The reason for this is that we want reports to be able to be run fairly independently of the `orderly2` configuration (the only exception to this are plugins). In practice people did not really vary this.
+**"Global" resources have become "shared" resources**, and always live in `shared/` at the orderly root (i.e., this is no longer configurable). The reason for this is that we want reports to be able to be run fairly independently of the `orderly` configuration (the only exception to this are plugins). In practice people did not really vary this.
 
 **You can depend on anything**; if a packet has produced a file you can depend on it, regardless of if it was an artefact, a resource or simply just present.
 
@@ -110,15 +110,15 @@ This takes control of all the metadata. As such there is a split between "`order
 
 There are two parts to a migration: updating the canonical copy of your orderly archive (ideally you only have one of these) and updating your source tree. These steps should be done via the [`outpack.orderly`](https://github.com/mrc-ide/outpack.orderly) package.
 
-You should migrate your archive first. Do this for every archive that you want to retain (you might have archives stored locally, on production servers and on staging servers). Archive migration happens *out of place*; that is, we do not modify anything in the original location. If your archive is old and has been used with very old versions of `orderly1` it is possible that this process will have a few hiccups. Please let us know if that is the case.  The result of this process is that you will end up with a new directory that contains a new archive conforming to the `outpack` spec and containing `orderly2` metadata.
+You should migrate your archive first. Do this for every archive that you want to retain (you might have archives stored locally, on production servers and on staging servers). Archive migration happens *out of place*; that is, we do not modify anything in the original location. If your archive is old and has been used with very old versions of `orderly1` it is possible that this process will have a few hiccups. Please let us know if that is the case.  The result of this process is that you will end up with a new directory that contains a new archive conforming to the `outpack` spec and containing `orderly` metadata.
 
-Next, migrate your source tree. This will be done *in place* so should be done on a fresh clone of your source git repository. For each report, we will examine your `orderly.yml` files and your script files (often `script.R`), delete these, and then write out a new orderly file that will adapt your report to work for `orderly2`.  It is possible that this will not be perfect and might need some minor tweaking but hopefully it will be reasonable. One thing that is not preserved (and we probably cannot do so) is the comments from the `yaml` but as these often refer to `yaml` formatting or `orderly1` features hopefully this is not too much of a problem.  You will probably want to manually tweak the generated code anyway, to take advantage of some of the new `orderly2` features such as being able to compute dependencies.
+Next, migrate your source tree. This will be done *in place* so should be done on a fresh clone of your source git repository. For each report, we will examine your `orderly.yml` files and your script files (often `script.R`), delete these, and then write out a new orderly file that will adapt your report to work for `orderly`.  It is possible that this will not be perfect and might need some minor tweaking but hopefully it will be reasonable. One thing that is not preserved (and we probably cannot do so) is the comments from the `yaml` but as these often refer to `yaml` formatting or `orderly1` features hopefully this is not too much of a problem.  You will probably want to manually tweak the generated code anyway, to take advantage of some of the new `orderly` features such as being able to compute dependencies.
 
 If you are using OrderlyWeb, you probably need to pause before migrating, as the replacement is not yet ready.
 
 # What about the packages?
 
-We will merge `orderly2` into the `orderly` package, so once we are ready for release you can use that. However, we anticipate a period of coexistence of both legacy `orderly1` systems while we develop `orderly2`. To help with this we have a small helper package [`orderly.helper`](https://mrc-ide.github.io/orderly.helper) which can smooth over these namespace differences; this may be useful if you interact with both versions.
+We have renamed the original version of the package as `orderly1` so that you can use it with existing projects without migrating; this can be safely installed alongside this new `orderly` package.
 
 # What were the problems in version 1
 
@@ -129,7 +129,7 @@ We will merge `orderly2` into the `orderly` package, so once we are ready for re
 
 # Working with old versions without migrating
 
-Sometimes, you will want to use the old version of orderly without migrating any source, for example to rerun something as it was run in 2020.  You can do this by installing `orderly1`, which can be safely installed alongside `orderly2`.  You should, however, avoid loading both packages at once (i.e., with `library()`) as this will cause ambiguity in a number of functions, notably `orderly_run()`
+Sometimes, you will want to use the old version of orderly without migrating any source, for example to rerun something as it was run in 2020.  You can do this by installing `orderly1`, which can be safely installed alongside `orderly`.  You should, however, avoid loading both packages at once (i.e., with `library()`) as this will cause ambiguity in a number of functions, notably `orderly_run()`
 
 Install `orderly1` with:
 
@@ -141,4 +141,4 @@ install.packages(
 
 and you can work with the sources or outputs as you wish.  You will need to replace any namespaced calls `orderly::fn` with `orderly1::fn` (these might appear in your documentation, helper scripts, or similar).
 
-If you try to use `orderly2` with version 1 sources, then you will get an error message that will direct you to this document to decide the best way forward.
+If you try to use `orderly` with version 1 sources, then you will get an error message that will direct you to this document to decide the best way forward.

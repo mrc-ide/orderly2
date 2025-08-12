@@ -65,13 +65,13 @@ detect_orderly_interactive_path <- function(
 .interactive <- new.env(parent = emptyenv())
 
 ##' Set search options for interactive use of orderly; see
-##' [orderly2::orderly_dependency] and [orderly2::orderly_run] for
-##' details. This may be either an [orderly2::orderly_search_options]
+##' [orderly::orderly_dependency] and [orderly::orderly_run] for
+##' details. This may be either an [orderly::orderly_search_options]
 ##' object, or a list that will be coerced into one at the point of
 ##' use (or `NULL`). This applies only for the current session, but
 ##' applies to all interactive uses of orderly functions that might
 ##' have received a copy of `search_options` via
-##' [orderly2::orderly_run]
+##' [orderly::orderly_run]
 ##'
 ##' @title Set search options for interactive use
 ##'

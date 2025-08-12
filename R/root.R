@@ -6,20 +6,20 @@
 ##' It is expected that `orderly_config.yml` will be saved in version
 ##' control, but that `.outpack` will be excluded from version
 ##' control; this means that for every clone of your project you will
-##' need to call `orderly2::orderly_init()` to initialise the
+##' need to call `orderly::orderly_init()` to initialise the
 ##' `.outpack` directory. If you forget to do this, an error will be
 ##' thrown reminding you of what you need to do.
 ##'
-##' You can safely call `orderly2::orderly_init()` on an
+##' You can safely call `orderly::orderly_init()` on an
 ##' already-initialised directory, however, any arguments passed
 ##' through must exactly match the configuration of the current root,
 ##' otherwise an error will be thrown. Please use
-##' [orderly2::orderly_config_set] to change the configuration, as
+##' [orderly::orderly_config_set] to change the configuration, as
 ##' this ensures that the change in configuration is possible. If
 ##' configuration options are given but match those that the directory
 ##' already uses, then nothing happens.
 ##'
-##' If the repository that you call `orderly2::orderly_init()` on is
+##' If the repository that you call `orderly::orderly_init()` on is
 ##' already initialised with an `.outpack` directory but not an
 ##' `orderly_config.yml` file, then we will write that file too.
 ##'
@@ -43,7 +43,7 @@
 ##'
 ##' @param require_complete_tree Logical, indicating if we require a
 ##'   complete tree of packets.  This currently affects
-##'   [orderly2::orderly_location_pull], by requiring that it
+##'   [orderly::orderly_location_pull], by requiring that it
 ##'   always operates in recursive mode.  This is `FALSE` by default,
 ##'   but set to `TRUE` if you want your archive to behave well as a
 ##'   location; if `TRUE` you will always have all the packets that
@@ -193,7 +193,7 @@ root_open <- function(path, require_orderly, call = parent.frame()) {
     cli::cli_abort(
       c(sprintf("orderly directory '%s' not initialised", path),
         x = "Did not find an '.outpack' directory within path",
-        i = 'Please run orderly2::orderly_init("{path}") to initialise',
+        i = 'Please run orderly::orderly_init("{path}") to initialise',
         i = "See ?orderly_init for more arguments to this function"),
       call = call)
   }
@@ -208,7 +208,7 @@ root_open <- function(path, require_orderly, call = parent.frame()) {
         x = paste("Your directory has an '.outpack/' path, so is a valid",
                   "outpack root, but does not contain 'orderly_config.yml' so",
                   "cannot be used as an orderly root"),
-        i = 'Please run orderly2::orderly_init("{path}") to initialise',
+        i = 'Please run orderly::orderly_init("{path}") to initialise',
         i = "See ?orderly_init for more arguments to this function"),
       call = call)
   }
@@ -269,7 +269,7 @@ root_validate_same_configuration <- function(args, config, root, call) {
       cli::cli_abort(
         c("Trying to change configuration when re-initialising",
           set_names(err_str, rep("x", length(err_str))),
-          i = "Use 'orderly2::orderly_config_set()' to change configuration"),
+          i = "Use 'orderly::orderly_config_set()' to change configuration"),
         call = call)
     }
   }
@@ -331,7 +331,7 @@ root_check_git <- function(root, call) {
   if (!is_ok) {
     files_err <- files[rowSums(err) > 0]
     types_err <- special[colSums(err) > 0]
-    url <- "https://mrc-ide.github.io/orderly2/articles/troubleshooting.html"
+    url <- "https://mrc-ide.github.io/orderly/articles/troubleshooting.html"
     warn_only <- getOption("orderly_git_error_is_warning", FALSE)
     msg <- c("Detected {length(files_err)} outpack file{?s} committed to git",
              x = "Detected files were found in {squote(types_err)}",

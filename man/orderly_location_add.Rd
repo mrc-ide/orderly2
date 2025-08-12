@@ -60,7 +60,7 @@ shared filesystems.}
 example \verb{http://example.com:8080}}
 
 \item{token}{The value for your your login token (currently this
-is a GitHub token with \code{read:org} scope). If \code{NULL}, orderly2
+is a GitHub token with \code{read:org} scope). If \code{NULL}, orderly
 will perform an interactive authentication against GitHub to
 obtain one.}
 

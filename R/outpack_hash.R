@@ -1,6 +1,6 @@
-##' Use orderly2's hashing functions.  This is intended for advanced
+##' Use orderly's hashing functions.  This is intended for advanced
 ##' users, in particular those who want to create hashes that are
-##' consistent with orderly2 from within plugins. The default
+##' consistent with orderly from within plugins. The default
 ##' behaviour is to use the same algorithm as used in the orderly root
 ##' (via the `root` argument, and the usual root location
 ##' approach). However, if a string is provided for `algorithm` you
