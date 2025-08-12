@@ -1,6 +1,6 @@
-orderly2::orderly_resource("data.csv")
-orderly2::orderly_artefact("mygraph.png", description = "A graph of things")
-orderly2::orderly_description(
+orderly::orderly_resource("data.csv")
+orderly::orderly_artefact("mygraph.png", description = "A graph of things")
+orderly::orderly_description(
   "Packet with description",
   "A longer description. Perhaps multiple sentences",
   list(author = "Alice", requester = "Bob"))

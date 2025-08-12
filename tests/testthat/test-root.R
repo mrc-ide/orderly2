@@ -32,7 +32,7 @@ test_that("error of opening an outpack root that is not an orderly root", {
     c(x = paste("Your directory has an '.outpack/' path, so is a valid",
                 "outpack root, but does not contain 'orderly_config.yml' so",
                 "cannot be used as an orderly root"),
-      i = 'Please run orderly2::orderly_init(".") to initialise',
+      i = 'Please run orderly::orderly_init(".") to initialise',
       i = "See ?orderly_init for more arguments to this function"))
 })
 
