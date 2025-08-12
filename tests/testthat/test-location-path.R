@@ -314,7 +314,7 @@ test_that("Push single packet", {
 
 
 test_that("Can read metadata files with a trailing newline", {
-  # Past versions of orderly2 wrote metadata files with a trailing newline
+  # Past versions of orderly wrote metadata files with a trailing newline
   # character, despite the fact that the newline was not included when hashing.
   #
   # This has been fixed by not writing the newline anymore, but for
@@ -325,7 +325,7 @@ test_that("Can read metadata files with a trailing newline", {
   id <- create_random_packet(root)
   path <- file.path(root$path, ".outpack", "metadata", id)
 
-  # Calling writeLines adds the trailing newline and mimicks the old orderly2
+  # Calling writeLines adds the trailing newline and mimicks the old orderly
   # behaviour. The size will be one or two bytes bigger than the actual data,
   # depending on whether the newline is `\n` or `\r\n`.
   old_size <- file.info(path)$size
