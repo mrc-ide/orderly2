@@ -84,7 +84,7 @@ is equivalent to
 orderly_query(quote(parameter:x == 1 && name == "data"))
 ```
 
-`orderly2` uses this functionality when resolving dependencies with `orderly2::orderly_dependency`.
+`orderly` uses this functionality when resolving dependencies with `orderly::orderly_dependency`.
 
 ### Scoping on name
 

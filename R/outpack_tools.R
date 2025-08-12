@@ -11,10 +11,10 @@
 ##' another will not have a dependency section, and one that was run
 ##' in a context without git will not have git metadata). If you just
 ##' want the raw tree-structured data, you can always use
-##' [orderly2::orderly_metadata] to load the full metadata for any
+##' [orderly::orderly_metadata] to load the full metadata for any
 ##' packet (even one that is not currently available on your computer,
 ##' just known about it) and the structure of the data will remain
-##' fairly constant across orderly2 versions.
+##' fairly constant across orderly versions.
 ##'
 ##' However, sometimes we want to extract data in order to ask
 ##' specific questions like:
@@ -65,7 +65,7 @@
 ##' * session: some information about the session that the packet was run in
 ##'   (this is unstandardised, and even the orderly version may change)
 ##' * custom: additional metadata added by its respective engine.  For
-##'   packets run by `orderly2`, there will be a `orderly` field here,
+##'   packets run by `orderly`, there will be a `orderly` field here,
 ##'   which is itself a list:
 ##'   * artefacts: A [data.frame] with artefact information, containing
 ##'     columns `description` (a string) and `paths` (a list column of paths).
@@ -75,7 +75,7 @@
 ##'   * role: A [data.frame] of identified roles of files, with columns `path`
 ##'     and `role`.
 ##'   * description: A list of information from
-##'     [orderly2::orderly_description] with human-readable descriptions and
+##'     [orderly::orderly_description] with human-readable descriptions and
 ##'     tags.
 ##'   * session: A list of information about the session as run,
 ##'     with a list `platform` containing information about the platform
@@ -184,7 +184,7 @@
 ##'   It is probably best not to rely on this right now, and we will
 ##'   expand this section when you can.
 ##'
-##' @title Extract metadata from orderly2 packets
+##' @title Extract metadata from orderly packets
 ##'
 ##' @param extract A character vector of columns to extract, possibly
 ##'   named. See Details for the format.

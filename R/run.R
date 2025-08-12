@@ -7,7 +7,7 @@
 ##' If your packet depends on other packets, you will want to control
 ##'   the locations that are used to find appropriate packets. The
 ##'   control for this is passed through this function and *not* as an
-##'   argument to [orderly2::orderly_dependency] because this is a
+##'   argument to [orderly::orderly_dependency] because this is a
 ##'   property of the way that a packet is created and not of a packet
 ##'   itself; importantly different users may have different names for
 ##'   their locations so it makes little sense to encode the location
@@ -31,7 +31,7 @@
 ##'
 ##' This has no effect when running interactively, in which case you
 ##'   can specify the search options (root specific) with
-##'   [orderly2::orderly_interactive_set_search_options]
+##'   [orderly::orderly_interactive_set_search_options]
 ##'
 ##' @section Which packets might be selected from locations?:
 ##'
@@ -133,7 +133,7 @@
 ##'   default) to search for one from the current working
 ##'   directory. This function **does** require that the directory is
 ##'   configured for orderly, and not just outpack (see
-##'   [orderly2::orderly_init] for details).
+##'   [orderly::orderly_init] for details).
 ##'
 ##' @return The id of the created report (a string)
 ##'
@@ -203,9 +203,9 @@ orderly_run <- function(name, parameters = NULL, envir = NULL, echo = TRUE,
   p <- outpack_packet_start(path, name, parameters = parameters,
                             id = id, root = root)
   outpack_packet_file_mark(p, entrypoint_filename, "immutable")
-  p$orderly2 <- list(config = root$config$orderly, envir = envir, src = src,
-                     root = root_src, strict = dat$strict,
-                     inputs_info = inputs_info, search_options = search_options)
+  p$orderly <- list(config = root$config$orderly, envir = envir, src = src,
+                    root = root_src, strict = dat$strict,
+                    inputs_info = inputs_info, search_options = search_options)
   current[[path]] <- p
   on.exit(current[[path]] <- NULL, add = TRUE, after = TRUE)
   if (!is.null(parameters)) {
@@ -329,7 +329,7 @@ check_parameters <- function(given, spec, call) {
   if (length(given) > 0 && is.null(spec)) {
     cli::cli_abort(
       c("Parameters given, but none declared",
-        i = "Did you forget 'orderly2::orderly_parameters()"),
+        i = "Did you forget 'orderly::orderly_parameters()"),
       call = call)
   }
 
@@ -457,7 +457,7 @@ check_files_strict <- function(path, known, artefacts) {
     cli::cli_alert_warning("Report produced unexpected files:")
     cli::cli_ul(unknown)
     cli::cli_alert_info(paste("These are probably artefacts, consider using",
-                              "orderly2::orderly_artefact to describe them"))
+                              "orderly::orderly_artefact to describe them"))
   }
 }
 
@@ -474,7 +474,7 @@ check_files_relaxed <- function(path, inputs_info) {
     cli::cli_alert_warning("The following inputs were modified by the report:")
     cli::cli_ul(inputs_info$path[modified])
     cli::cli_alert_info(paste("These are probably artefacts, consider using",
-                              "orderly2::orderly_artefact to describe them"))
+                              "orderly::orderly_artefact to describe them"))
   }
   if (any(deleted)) {
     cli::cli_alert_warning("The following inputs were deleted by the report:")
@@ -509,13 +509,13 @@ copy_resources_implicit <- function(src, dst, resources, artefacts) {
 orderly_packet_cleanup_success <- function(p, call = NULL) {
   path <- p$path
 
-  plugin_run_cleanup(path, p$orderly2$config$plugins)
-  p$orderly2$artefacts <- check_produced_artefacts(path, p$orderly2$artefacts,
-                                                   call)
-  if (p$orderly2$strict$enabled) {
-    check_files_strict(path, p$files, p$orderly2$artefacts)
+  plugin_run_cleanup(path, p$orderly$config$plugins)
+  p$orderly$artefacts <- check_produced_artefacts(path, p$orderly$artefacts,
+                                                  call)
+  if (p$orderly$strict$enabled) {
+    check_files_strict(path, p$files, p$orderly$artefacts)
   } else {
-    check_files_relaxed(path, p$orderly2$inputs_info)
+    check_files_relaxed(path, p$orderly$inputs_info)
   }
 
   orderly_packet_add_metadata(p)
@@ -525,17 +525,17 @@ orderly_packet_cleanup_success <- function(p, call = NULL) {
 
 
 orderly_packet_cleanup_failure <- function(p) {
-  ignore_errors(plugin_run_cleanup(p$path, p$orderly2$config$plugins))
+  ignore_errors(plugin_run_cleanup(p$path, p$orderly$config$plugins))
   ignore_errors(orderly_packet_add_metadata(p))
   outpack_packet_end(p, insert = FALSE)
 }
 
 
 orderly_packet_add_metadata <- function(p) {
-  json <- to_json(custom_metadata(p$orderly2), "orderly/orderly.json")
+  json <- to_json(custom_metadata(p$orderly), "orderly/orderly.json")
   outpack_packet_add_custom(p, "orderly", json)
   for (nm in names(p$plugins)) {
-    cfg <- p$orderly2$config$plugins[[nm]]
+    cfg <- p$orderly$config$plugins[[nm]]
     json_p <- to_json(cfg$serialise(p$plugins[[nm]]), cfg$schema)
     outpack_packet_add_custom(p, nm, json_p)
   }

@@ -22,7 +22,7 @@
 ##' @param serialise A function to serialise any metadata added by the
 ##'   plugin's functions to the outpack metadata. It will be passed a
 ##'   list of all entries pushed in via
-##'   [`orderly2::orderly_plugin_add_metadata()`]; this is a named
+##'   [`orderly::orderly_plugin_add_metadata()`]; this is a named
 ##'   list with names corresponding to the `field` argument to
 ##'   `orderly_plugin_add_metadata` and each list element being an
 ##'   unnamed list with values corresponding to `data`. If `NULL`,
@@ -34,7 +34,7 @@
 ##'   deal with issues disambiguating unserialising objects from json
 ##'   (scalars vs arrays of length 1, data.frames vs lists-of-lists
 ##'   etc), and will make your plugin nicer to work with
-##'   [orderly2::orderly_metadata_extract()]. This function will be
+##'   [orderly::orderly_metadata_extract()]. This function will be
 ##'   given a single argument `data` which is the data from
 ##'   `jsonlite::fromJSON(..., simplifyVector = FALSE)` and you should
 ##'   apply any required simplifications yourself, returning a
@@ -57,7 +57,7 @@
 ##' @export
 ##' @examples
 ##' # The example code from vignette("plugins") is available in the package
-##' fs::dir_tree(system.file("examples/example.db", package = "orderly2"))
+##' fs::dir_tree(system.file("examples/example.db", package = "orderly"))
 ##'
 ##' # See orderly_plugin_register in context here:
 ##' orderly_example_show("R/plugin.R", example = "example.db")
@@ -128,10 +128,10 @@ orderly_plugin <- function(package, config, serialise, deserialise, cleanup,
 ##' here is that within free functions that your plugin makes
 ##' available, you will call this function to get information about
 ##' the state of a packet.  You will then typically call
-##' [`orderly2::orderly_plugin_add_metadata()`] afterwards.
+##' [`orderly::orderly_plugin_add_metadata()`] afterwards.
 ##'
-##' When a plugin function is called, orderly2 will be running in one
-##' of two modes; (1) from within [`orderly2::orderly_run()`], in
+##' When a plugin function is called, orderly will be running in one
+##' of two modes; (1) from within [`orderly::orderly_run()`], in
 ##' which case we're part way through creating a packet in a brand new
 ##' directory, and possibly using a special environment for
 ##' evaluation, or (2) interactively, with a user developing their
@@ -153,7 +153,7 @@ orderly_plugin <- function(package, config, serialise, deserialise, cleanup,
 ##' @return A list with elements:
 ##'
 ##' * `is_active`: a logical, indicating if we're running under
-##'   [`orderly2::orderly_run()`]; you may need to change behaviour
+##'   [`orderly::orderly_run()`]; you may need to change behaviour
 ##'   depending on this value.
 ##'
 ##' * `path`: the path of the running packet. This is almost always the
@@ -162,7 +162,7 @@ orderly_plugin <- function(package, config, serialise, deserialise, cleanup,
 ##'
 ##' * `config`: the configuration for this plugin, after processing
 ##'   with the plugin's `read` function (see
-##'   [`orderly2::orderly_plugin_register`])
+##'   [`orderly::orderly_plugin_register`])
 ##'
 ##' * `envir`: the environment that the packet is running in. Often this
 ##'   will be the global environment, but do not assume this! You may
@@ -177,12 +177,12 @@ orderly_plugin <- function(package, config, serialise, deserialise, cleanup,
 ##' * `parameters`: the parameters as passed through to the run the
 ##'   report.
 ##'
-##' @seealso [orderly2::orderly_plugin_register],
-##' [orderly2::orderly_plugin_add_metadata]
+##' @seealso [orderly::orderly_plugin_register],
+##' [orderly::orderly_plugin_add_metadata]
 ##' @export
 ##' @examples
 ##' # The example code from vignette("plugins") is available in the package
-##' fs::dir_tree(system.file("examples/example.db", package = "orderly2"))
+##' fs::dir_tree(system.file("examples/example.db", package = "orderly"))
 ##'
 ##' # See orderly_plugin_context in context here:
 ##' orderly_example_show("R/plugin.R", example = "example.db")
@@ -206,8 +206,8 @@ orderly_plugin_context <- function(name, envir) {
 ##' @title Add metadata from plugin
 ##'
 ##' @param name The name of the plugin; must be the same as used in
-##'   [orderly2::orderly_plugin_register] and
-##'   [orderly2::orderly_plugin_context]
+##'   [orderly::orderly_plugin_register] and
+##'   [orderly::orderly_plugin_context]
 ##'
 ##' @param field The name of a field to add the data to. This is
 ##'   required even if your plugin only produces one sort of data, in
@@ -222,7 +222,7 @@ orderly_plugin_context <- function(name, envir) {
 ##' @export
 ##' @examples
 ##' # The example code from vignette("plugins") is available in the package
-##' fs::dir_tree(system.file("examples/example.db", package = "orderly2"))
+##' fs::dir_tree(system.file("examples/example.db", package = "orderly"))
 ##'
 ##' # See orderly_plugin_add_metadata in context here:
 ##' orderly_example_show("R/plugin.R", example = "example.db")
@@ -231,7 +231,7 @@ orderly_plugin_add_metadata <- function(name, field, data) {
   assert_scalar_character(field, call = environment())
   p <- get_active_packet()
   if (!is.null(p)) {
-    check_plugin_enabled(name, p$orderly2$config, call = environment())
+    check_plugin_enabled(name, p$orderly$config, call = environment())
     p$plugins[[name]][[field]] <- c(p$plugins[[name]][[field]], list(data))
   }
 }
@@ -272,7 +272,7 @@ plugin_no_deserialise <- function(data) {
 
 
 ## Some careful work here is required to cope with the case where
-## orderly2 and the plugin package are installed directly or in dev
+## orderly and the plugin package are installed directly or in dev
 ## mode
 ##
 ## If orderly or both are loaded in dev mode we can just use

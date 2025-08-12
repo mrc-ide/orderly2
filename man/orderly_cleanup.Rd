@@ -38,7 +38,7 @@ be deleted.
 }
 \details{
 After file deletion, we look through and remove all empty
-directories; orderly2 has similar semantics here to git where
+directories; orderly has similar semantics here to git where
 directories are never directly tracked.
 
 For recent \code{gert} we will ask git if files are ignored; if ignored
@@ -74,7 +74,7 @@ fs::dir_tree(path)
 
 # We can detect what might want cleaning up by running
 # "orderly_cleanup_status":
-orderly2::orderly_cleanup_status("data", root = path)
+orderly::orderly_cleanup_status("data", root = path)
 
 # Soon this will print more nicely to the screen, but for now you
 # can see that the status of "data.rds" is "derived", which means
@@ -82,5 +82,5 @@ orderly2::orderly_cleanup_status("data", root = path)
 # "delete" element shows what will be deleted.
 
 # Do the actual deletion:
-orderly2::orderly_cleanup("data", root = path)
+orderly::orderly_cleanup("data", root = path)
 }

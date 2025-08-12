@@ -14,18 +14,18 @@ db_config <- function(data, filename) {
 }
 
 query <- function(sql) {
-  ctx <- orderly2::orderly_plugin_context("example.db")
+  ctx <- orderly::orderly_plugin_context("example.db")
   dbname <- ctx$config$path
   con <- DBI::dbConnect(RSQLite::SQLite(), dbname)
   on.exit(DBI::dbDisconnect(con))
   d <- DBI::dbGetQuery(con, sql)
   info <- list(sql = sql, rows = nrow(d), cols = names(d))
-  orderly2::orderly_plugin_add_metadata("example.db", "query", info)
+  orderly::orderly_plugin_add_metadata("example.db", "query", info)
   d
 }
 
 .onLoad <- function(...) {
-  orderly2::orderly_plugin_register(
+  orderly::orderly_plugin_register(
     name = "example.db",
     config = db_config,
     serialise = db_serialise,

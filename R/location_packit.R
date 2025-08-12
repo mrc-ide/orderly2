@@ -21,9 +21,9 @@ packit_authentication <- function(base_url, token, save_token) {
     # The `name` argument is used by httr2 to pick the cache location. They
     # recommend using the package name.
     client <- httr2::oauth_client(
-      id = "orderly2",
+      id = "orderly",
       token_url = token_url,
-      name = "orderly2"
+      name = "orderly"
     )
 
     function(r) {
