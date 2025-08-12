@@ -33,7 +33,7 @@ data from any file regardless of where it came from). If \code{plugins}
 is \code{TRUE} (the default) then we will deserialise all data that
 matches any loaded plugin.  This means that the behaviour of this
 function depends on if you have loaded the plugin packages. You
-can force this by running \code{orderly2::orderly_config()} within any
+can force this by running \code{orderly::orderly_config()} within any
 orderly directory, which will load any declared plugins.
 }
 \examples{

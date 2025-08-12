@@ -2,7 +2,7 @@
 % Please edit documentation in R/outpack_tools.R
 \name{orderly_metadata_extract}
 \alias{orderly_metadata_extract}
-\title{Extract metadata from orderly2 packets}
+\title{Extract metadata from orderly packets}
 \usage{
 orderly_metadata_extract(
   expr = NULL,
@@ -78,7 +78,7 @@ want the raw tree-structured data, you can always use
 \link{orderly_metadata} to load the full metadata for any
 packet (even one that is not currently available on your computer,
 just known about it) and the structure of the data will remain
-fairly constant across orderly2 versions.
+fairly constant across orderly versions.
 
 However, sometimes we want to extract data in order to ask
 specific questions like:
@@ -131,7 +131,7 @@ strings/character vector (can have zero, one or more elements).
 \item session: some information about the session that the packet was run in
 (this is unstandardised, and even the orderly version may change)
 \item custom: additional metadata added by its respective engine.  For
-packets run by \code{orderly2}, there will be a \code{orderly} field here,
+packets run by \code{orderly}, there will be a \code{orderly} field here,
 which is itself a list:
 \itemize{
 \item artefacts: A \link{data.frame} with artefact information, containing

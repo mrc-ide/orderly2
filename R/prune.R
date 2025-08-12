@@ -2,7 +2,7 @@
 ##' be used to remove references to packets that are no longer
 ##' reachable; this could have happened because you deleted a packet
 ##' manually from the archive and ran
-##' [orderly2::orderly_validate_archive] or because you removed a
+##' [orderly::orderly_validate_archive] or because you removed a
 ##' location.
 ##'
 ##' If an orphan packet is not used anywhere, then we can easily drop
