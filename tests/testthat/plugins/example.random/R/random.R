@@ -1,16 +1,16 @@
 numbers <- function(as, n) {
-  ctx <- orderly2::orderly_plugin_context("example.random", parent.frame())
+  ctx <- orderly::orderly_plugin_context("example.random", parent.frame())
   x <- ctx$config$generator(n)
   ctx$envir[[as]] <- x
   info <- list(as = as, mean = mean(x), variance = var(x))
-  orderly2::orderly_plugin_add_metadata("example.random", "numbers", info)
+  orderly::orderly_plugin_add_metadata("example.random", "numbers", info)
   invisible()
 }
 
 config <- function(data, filename) {
-  orderly2:::assert_named(
+  orderly:::assert_named(
     data, name = paste0(filename, ":example.random"))
-  orderly2:::assert_scalar_character(
+  orderly:::assert_scalar_character(
     data$distribution,
     paste0(filename, ":example.random:distribution"))
   data$generator <- switch(
@@ -27,7 +27,7 @@ serialise <- function(data) {
 }
 
 .onLoad <- function(...) {
-  orderly2::orderly_plugin_register("example.random",
+  orderly::orderly_plugin_register("example.random",
                                     config = config,
                                     serialise = serialise,
                                     schema = "schema.json")

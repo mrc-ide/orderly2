@@ -53,7 +53,7 @@ test_that("can initialise a repo with orderly but no .outpack directory", {
   expect_equal(
     err$body,
     c(x = "Did not find an '.outpack' directory within path",
-      i = sprintf('Please run orderly2::orderly_init("%s") to initialise',
+      i = sprintf('Please run orderly::orderly_init("%s") to initialise',
                   base),
       i = "See ?orderly_init for more arguments to this function"))
 
@@ -115,7 +115,7 @@ test_that("can't reinitialise an outpack root with different arguments", {
   expect_equal(
     err$body,
     c(x = "use_file_store: was 'FALSE' but was given 'TRUE'",
-      i = "Use 'orderly2::orderly_config_set()' to change configuration"))
+      i = "Use 'orderly::orderly_config_set()' to change configuration"))
 
   err <- expect_error(
     orderly_init_quietly(tmp, use_file_store = TRUE, path_archive = "other"),
@@ -124,7 +124,7 @@ test_that("can't reinitialise an outpack root with different arguments", {
     err$body,
     c(x = "path_archive: was 'archive' but was given 'other'",
       x = "use_file_store: was 'FALSE' but was given 'TRUE'",
-      i = "Use 'orderly2::orderly_config_set()' to change configuration"))
+      i = "Use 'orderly::orderly_config_set()' to change configuration"))
 })
 
 
