@@ -94,3 +94,4 @@ reference:
       - orderly_parse_expr
       - orderly_compare_packets
       - orderly_comparison_explain
+      - orderly_migrate_source_from_orderly2
