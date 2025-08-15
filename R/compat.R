@@ -20,8 +20,9 @@ load_orderly2_support <- function() {
       paste("Not loading orderly2 support, as this is disabled by the option",
             "'orderly_disable_orderly2_compat'"))
   }
+  correct <- numeric_version("1.99.99")
   if (isNamespaceLoaded("orderly2")) {
-    if (getNamespaceVersion("orderly2") != "1.99.99") {
+    if (getNamespaceVersion("orderly2") != correct) {
       cli::cli_abort(
         c("Can't load orderly2 compatibility as orderly2 is loaded",
           i = paste("You have an old version of 'orderly2' installed and",
@@ -30,11 +31,16 @@ load_orderly2_support <- function() {
           i = 'Try {.code remove.packages("orderly2")}'))
     }
   } else {
-    installed <- orderly2_installed_version()
+    installed_version <-
+      tryCatch(packageVersion("orderly2"), error = function(e) NULL)
     withr::local_options(orderly2.nowarn = TRUE)
-    if (installed$installed && installed$version == "1.99.99") {
+    if (!is.null(installed_version) && installed_version == correct) {
+      ## The user has installed our dummy version of orderly2, so just
+      ## load that.
       loadNamespace("orderly2")
     } else {
+      ## Try and use pkgload to load the namespace, which is a bit
+      ## weird but works
       pkgload::load_all(orderly_file("orderly2"),
                         export_all = FALSE,
                         export_imports = FALSE,
@@ -46,16 +52,4 @@ load_orderly2_support <- function() {
   }
   cache$orderly2_support <- TRUE
   invisible()
-}
-
-
-orderly2_installed_version <- function() {
-  if (is.null(cache$orderly2_version)) {
-    version <- tryCatch(
-      utils::packageVersion("orderly2"),
-      error = function(e) NULL)
-    cache$orderly2_version <- list(installed = !is.null(version),
-                                   version = version)
-  }
-  cache$orderly2_version
 }
