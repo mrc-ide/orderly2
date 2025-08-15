@@ -17,7 +17,7 @@ test_that("Can initialise a new orderly root", {
   root <- root_open(tmp, require_orderly = TRUE)
   expect_s3_class(root, "outpack_root")
   expect_equal(root$config$orderly,
-               list(minimum_orderly_version = numeric_version("1.99.0")))
+               list(minimum_orderly_version = numeric_version("1.99.82")))
 })
 
 
@@ -36,7 +36,7 @@ test_that("can turn an outpack root into an orderly one", {
   orderly_init_quietly(tmp)
   root2 <- root_open(tmp, require_orderly = FALSE)
   expect_equal(root2$config$orderly,
-               list(minimum_orderly_version = numeric_version("1.99.0")))
+               list(minimum_orderly_version = numeric_version("1.99.82")))
   expect_s3_class(root2, "outpack_root")
 })
 

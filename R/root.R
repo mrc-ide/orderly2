@@ -123,8 +123,11 @@ orderly_init <- function(root = ".",
 }
 
 
+ORDERLY_MINIMUM_VERSION <- "1.99.82"
+
+
 empty_config_contents <- function() {
-  'minimum_orderly_version: "1.99.0"'
+  sprintf('minimum_orderly_version: "%s"', ORDERLY_MINIMUM_VERSION)
 }
 
 

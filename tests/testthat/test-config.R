@@ -39,6 +39,6 @@ test_that("can validate minimum required version", {
             current_orderly_version()),
     fixed = TRUE)
   expect_equal(
-    orderly_config_validate_minimum_orderly_version("1.99.0", "orderly.yml"),
-    numeric_version("1.99.0"))
+    orderly_config_validate_minimum_orderly_version("1.99.82", "orderly.yml"),
+    numeric_version("1.99.82"))
 })

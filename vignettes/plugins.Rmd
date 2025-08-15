@@ -51,7 +51,7 @@ path_root <- tempfile()
 orderly::orderly_init(path_root)
 fs::dir_create(path_root)
 writeLines(c(
-  "minimum_orderly_version: 1.99.0",
+  "minimum_orderly_version: 1.99.82",
   "plugins:",
   "  example.db:",
   sprintf("    path: %s", path_db)),
