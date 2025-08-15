@@ -1,8 +1,8 @@
 ---
-title: "Introduction to orderly2"
+title: "Introduction to orderly"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to orderly2}
+  %\VignetteIndexEntry{Introduction to orderly}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,7 +11,7 @@ vignette: >
 source("common.R")
 ```
 
-This vignette provides a how-to style introduction to `orderly2`, an overview of key ingredients to writing orderly reports, and a summary of key features and ideas. It may be useful to look at `vignette("orderly2")` for a more roundabout discussion of what `orderly2` is trying to achieve, or `vignette("migrating")` if you are familiar with version 1 of orderly as this explains concepts in terms of differences from the previous version.
+This vignette provides a how-to style introduction to `orderly`, an overview of key ingredients to writing orderly reports, and a summary of key features and ideas. It may be useful to look at `vignette("orderly")` for a more roundabout discussion of what `orderly` is trying to achieve, or `vignette("migrating")` if you are familiar with version 1 of orderly as this explains concepts in terms of differences from the previous version.
 
 You might also prefer the [orderly tutorial](https://mrc-ide.github.io/orderly-tutorial) which works through similar material in slide form, or [watch a short talk](https://www.youtube.com/watch?v=lkPgihFQbrk) that describes the ideas in the package, and why it differs to other approaches to reproducibility and workflows.
 
@@ -19,19 +19,19 @@ You might also prefer the [orderly tutorial](https://mrc-ide.github.io/orderly-t
 
 ```r
 install.packages(
-  "orderly2",
+  "orderly",
   repos = c("https://mrc-ide.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 # Creating an empty orderly repository
 
-The first step is to initialise an empty `orderly2` repository. An `orderly2` repository is a directory with the file `orderly_config.yml` within it, and since version 2 also a directory `.outpack/`.  Files within the `.outpack/` directory should never be directly modified by users and this directory should be excluded from version control (see `orderly2::orderly_gitignore_update`).
+The first step is to initialise an empty `orderly` repository. An `orderly` repository is a directory with the file `orderly_config.yml` within it, and since version 2 also a directory `.outpack/`.  Files within the `.outpack/` directory should never be directly modified by users and this directory should be excluded from version control (see `orderly::orderly_gitignore_update`).
 
-Create an orderly2 repository by calling `orderly2::orderly_init()`:
+Create an orderly repository by calling `orderly::orderly_init()`:
 
 ```{r}
 path <- tempfile() # we'll use a temporary directory here - see note below
-orderly2::orderly_init(path)
+orderly::orderly_init(path)
 ```
 
 which creates a few files:
@@ -40,7 +40,7 @@ which creates a few files:
 dir_tree(path, all = TRUE)
 ```
 
-This step should be performed on a completely empty directory, otherwise an error will be thrown.  Later, you will re-initialise an `orderly2` repository when cloning to a new machine, such as when working with others; this is discussed in `vignette("collaboration")`.
+This step should be performed on a completely empty directory, otherwise an error will be thrown.  Later, you will re-initialise an `orderly` repository when cloning to a new machine, such as when working with others; this is discussed in `vignette("collaboration")`.
 
 The `orderly_config.yml` file contains very little by default:
 
@@ -48,7 +48,7 @@ The `orderly_config.yml` file contains very little by default:
 yaml_output(readLines(file.path(path, "orderly_config.yml")))
 ```
 
-For this vignette, the created orderly root is in R's per-session temporary directory, which will be deleted once R exits.  If you want to use a directory that will persist across restarting R (which you would certainly want when using `orderly2` on a real project!) you should replace this with a path within your home directory, or other location that you control.
+For this vignette, the created orderly root is in R's per-session temporary directory, which will be deleted once R exits.  If you want to use a directory that will persist across restarting R (which you would certainly want when using `orderly` on a real project!) you should replace this with a path within your home directory, or other location that you control.
 
 <!-- Some sleight-of-hand is required here, as knitr/rmarkdown do not
     allow `setwd` calls to have an effect that persists across
@@ -95,10 +95,10 @@ and `src/incoming_data/incoming_data.R` contains:
 r_output(readLines(file.path(path, "src/incoming_data/incoming_data.R")))
 ```
 
-To run the report and create a new **packet**, use `orderly2::orderly_run()`:
+To run the report and create a new **packet**, use `orderly::orderly_run()`:
 
 ```{r, orderly_root = path}
-id <- orderly2::orderly_run("incoming_data")
+id <- orderly::orderly_run("incoming_data")
 id
 ```
 
@@ -127,11 +127,11 @@ Once created, you can then refer to this report by id and pull its files whereve
 ```{r, orderly_root = path}
 dest <- tempfile()
 fs::dir_create(dest)
-orderly2::orderly_copy_files(id, files = c("final.rds" = "data.rds"),
-                             dest = dest)
+orderly::orderly_copy_files(id, files = c("final.rds" = "data.rds"),
+                            dest = dest)
 ```
 
-which copies `data.rds` to some new temporary directory `dest` with name `final.rds`. This uses `orderly2`'s `outpack_` functions, which are designed to interact with outpack archives regardless of how they were created (`orderly2` is a program that creates `outpack` archives). Typically these are lower-level than `orderly_` functions.
+which copies `data.rds` to some new temporary directory `dest` with name `final.rds`. This uses `orderly`'s `outpack_` functions, which are designed to interact with outpack archives regardless of how they were created (`orderly` is a program that creates `outpack` archives). Typically these are lower-level than `orderly_` functions.
 
 # Depending on packets from another report
 
@@ -140,8 +140,8 @@ Creating a new dataset is mostly useful if someone else can use it. To do this w
 ```{r, include = FALSE}
 fs::dir_create(file.path(path, "src", "analysis"))
 writeLines(c(
-  'orderly2::orderly_dependency("incoming_data", "latest()",',
-  '                             c("incoming.rds" = "data.rds"))',
+  'orderly::orderly_dependency("incoming_data", "latest()",',
+  '                            c("incoming.rds" = "data.rds"))',
   'd <- readRDS("incoming.rds")',
   'png("analysis.png")',
   "plot(y ~ x, d)",
@@ -162,27 +162,27 @@ and `src/analysis/analysis.R` contains:
 r_output(readLines(file.path(path, "src/analysis/analysis.R")))
 ```
 
-Here, we've used `orderly2::orderly_dependency()` to pull in the file `data.rds` from the most recent version (`latest()`) of the `data` packet with the filename `incoming.rds`, then we've used that file as normal to make a plot, which we've saved as `analysis.png`.
+Here, we've used `orderly::orderly_dependency()` to pull in the file `data.rds` from the most recent version (`latest()`) of the `data` packet with the filename `incoming.rds`, then we've used that file as normal to make a plot, which we've saved as `analysis.png`.
 
-We can run this just as before, using `orderly2::orderly_run()`:
+We can run this just as before, using `orderly::orderly_run()`:
 
 ```{r, orderly_root = path}
-id <- orderly2::orderly_run("analysis")
+id <- orderly::orderly_run("analysis")
 ```
 
 For more information on dependencies, see `vignette("dependencies")`.
 
 # Available in-report orderly commands
 
-The function `orderly2::orderly_dependency()` is designed to operate while the packet runs. These functions all act by adding metadata to the final packet, and perhaps by copying files into the directory.
+The function `orderly::orderly_dependency()` is designed to operate while the packet runs. These functions all act by adding metadata to the final packet, and perhaps by copying files into the directory.
 
-* `orderly2::orderly_description()`: Provide a longer name and description for your report; this can be reflected in tooling that uses orderly metadata to be much more informative than your short name.
-* `orderly2::orderly_parameters()`: Declares parameters that can be passed in to control the behaviour of the report, returning a list of the parameters. Parameters are key-value pairs of simple data (booleans, numbers, strings) which your report can respond to. They can also be used in queries to `orderly2::orderly_dependency()` to find packets that satisfy some criteria.
-* `orderly2::orderly_resource()`: Declares that a file is a *resource*; a file that is an input to the the report, and which comes from this source directory. By default, orderly treats all files in the directory as a resource, but it can be useful to mark these explicitly, and necessary to do so in "strict mode" (see below). Files that have been marked as a resource are **immutable** and may not be deleted or modified.
-* `orderly2::orderly_shared_resource()`: Copies a file from the "shared resources" directory `shared/`, which can be data files or source code located at the root of the orderly repository. This can be a reasonable way of sharing data or commonly used code among several reports.
-* `orderly2::orderly_artefact()`: Declares that a file (or set of files) will be created by this report, before it is even run.  Doing this makes it easier to check that the report behaves as expected and can allow reasoning about what a related set of reports will do without running them. By declaring something as an artefact (especially in conjunction with "strict mode") it is also easier to clean up `src` directories that have been used in interactive development (see below).
-* `orderly2::orderly_dependency()`: Copy files from one packet into this packet as it runs, as seen above.
-* `orderly2::orderly_strict_mode()`: Declares that this report will be run in "strict mode" (see below).
+* `orderly::orderly_description()`: Provide a longer name and description for your report; this can be reflected in tooling that uses orderly metadata to be much more informative than your short name.
+* `orderly::orderly_parameters()`: Declares parameters that can be passed in to control the behaviour of the report, returning a list of the parameters. Parameters are key-value pairs of simple data (booleans, numbers, strings) which your report can respond to. They can also be used in queries to `orderly::orderly_dependency()` to find packets that satisfy some criteria.
+* `orderly::orderly_resource()`: Declares that a file is a *resource*; a file that is an input to the the report, and which comes from this source directory. By default, orderly treats all files in the directory as a resource, but it can be useful to mark these explicitly, and necessary to do so in "strict mode" (see below). Files that have been marked as a resource are **immutable** and may not be deleted or modified.
+* `orderly::orderly_shared_resource()`: Copies a file from the "shared resources" directory `shared/`, which can be data files or source code located at the root of the orderly repository. This can be a reasonable way of sharing data or commonly used code among several reports.
+* `orderly::orderly_artefact()`: Declares that a file (or set of files) will be created by this report, before it is even run.  Doing this makes it easier to check that the report behaves as expected and can allow reasoning about what a related set of reports will do without running them. By declaring something as an artefact (especially in conjunction with "strict mode") it is also easier to clean up `src` directories that have been used in interactive development (see below).
+* `orderly::orderly_dependency()`: Copy files from one packet into this packet as it runs, as seen above.
+* `orderly::orderly_strict_mode()`: Declares that this report will be run in "strict mode" (see below).
 
 In addition, there is also a function `orderly::orderly_run_info()` that can be used while running a report that returns information about the currently running report (its id, resolved dependencies etc).
 
@@ -192,9 +192,9 @@ Let's add some additional annotations to the previous reports:
 code_data <- readLines(
   file.path(path, "src", "incoming_data", "incoming_data.R"))
 writeLines(c(
-  "orderly2::orderly_strict_mode()",
-  'orderly2::orderly_resource("data.csv")',
-  'orderly2::orderly_artefact(description = "Processed data", "data.rds")',
+  "orderly::orderly_strict_mode()",
+  'orderly::orderly_resource("data.csv")',
+  'orderly::orderly_artefact(description = "Processed data", "data.rds")',
   "",
   code_data),
   file.path(path, "src", "incoming_data", "incoming_data.R"))
@@ -204,10 +204,10 @@ writeLines(c(
 r_output(readLines(file.path(path, "src/incoming_data/incoming_data.R")))
 ```
 
-Here, we've added a block of special orderly commands; these could go anywhere, for example above the files that they refer to. If strict mode is enabled (see below) then `orderly2::orderly_resource` calls must go before the files are used as they will only be made available at that point (see below).
+Here, we've added a block of special orderly commands; these could go anywhere, for example above the files that they refer to. If strict mode is enabled (see below) then `orderly::orderly_resource` calls must go before the files are used as they will only be made available at that point (see below).
 
 ```{r, orderly_root = path}
-id <- orderly2::orderly_run("incoming_data")
+id <- orderly::orderly_run("incoming_data")
 ```
 
 # Parameterised reports
@@ -219,7 +219,7 @@ For example, consider a simple report where we generate samples based on some pa
 ```{r, include = FALSE}
 fs::dir_create(file.path(path, "src", "random"))
 writeLines(c(
-  "pars <- orderly2::orderly_parameters(n_samples = 10)",
+  "pars <- orderly::orderly_parameters(n_samples = 10)",
   "x <- seq_len(pars$n_samples)",
   "d <- data.frame(x = x, y = x + rnorm(pars$n_samples))",
   'saveRDS(d, "data.rds")'),
@@ -233,13 +233,13 @@ r_output(readLines(file.path(path, "src/random/random.R")))
 This creates a report that has a single parameter `n_samples` with a default value of 10. We could have used
 
 ```r
-pars <- orderly2::orderly_parameters(n_samples = NULL)
+pars <- orderly::orderly_parameters(n_samples = NULL)
 ```
 
 to define a parameter with no default, or defined multiple parameters with
 
 ```r
-pars <- orderly2::orderly_parameters(n_samples = 10, distribution = "normal")
+pars <- orderly::orderly_parameters(n_samples = 10, distribution = "normal")
 ```
 
 You can do anything in your report that switches on the value of a parameter:
@@ -253,40 +253,40 @@ You can do anything in your report that switches on the value of a parameter:
 However, you should see parameters as relatively heavyweight things and try to have a consistent set over all packets created from a report. In this report we use it to control the size of the generated data set.
 
 ```{r, orderly_root = path}
-id <- orderly2::orderly_run("random", list(n_samples = 15))
+id <- orderly::orderly_run("random", list(n_samples = 15))
 ```
 
 Our resulting file has 15 rows, as the parameter we passed in affected the report:
 
 ```{r, orderly_root = path}
-orderly2::orderly_copy_files(id, files = c("random.rds" = "data.rds"),
-                             dest = dest)
+orderly::orderly_copy_files(id, files = c("random.rds" = "data.rds"),
+                            dest = dest)
 readRDS(file.path(dest, "random.rds"))
 ```
 
 You can use these parameters in orderly's search functions. For example we can find the most recent version of a packet by running:
 
 ```{r, orderly_root = path}
-orderly2::orderly_search('latest(name == "random")')
+orderly::orderly_search('latest(name == "random")')
 ```
 
 But we can also pass in parameter queries here:
 
 ```{r, orderly_root = path}
-orderly2::orderly_search('latest(name == "random" && parameter:n_samples > 10)')
+orderly::orderly_search('latest(name == "random" && parameter:n_samples > 10)')
 ```
 
-These can be used within `orderly2::orderly_dependency()` (the `name == "random"` part is implied by the first `name` argument), for example
+These can be used within `orderly::orderly_dependency()` (the `name == "random"` part is implied by the first `name` argument), for example
 
 ```r
-orderly2::orderly_dependency("random", "latest(parameter:n_samples > 10)",
-                             c("randm.rds" = "data.rds"))
+orderly::orderly_dependency("random", "latest(parameter:n_samples > 10)",
+                            c("random.rds" = "data.rds"))
 ```
 
 In this case if the report that you are querying *from* also has parameters you can use these within the query, using the `this` prefix. So suppose our downstream report simply uses `n` for the number of samples we might write:
 
 ```r
-orderly2::orderly_dependency("random", "latest(parameter:n_samples == this:n)",
+orderly::orderly_dependency("random", "latest(parameter:n_samples == this:n)",
                              c("randm.rds" = "data.rds"))
 ```
 
@@ -314,8 +314,8 @@ We can then write an orderly report `use_shared` that uses this shared file, wit
 ```{r, echo = FALSE, results = "asis"}
 fs::dir_create(file.path(path, "src", "use_shared"))
 writeLines(c(
-  'orderly2::orderly_shared_resource("data.csv")',
-  'orderly2::orderly_artefact(description = "analysis", "analysis.png")',
+  'orderly::orderly_shared_resource("data.csv")',
+  'orderly::orderly_artefact(description = "analysis", "analysis.png")',
   "",
   'd <- read.csv("data.csv")',
   'png("analysis.png")',
@@ -328,7 +328,7 @@ r_output(readLines(file.path(path, "src/use_shared/use_shared.R")))
 We can run this:
 
 ```{r, orderly_root = path}
-id <- orderly2::orderly_run("use_shared")
+id <- orderly::orderly_run("use_shared")
 ```
 
 In the resulting archive, the file that was used from the shared directory is present:
@@ -344,15 +344,15 @@ This is a general property of orderly: it tries to save all the inputs alongside
 The previous version of orderly (`orderly1`; see `vignette("migrating")`) was very fussy about all input being strictly declared before a report could be run, so that it was clear what was really required in order to run something. From version 2 this is relaxed by default, but you can opt into most of the old behaviours and checks by adding
 
 ```r
-orderly2::orderly_strict_mode()
+orderly::orderly_strict_mode()
 ```
 
 anywhere within your orderly file (conventionally at the top). We may make this more granular in future, but by adding this we:
 
-* only copy files from the source directory (`src/<reportname>/`) to the draft directory where the report runs (`draft/<reportname>/<packet-id>`) that were declared with `orderly2::orderly_resource`; this leaves behind any extra files left over in development
+* only copy files from the source directory (`src/<reportname>/`) to the draft directory where the report runs (`draft/<reportname>/<packet-id>`) that were declared with `orderly::orderly_resource`; this leaves behind any extra files left over in development
 * warn at the end of running a packet if any files are found that are not part of an artefact
 
-Using strict mode also helps `orderly2` clean up the `src/<reportname>` directory more effectively after interactive development (see next section).
+Using strict mode also helps `orderly` clean up the `src/<reportname>` directory more effectively after interactive development (see next section).
 
 # Interactive development
 
@@ -360,7 +360,7 @@ Set your working directory to `src/<reportname>` and any orderly script should b
 
 After doing this, you will have a mix of files within your source directory. We recommend a per-source-directory `.gitignore` which will keep these files out of version control (see below).  We will soon implement support for cleaning up generated files from this directory.
 
-For example, suppose that we have interactively run our `incoming_data/incoming_data.R` script, we would leave behind generated files.  We can report on this with `orderly2::orderly_cleanup_status`:
+For example, suppose that we have interactively run our `incoming_data/incoming_data.R` script, we would leave behind generated files.  We can report on this with `orderly::orderly_cleanup_status`:
 
 ```{r, include = FALSE}
 withr::with_dir(file.path(path, "src/incoming_data"),
@@ -368,7 +368,7 @@ withr::with_dir(file.path(path, "src/incoming_data"),
 ```
 
 ```{r, orderly_root = path}
-orderly2::orderly_cleanup_status("incoming_data")
+orderly::orderly_cleanup_status("incoming_data")
 ```
 
 If you have files here that are unknown to orderly it will tell you about them and prompt you to tell it about them explicitly.
@@ -376,64 +376,64 @@ If you have files here that are unknown to orderly it will tell you about them a
 You can clean up generated files by running (as suggested in the message):
 
 ```{r, orderly_root = path}
-orderly2::orderly_cleanup("incoming_data")
+orderly::orderly_cleanup("incoming_data")
 ```
 
 There is a `dry_run = TRUE` argument you can pass if you want to see what would be deleted without using the status function.
 
-You can also keep these files out of git by using the `orderly2::orderly_gitignore_update` function:
+You can also keep these files out of git by using the `orderly::orderly_gitignore_update` function:
 
 ```{r, orderly_root = path}
-orderly2::orderly_gitignore_update("incoming_data")
+orderly::orderly_gitignore_update("incoming_data")
 ```
 
 This creates (or updates) a `.gitignore` file within the report so that generated files will not be included by git.  If you have already accidentally committed them then the gitignore has no real effect and you should do some git surgery, see the git manuals or this [handy, if profane, guide](https://ohshitgit.com/).
 
 # Deleting things from the archive
 
-If you delete packets from your `archive/` directory then this puts `orderly2` into an inconsistent state with its metadata store. Sometimes this does not matter (e.g., if you delete old copies that would never be candidates for inclusion with `orderly2::orderly_dependency` you will never notice).  However, if you delete the most recent copy of a packet and then try and depend on it, you will get an error.
+If you delete packets from your `archive/` directory then this puts `orderly` into an inconsistent state with its metadata store. Sometimes this does not matter (e.g., if you delete old copies that would never be candidates for inclusion with `orderly::orderly_dependency` you will never notice).  However, if you delete the most recent copy of a packet and then try and depend on it, you will get an error.
 
 At the moment, we have two copies of the `incoming_data` task:
 
 ```{r, orderly_root = path}
-orderly2::orderly_metadata_extract(
+orderly::orderly_metadata_extract(
   name = "incoming_data",
   extract = c(time = "time.start"))
 ```
 
 ```{r include = FALSE, orderly_root = path}
-id_latest <- orderly2::orderly_search("latest", name = "incoming_data")
+id_latest <- orderly::orderly_search("latest", name = "incoming_data")
 fs::dir_delete(file.path(path, "archive", "incoming_data", id_latest))
 ```
 
 When we run the `analysis` task, it will pull in the most recent version (`r inline(id_latest)`). However, if you had deleted this manually (e.g., to save space or accidentally) or corrupted it (e.g., by opening some output in Excel and letting it save changes) it will not be able to be included, and running `analysis` will fail:
 
 ```{r error = TRUE, orderly_root = path}
-orderly2::orderly_run("analysis")
+orderly::orderly_run("analysis")
 ```
 
-The error here tries to be fairly informative, telling us that we failed because when copying files from `r inline(id_latest)` we found that the packet was corrupt, because the file `data.rds` was not found in the archive.  It also suggests a fix; we can tell `orderly2` that `r inline(id_latest)` is "orphaned" and should not be considered for inclusion when we look for dependencies.
+The error here tries to be fairly informative, telling us that we failed because when copying files from `r inline(id_latest)` we found that the packet was corrupt, because the file `data.rds` was not found in the archive.  It also suggests a fix; we can tell `orderly` that `r inline(id_latest)` is "orphaned" and should not be considered for inclusion when we look for dependencies.
 
 We can carry out the suggestion and just validate this packet by running
 
 ```{r echo = FALSE, results = "asis"}
 r_output(
-  sprintf('orderly2::orderly_validate_archive("%s", action = "orphan")',
+  sprintf('orderly::orderly_validate_archive("%s", action = "orphan")',
           id_latest))
 ```
 
 or we can validate *all* the packets we have:
 
 ```{r, orderly_root = path}
-orderly2::orderly_validate_archive(action = "orphan")
+orderly::orderly_validate_archive(action = "orphan")
 ```
 
 If we had the option `core.require_complete_tree` enabled, then this process would also look for any packets that used our now-deleted packet and orphan those too, as we no longer have a complete tree that includes them.
 
-If you want to remove references to the orphaned packets, you can use `orderly2::orderly_prune_orphans()` to remove them entirely:
+If you want to remove references to the orphaned packets, you can use `orderly::orderly_prune_orphans()` to remove them entirely:
 
 ```{r, orderly_root = path}
-orderly2::orderly_prune_orphans()
+orderly::orderly_prune_orphans()
 ```
 
 # Debugging and coping with errors
@@ -457,11 +457,11 @@ You absolutely should version control some files:
 - `orderly_config.yml` - this high level configuration is suitable for sharing
 - Any shared resource directory (configured in `orderly_config.yml`) should probably be version controlled
 
-Your source repository will end up in multiple people's machines, each of which are configured differently. The configuration option set via `orderly2::orderly_config_set` are designed to be (potentially) different for different users, so this configuration needs to be not version controlled. It also means that reports/packets can't directly refer to values set here.  This includes the directory used to save archive packets at (if enabled) and the names of locations (equivalent to git remotes).
+Your source repository will end up in multiple people's machines, each of which are configured differently. The configuration option set via `orderly::orderly_config_set` are designed to be (potentially) different for different users, so this configuration needs to be not version controlled. It also means that reports/packets can't directly refer to values set here.  This includes the directory used to save archive packets at (if enabled) and the names of locations (equivalent to git remotes).
 
 You may find it useful to include scripts that help users set up common locations, but like with git, different users may use different names for the same remote (e.g., one user may have a location called `data` while for another it is called `data-incoming`, depending on their perspective about the use of the location).
 
-`orderly2` will always try and save information about the current state of the git source repository alongside the packet metadata. This includes the current branch, commit (sha) and remote url. This is to try and create links between the final version of the packet and the upstream source repository.
+`orderly` will always try and save information about the current state of the git source repository alongside the packet metadata. This includes the current branch, commit (sha) and remote url. This is to try and create links between the final version of the packet and the upstream source repository.
 
 # Interaction with the outpack store
 
@@ -478,7 +478,7 @@ As can be perhaps inferred from the filenames, the files `.outpack/metadata/<pac
 The default orderly configuration is to store the final files in a directory called `archive/`, but alternatively (or additionally) you can use a [content- addressable](https://en.wikipedia.org/wiki/Content-addressable_storage) file store. With this enabled, the `.outpack` directory looks like:
 
 ```{r, echo = FALSE, orderly_root = path}
-orderly2::orderly_config_set(core.use_file_store = TRUE)
+orderly::orderly_config_set(core.use_file_store = TRUE)
 dir_tree(path, ".outpack", all = TRUE)
 ```
 
@@ -486,4 +486,4 @@ The files under `.outpack/files/` should never be modified or deleted. This appr
 
 # Relationship between `orderly` and `outpack`
 
-The `orderly2` package is built on a metadata and file storage system called `outpack`; we will be implementing support for working with these metadata archives in other languages (see [`outpack_server`](https://github.com/mrc-ide/outpack_server) for our server implementation in Rust and [`outpack-py`](https://github.com/mrc-ide/outpack-py) in Python).  The metadata is discussed in more detail in `vignette("metadata")` and we will document the general ideas more fully at [`mrc-ide/outpack`](https://github.com/mrc-ide/outpack)
+The `orderly` package is built on a metadata and file storage system called `outpack`; we will be implementing support for working with these metadata archives in other languages (see [`outpack_server`](https://github.com/mrc-ide/outpack_server) for our server implementation in Rust and [`outpack-py`](https://github.com/mrc-ide/outpack-py) in Python).  The metadata is discussed in more detail in `vignette("metadata")` and we will document the general ideas more fully at [`mrc-ide/outpack`](https://github.com/mrc-ide/outpack)

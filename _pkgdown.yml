@@ -1,4 +1,4 @@
-url: https://mrc-ide.github.io/orderly2
+url: https://mrc-ide.github.io/orderly
 
 template:
   bootstrap: 5
@@ -7,7 +7,7 @@ articles:
   - title: Introduction
     navbar: Introduction
     contents:
-      - orderly2
+      - orderly
       - introduction
       - dependencies
       - collaboration

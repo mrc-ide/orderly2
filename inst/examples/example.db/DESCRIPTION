@@ -5,4 +5,4 @@ Title: Orderly Database Example Plugin
 Description: Simple example of an orderly plugin.
 Authors@R: person('Orderly Authors', role = c('aut', 'cre'),
     email = 'email@example.com')
-Imports: orderly2
+Imports: orderly

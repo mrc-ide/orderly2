@@ -1,5 +1,5 @@
 ##' Read metadata for a particular id. You may want to use
-##' [orderly2::orderly_search] to find an id corresponding to a
+##' [orderly::orderly_search] to find an id corresponding to a
 ##' particular query.
 ##'
 ##' @title Read outpack metadata
@@ -11,7 +11,7 @@
 ##'   default) to search for one from the current working
 ##'   directory. This function does not require that the directory is
 ##'   configured for orderly, and can be any `outpack` root (see
-##'   [orderly2::orderly_init] for details).
+##'   [orderly::orderly_init] for details).
 ##'
 ##' @return A list of metadata. See the outpack schema for details
 ##'   (https://github.com/mrc-ide/outpack)
@@ -51,7 +51,7 @@ orderly_metadata <- function(id, root = NULL) {
 ##' is `TRUE` (the default) then we will deserialise all data that
 ##' matches any loaded plugin.  This means that the behaviour of this
 ##' function depends on if you have loaded the plugin packages. You
-##' can force this by running `orderly2::orderly_config()` within any
+##' can force this by running `orderly::orderly_config()` within any
 ##' orderly directory, which will load any declared plugins.
 ##'
 ##' @title Read outpack metadata json file

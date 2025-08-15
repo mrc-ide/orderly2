@@ -3,7 +3,7 @@
 ##' based locations are supported, with limited support for custom
 ##' locations. Note that adding a location does *not* pull metadata
 ##' from it, you need to call
-##' [orderly2::orderly_location_fetch_metadata] first.  The function
+##' [orderly::orderly_location_fetch_metadata] first.  The function
 ##' `orderly_location_add` can add any sort of location, but the other
 ##' functions documented here (`orderly_location_add_path`, etc) will
 ##' typically be much easier to use in practice.
@@ -198,7 +198,7 @@ orderly_location_add_http <- function(name, url, verify = TRUE, root = NULL) {
 ##' @rdname orderly_location_add
 ##'
 ##' @param token The value for your your login token (currently this
-##'   is a GitHub token with `read:org` scope). If `NULL`, orderly2
+##'   is a GitHub token with `read:org` scope). If `NULL`, orderly
 ##'   will perform an interactive authentication against GitHub to
 ##'   obtain one.
 ##'
@@ -331,7 +331,7 @@ orderly_location_remove <- function(name, root = NULL) {
 ##'   `args`.  The `args` column is a list column, with each element
 ##'   being the key-value pair arguments to the location.
 ##'
-##' @seealso [orderly2::orderly_location_fetch_metadata], which can
+##' @seealso [orderly::orderly_location_fetch_metadata], which can
 ##'   update your outpack index with metadata from any of the
 ##'   locations listed here.
 ##'
@@ -369,7 +369,7 @@ orderly_location_list <- function(verbose = FALSE, root = NULL) {
 ##' @title Fetch metadata from a location
 ##'
 ##' @param location The name of a location to pull from (see
-##'   [orderly2::orderly_location_list] for possible values).  If not
+##'   [orderly::orderly_location_list] for possible values).  If not
 ##'   given, pulls from all locations.  The "local" and "orphan"
 ##'   locations are always up to date and pulling metadata from them
 ##'   does nothing.
@@ -427,7 +427,7 @@ orderly_location_fetch_metadata <- function(location = NULL, root = NULL) {
 }
 
 
-##' @rdname orderly2-deprecated
+##' @rdname orderly-deprecated
 ##' @keywords internal
 ##' @export
 orderly_location_pull_metadata <- function(...) {
@@ -441,7 +441,7 @@ orderly_location_pull_metadata <- function(...) {
 ##' Pull one or more packets (including all their files) into this
 ##' archive from one or more of your locations. This will make files
 ##' available for use as dependencies (e.g., with
-##' [orderly2::orderly_dependency]).
+##' [orderly::orderly_dependency]).
 ##'
 ##' It is possible that it will take a long time to pull packets, if
 ##' you are moving a lot of data or if you are operating over a slow
@@ -568,7 +568,7 @@ orderly_location_pull <- function(expr,
 }
 
 
-##' @rdname orderly2-deprecated
+##' @rdname orderly-deprecated
 ##' @keywords internal
 ##' @export
 orderly_location_pull_packet <- function(...) {
@@ -594,7 +594,7 @@ orderly_location_pull_packet <- function(...) {
 ##'   vector of ids, but you can use a query here.
 ##'
 ##' @param location The name of a location to push to (see
-##' [orderly2::orderly_location_list] for possible values).
+##' [orderly::orderly_location_list] for possible values).
 ##'
 ##' @param dry_run Logical, indicating if we should print a summary
 ##'   but not make any changes.
@@ -752,7 +752,7 @@ location_fetch_metadata <- function(location_name, root,
 
   hint_remove <- paste("Probably all you can do at this point is remove this",
                        "location from your configuration by running",
-                       sprintf('orderly2::orderly_location_remove("%s")',
+                       sprintf('orderly::orderly_location_remove("%s")',
                                location_name))
 
   known_there <- driver$list()
@@ -958,7 +958,7 @@ location_build_pull_plan_location <- function(packets, location, root, call) {
       ## In the case where the above is used, we probably have
       ## up-to-date metadata so we don't display this.
       hint <- paste("Do you need to run",
-                    "{.run orderly2::orderly_location_fetch_metadata()}?")
+                    "{.run orderly::orderly_location_fetch_metadata()}?")
     }
     cli::cli_abort(c("Failed to find packet{?s} {squote(missing)}",
                      i = "Looked in location{?s} {squote(location_name)}",
