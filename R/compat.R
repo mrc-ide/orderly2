@@ -53,3 +53,58 @@ load_orderly2_support <- function() {
   cache$orderly2_support <- TRUE
   invisible()
 }
+
+
+##' Migrate source code from orderly2 (version 1.99.78 and previous)
+##' to refer to orderly (version 1.99.79 and subsequent).  This is a
+##' one-off and will not exist in the package for long, get it while
+##' it's hot.
+##'
+##' @title Migrate orderly2 sources
+##'
+##' @param path Path to the repo.  We will not change anything here
+##'   unless the path is under source control, and unless the git
+##'   status is "up to date" (i.e., no local unsaved modifications or
+##'   untracked files).  It is recommended to run this against a fresh
+##'   clone.
+##'
+##' @return Nothing, called for side effects only
+##' @export
+orderly_migrate_source_from_orderly2 <- function(path) {
+  status <- tryCatch(
+    gert::git_status(repo = path),
+    error = function(e) {
+      cli::cli_abort(
+        "Not migrating '{path}' as it does not appear to be version controlled")
+    })
+  if (nrow(status) != 0) {
+    cli::cli_abort(
+      c("Not migrating '{path}' as 'git status' is not clean",
+        i = "Try running this in a fresh clone"))
+  }
+  files <- dir(path, pattern = "\\.[Rr]", recursive = TRUE)
+  cli::cli_alert_info("Migrating {length(files)} file{?s} in '{path}'")
+  changed <- logical(files)
+  for (i in seq_along(files)) {
+    changed[[i]] <- orderly_migrate_file(path, files[[i]])
+  }
+  if (any(changed)) {
+    cli::cli_alert_success("Changed {sum(changed)} file{?s}")
+    cli::cli_alert_info("Please add and commit these to git")
+  } else {
+    cli::cli_alert_success("Nothing to change!")
+  }
+}
+
+
+orderly_migrate_file <- function(path, file) {
+  filename <- file.path(path, file)
+  prev <- txt <- readLines(filename)
+  txt <- sub("orderly2::", "orderly::", txt, fixed = TRUE)
+  txt <- sub("library(orderly2)", "library(orderly)", txt, fixed = TRUE)
+  n <- sum(txt != prev)
+  if (n > 0) {
+    cli::cli_alert_info("Updated {n} line{?s} in {path}")
+    writeLines(txt, filename)
+  }
+}
