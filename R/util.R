@@ -22,8 +22,17 @@ is_assignment <- function(x) {
 
 
 is_orderly_ns_call <- function(x) {
-  is.recursive(x) && is_call(x[[1]], "::") &&
-    as.character(x[[1]][[2]]) == "orderly"
+  if (is.recursive(x) && is_call(x[[1]], "::")) {
+    ns <- as.character(x[[1]][[2]])
+    if (ns == "orderly") {
+      return(TRUE)
+    }
+    if (ns == "orderly2") {
+      load_orderly2_support()
+      return(TRUE)
+    }
+  }
+  FALSE
 }
 
 

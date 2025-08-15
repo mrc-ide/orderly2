@@ -1,0 +1,13 @@
+Package: orderly2
+Title: Compatibility Wrapper for 'orderly'
+Version: 0.1.0
+Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
+                    email = "rich.fitzjohn@gmail.com"),
+             person("Imperial College of Science, Technology and Medicine",
+                    role = "cph"))
+Description: Acts as an installable package that can be used with repositories that reference 'orderly2', rather than orderly.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: orderly (>= 1.99.79)
