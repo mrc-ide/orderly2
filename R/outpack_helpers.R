@@ -38,15 +38,12 @@
 ##'
 ##' @title Copy files from a packet
 ##'
-##' @param files Files to copy from the other packet. This can be (1)
-##'   a character vector, in which case files are copied over without
-##'   changing their names, (2) a **named** character vector, in which
-##'   case the name will be used as the destination name, or (3) a
-##'   [data.frame] (including `tbl_df`, or `data.frame` objects)
-##'   containing columns `from` and `to`, in which case the files
-##'   `from` will be copied with names `to`.
+##' @param files Files to copy from the other packet, as a character vector.
+##'   If the character vector is unnamed, the files listed are copied over
+##'   without changing their names. If the vector is named however, the names
+##'   will be used as the destination name for the files.
 ##'
-##' In all cases, if you want to import a directory of files from a
+##' In either case, if you want to import a directory of files from a
 ##'   packet, you must refer to the source with a trailing slash
 ##'   (e.g., `c(here = "there/")`), which will create the local
 ##'   directory `here/...` with files from the upstream packet
