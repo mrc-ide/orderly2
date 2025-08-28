@@ -37,6 +37,7 @@ Imports:
     openssl,
     rlang,
     rstudioapi,
+    vctrs,
     withr,
     yaml
 Suggests:

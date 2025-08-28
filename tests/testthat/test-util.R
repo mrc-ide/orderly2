@@ -331,7 +331,7 @@ describe("expand_dirs_virtual", {
   list_files <- function(p) files[[p]]
 
   check <- function(object, expected) {
-    expect_equal(expand_dirs_virtual(object, is_dir, list_files), expected)
+    expect_equal(expand_dirs_virtual(!!object, is_dir, list_files), !!expected)
   }
 
   it("accepts a character vector", {
@@ -365,6 +365,12 @@ describe("expand_dirs_virtual", {
       data_frame(here = c("foo", "bar"), there = c("d2", "d2")),
       data_frame(here = c("foo/f4", "foo/d3/f5", "bar/f4", "bar/d3/f5"),
                  there = c("d2/f4", "d2/d3/f5", "d2/f4", "d2/d3/f5")))
+  })
+
+  it("accepts an empty input", {
+     check(character(0), character(0))
+     check(data_frame(here = character(0), there = character(0)),
+           data_frame(here = character(0), there = character(0)))
   })
 })
 
@@ -643,4 +649,19 @@ test_that("can find calling env", {
   }
   expect_false(f1("foo"))
   expect_true(f1("f2"))
+})
+
+test_that("replace_ragged with an empty result preserves the input's type", {
+  # Even with an empty input, the type of it should be preserved
+  result <- replace_ragged(character(0), numeric(0), list())
+  expect_vector(result, ptype = character(), size = 0)
+  result <- replace_ragged(numeric(0), numeric(0), list())
+  expect_vector(result, ptype = numeric(), size = 0)
+
+  # With a non-empty input but an empty result following replacement, the
+  # type should also be preserved
+  result <- replace_ragged(12, 1, list(numeric(0)))
+  expect_vector(result, ptype = numeric(), size = 0)
+  result <- replace_ragged("foo", 1, list(numeric(0)))
+  expect_vector(result, ptype = character(), size = 0)
 })

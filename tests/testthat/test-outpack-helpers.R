@@ -242,3 +242,13 @@ test_that("disallow duplicate files that point to different places", {
       dest = dst, root = path),
     "Directory expansion would result in overwritten files")
 })
+
+test_that("can copy an empty list of files", {
+  root <- create_temporary_root()
+  id <- create_random_packet(root)
+
+  dst <- withr::local_tempdir()
+
+  res <- orderly_copy_files(id, files = character(0), dest = dst, root = root)
+  expect_equal(res$files, data_frame(here = character(0), there = character(0)))
+})
