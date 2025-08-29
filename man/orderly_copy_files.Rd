@@ -22,15 +22,12 @@ orderly_copy_files(
 \arguments{
 \item{expr}{The query expression. A \code{NULL} expression matches everything.}
 
-\item{files}{Files to copy from the other packet. This can be (1)
-a character vector, in which case files are copied over without
-changing their names, (2) a \strong{named} character vector, in which
-case the name will be used as the destination name, or (3) a
-\link{data.frame} (including \code{tbl_df}, or \code{data.frame} objects)
-containing columns \code{from} and \code{to}, in which case the files
-\code{from} will be copied with names \code{to}.
+\item{files}{Files to copy from the other packet, as a character vector.
+If the character vector is unnamed, the files listed are copied over
+without changing their names. If the vector is named however, the names
+will be used as the destination name for the files.
 
-In all cases, if you want to import a directory of files from a
+In either case, if you want to import a directory of files from a
 packet, you must refer to the source with a trailing slash
 (e.g., \code{c(here = "there/")}), which will create the local
 directory \code{here/...} with files from the upstream packet
