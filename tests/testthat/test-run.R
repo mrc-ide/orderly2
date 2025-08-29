@@ -1461,5 +1461,5 @@ test_that("can add a dependency with an empty list of files", {
   res <- readRDS(file.path(root$path, "archive", "downstream", id2, "data.rds"))
   expect_equal(res$id, id1)
   expect_equal(res$name, "data")
-  expect_equal(res$files, data.frame(here=character(0), there=character(0)))
+  expect_equal(res$files, data.frame(here = character(0), there = character(0)))
 })
