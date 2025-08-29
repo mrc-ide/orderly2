@@ -96,7 +96,7 @@ drop_null <- function(x, empty) {
 replace_ragged <- function(x, i, values) {
   ret <- as.list(x)
   ret[i] <- values
-  unlist(ret, FALSE, FALSE)
+  vctrs::list_unchop(ret, ptype = vctrs::vec_ptype(x))
 }
 
 

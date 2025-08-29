@@ -1447,3 +1447,19 @@ test_that("interactively run a packet with legacy parameters", {
   expect_true(file.exists(path_rds))
   expect_equal(readRDS(path_rds), list(a = 10, b = 2, c = 30))
 })
+
+
+test_that("can add a dependency with an empty list of files", {
+  root <- create_temporary_root()
+  id1 <- create_random_packet(root, name = "data")
+
+  id2 <- orderly_run_snippet(root, "downstream", {
+    dep <- orderly_dependency("data", "latest", files = character(0))
+    saveRDS(dep, "data.rds")
+  })
+
+  res <- readRDS(file.path(root$path, "archive", "downstream", id2, "data.rds"))
+  expect_equal(res$id, id1)
+  expect_equal(res$name, "data")
+  expect_equal(res$files, data.frame(here = character(0), there = character(0)))
+})
