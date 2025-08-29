@@ -8,7 +8,8 @@ orderly_context <- function(envir) {
     config <- p$orderly2$config
     envir <- p$orderly2$envir
     src <- p$orderly2$src
-    parameters <- p$parameters
+    parameters_values <- p$parameters
+    parameters_spec <- NULL
     name <- p$name
     id <- p$id
     search_options <- p$orderly2$search_options
@@ -19,14 +20,16 @@ orderly_context <- function(envir) {
     config <- orderly_config_read(root)
     src <- path
     parameters <- current_orderly_parameters(src, envir)
+    parameters_values <- parameters$values
+    parameters_spec <- parameters$spec
     name <- basename(path)
     id <- NA_character_
     search_options <- .interactive$search_options
   }
   list(is_active = is_active, path = path, config = config, envir = envir,
-       root = root, root_src = root_src, src = src, name = name,
-       id = id, parameters = parameters, search_options = search_options,
-       packet = p)
+       root = root, root_src = root_src, src = src, name = name, id = id,
+       parameters = parameters_values, parameters_spec = parameters_spec,
+       search_options = search_options, packet = p)
 }
 
 
