@@ -1463,3 +1463,20 @@ test_that("can add a dependency with an empty list of files", {
   expect_equal(res$name, "data")
   expect_equal(res$files, data.frame(here = character(0), there = character(0)))
 })
+
+
+test_that("detect mismatched orderly_parameters when running interactively", {
+  path <- test_prepare_orderly_example("parameters")
+  path_src <- file.path(path, "src", "parameters")
+
+  pars <- strict_list(a = 10, b = 20, c = 30, .name = "parameters")
+
+  # The actual report only has parameters a, b, and c. Act as though we have
+  # modified the file in our text editor and added a fourth parameter, and run
+  # it interactively line-by-line with Ctrl-Enter without saving it first.
+  expect_error(withr::with_dir(path_src, {
+    suppressMessages(orderly2::orderly_parameters(a = NULL, b = 2,
+                                                  c = NULL, d = 4))
+  }), paste("Arguments to `orderly_parameters` do not match the ones read",
+            "from source file .*/parameters.R"))
+})

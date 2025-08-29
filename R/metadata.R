@@ -143,7 +143,17 @@ static_orderly_strict_mode <- function(args) {
 orderly_parameters <- function(...) {
   p <- get_active_packet()
   if (is.null(p)) {
-    pars <- orderly_context(rlang::caller_env())$parameters
+    ctx <- orderly_context(rlang::caller_env())
+    args <- list(...)
+    if (!isTRUE(all.equal(ctx$parameters_spec, args))) {
+      filename <- find_entrypoint_filename(ctx$src)
+      path <- file.path(ctx$src, filename)
+      cli::cli_abort(c(
+        paste("Arguments to {.code orderly_parameters} do not match the",
+              "ones read from source file {.path {path}}"),
+        i = "Make sure the file is saved before running interactively"))
+    }
+    pars <- ctx$parameters
   } else {
     pars <- p$parameters
   }
@@ -165,9 +175,10 @@ static_orderly_parameters <- function(args, call) {
 
 current_orderly_parameters <- function(src, envir) {
   dat <- orderly_read(src)
-  base <- dat$parameters
+  spec <- dat$parameters
   target <- dat$parameters_target
-  check_parameters_interactive(envir, base, target, NULL)
+  values <- check_parameters_interactive(envir, spec, target, NULL)
+  list(spec = spec, values = values)
 }
 
 
