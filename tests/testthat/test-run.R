@@ -1475,8 +1475,8 @@ test_that("detect mismatched orderly_parameters when running interactively", {
   # modified the file in our text editor and added a fourth parameter, and run
   # it interactively line-by-line with Ctrl-Enter without saving it first.
   expect_error(withr::with_dir(path_src, {
-    suppressMessages(orderly2::orderly_parameters(a = NULL, b = 2,
-                                                  c = NULL, d = 4))
+    suppressMessages(orderly::orderly_parameters(a = NULL, b = 2,
+                                                 c = NULL, d = 4))
   }), paste("Arguments to `orderly_parameters` do not match the ones read",
             "from source file .*/parameters.R"))
 })
