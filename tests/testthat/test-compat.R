@@ -108,3 +108,41 @@ test_that("can migrate source file", {
   expect_match(res$messages, "Updated 1 line in foo.R")
   expect_equal(readLines(filename), sub("orderly2", "orderly", txt))
 })
+
+
+test_that("can migrate old sources", {
+  path <- suppressMessages(orderly_example())
+  writeLines(
+    'minimum_orderly_version: "1.99.0"',
+    file.path(path, "orderly_config.yml"))
+
+  filename <- file.path(path, "src", "data", "data.R")
+  txt <- readLines(filename)
+  writeLines(sub("^orderly_", "orderly2::orderly_", txt),
+             filename)
+
+  info <- helper_add_git(path)
+
+  res <- evaluate_promise(
+    orderly_migrate_source_from_orderly2(path, dry_run = TRUE))
+  expect_length(res$messages, 4)
+  expect_match(res$message[[1]], "Checking \\d+ files in")
+  expect_match(res$message[[2]], "Would update 2 lines in src/data/data.R")
+  expect_match(res$message[[3]], "Would update minimum orderly version")
+  expect_match(res$message[[4]], "Would change 2 files")
+  expect_true(res$result)
+
+  expect_equal(nrow(gert::git_status(repo = path)), 0)
+
+  res <- evaluate_promise(
+    orderly_migrate_source_from_orderly2(path))
+  expect_length(res$messages, 5)
+  expect_match(res$message[[1]], "Checking \\d+ files in")
+  expect_match(res$message[[2]], "Updated 2 lines in src/data/data.R")
+  expect_match(res$message[[3]], "Updated minimum orderly version")
+  expect_match(res$message[[4]], "Changed 2 files")
+  expect_match(res$message[[5]], "Please add and commit these to git")
+  expect_true(res$result)
+
+  expect_equal(nrow(gert::git_status(repo = path)), 2)
+})

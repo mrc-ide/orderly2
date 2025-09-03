@@ -54,7 +54,7 @@ orderly_migrate_source_from_orderly2 <- function(path = ".", dry_run = FALSE) {
   } else if (dry_run) {
     cli::cli_alert_info("Would change {sum(changed)} file{?s}")
   } else {
-    cli::cli_alert_success("Changed ")
+    cli::cli_alert_success("Changed {changed} file{?s}")
     cli::cli_alert_info("Please add and commit these to git")
   }
   invisible(any_changed)
