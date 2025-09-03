@@ -1,6 +1,6 @@
-Package: orderly2
+Package: orderly
 Title: Lightweight Reproducible Reporting
-Version: 1.99.81
+Version: 1.99.82
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Robert", "Ashton", role = "aut"),
@@ -24,8 +24,8 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-URL: https://github.com/mrc-ide/orderly2
-BugReports: https://github.com/mrc-ide/orderly2/issues
+URL: https://github.com/mrc-ide/orderly
+BugReports: https://github.com/mrc-ide/orderly/issues
 Imports:
     R6,
     cli,

@@ -10,12 +10,12 @@ orderly_strict_mode()
 Undefined
 }
 \description{
-Put orderly2 into "strict mode", which is closer to the defaults
+Put orderly into "strict mode", which is closer to the defaults
 in orderly 1.0.0; in this mode only explicitly included files (via
 \link{orderly_resource} and
 \link{orderly_shared_resource}) are copied when running a
 packet, and we warn about any unexpected files at the end of the
-run.  Using strict mode allows orderly2 to be more aggressive in
+run.  Using strict mode allows orderly to be more aggressive in
 how it deletes files within the source directory, more accurate in
 what it reports to you, and faster to start packets after
 developing them interactively.

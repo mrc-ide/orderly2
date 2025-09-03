@@ -88,7 +88,7 @@ orderly_parse_expr <- function(exprs, filename) {
 
   for (nm in single) {
     if (length(dat[[nm]]) > 1) {
-      cli::cli_abort("Only one call to 'orderly2::{nm}' is allowed",
+      cli::cli_abort("Only one call to 'orderly::{nm}' is allowed",
                      call = NULL)
     }
   }
@@ -142,9 +142,9 @@ orderly_parse_expr <- function(exprs, filename) {
 orderly_read_expr <- function(e, nms) {
   ## We count the following things as top level:
   ##
-  ## > orderly2::orderly_fn()
+  ## > orderly::orderly_fn()
   ## > orderly_fn()
-  ## > a <- orderly2::orderly_fn()
+  ## > a <- orderly::orderly_fn()
   ## > a <- orderly_fn()
   if (is_assignment(e)) {
     lhs <- e[[2]]

@@ -1,4 +1,4 @@
-##' Deprecated functions in orderly2. These functions still work (*for
+##' Deprecated functions in orderly. These functions still work (*for
 ##' now*) but will be removed shortly.  Please update your code.
 ##'
 ##' * `orderly_location_pull_packet`; please use [orderly_location_pull()]
@@ -7,8 +7,8 @@
 ##'
 ##' @param ... Arguments forwarded to the new version
 ##' @return See the linked pages above for the current return type.
-##' @rdname orderly2-deprecated
-##' @name orderly2-deprecated
+##' @rdname orderly-deprecated
+##' @name orderly-deprecated
 NULL
 
 

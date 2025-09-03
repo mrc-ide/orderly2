@@ -15,7 +15,7 @@
 ##'   orderly examples, but you may prefer to provide your own path,
 ##'   in which case the path must not already exist.
 ##'
-##' @param ... Arguments passed through to [orderly2::orderly_init()]
+##' @param ... Arguments passed through to [orderly::orderly_init()]
 ##'
 ##' @return Invisibly, the path to the example.
 ##' @export
@@ -25,7 +25,7 @@
 orderly_example <- function(..., names = NULL, example = "demo", dest = NULL) {
   if (is.null(dest)) {
     env <- find_calling_env("source")
-    dest <- withr::local_tempdir(pattern = "orderly2_ex_", .local_envir = env)
+    dest <- withr::local_tempdir(pattern = "orderly_ex_", .local_envir = env)
   } else {
     assert_scalar_character(dest)
     if (file.exists(dest)) {
@@ -96,7 +96,7 @@ orderly_example_show <- function(name, file = NULL, example = "demo") {
 
 
 orderly_example_path <- function(name, call = parent.frame()) {
-  path <- orderly2_file("examples")
+  path <- orderly_file("examples")
   valid <- dir(path)
   match_value(name, valid, call = call)
   file.path(path, name)

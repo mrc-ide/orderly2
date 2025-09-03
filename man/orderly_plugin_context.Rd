@@ -48,7 +48,7 @@ the state of a packet.  You will then typically call
 \code{\link[=orderly_plugin_add_metadata]{orderly_plugin_add_metadata()}} afterwards.
 }
 \details{
-When a plugin function is called, orderly2 will be running in one
+When a plugin function is called, orderly will be running in one
 of two modes; (1) from within \code{\link[=orderly_run]{orderly_run()}}, in
 which case we're part way through creating a packet in a brand new
 directory, and possibly using a special environment for
@@ -59,7 +59,7 @@ cope with either case.
 }
 \examples{
 # The example code from vignette("plugins") is available in the package
-fs::dir_tree(system.file("examples/example.db", package = "orderly2"))
+fs::dir_tree(system.file("examples/example.db", package = "orderly"))
 
 # See orderly_plugin_context in context here:
 orderly_example_show("R/plugin.R", example = "example.db")

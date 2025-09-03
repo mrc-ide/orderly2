@@ -19,7 +19,7 @@ path_server <- file.path(path, "server")
 path_sharepoint_alice <- file.path(path, "sharepoint")
 path_sharepoint_bob <- path_sharepoint_alice
 
-src <- system.file("examples/simple", package = "orderly2", mustWork = TRUE)
+src <- system.file("examples/simple", package = "orderly", mustWork = TRUE)
 fs::dir_copy(src, path_git)
 
 gert::git_init(path_git)
@@ -34,7 +34,7 @@ if (gert::git_branch(repo = path_git) == "master") {
 gert::git_clone(path_git, path_alice)
 gert::git_clone(path_git, path_bob)
 gert::git_clone(path_git, path_server)
-orderly2::orderly_init(path_server, use_file_store = TRUE, path_archive = NULL)
+orderly::orderly_init(path_server, use_file_store = TRUE, path_archive = NULL)
 
 knitr::opts_hooks$set(as = function(options) {
   options$class.source <- options$as
@@ -86,17 +86,17 @@ div pre.bob:after {
 }
 ```
 
-One of the core purposes of `orderly2` is to allow collaborative workflows. For this to work we need to be able to find packets that were run by someone else, somewhere else, or to share packets that we have run with others. To do that, `orderly2` has the idea of "locations".
+One of the core purposes of `orderly` is to allow collaborative workflows. For this to work we need to be able to find packets that were run by someone else, somewhere else, or to share packets that we have run with others. To do that, `orderly` has the idea of "locations".
 
-Locations behave in a similar way to "remotes" in `git`, and some of the terminology for interacting with them is similar (notably we can `pull` from and perhaps `push` to a location). However, we have used a different name because every `orderly2` working directory has at least one location - the `local` location - which is not remote at all. We also imagine that almost everyone using `orderly2` will be using `git` and as `git` remotes and `orderly2` locations refer to totally different things this slightly different terminology may help keep things clearer.
+Locations behave in a similar way to "remotes" in `git`, and some of the terminology for interacting with them is similar (notably we can `pull` from and perhaps `push` to a location). However, we have used a different name because every `orderly` working directory has at least one location - the `local` location - which is not remote at all. We also imagine that almost everyone using `orderly` will be using `git` and as `git` remotes and `orderly` locations refer to totally different things this slightly different terminology may help keep things clearer.
 
-Packets that are distributed by locations might have been created by `orderly2`, but may have been created by some other system that implements the `outpack` spec (see `vignette("metadata")`).  As a result, through this documentation you will see reference to software or details to do with `outpack` but if you only use `orderly2` then you can read that as being synonymous with `orderly2`.
+Packets that are distributed by locations might have been created by `orderly`, but may have been created by some other system that implements the `outpack` spec (see `vignette("metadata")`).  As a result, through this documentation you will see reference to software or details to do with `outpack` but if you only use `orderly` then you can read that as being synonymous with `orderly`.
 
 # Type of location
 
-`orderly2` supports two types of locations by default:
+`orderly` supports two types of locations by default:
 
-* `path`: these are any `orderly2` working copy that you can find on your filesystem. Note that this could be a copy that other people can see (for example on a network share, or on a cloud-synced file system such as Dropbox or OneDrive) see [Sharing packets with collaborators using a shared file system] for more details
+* `path`: these are any `orderly` working copy that you can find on your filesystem. Note that this could be a copy that other people can see (for example on a network share, or on a cloud-synced file system such as Dropbox or OneDrive) see [Sharing packets with collaborators using a shared file system] for more details
 * `http`: these require running an HTTP API, either via [`outpack_server`](https://github.com/mrc-ide/outpack_server) or [`packit`](https://github.com/mrc-ide/packit)
 
 The location system is somewhat extensible, but the details of this are subject to change.
@@ -106,7 +106,7 @@ All the documentation below will behave the same regardless of where the locatio
 # An example
 
 ```{r}
-library(orderly2)
+library(orderly)
 ```
 
 Suppose we have two researchers, [Alice and Bob](https://en.wikipedia.org/wiki/Alice_and_Bob), who are collaborating on a piece of analysis. For the purposes of this example (and we find the most common situation in practice) they share a source tree with their analysis in git.
@@ -125,52 +125,52 @@ fs::dir_tree(path_alice, all = TRUE, glob = ".git", invert = TRUE)
 At this point, after cloning Alice does not have the `.outpack` directory (see below)
 
 ```{r, as = "alice", orderly_root = path_alice, error = TRUE}
-orderly2::orderly_list_src()
+orderly::orderly_list_src()
 ```
 
 Alice needs to run `orderly::orderly_init()` first:
 
 ```{r, as = "alice"}
-orderly2::orderly_init(path_alice)
+orderly::orderly_init(path_alice)
 ```
 
 after which Alice can use orderly commands:
 
 ```{r, orderly_root = path_alice}
-orderly2::orderly_list_src()
+orderly::orderly_list_src()
 ```
 
-The plan is to work with Bob, sharing results on their shared "[Packit](https://github.com/mrc-ide/packit)" server, so Alice adds that to her `orderly2` configuration with `orderly2::orderly_location_add_packit()`:
+The plan is to work with Bob, sharing results on their shared "[Packit](https://github.com/mrc-ide/packit)" server, so Alice adds that to her `orderly` configuration with `orderly::orderly_location_add_packit()`:
 
 ```{r, include = FALSE, orderly_root = path_alice}
-orderly2::orderly_location_add_path("server", path = path_server)
+orderly::orderly_location_add_path("server", path = path_server)
 ```
 ```{r, eval = FALSE, as = "alice"}
-orderly2::orderly_location_add_packit("server", "http://packit.example.com")
+orderly::orderly_location_add_packit("server", "http://packit.example.com")
 ```
 
 Once done, she can run any analysis:
 
 ```{r, as = "alice", orderly_root = path_alice}
-id <- orderly2::orderly_run("data")
+id <- orderly::orderly_run("data")
 ```
 
 Perhaps it takes several goes for Alice to be happy with the analysis, but at some point she has something ready to share. She can then "push" the final packet up onto their server:
 
 ```{r, as = "alice", orderly_root = path_alice}
-orderly2::orderly_location_push(id, "server")
+orderly::orderly_location_push(id, "server")
 ```
 
 Now, consider Bob. He also needs the source code cloned, orderly initialised, and the server added:
 
 ```{r, as = "bob"}
-orderly2::orderly_init(path_bob)
+orderly::orderly_init(path_bob)
 ```
 ```{r, include = FALSE, orderly_root = path_bob}
-orderly2::orderly_location_add_path("server", path = path_server)
+orderly::orderly_location_add_path("server", path = path_server)
 ```
 ```{r, eval = FALSE, as = "bob"}
-orderly2::orderly_location_add_packit("server", "http://packit.example.com")
+orderly::orderly_location_add_packit("server", "http://packit.example.com")
 ```
 
 (Here, Bob has also used the name `server` to refer to their shared server, but could have used anything; this is similar to git's use of `origin`.)
@@ -178,7 +178,7 @@ orderly2::orderly_location_add_packit("server", "http://packit.example.com")
 Bob can now query for packets available on the server:
 
 ```{r, as = "bob", orderly_root = path_bob}
-orderly2::orderly_metadata_extract(
+orderly::orderly_metadata_extract(
   name = "data",
   allow_remote = TRUE, fetch_metadata = TRUE)
 ```
@@ -186,7 +186,7 @@ orderly2::orderly_metadata_extract(
 Having seen there is a new "data" packet here, he can pull this down locally (TODO: mrc-4414 makes this nicer):
 
 ```{r, as = "bob", orderly_root = path_bob}
-orderly2::orderly_location_pull(id)
+orderly::orderly_location_pull(id)
 ```
 
 Now Bob is in a position to develop against the same packet that Alice ran (`r id`)
@@ -207,13 +207,13 @@ When running their own packets, to make sure that the packet will run in a simil
 orderly_run(..., location = "server")
 ```
 
-and then pass this in to `orderly2::orderly_run` when running a report. In developing, Bob may find passing this into `orderly2::orderly_interactive_set_search_options()` helpful as that will mean that any calls to `orderly2::orderly_description()` will use only packets from the server.
+and then pass this in to `orderly::orderly_run` when running a report. In developing, Bob may find passing this into `orderly::orderly_interactive_set_search_options()` helpful as that will mean that any calls to `orderly::orderly_description()` will use only packets from the server.
 
 **Staging and production servers**: You might set up multiple servers, one or more for staging, and one for production. The staging servers are never the source of truth and you might (or might not) allow people to push to them, or have less strict rules about what gets run on them (perhaps allowing running packets from a feature branch). In this setting, users will end up with packets that were created locally, from staging machines and from the production server in their local archive. The staging server will probably end up with a mix of its own packets and packets from production.  The same approach with specifying search options as above will be useful here for choosing what is included in any final packet.
 
 # Pulling complete trees, or not
 
-When you pull packets from a server (with `orderly2::orderly_location_pull()`), depending on your settings you will either end up with just the packet that you request, or that packet **plus** all of its recursive dependencies. This is controlled by the configuration option `core.require_complete_tree`, which is `FALSE` by default; this is suitable for most users, but servers should be set with `core.require_complete_tree = TRUE`.
+When you pull packets from a server (with `orderly::orderly_location_pull()`), depending on your settings you will either end up with just the packet that you request, or that packet **plus** all of its recursive dependencies. This is controlled by the configuration option `core.require_complete_tree`, which is `FALSE` by default; this is suitable for most users, but servers should be set with `core.require_complete_tree = TRUE`.
 
 In most of the situations above, the users are never holding the canonical source of the packets - so it does not matter if they don't have all if their dependencies. They do hold all the metadata for all packets (again, recursively) and could download the dependencies later if they wanted to inspect them. Typically though, this would just be extra space used up on disk.
 
@@ -221,7 +221,7 @@ When you push a packet to a server, it always pushes the complete tree.
 
 # Moving as little data as possible
 
-When pulling packets, first the user pulls metadata from the server. When `orderly2::orderly_location_metadata_pull` is run, all metadata from the server is updated on the client (mrc-4444 will make this lazier). We now know everything the server holds, and the hashes of all the files contained in each packet.
+When pulling packets, first the user pulls metadata from the server. When `orderly::orderly_location_metadata_pull` is run, all metadata from the server is updated on the client (mrc-4444 will make this lazier). We now know everything the server holds, and the hashes of all the files contained in each packet.
 
 It is very likely that we already know of some of the files within a packet being requested, so the client first looks to see if these exist within its archive, verifying that they have not been changed.  It then requests from the server all the files that it cannot resolve locally. If doing a recursive pull (with `core.require_complete_tree = TRUE`) then we look at the union over all files in the set of packets that are currently missing from our archive. This is frequently much less than the full set of files within the packets.
 
@@ -236,19 +236,19 @@ This multi-step process means that we avoid copying data that is already known a
 
 # Interaction between source tree and `.outpack`
 
-It is important that the `.outpack` directory is *not* shared via git; we warn about this now, and you can use `orderly2::ordery_gitignore_update()` to automatically create a suitable `.gitignore` file that will prevent it being accidentally committed.
+It is important that the `.outpack` directory is *not* shared via git; we warn about this now, and you can use `orderly::ordery_gitignore_update()` to automatically create a suitable `.gitignore` file that will prevent it being accidentally committed.
 
 However,
 
 If Alice and Bob were starting on a new machine they would:
 
 * clone their source repository
-* run `orderly2::orderly_init()` from within the directory
-* run `orderly2` commands as normal
+* run `orderly::orderly_init()` from within the directory
+* run `orderly` commands as normal
 
-Without running `orderly2::orderly_init()`, they will get an error prompting them to initialise the repo.
+Without running `orderly::orderly_init()`, they will get an error prompting them to initialise the repo.
 
-There is no requirement for different repositories to share configuration options passed to `orderly2::orderly_init()`; so you can enable or disable the file store or have different sets of locations enabled, depending on your workflows. This means that there is, in practice, only an association _by convention_ between a set of related `orderly2` locations and their source tree and you can have an `orderly2` repository that points at locations that refer to different source trees!
+There is no requirement for different repositories to share configuration options passed to `orderly::orderly_init()`; so you can enable or disable the file store or have different sets of locations enabled, depending on your workflows. This means that there is, in practice, only an association _by convention_ between a set of related `orderly` locations and their source tree and you can have an `orderly` repository that points at locations that refer to different source trees!
 
 # Sharing packets with collaborators using a shared file system
 
@@ -257,7 +257,7 @@ One of the simplest ways to share packets with a collaborator is through a share
 1. Create a a new folder for your orderly remote in the shared file system. Here Alice has synced to `path_sharepoint_alice`.
 2. Initialise an orderly location on the shared file system
 ```{r as="alice"}
-orderly2::orderly_init(
+orderly::orderly_init(
   root = path_sharepoint_alice,
   path_archive = NULL,
   use_file_store = TRUE,
@@ -265,16 +265,16 @@ orderly2::orderly_init(
 )
 ```
 
-which creates an orderly store with a file store and a complete tree. See `orderly2::orderly_init()` for more details.
+which creates an orderly store with a file store and a complete tree. See `orderly::orderly_init()` for more details.
 
 3. Add this as a location
 ```{r, as="alice", orderly_root = path_alice}
-orderly2::orderly_location_add_path("sharepoint", path = path_sharepoint_alice)
+orderly::orderly_location_add_path("sharepoint", path = path_sharepoint_alice)
 ```
 
 4. Push any packets you want to share
 ```{r, as="alice", orderly_root = path_alice}
-orderly2::orderly_location_push(id, "sharepoint")
+orderly::orderly_location_push(id, "sharepoint")
 ```
 
 Then these will be available for your collaborator to pull. Note that the data is pushed into a file store in the `.outpack` directory. `.dot` files are considered hidden by your operating system, so if you have "show hidden files" off in your file browser you will not see the pushed packet. But your collaborator can now pull the shared file. To do so, they will have to:
@@ -283,10 +283,10 @@ Then these will be available for your collaborator to pull. Note that the data i
 
 2. Add the location
 ```{r, as="bob", orderly_root = path_bob}
-orderly2::orderly_location_add_path("alices_orderly", path_sharepoint_bob)
+orderly::orderly_location_add_path("alices_orderly", path_sharepoint_bob)
 ```
 
 3. Pull the metadata and use the packets as desired
 ```{r, as="bob", orderly_root = path_bob}
-orderly2::orderly_location_fetch_metadata("alices_orderly")
+orderly::orderly_location_fetch_metadata("alices_orderly")
 ```

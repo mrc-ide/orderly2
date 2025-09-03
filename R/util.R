@@ -23,7 +23,7 @@ is_assignment <- function(x) {
 
 is_orderly_ns_call <- function(x) {
   is.recursive(x) && is_call(x[[1]], "::") &&
-    as.character(x[[1]][[2]]) == "orderly2"
+    as.character(x[[1]][[2]]) == "orderly"
 }
 
 
@@ -235,7 +235,7 @@ ignore_errors <- function(expr) {
 
 
 current_orderly_version <- function() {
-  utils::packageVersion("orderly2")
+  utils::packageVersion("orderly")
 }
 
 
@@ -327,8 +327,8 @@ read_string <- function(path) {
 }
 
 
-orderly2_file <- function(path) {
-  system_file(path, package = "orderly2")
+orderly_file <- function(path) {
+  system_file(path, package = "orderly")
 }
 
 

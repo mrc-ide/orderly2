@@ -4,7 +4,7 @@
 ##' be deleted.
 ##'
 ##' After file deletion, we look through and remove all empty
-##' directories; orderly2 has similar semantics here to git where
+##' directories; orderly has similar semantics here to git where
 ##' directories are never directly tracked.
 ##'
 ##' For recent `gert` we will ask git if files are ignored; if ignored
@@ -56,7 +56,7 @@
 ##'
 ##' # We can detect what might want cleaning up by running
 ##' # "orderly_cleanup_status":
-##' orderly2::orderly_cleanup_status("data", root = path)
+##' orderly::orderly_cleanup_status("data", root = path)
 ##'
 ##' # Soon this will print more nicely to the screen, but for now you
 ##' # can see that the status of "data.rds" is "derived", which means
@@ -64,7 +64,7 @@
 ##' # "delete" element shows what will be deleted.
 ##'
 ##' # Do the actual deletion:
-##' orderly2::orderly_cleanup("data", root = path)
+##' orderly::orderly_cleanup("data", root = path)
 orderly_cleanup <- function(name = NULL, dry_run = FALSE, root = NULL) {
   status <- orderly_cleanup_status(name, root)
   n <- length(status$delete)
@@ -97,7 +97,7 @@ orderly_cleanup_status <- function(name = NULL, root = NULL) {
   is_active <- !is.null(p)
   if (is_active) {
     cli::cli_abort(
-      "Don't call 'orderly2::orderly_cleanup_status()' from a running packet",
+      "Don't call 'orderly::orderly_cleanup_status()' from a running packet",
       i = "The orderly_cleanup* functions are for interactive use only")
   }
 
@@ -182,7 +182,7 @@ print.orderly_cleanup_status <- function(x, ...) {
     if (length(x$delete) > 0) {
       cli::cli_alert_info(
         paste("{length(x$delete)} file{?s} can be deleted by running",
-              "'orderly2::orderly_cleanup({dquote(x$name)})':"))
+              "'orderly::orderly_cleanup({dquote(x$name)})':"))
       cli::cli_ul()
       cli::cli_li(x$delete)
       cli::cli_end()

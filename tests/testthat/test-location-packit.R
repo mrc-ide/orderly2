@@ -117,7 +117,7 @@ send_packit_request <- function(...) {
   # The oauth process is a bit more chatty than what we want for tests.
   suppressMessages({
     # The fully-qualified is need to be able to use this with callr.
-    orderly2:::orderly_location_packit(...)$verify()
+    orderly:::orderly_location_packit(...)$verify()
   })
 }
 

@@ -31,7 +31,7 @@ test_that("environment files must be really simple", {
 test_that("can validate minimum required version", {
   expect_error(
     orderly_config_validate_minimum_orderly_version("1.4.5", "orderly.yml"),
-    "Detected old orderly version, you need to migrate to orderly2",
+    "Detected old orderly project, you need to migrate to orderly 2",
     fixed = TRUE)
   expect_error(
     orderly_config_validate_minimum_orderly_version("99.0.0", "orderly.yml"),
@@ -39,6 +39,6 @@ test_that("can validate minimum required version", {
             current_orderly_version()),
     fixed = TRUE)
   expect_equal(
-    orderly_config_validate_minimum_orderly_version("1.99.0", "orderly.yml"),
-    numeric_version("1.99.0"))
+    orderly_config_validate_minimum_orderly_version("1.99.82", "orderly.yml"),
+    numeric_version("1.99.82"))
 })

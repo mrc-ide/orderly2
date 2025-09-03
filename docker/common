@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 PACKAGE_ROOT=$(realpath $HERE/..)
-PACKAGE_NAME=orderly2
+PACKAGE_NAME=orderly
 PACKAGE_ORG=mrcide
 
 # Buildkite doesn't check out a full history from the remote (just the

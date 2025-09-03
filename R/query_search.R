@@ -22,7 +22,7 @@
 ##' @param fetch_metadata Logical, indicating if we should pull
 ##'   metadata immediately before the search. If `location` is given,
 ##'   then we will pass this through to
-##'   [orderly2::orderly_location_fetch_metadata] to filter locations
+##'   [orderly::orderly_location_fetch_metadata] to filter locations
 ##'   to update.  If pulling many packets in sequence, you *will* want
 ##'   to update this option to `FALSE` after the first pull, otherwise
 ##'   it will update the metadata between every packet, which will be
@@ -79,13 +79,13 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 
 
 ##' Options for controlling how packet searches are carried out, for
-##' example via [orderly2::orderly_search] and
-##' [orderly2::orderly_run]. The details here are never included in
+##' example via [orderly::orderly_search] and
+##' [orderly::orderly_run]. The details here are never included in
 ##' the metadata alongside the query (that is, they're not part of the
 ##' query even though they affect it).
 ##'
-##' **DEPRECATED**: [orderly2::orderly_search] and
-##' [orderly2::orderly_run] now accept these arguments directly, which
+##' **DEPRECATED**: [orderly::orderly_search] and
+##' [orderly::orderly_run] now accept these arguments directly, which
 ##' is much easier to reason about and use.  A deprecation warning
 ##' will be thrown by those functions if you pass `options` in.
 ##'
@@ -97,7 +97,7 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##' @param allow_remote Logical, indicating if we should allow packets
 ##'   to be found that are not currently unpacked (i.e., are known
 ##'   only to a location that we have metadata from). If this is
-##'   `TRUE`, then in conjunction with [orderly2::orderly_dependency]
+##'   `TRUE`, then in conjunction with [orderly::orderly_dependency]
 ##'   you might pull a large quantity of data.  The default is `NULL`. This is
 ##'   `TRUE` if remote locations are listed explicitly as a character
 ##'   vector in the `location` argument, or if you have specified
@@ -106,7 +106,7 @@ orderly_search <- function(expr, name = NULL, scope = NULL, subquery = NULL,
 ##' @param pull_metadata Logical, indicating if we should pull
 ##'   metadata immediately before the search. If `location` is given,
 ##'   then we will pass this through to
-##'   [orderly2::orderly_location_fetch_metadata] to filter locations
+##'   [orderly::orderly_location_fetch_metadata] to filter locations
 ##'   to update.  If pulling many packets in sequence, you *will* want
 ##'   to update this option to `FALSE` after the first pull, otherwise
 ##'   it will update the metadata between every packet, which will be
@@ -354,7 +354,7 @@ query_eval_lookup_get <- function(name, data, data_name, expr, context) {
     data_name,
     parameters = query_eval_lookup_parameter(name, data),
     environment = query_eval_lookup_environment(name, data),
-    stop("unreachable [orderly2 bug]")) # nocov
+    stop("unreachable [orderly bug]")) # nocov
   if (!value$found) {
     msg <- sprintf("Did not find '%s' within given %s (containing %s)",
                    name, data_name,

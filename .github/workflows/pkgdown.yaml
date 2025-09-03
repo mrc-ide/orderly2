@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master, epic-poc]
   pull_request:
-    branches: [main, master, epic-poc]
+    branches: [main, master, mrc-*]
   release:
     types: [published]
   workflow_dispatch:

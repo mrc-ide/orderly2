@@ -35,7 +35,7 @@ compare_filesets <- function(target, current) {
 ##' @inheritParams orderly_metadata
 ##' @return An object of class orderly_comparison. The object can be printed to
 ##'  get a summary description of the differences, or passed to
-##'  [orderly2::orderly_comparison_explain] to display more details.
+##'  [orderly::orderly_comparison_explain] to display more details.
 ##'
 ##' @export
 ##' @examples
@@ -242,7 +242,7 @@ print.orderly_comparison <- function(x, ...) {
 ##' how much details.
 ##'
 ##' @param cmp An orderly_comparison object, as returned by
-##'  [orderly2::orderly_compare_packets].
+##'  [orderly::orderly_compare_packets].
 ##' @param attributes A character vector of attributes to include in the
 ##'  comparison. The values are keys of the packets' metadata, such as
 ##'  `parameters` or `files`. If NULL, the default, all attributes are compared,

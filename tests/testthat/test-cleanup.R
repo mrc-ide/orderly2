@@ -238,10 +238,10 @@ test_that("Don't call cleanup on an active packet", {
   path <- test_prepare_orderly_example("data")
   path_src <- file.path(path, "src", "data")
   append_lines(file.path(path_src, "data.R"),
-               "orderly2::orderly_cleanup_status()")
+               "orderly::orderly_cleanup_status()")
   expect_error(
     orderly_run_quietly("data", root = path, envir = new.env()),
-    "Don't call 'orderly2::orderly_cleanup_status()' from a running packet",
+    "Don't call 'orderly::orderly_cleanup_status()' from a running packet",
     fixed = TRUE)
 })
 
