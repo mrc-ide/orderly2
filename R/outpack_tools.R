@@ -65,7 +65,7 @@
 ##' * session: some information about the session that the packet was run in
 ##'   (this is unstandardised, and even the orderly version may change)
 ##' * custom: additional metadata added by its respective engine.  For
-##'   packets run by `orderly`, there will be a `orderly` field here,
+##'   packets run by `orderly`, there will be an `orderly` field here,
 ##'   which is itself a list:
 ##'   * artefacts: A [data.frame] with artefact information, containing
 ##'     columns `description` (a string) and `paths` (a list column of paths).
