@@ -4,15 +4,15 @@ orderly_context <- function(envir) {
   if (is_active) {
     path <- p$path
     root <- p$root$path
-    root_src <- p$orderly2$root
-    config <- p$orderly2$config
-    envir <- p$orderly2$envir
-    src <- p$orderly2$src
+    root_src <- p$orderly$root
+    config <- p$orderly$config
+    envir <- p$orderly$envir
+    src <- p$orderly$src
     parameters_values <- p$parameters
     parameters_spec <- NULL
     name <- p$name
     id <- p$id
-    search_options <- p$orderly2$search_options
+    search_options <- p$orderly$search_options
   } else {
     path <- getwd()
     root_src <- detect_orderly_interactive_path(path)
@@ -39,7 +39,7 @@ orderly_context <- function(envir) {
 ##' information about computed dependencies. This information is in a
 ##' slightly different format to orderly version 1.x and does not
 ##' (currently) include information about dependencies when run
-##' outside of [orderly2::orderly_run], but this was never reliable
+##' outside of [orderly::orderly_run], but this was never reliable
 ##' previously.
 ##'
 ##' @title Information about currently running report
@@ -52,7 +52,7 @@ orderly_context <- function(envir) {
 ##' * `depends`: A data frame with information about the dependencies
 ##'   (not available interactively)
 ##'     - `index`: an integer sequence along calls to
-##'       [`orderly2::orderly_dependency`]
+##'       [`orderly::orderly_dependency`]
 ##'     - `name`: the name of the dependency
 ##'     - `query`: the query used to find the dependency
 ##'     - `id`: the computed id of the included packet

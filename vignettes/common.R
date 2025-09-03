@@ -28,7 +28,7 @@ plain_output <- function(x) {
   lang_output(x, "plain")
 }
 orderly_file <- function(...) {
-  system.file(..., package = "orderly2", mustWork = TRUE)
+  system.file(..., package = "orderly", mustWork = TRUE)
 }
 
 inline <- function(x) {

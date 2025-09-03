@@ -1,5 +1,5 @@
 ##' Copy files from a packet to anywhere. Similar to
-##' [orderly2::orderly_dependency] except that this is not used in an
+##' [orderly::orderly_dependency] except that this is not used in an
 ##' active packet context. You can use this function to pull files
 ##' from an outpack root to a directory outside of the control of
 ##' outpack, for example. Note that all arguments need must be
@@ -11,7 +11,7 @@
 ##' or not this id is present.  If called with any other arguments
 ##' (e.g., a string that does not match the id format, or a named
 ##' argument `name`, `subquery` or `parameters`) then we interpret the
-##' arguments as a query and [orderly2::orderly_search] to find the
+##' arguments as a query and [orderly::orderly_search] to find the
 ##' id. It is an error if this query does not return exactly one
 ##' packet id, so you probably want to use `latest()`.
 ##'
@@ -22,7 +22,7 @@
 ##'   it's not unpacked but also not known to be present in some other
 ##'   remote) then this will fail because it's impossible to resolve
 ##'   the files. Consider refreshing the metadata with
-##'   [orderly2::orderly_location_fetch_metadata] to refresh this.
+##'   [orderly::orderly_location_fetch_metadata] to refresh this.
 ##' * if the `id` is not unpacked *and* no local copy of the files
 ##'   referred to can be found, we error by default (but see the next
 ##'   option). However, sometimes the file you refer to might also be
@@ -32,7 +32,7 @@
 ##' * if the `id` is not unpacked, there is no local copy of the file
 ##'   and if `allow_remote` is `TRUE` we will try and request the file
 ##'   from whatever remote would be selected by
-##'   [orderly2::orderly_location_pull] for this packet.
+##'   [orderly::orderly_location_pull] for this packet.
 ##'
 ##' Note that empty directories might be created on failure.
 ##'
@@ -168,7 +168,7 @@ orderly_copy_files <- function(expr, files, dest, overwrite = TRUE,
           file.path(root$path, root$config$core$path_archive, name, id))
         reason <- if (packet_exists) "locally modified" else "deleted"
         cmd <- sprintf(
-          'orderly2::orderly_validate_archive("%s", action = "orphan")', id)
+          'orderly::orderly_validate_archive("%s", action = "orphan")', id)
         cli::cli_abort(
           c("Unable to copy files, due to {reason} packet {id}",
             i = "Consider '{cmd}' to remove this packet from consideration"),

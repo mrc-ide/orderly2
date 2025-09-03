@@ -1,4 +1,4 @@
 library(testthat)
-library(orderly2)
+library(orderly)
 
-test_check("orderly2")
+test_check("orderly")

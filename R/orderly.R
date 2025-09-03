@@ -8,9 +8,9 @@
 ##' @inheritParams orderly_run
 ##'
 ##' @return A character vector of names of source reports, suitable
-##'   for passing to [orderly2::orderly_run]
+##'   for passing to [orderly::orderly_run]
 ##'
-##' @seealso [orderly2::orderly_metadata_extract] for listing packets
+##' @seealso [orderly::orderly_metadata_extract] for listing packets
 ##'   that have completed
 ##'
 ##' @export
@@ -91,7 +91,7 @@ orderly_new <- function(name, template = NULL, force = FALSE, root = NULL) {
   }
 
   if (is.null(template)) {
-    contents <- readLines(orderly2_file("template/default.R"))
+    contents <- readLines(orderly_file("template/default.R"))
   } else if (isFALSE(template)) {
     contents <- character()
   } else {

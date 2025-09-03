@@ -1,5 +1,5 @@
-pars <- orderly2::orderly_parameters(a = NULL)
-orderly2::orderly_dependency("parameters", "latest", c(input.rds = "data.rds"))
-orderly2::orderly_artefact("result.rds", description = "Processed data")
+pars <- orderly::orderly_parameters(a = NULL)
+orderly::orderly_dependency("parameters", "latest", c(input.rds = "data.rds"))
+orderly::orderly_artefact("result.rds", description = "Processed data")
 d <- readRDS("input.rds")
 saveRDS(lapply(d, function(x) x * 2), "result.rds")

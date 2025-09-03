@@ -1,18 +1,18 @@
 ---
-title: "orderly2"
+title: "orderly"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{orderly2}
+  %\VignetteIndexEntry{orderly}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-`orderly2` is a package designed with two complementary goals in mind:
+`orderly` is a package designed with two complementary goals in mind:
 
 1. to make analyses reproducible without significant effort on the part of the analyst
 2. to make it easy to collaborate on analyses by allowing easy sharing of artefacts from an analysis amongst a group of analysts.
 
-In this vignette we will expand on these two aims, and show that the first one is a prerequisite for the second. The second is more interesting though and we start there. If you just want to get started using `orderly2`, you might prefer `vignette("introduction")` and if you are already familiar with version 1 you might prefer `vignette("migrating")`.
+In this vignette we will expand on these two aims, and show that the first one is a prerequisite for the second. The second is more interesting though and we start there. If you just want to get started using `orderly`, you might prefer `vignette("introduction")` and if you are already familiar with version 1 you might prefer `vignette("migrating")`.
 
 # Collaborative analysis
 
@@ -55,7 +55,7 @@ This model of computation has lots of good points:
 * by tracking the way data flows through an analysis, it allows the minimum amount of recalculation to be done on change, with only downstream parts triggered
 * with a shared workspace or online runner, allows a degree of collaboration so long as everyone is happy to be working with a constantly changing set of code and analysis artefacts
 
-We have designed `orderly2` for working patterns that do not suit the above. Some motivating reasons include:
+We have designed `orderly` for working patterns that do not suit the above. Some motivating reasons include:
 
 * Some nodes in the computational graph are very expensive to compute or require exotic hardware.
 * Workflows where the upstream data never settle, but we need to know which version of the data ends up used in a particular analysis
@@ -78,8 +78,8 @@ Our approach flips the perspective around a bit, based on our experiences with c
 
 > Can we prove that a given set of inputs produced a given set of outputs?
 
-We quickly found that this was impossible, but provided a few systems were in place one could be satisfied with this statement to a given level of trust in a system. So if a piece of analysis comes from a server where the primary way people run analyses is through our web front-end (currently [OrderlyWeb](https://github.com/mrc-ide/orderly-web), soon to be [Packit](https://github.com/mrc-ide/packit)) we *know* that the analysis was run end-to-end with no modification and that `orderly2` preserves inputs alongside outputs so the files that are present in the final packet **were** the files that went into the analysis, and the recorded R and package versions **were** the full set that were used. 
+We quickly found that this was impossible, but provided a few systems were in place one could be satisfied with this statement to a given level of trust in a system. So if a piece of analysis comes from a server where the primary way people run analyses is through our web front-end (currently [OrderlyWeb](https://github.com/mrc-ide/orderly-web), soon to be [Packit](https://github.com/mrc-ide/packit)) we *know* that the analysis was run end-to-end with no modification and that `orderly` preserves inputs alongside outputs so the files that are present in the final packet **were** the files that went into the analysis, and the recorded R and package versions **were** the full set that were used. 
 
-Because this system naturally involves running on multiple machines (typically we will have the analysts' laptops, a server and perhaps an HPC environment), and because of the way that `orderly2` treats paths, practically there is very little problem getting analyses working in multiple places, trivially satisfying the typical reproducibility aim, even though it is not what people are typically focussed on.
+Because this system naturally involves running on multiple machines (typically we will have the analysts' laptops, a server and perhaps an HPC environment), and because of the way that `orderly` treats paths, practically there is very little problem getting analyses working in multiple places, trivially satisfying the typical reproducibility aim, even though it is not what people are typically focussed on.
 
-This shift in focus has proved valuable. In any analysis that is run on more than one occasion (e.g., regular reporting, or simply updating a figure for a final submission of a manuscript after revision), the outputs may change. Understanding *why* these changes have happened is important. Because `orderly2` automatically saves a lot of metadata about what was run it is easy to find out why things might have changed.  Further, you can start interrogating the graph among packets to find out what effect that change has had; so find all the previously run packets that pulled in the old version of a data set, or that used the previous release of a package.
+This shift in focus has proved valuable. In any analysis that is run on more than one occasion (e.g., regular reporting, or simply updating a figure for a final submission of a manuscript after revision), the outputs may change. Understanding *why* these changes have happened is important. Because `orderly` automatically saves a lot of metadata about what was run it is easy to find out why things might have changed.  Further, you can start interrogating the graph among packets to find out what effect that change has had; so find all the previously run packets that pulled in the old version of a data set, or that used the previous release of a package.

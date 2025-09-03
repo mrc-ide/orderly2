@@ -1,9 +1,9 @@
-##' Put orderly2 into "strict mode", which is closer to the defaults
+##' Put orderly into "strict mode", which is closer to the defaults
 ##' in orderly 1.0.0; in this mode only explicitly included files (via
-##' [orderly2::orderly_resource] and
-##' [orderly2::orderly_shared_resource]) are copied when running a
+##' [orderly::orderly_resource] and
+##' [orderly::orderly_shared_resource]) are copied when running a
 ##' packet, and we warn about any unexpected files at the end of the
-##' run.  Using strict mode allows orderly2 to be more aggressive in
+##' run.  Using strict mode allows orderly to be more aggressive in
 ##' how it deletes files within the source directory, more accurate in
 ##' what it reports to you, and faster to start packets after
 ##' developing them interactively.
@@ -28,7 +28,7 @@ orderly_strict_mode <- function() {
   p <- get_active_packet()
   if (!is.null(p)) {
     prevent_multiple_calls(p, "strict_mode", environment())
-    p$orderly2$strict <- static_orderly_strict_mode(list())
+    p$orderly$strict <- static_orderly_strict_mode(list())
   }
   invisible()
 }
@@ -217,7 +217,7 @@ orderly_description <- function(display = NULL, long = NULL, custom = NULL) {
   p <- get_active_packet()
   if (!is.null(p)) {
     prevent_multiple_calls(p, "description", environment())
-    p$orderly2$description <-
+    p$orderly$description <-
       list(display = display, long = long, custom = custom)
   }
   invisible()
@@ -255,12 +255,12 @@ static_orderly_description <- function(args) {
 ##' orderly_example_show("strict")
 orderly_resource <- function(files) {
   p <- get_active_packet()
-  src <- if (is.null(p)) "." else p$orderly2$src
+  src <- if (is.null(p)) "." else p$orderly$src
   assert_file_exists_relative(files, workdir = src, name = "Resource file",
                               call = environment())
   files_expanded <- expand_dirs(files, src)
   if (!is.null(p)) {
-    if (p$orderly2$strict$enabled) {
+    if (p$orderly$strict$enabled) {
       copy_files(file.path(src, files_expanded),
                  file.path(p$path, files_expanded))
     } else {
@@ -271,7 +271,7 @@ orderly_resource <- function(files) {
                                   name = "Resource file", call = environment())
     }
     outpack_packet_file_mark(p, files_expanded, "immutable")
-    p$orderly2$resources <- c(p$orderly2$resources, files_expanded)
+    p$orderly$resources <- c(p$orderly$resources, files_expanded)
   }
 
   invisible(files_expanded)
@@ -339,7 +339,7 @@ orderly_artefact <- function(description = NULL, files) {
   p <- get_active_packet()
   if (!is.null(p)) {
     artefact <- list(description = description, files = files)
-    p$orderly2$artefacts <- c(p$orderly2$artefacts, list(artefact))
+    p$orderly$artefacts <- c(p$orderly$artefacts, list(artefact))
   }
 
   invisible()
@@ -354,11 +354,11 @@ static_orderly_artefact <- function(args) {
 
 ##' Declare a dependency on another packet
 ##'
-##' See [orderly2::orderly_run] for some details about how search
+##' See [orderly::orderly_run] for some details about how search
 ##' options are used to select which locations packets are found from,
 ##' and if any data is fetched over the network. If you are running
 ##' interactively, this will obviously not work, so you should use
-##' [orderly2::orderly_interactive_set_search_options()] to set the
+##' [orderly::orderly_interactive_set_search_options()] to set the
 ##' options that this function will respond to.
 ##'
 ##' @title Declare a dependency
@@ -498,8 +498,8 @@ orderly_shared_resource <- function(...) {
 
   if (ctx$is_active) {
     outpack_packet_file_mark(ctx$packet, files$here, "immutable")
-    ctx$packet$orderly2$shared_resources <-
-      rbind(ctx$packet$orderly2$shared_resources, files)
+    ctx$packet$orderly$shared_resources <-
+      rbind(ctx$packet$orderly$shared_resources, files)
   }
 
   invisible(files)
@@ -589,10 +589,10 @@ get_active_packet <- function() {
 
 
 prevent_multiple_calls <- function(packet, name, call) {
-  if (!is.null(packet$orderly2[[name]])) {
-    entrypoint_filename <- find_entrypoint_filename(packet$orderly2$src)
+  if (!is.null(packet$orderly[[name]])) {
+    entrypoint_filename <- find_entrypoint_filename(packet$orderly$src)
     cli::cli_abort(
-      c("Only one call to 'orderly2::orderly_{name}' is allowed",
+      c("Only one call to 'orderly::orderly_{name}' is allowed",
         i = paste("You have already called this function earlier",
                   "in your {entrypoint_filename}")),
       call = call)
