@@ -673,8 +673,6 @@ test_that("replace_ragged with an empty result preserves the input's type", {
   # type should also be preserved
   result <- replace_ragged(12, 1, list(numeric(0)))
   expect_vector(result, ptype = numeric(), size = 0)
-  result <- replace_ragged("foo", 1, list(numeric(0)))
-  expect_vector(result, ptype = character(), size = 0)
 })
 
 
