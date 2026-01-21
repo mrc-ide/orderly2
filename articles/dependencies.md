@@ -1,0 +1,434 @@
+# Dependencies between packets
+
+One of the core aims of `orderly` is to allow collaborative analysis; to
+do this the end of one piece of work is an input for another piece of
+work, perhaps someone else’s. To make this work in practice, one
+`orderly` report can “depend” on some completed packet (or several
+completed packets) in order to pull in files as inputs.
+
+There are two levels that it is useful to think about dependencies:
+
+- At the level of the source report, as an instruction about what we
+  **intend** to depend on; this may or may not be satisfiable
+- At the level of a completed packet, as a record about what **was**
+  depended on
+
+This perspective differs somewhat from workflow managers where it is
+common to talk about “outdated dependencies” and have some single idea
+of an end result that a chain of dependencies builds up to.
+
+This vignette walks through some of the practical issues around creating
+and working with dependencies between reports, starting from simple
+cases (these will be familiar to users of `orderly1`) through to more
+advanced cases. We then cover how to interrogate the dependency graph
+and our ideas for extending this in future, and some practical issues
+around how dependencies interact with different locations (there is some
+overlap here with
+[`vignette("collaboration")`](https://mrc-ide.github.io/orderly/articles/collaboration.md),
+which we will highlight).
+
+``` r
+library(orderly)
+```
+
+## Using dependencies
+
+Here, we show how to practically use dependencies in a few common
+scenarios of increasing complexity. The code examples are purposefully
+too-simple in order to keep the presentation straightforward, see the
+end of this document for a discussion of how complex these pieces of
+code might “optimally” be.
+
+### Basic use
+
+The primary mechanism for using dependencies is to call
+[`orderly_dependency()`](https://mrc-ide.github.io/orderly/reference/orderly_dependency.md)
+from within an `orderly` file; this finds a suitable completed packet
+and copies files that are found from within that packet into your
+current report.
+
+    ## src
+    ## ├── analysis
+    ## │   └── analysis.R
+    ## └── data
+    ##     ├── data.R
+    ##     └── data.csv
+
+and `src/analysis/analysis.R` contains:
+
+``` r
+orderly_dependency("data", "latest()", "data.rds")
+d <- readRDS("data.rds")
+png("analysis.png")
+plot(y ~ x, d)
+dev.off()
+```
+
+Here, we’ve used
+[`orderly_dependency()`](https://mrc-ide.github.io/orderly/reference/orderly_dependency.md)
+to pull in the file `data.rds` from the most recent version (`latest()`)
+of the `data` packet, then we’ve used that file as normal to make a
+plot, which we’ve saved as `analysis.png` (this is very similar to the
+example from
+[`vignette("introduction")`](https://mrc-ide.github.io/orderly/articles/introduction.md),
+to get us started).
+
+``` r
+id1 <- orderly_run("data")
+## ℹ Starting packet 'data' `20260121-095942-5731322f` at 2026-01-21 09:59:42.344824
+## > d <- read.csv("data.csv")
+## > d$z <- resid(lm(y ~ x, d))
+## > saveRDS(d, "data.rds")
+## ✔ Finished running data.R
+## ℹ Finished 20260121-095942-5731322f at 2026-01-21 09:59:42.379648 (0.03482437 secs)
+id2 <- orderly_run("analysis")
+## ℹ Starting packet 'analysis' `20260121-095942-692b0973` at 2026-01-21 09:59:42.414885
+## > orderly_dependency("data", "latest()", "data.rds")
+## ℹ Depending on data @ `20260121-095942-5731322f` (via latest(name == "data"))
+## > d <- readRDS("data.rds")
+## > png("analysis.png")
+## > plot(y ~ x, d)
+## > dev.off()
+## agg_png 
+##       2
+## ✔ Finished running analysis.R
+## ℹ Finished 20260121-095942-692b0973 at 2026-01-21 09:59:42.492422 (0.07753778 secs)
+```
+
+When we look at the metadata for the packet created from the `analysis`
+report, we can see it has used `20260121-095942-5731322f` as its
+dependency:
+
+``` r
+orderly_metadata(id2)$depends
+##                     packet                  query        files
+## 1 20260121-095942-5731322f latest(name == "data") data.rds....
+```
+
+(indeed it had to, there is only one copy of the `data` packet to pick
+from).
+
+### Filtering candidates by parameters
+
+In the above example, our query was as simple as it could be — the most
+recently created packet with the name `data`. One common pattern we see
+is that an analysis might have a parameter (for example a country name)
+and a downstream analysis might share that parameter and want to pull in
+data for a country.
+
+    ## src
+    ## ├── analysis
+    ## │   └── analysis.R
+    ## └── data
+    ##     └── data.R
+
+with `src/data/data.R` containing:
+
+``` r
+pars <- orderly_parameters(cyl = NULL)
+d <- mtcars[mtcars$cyl == pars$cyl, ]
+saveRDS(d, "data.rds")
+```
+
+We can run this for several values of `cyl`:
+
+``` r
+orderly_run("data", list(cyl = 4))
+## ℹ Starting packet 'data' `20260121-095942-d1c9aa05` at 2026-01-21 09:59:42.823842
+## ℹ Parameters:
+## • cyl: 4
+## > pars <- orderly_parameters(cyl = NULL)
+## > d <- mtcars[mtcars$cyl == pars$cyl, ]
+## > saveRDS(d, "data.rds")
+## ✔ Finished running data.R
+## ℹ Finished 20260121-095942-d1c9aa05 at 2026-01-21 09:59:42.854466 (0.03062367 secs)
+## [1] "20260121-095942-d1c9aa05"
+orderly_run("data", list(cyl = 6))
+## ℹ Starting packet 'data' `20260121-095942-e0908ba3` at 2026-01-21 09:59:42.88122
+## ℹ Parameters:
+## • cyl: 6
+## > pars <- orderly_parameters(cyl = NULL)
+## > d <- mtcars[mtcars$cyl == pars$cyl, ]
+## > saveRDS(d, "data.rds")
+## ✔ Finished running data.R
+## ℹ Finished 20260121-095942-e0908ba3 at 2026-01-21 09:59:42.908195 (0.02697515 secs)
+## [1] "20260121-095942-e0908ba3"
+orderly_run("data", list(cyl = 8))
+## ℹ Starting packet 'data' `20260121-095942-ee0a82cd` at 2026-01-21 09:59:42.933936
+## ℹ Parameters:
+## • cyl: 8
+## > pars <- orderly_parameters(cyl = NULL)
+## > d <- mtcars[mtcars$cyl == pars$cyl, ]
+## > saveRDS(d, "data.rds")
+## ✔ Finished running data.R
+## ℹ Finished 20260121-095942-ee0a82cd at 2026-01-21 09:59:42.963473 (0.02953625 secs)
+## [1] "20260121-095942-ee0a82cd"
+```
+
+Our follow-on analysis contains:
+
+``` r
+pars <- orderly_parameters(cyl = NULL)
+orderly_dependency(
+  "data",
+  "latest(parameter:cyl == this:cyl)",
+  "data.rds")
+d <- readRDS("data.rds")
+png("analysis.png")
+plot(mpg ~ disp, d)
+dev.off()
+```
+
+Here the query `latest(parameter:cyl == this:cyl)` says “find the most
+recent packet where it’s parameter”cyl” (`parameter:cyl`) is the same as
+the parameter in the currently running report (`this:cyl`).
+
+``` r
+orderly_run("analysis", list(cyl = 4))
+## ℹ Starting packet 'analysis' `20260121-095943-190d614a` at 2026-01-21 09:59:43.102001
+## ℹ Parameters:
+## • cyl: 4
+## > pars <- orderly_parameters(cyl = NULL)
+## > orderly_dependency(
+## +   "data",
+## +   "latest(parameter:cyl == this:cyl)",
+## +   "data.rds")
+## ℹ Depending on data @ `20260121-095942-d1c9aa05` (via latest(parameter:cyl == this:cyl && name == "data"))
+## > d <- readRDS("data.rds")
+## > png("analysis.png")
+## > plot(mpg ~ disp, d)
+## > dev.off()
+## agg_png 
+##       2
+## ✔ Finished running analysis.R
+## ℹ Finished 20260121-095943-190d614a at 2026-01-21 09:59:43.162131 (0.06013012 secs)
+## [1] "20260121-095943-190d614a"
+```
+
+### Interpreting errors
+
+If your query fails to resolve a candidate it will error:
+
+``` r
+orderly_run("analysis", list(cyl = 9000))
+## ℹ Starting packet 'analysis' `20260121-095943-3d382752` at 2026-01-21 09:59:43.243243
+## ℹ Parameters:
+## • cyl: 9000
+## > pars <- orderly_parameters(cyl = NULL)
+## > orderly_dependency(
+## +   "data",
+## +   "latest(parameter:cyl == this:cyl)",
+## +   "data.rds")
+## ✖ Error running analysis.R
+## ℹ Finished 20260121-095943-3d382752 at 2026-01-21 09:59:43.306015 (0.06277156 secs)
+## Error in `orderly_run()`:
+## ! Failed to run report
+## Caused by error in `outpack_packet_use_dependency()`:
+## ! Failed to find packet for query 'latest(parameter:cyl == this:cyl &&
+##   name == "data")'
+## ℹ See 'rlang::last_error()$explanation' for details
+```
+
+The error message here tries to be fairly self explanatory; we have
+failed to find a packet that satisfies our
+query`latest(parameter:cyl == this:cyl && name == "data")`; note that
+the report name `data` has become part of this query, so there are two
+conditions being matched on.
+
+The error suggests running `rlang::last_error()$explanation` for more
+information, which we can do:
+
+``` r
+rlang::last_error()$explanation
+## Evaluated query: 'latest(A && B)' and found 0 packets
+## • A (parameter:cyl == this:cyl): 0 packets
+## 
+## • B (name == "data"): 3 packets
+```
+
+This is an `orderly_query_explain` object, which tries to come up with
+reasons why your query might not have matched; we’ll expand this in the
+future so let us know what you might like to see.
+
+This tells you that your query can be decomposed into two subqueries `A`
+(the match against the parameter `cyl` being 9000), which matched no
+packets and `B` (the match against the packet name being `data`), which
+matched 3 packets. If each subquery matched packets but some *pairs*
+don’t then it will try and guide you towards problematic pairs.
+
+You can also ask `orderly` to explain any query for you:
+
+``` r
+orderly_query_explain(
+  quote(latest(parameter:cyl == 9000)), name = "data")
+## Evaluated query: 'latest(A && B)' and found 0 packets
+## • A (parameter:cyl == 9000): 0 packets
+## 
+## • B (name == "data"): 3 packets
+```
+
+If you save this object you can explore it in more detail:
+
+``` r
+explanation <- orderly_query_explain(
+  quote(latest(parameter:cyl == 9000)), name = "data")
+explanation$parts$B
+## $name
+## [1] "B"
+## 
+## $str
+## [1] "name == \"data\""
+## 
+## $expr
+## name == "data"
+## 
+## $n
+## [1] 3
+## 
+## $found
+## [1] "20260121-095942-d1c9aa05" "20260121-095942-e0908ba3"
+## [3] "20260121-095942-ee0a82cd"
+```
+
+(this would have worked with `rlang::last_error()$explanation$parts$A`
+too).
+
+You can also use `orderly_metadata_extract` to work out what values you
+might have looked for:
+
+``` r
+orderly_metadata_extract(
+  name = "data",
+  extract = c(cyl = "parameters.cyl is number"))
+##                         id cyl
+## 1 20260121-095942-d1c9aa05   4
+## 2 20260121-095942-e0908ba3   6
+## 3 20260121-095942-ee0a82cd   8
+```
+
+### Filtering candidates in other ways
+
+Above we saw two types of filtering candidates: `latest()` selected the
+most recent packet while `latest(parameter:cyl == this:cyl)` found a
+packet whose parameter matched one of our parameters.
+
+We could have used `latest(parameter:cyl == 4)` to hard code in a
+specific parameter value, and used
+`latest(parameter:cyl == environment:cyl)` to match against whatever
+value `cyl` took in the evaluating environment.
+
+Instead of a query, you can provide a single id (e.g,
+`20260121-095943-190d614a`), which would mean that even as new copies of
+the `data` packet are created, this dependency will always resolve to
+the same value.
+
+You can chain together logical operations with `&&` (both sides must be
+true) or `||` (either side must be true), and group conditions with
+parentheses. In addition to `==`, the usual complement of comparison
+operators will work. So you might have complex queries like
+
+``` r
+latest((parameter:x == 1 || parameter:x == 2) && parameter:y > 10)
+```
+
+but in practice most people have queries that are a series of
+restrictions with `&&`.
+
+### Computing dependencies and using many dependencies at once
+
+One common pattern is the map-reduce pattern over a set of `orderly`
+reports. With this, a set of packets are created over a vector of
+parameters, or perhaps a chain of different reports for each parameter,
+then they are all combined together. For some parameter `p` that takes
+values “x”, “y” and “z”, this might look like:
+
+        B(p = "x") -- C(p = "x")
+      /                          \
+    A - B(p = "y") -- C(p = "y") - D
+      \                          /
+        B(p = "z") -- C(p = "z")
+
+So here, D will want to combine all of the three copies of the `C`
+packet, one for each of `p` as “x”, “y” and “z”.
+
+Especially if there are only three values and these are hard coded, you
+might just write it out as
+
+``` r
+orderly_dependency("C", quote(latest(parameter:p == "x")),
+                   c("data/x.rds" = "result.rds"))
+orderly_dependency("C", quote(latest(parameter:p == "y")),
+                   c("data/y.rds" = "result.rds"))
+orderly_dependency("C", quote(latest(parameter:p == "z")),
+                   c("data/z.rds" = "result.rds"))
+```
+
+Note here that in each call we vary the second argument to select a
+different parameter value, and in the third argument we are naming our
+destination file a different name (so we end up with three files in
+`data/`).
+
+You can write this out as a `for` loop:
+
+``` r
+for (p in c("x", "y", "z")) {
+  orderly_dependency("C", quote(latest(parameter:p == environment:p)),
+                               c("data/${p}.rds" = "result.rds"))
+}
+```
+
+Here, in the second argument we use `environment:p` to fetch the value
+of `p` from the calling environment - this is the looping value so will
+take all three values. In the name of the third argument, we use the
+special interpolation format `${p}` to substitute in the value of `p` to
+build a filename.
+
+## How dependencies interact with locations
+
+By default, any packet that you have unpacked on your local archive is
+considered a candidate for inclusion by
+[`orderly_dependency()`](https://mrc-ide.github.io/orderly/reference/orderly_dependency.md).
+This is not always what you want.
+
+The locations that are selected, and the packets within them that are
+considered as candidates can be controlled by the `location`,
+`allow_remote` and `fetch_metadata` arguments to `orderly_run` (note
+that the argument is to
+[`orderly_run()`](https://mrc-ide.github.io/orderly/reference/orderly_run.md),
+not to
+[`orderly_dependency()`](https://mrc-ide.github.io/orderly/reference/orderly_dependency.md)
+because this is an effect controlled by the *runner* of the report, not
+the *writer* of the report):
+
+- `location`: is a character vector of locations, matching your location
+  names. Only packets that can be found at these locations will be
+  considered. So if you have a mix of locally created packets as well as
+  ones that other people can see, specifying `location = "server"` would
+  limit to packets that are available on the server, which means that
+  you will end up with dependencies that you colleagues would also get.
+- `allow_remote`: controls if we are willing to download files from a
+  location in order to satisfy a dependency. If `TRUE`, then when you
+  run the report, it might download files if more recent packets are
+  available on a location than what you have locally.
+- `fetch_metadata`: only has an effect if `allow_remote` is also `TRUE`;
+  this causes the metadata to be refreshed before dependency resolution.
+
+There is further discussion of the details in
+[`?orderly_run`](https://mrc-ide.github.io/orderly/reference/orderly_run.md)
+
+## Other points
+
+If you are used to systems like `targets`, it is easy to make reports
+smaller than they need to be, and most users start by making their
+`orderly` reports too small. There’s no real need to make these very
+small, and picking the right size is a challenge.
+
+If they are too small, you’ll end up writing a lot of code to
+orchestrate running different reports and pulling things together.
+You’ll end spending a lot of time about whether things are “up to date”
+with one another because really a group of things always wants to run
+together.
+
+If they’re too big then you might end up doing more work than you want
+to do, because in order to make a change to part of a piece of analysis
+you must run the whole thing again.

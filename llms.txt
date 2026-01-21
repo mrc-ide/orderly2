@@ -1,0 +1,250 @@
+# orderly
+
+> 1.  an attendant in a hospital responsible for the non-medical care of
+>     patients and the maintenance of order and cleanliness.
+> 2.  a soldier who carries orders or performs minor tasks for an
+>     officer.
+
+`orderly` is a package designed to help make analysis more reproducible.
+Its principal aim is to automate a series of basic steps in the process
+of writing analyses, making it easy to:
+
+- track all inputs into an analysis (packages, code, and data resources)
+- store multiple versions of an analysis where it is repeated
+- track outputs of an analysis
+- create analyses that depend on the outputs of previous analyses
+
+You can [watch a short
+talk](https://www.youtube.com/watch?v=lkPgihFQbrk) that describes the
+ideas in the package, and why it differs to other approaches to
+reproducibility and workflows.
+
+## Get started
+
+Two vignettes provide an overview of the package, depending on your
+tastes:
+
+- [`vignette("orderly")`](https://mrc-ide.github.io/orderly/articles/orderly.md)
+  describes the problem that `orderly` tries to solve ([read on package
+  website](https://mrc-ide.github.io/orderly/articles/orderly.html))
+- [`vignette("introduction")`](https://mrc-ide.github.io/orderly/articles/introduction.md)
+  describes `orderly` by example, walking through the basic features
+  ([read on package
+  website](https://mrc-ide.github.io/orderly/articles/introduction.html))
+
+There is also an [orderly
+tutorial](https://mrc-ide.github.io/orderly-tutorial/) from a 3-hour
+interactive session.
+
+## Installation
+
+Install `orderly` from CRAN with
+
+    install.packages("orderly")
+
+To get the current development version, please install from our
+[r-universe](https://mrc-ide.r-universe.dev/):
+
+``` r
+install.packages(
+  "orderly",
+  repos = c("https://mrc-ide.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+If you prefer, you can install from GitHub with `remotes`:
+
+``` r
+remotes::install_github("mrc-ide/orderly", upgrade = FALSE)
+```
+
+## History
+
+This package is a ground-up rewrite of our original [`orderly` version
+1](https://vimc.github.io/orderly1/) package, which is now ready for use
+on all projects, including migrating projects created with the original
+package.
+
+The original `orderly` package has now been renamed
+[`orderly1`](https://vimc.github.io/orderly1/), and will be preserved
+and installable for use with historical projects without the need to
+migrate, though this version of the package is no longer available from
+CRAN.
+
+A migration path for existing users is described in
+[`vignette("migrating")`](https://mrc-ide.github.io/orderly/articles/migrating.md).
+
+The web framework [`OrderlyWeb`](https://github.com/vimc/orderly-web)
+has been rewritten as [`packit`](https://github.com/mrc-ide/packit).
+
+## Testing
+
+To run all tests, you need to have
+[`outpack_server`](https://github.com/mrc-ide/outpack_server) available
+on your system path. One way to achieve this is to run
+
+    cargo install --git https://github.com/mrc-ide/outpack_server
+
+If you want to force validation of schemas during testing, set the R
+option `orderly.schema_validate` to `TRUE`. This will automatically be
+set on CI (as detected by the `CI` environment variable) and will be
+enabled if `jsonvalidate` is installed. Set the option
+`orderly.schema_validate` as `FALSE` to disable checking.
+
+## Licence
+
+MIT © Imperial College of Science, Technology and Medicine
+
+# Package index
+
+## Run a report
+
+- [`orderly_run()`](https://mrc-ide.github.io/orderly/reference/orderly_run.md)
+  : Run a report
+- [`orderly_list_src()`](https://mrc-ide.github.io/orderly/reference/orderly_list_src.md)
+  : List source reports
+
+## From within a running report
+
+These are the functions that get called from your orderly file
+
+- [`orderly_strict_mode()`](https://mrc-ide.github.io/orderly/reference/orderly_strict_mode.md)
+  : Enable orderly strict mode
+- [`orderly_parameters()`](https://mrc-ide.github.io/orderly/reference/orderly_parameters.md)
+  : Declare orderly parameters
+- [`orderly_description()`](https://mrc-ide.github.io/orderly/reference/orderly_description.md)
+  : Describe the current packet
+- [`orderly_resource()`](https://mrc-ide.github.io/orderly/reference/orderly_resource.md)
+  : Declare orderly resources
+- [`orderly_shared_resource()`](https://mrc-ide.github.io/orderly/reference/orderly_shared_resource.md)
+  : Copy shared resources into a packet directory
+- [`orderly_dependency()`](https://mrc-ide.github.io/orderly/reference/orderly_dependency.md)
+  : Declare a dependency
+- [`orderly_artefact()`](https://mrc-ide.github.io/orderly/reference/orderly_artefact.md)
+  : Declare orderly artefacts
+- [`orderly_run_info()`](https://mrc-ide.github.io/orderly/reference/orderly_run_info.md)
+  : Information about currently running report
+
+## Read packet metadata
+
+- [`orderly_metadata()`](https://mrc-ide.github.io/orderly/reference/orderly_metadata.md)
+  : Read outpack metadata
+- [`orderly_metadata_read()`](https://mrc-ide.github.io/orderly/reference/orderly_metadata_read.md)
+  : Read outpack metadata json file
+- [`orderly_metadata_extract()`](https://mrc-ide.github.io/orderly/reference/orderly_metadata_extract.md)
+  : Extract metadata from orderly packets
+
+## Search
+
+- [`orderly_query()`](https://mrc-ide.github.io/orderly/reference/orderly_query.md)
+  : Construct outpack query
+- [`orderly_search_options()`](https://mrc-ide.github.io/orderly/reference/orderly_search_options.md)
+  : Packet search options
+- [`orderly_search()`](https://mrc-ide.github.io/orderly/reference/orderly_search.md)
+  : Query orderly's database
+- [`orderly_query_explain()`](https://mrc-ide.github.io/orderly/reference/orderly_query_explain.md)
+  : Explain a query
+
+## Initialise and configure
+
+- [`orderly_init()`](https://mrc-ide.github.io/orderly/reference/orderly_init.md)
+  : Initialise an orderly repository
+- [`orderly_config()`](https://mrc-ide.github.io/orderly/reference/orderly_config.md)
+  : Read configuration
+- [`orderly_config_set()`](https://mrc-ide.github.io/orderly/reference/orderly_config_set.md)
+  : Set configuration options
+
+## Interact with locations
+
+### Manage locations
+
+- [`orderly_location_add()`](https://mrc-ide.github.io/orderly/reference/orderly_location_add.md)
+  [`orderly_location_add_path()`](https://mrc-ide.github.io/orderly/reference/orderly_location_add.md)
+  [`orderly_location_add_http()`](https://mrc-ide.github.io/orderly/reference/orderly_location_add.md)
+  [`orderly_location_add_packit()`](https://mrc-ide.github.io/orderly/reference/orderly_location_add.md)
+  : Add a new location
+- [`orderly_location_list()`](https://mrc-ide.github.io/orderly/reference/orderly_location_list.md)
+  : List known pack locations
+- [`orderly_location_remove()`](https://mrc-ide.github.io/orderly/reference/orderly_location_remove.md)
+  : Remove a location
+- [`orderly_location_rename()`](https://mrc-ide.github.io/orderly/reference/orderly_location_rename.md)
+  : Rename a location
+
+### Use locations
+
+- [`orderly_location_fetch_metadata()`](https://mrc-ide.github.io/orderly/reference/orderly_location_fetch_metadata.md)
+  : Fetch metadata from a location
+- [`orderly_location_pull()`](https://mrc-ide.github.io/orderly/reference/orderly_location_pull.md)
+  : Pull one or more packets from a location
+- [`orderly_location_push()`](https://mrc-ide.github.io/orderly/reference/orderly_location_push.md)
+  : Push tree to location
+
+## Help for developing
+
+- [`orderly_new()`](https://mrc-ide.github.io/orderly/reference/orderly_new.md)
+  : Create a new report
+- [`orderly_cleanup()`](https://mrc-ide.github.io/orderly/reference/orderly_cleanup.md)
+  [`orderly_cleanup_status()`](https://mrc-ide.github.io/orderly/reference/orderly_cleanup.md)
+  : Clean up source directory
+- [`orderly_gitignore_update()`](https://mrc-ide.github.io/orderly/reference/orderly_gitignore_update.md)
+  : Update a gitignore file
+- [`orderly_interactive_set_search_options()`](https://mrc-ide.github.io/orderly/reference/orderly_interactive_set_search_options.md)
+  : Set search options for interactive use
+
+## Create plugins
+
+- [`orderly_plugin_add_metadata()`](https://mrc-ide.github.io/orderly/reference/orderly_plugin_add_metadata.md)
+  : Add metadata from plugin
+- [`orderly_plugin_context()`](https://mrc-ide.github.io/orderly/reference/orderly_plugin_context.md)
+  : Fetch plugin context
+- [`orderly_plugin_register()`](https://mrc-ide.github.io/orderly/reference/orderly_plugin_register.md)
+  : Register an orderly plugin
+
+## Everything else
+
+- [`orderly_copy_files()`](https://mrc-ide.github.io/orderly/reference/orderly_copy_files.md)
+  : Copy files from a packet
+- [`orderly_example()`](https://mrc-ide.github.io/orderly/reference/orderly_example.md)
+  : Copy a simple orderly example
+- [`orderly_example_show()`](https://mrc-ide.github.io/orderly/reference/orderly_example_show.md)
+  : Show an example file
+- [`orderly_prune_orphans()`](https://mrc-ide.github.io/orderly/reference/orderly_prune_orphans.md)
+  : Prune orphan packet metadata
+- [`orderly_validate_archive()`](https://mrc-ide.github.io/orderly/reference/orderly_validate_archive.md)
+  : Validate unpacked packets.
+- [`orderly_hash_file()`](https://mrc-ide.github.io/orderly/reference/orderly_hash.md)
+  [`orderly_hash_data()`](https://mrc-ide.github.io/orderly/reference/orderly_hash.md)
+  : Compute a hash
+- [`orderly_parse_file()`](https://mrc-ide.github.io/orderly/reference/orderly_parse_file.md)
+  [`orderly_parse_expr()`](https://mrc-ide.github.io/orderly/reference/orderly_parse_file.md)
+  : Parse the orderly entrypoint script
+- [`orderly_compare_packets()`](https://mrc-ide.github.io/orderly/reference/orderly_compare_packets.md)
+  : Compare the metadata and contents of two packets.
+- [`orderly_comparison_explain()`](https://mrc-ide.github.io/orderly/reference/orderly_comparison_explain.md)
+  : Print the details of a packet comparison.
+- [`orderly_migrate_source()`](https://mrc-ide.github.io/orderly/reference/orderly_migrate_source.md)
+  : Migrate orderly source code
+
+# Articles
+
+### Introduction
+
+- [orderly](https://mrc-ide.github.io/orderly/articles/orderly.md):
+- [Introduction to
+  orderly](https://mrc-ide.github.io/orderly/articles/introduction.md):
+- [Dependencies between
+  packets](https://mrc-ide.github.io/orderly/articles/dependencies.md):
+- [Collaborative
+  analysis](https://mrc-ide.github.io/orderly/articles/collaboration.md):
+- [Troubleshooting](https://mrc-ide.github.io/orderly/articles/troubleshooting.md):
+
+### Advanced topics
+
+- [Migrating from orderly
+  (1.x)](https://mrc-ide.github.io/orderly/articles/migrating.md):
+- [Outpack
+  metadata](https://mrc-ide.github.io/orderly/articles/metadata.md):
+- [Orderly query
+  DSL](https://mrc-ide.github.io/orderly/articles/query.md):
+- [Creating
+  plugins](https://mrc-ide.github.io/orderly/articles/plugins.md):
+- [Details](https://mrc-ide.github.io/orderly/articles/details.md):
